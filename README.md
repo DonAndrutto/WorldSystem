@@ -1,52 +1,65 @@
-# WorldSystem
+# The World System — Abhidharma Cosmology
 
-An interactive 3D model of the Buddhist world-system — འཇིག་རྟེན་གྱི་ཁམས། (*'jig rten gyi khams*) —
-built for translators. Mount Meru on its golden ground, the seven golden mountain
-walls and the seven seas between them, the great salt ocean with the four continents
-and their eight satellites, the iron rim that closes the world, the sun and moon on
-their circuit, and the abodes stacked above.
+An interactive 3D model of the Buddhist world system, after Vasubandhu's
+*Abhidharmakośa* III and Jamgön Kongtrul's *Myriad Worlds*: Mount Meru, the seven
+golden ranges, the four continents and the twenty-eight realms above and below them.
 
-Every feature carries its Tibetan (Unicode and Wylie), Sanskrit, English and Polish
-names, its measurements in དཔག་ཚད། (*dpag tshad*, yojana), and a note on where the
-tradition sets it and why the term is rendered the way it is.
+Click any part to open its entry; drag to orbit, scroll to zoom.
 
 ## Files
 
 | file | what it is |
 | --- | --- |
-| `world-system.html` | The page: the cosmology, the terminology, and all of the interface. Open it in a browser — nothing to build or install. |
-| `three-d-stage.js` | A small, dependency-light 3D stage on top of three.js: renderer, damped orbit controls, lighting, starfield, an HTML label layer that tracks 3D anchors and declutters itself, pointer picking, and a resize-aware render loop. Reusable on its own. |
+| `world-system.html` | The page — the model, the index of 154 entries, the maṇḍala mode, and all of the interface. |
+| `three-d-stage.js` | The `<three-d-stage>` custom element it imports: WebGL renderer, studio lighting with a soft ground shadow, orbit controls, an auto-framed camera, and OBJ + MTL / GLB export. |
 
-`world-system.html` loads three.js r128 from a CDN (cdnjs, falling back to jsDelivr),
-so the first load needs a network connection. Everything else is local.
+Open `world-system.html` over HTTP (not `file://` — it uses ES modules). three.js
+0.184.0 loads from unpkg through the pinned import map in the head, with integrity
+hashes; the fonts are EB Garamond and IBM Plex Mono from Google Fonts. Nothing else
+is fetched: the sun and moon glows and the cloud backdrop are drawn onto canvases at
+runtime.
 
-## What you can do with it
+## The drawing
 
-- **Click anything** in the model, or search a term in the panel, to open its entry:
-  Tibetan, Sanskrit, Wylie, English, Polish, the canonical measurements, and the source.
-- **Switch the label language** between English, Tibetan, Sanskrit, Wylie and Polish.
-- **Switch the scale.** *Legible* compresses the radii so the seven walls stay readable,
-  the way a painted maṇḍala does. *To scale* divides every canonical figure by a single
-  constant — 5,000 yojanas to the unit — and the continents come out as specks. Both are
-  true to the sources; they answer different questions.
-- **Switch Meru's profile** between the Abhidharmakośa's straight square column and the
-  Kālacakra's tapered mountain, when a text has to be pinned to one tradition.
-- **Cut the model open** (`C`) to see the section: the water column, the mountains sunk
-  to the golden ground, and Meru's submerged half.
-- **Switch the orientation** between cartographic (north up) and the maṇḍala convention
-  (east toward the practitioner).
-- **Toggle layers** — including the abodes above and the elemental maṇḍalas below, which
-  are off by default.
-- **Read the thirty-seven heaps** of the maṇḍala offering alongside the model; the
-  thirteen that have a place on the ground plan highlight it when you hover them.
+Radial distances and heights hold the textual figures at **1 m : 400,000 yojanas**,
+with seven stated distortions — all of them listed in the index under *Notes on the
+drawing* rather than applied silently. The largest are the outer salt ocean at half
+its width, the twelve landmasses at forty times their size, and a 3.4× vertical
+exaggeration above the water so that Meru reads as a mountain.
 
-Keyboard: `1`–`4` views · `L` labels · `C` cutaway · `R` turn · `/` search · `Esc` clear.
+Each continent takes its colour and shape from the face of Meru it stands opposite —
+crystal white east, lapis blue south, ruby red west, emerald green north — and is
+flanked by two subcontinents of the same shape and half the size.
+
+## What is in it
+
+The index runs from the ground up:
+
+- **Notes on the drawing** — the scale, the yojana, kalpas, how a world ends, a thousand worlds
+- **Mount Meru** — the four faces, the four terraces and their kings, the summit, Sudarśana, the Vaijayanta palace, the four parks, the asuras
+- **The seven golden ranges** — Yugandhara down to Nimindhara
+- **The waters** — the seven inner seas, the outer ocean, the Cakravāḍa wall
+- **The foundation** — the golden ground, the water maṇḍala, the wind maṇḍala
+- **The four continents** and **the eight subcontinents** — with the rose-apple tree, Lake Anavatapta and the Vajrāsana
+- **Sun and moon**
+- **The six desire heavens**, **the seventeen heavens of form** in their four dhyānas and five pure abodes, and **the four formless absorptions**
+- **The eight hot hells**, **the eight cold hells**, and **the other destinies**
+- **The maṇḍala of thirty-seven**
+
+## Maṇḍala mode
+
+The second control lays the world out heap by heap in the order the thirty-seven-point
+offering names it, with the Tibetan, a phonetic reading and the English, and a player
+that steps or runs through the verse.
+
+Order and direction follow the diagram compiled by Lama Sonam Rinpoche (Ngöndro
+retreat, Pema Ösel Ling, 2017). Heaps 18 to 37 have no place in the geography and are
+drawn as rings outside the iron wall, in the eight directions the plate gives them.
+The English translation is by Rigpa Translations, [Lotsawa House](https://www.lotsawahouse.org/tibetan-masters/chogyal-pakpa-lodro-gyaltsen/thirty-seven-point-mandala-offering),
+[CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/).
 
 ## Sources
 
-Measurements and arrangement follow the Abhidharmakośa and its Bhāṣya, chapter III
-(loka-nirdeśa), verses 45–74 — the account the Tibetan commentarial tradition inherits
-as མཛོད། (*mdzod*). Where the Kālacakra system differs, the entries say so rather than
-silently picking one. The four formless attainments are deliberately given no storey:
-they are states, not places, and a diagram that stacks them above the form realm has
-already mistranslated them.
+Vasubandhu, *Abhidharmakośa* & *bhāṣya* III.45–102 (La Vallée Poussin / Pruden);
+Chim Jampaiyang, *Ornament of Abhidharma*; Jamgön Kongtrul, *Myriad Worlds*
+(*Treasury of Knowledge* I); Mipham, *Gateway to Knowledge* II.
