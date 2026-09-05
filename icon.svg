@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="49 43 414 414" width="512" height="512" role="img" aria-label="The World System">
+  <title>The World System</title>
+  <!--
+    Mount Meru on the golden ground, in elevation: the same view the page
+    opens on. Colours are the model's own — paper #efe8da, salt ocean
+    #235f7e, inner seas #74c3bb, gold #c9a24b, the lapis south face and the
+    crystal east face of Meru.
+
+    Drawn full-bleed and opaque: iOS composites a transparent home-screen
+    icon onto black and applies its own rounded mask, so the artwork carries
+    no corners of its own and everything stays inside the central 80%.
+  -->
+  <defs>
+    <radialGradient id="paper" cx="50%" cy="42%" r="78%">
+      <stop offset="0" stop-color="#f6f0e2"/>
+      <stop offset="1" stop-color="#e6dcc8"/>
+    </radialGradient>
+    <radialGradient id="halo" cx="50%" cy="50%" r="50%">
+      <stop offset="0" stop-color="#c9a24b" stop-opacity=".20"/>
+      <stop offset=".55" stop-color="#c9a24b" stop-opacity=".07"/>
+      <stop offset="1" stop-color="#c9a24b" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="sunglow" cx="50%" cy="50%" r="50%">
+      <stop offset="0" stop-color="#f0ad46" stop-opacity=".55"/>
+      <stop offset=".35" stop-color="#f0ad46" stop-opacity=".22"/>
+      <stop offset="1" stop-color="#f0ad46" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="wall" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3a3f49"/>
+      <stop offset="1" stop-color="#262a32"/>
+    </linearGradient>
+  </defs>
+
+  <rect x="40" y="34" width="432" height="432" fill="url(#paper)"/>
+  <circle cx="256" cy="238" r="176" fill="url(#halo)"/>
+
+  <!-- the world disc: gold rim under the dark wall, salt ocean on top -->
+  <ellipse cx="256" cy="372" rx="178" ry="53" fill="#a9822f"/>
+  <ellipse cx="256" cy="356" rx="178" ry="53" fill="#2b3038"/>
+  <rect x="78" y="318" width="356" height="38" fill="url(#wall)"/>
+  <ellipse cx="256" cy="318" rx="178" ry="53" fill="#235f7e"/>
+
+  <!-- seven golden ranges, read as three rings of gold in the inner seas -->
+  <ellipse cx="256" cy="318" rx="144" ry="43" fill="#c9a24b"/>
+  <ellipse cx="256" cy="318" rx="122" ry="36" fill="#74c3bb"/>
+  <ellipse cx="256" cy="318" rx="96"  ry="28" fill="#c9a24b"/>
+  <ellipse cx="256" cy="318" rx="72"  ry="21" fill="#74c3bb"/>
+
+  <!-- Meru: two stepped terraces, the lapis and crystal faces, a gold spire -->
+  <path d="M196 306 h120 l-13 -22 h-94 Z" fill="#a9822f"/>
+  <path d="M209 284 h94 l-3 -20 h-88 Z" fill="#c9a24b"/>
+
+  <path d="M214 264 H298 L284 148 H228 Z" fill="#35558c"/>
+  <path d="M266 264 H298 L284 148 H262 Z" fill="#dfe3e6"/>
+  <path d="M214 264 H298 L284 148 H228 Z" fill="none" stroke="#a9822f" stroke-width="7"/>
+  <path d="M266 264 L262 148" stroke="#a9822f" stroke-width="5"/>
+
+  <path d="M224 148 h64 l-6 -14 h-52 Z" fill="#c9a24b"/>
+  <path d="M232 134 h48 l-7 -16 h-34 Z" fill="#a9822f"/>
+  <path d="M242 118 h28 l-5 -14 h-18 Z" fill="#c9a24b"/>
+  <rect x="252" y="86" width="8" height="18" fill="#a9822f"/>
+  <circle cx="256" cy="82" r="7" fill="#c9a24b"/>
+
+  <!-- the sun on its circuit -->
+  <circle cx="396" cy="206" r="44" fill="url(#sunglow)"/>
+  <ellipse cx="396" cy="206" rx="26" ry="11" fill="#e8912b"/>
+  <ellipse cx="396" cy="204" rx="22" ry="8" fill="#f7bc55"/>
+</svg>
