@@ -115,20 +115,41 @@
   .btn[aria-pressed="true"] { color: var(--ink); background: var(--hi-2); }
   .btn:disabled { opacity: .35; pointer-events: none; }
 
-  /* masthead */
+  /* masthead — a title, and a way into the prose. Nothing else stands on
+     the model permanently; the standfirst appears only where there is room
+     to spare for it. */
   .masthead {
-    position: absolute; top: 22px; left: 22px; width: 35ch;
-    padding: 15px 17px 16px; pointer-events: auto;
+    position: absolute; top: 22px; left: 22px; max-width: 35ch;
+    padding: 0; pointer-events: auto;
   }
   .masthead h1 { margin: 0; font-weight: 400; font-size: 27px; line-height: 1.06; }
-  .masthead p {
-    margin: 8px 0 0; font-size: 14.5px; line-height: 1.44; color: var(--ink-2);
-    text-wrap: pretty;
+  .title {
+    display: flex; align-items: center; gap: 9px; width: 100%;
+    padding: 11px 15px 12px; border: 0; background: none; cursor: pointer;
+    font: inherit; color: var(--ink); text-align: left;
   }
-  .masthead .hint {
-    margin: 11px 0 0; padding-top: 9px; border-top: 1px solid var(--rule);
-    font-size: 10px; letter-spacing: .09em; text-transform: uppercase; color: var(--ink-3);
+  .title .i {
+    flex: none; width: 17px; height: 17px; border-radius: 50%;
+    border: 1px solid var(--rule-2); display: grid; place-items: center;
+    font-family: "IBM Plex Mono", monospace; font-size: 10px; line-height: 1;
+    color: var(--ink-3); transition: color .16s, border-color .16s, background-color .16s;
   }
+  .title:hover .i { color: var(--ink); border-color: var(--ink-3); background: var(--hi); }
+
+  /* the one-time orientation line, which then leaves for good */
+  .firsthint {
+    position: absolute; left: 50%; transform: translateX(-50%);
+    bottom: calc(76px + var(--sa-b)); margin: 0; z-index: 3;
+    padding: 7px 14px 6px; border-radius: 999px;
+    background: var(--surface); border: 1px solid var(--rule);
+    box-shadow: var(--shadow); color: var(--ink-3);
+    font-family: "IBM Plex Mono", monospace; font-size: 10px;
+    letter-spacing: .1em; text-transform: uppercase; white-space: nowrap;
+    pointer-events: none; opacity: 1; transition: opacity .8s ease;
+  }
+  .firsthint[hidden] { display: none; }
+  .firsthint.gone { opacity: 0; }
+  @media (min-width: 701px) { .firsthint { bottom: 26px; } }
 
   /* control strip */
   .controls {
@@ -141,6 +162,9 @@
   .controls .btn .g { font-size: 12px; letter-spacing: 0; margin-right: 6px; }
   .controls { z-index: 4; }
   body.index-open .controls { right: calc(var(--panel) + 22px); }
+  /* Full screen is hidden where the platform has no such thing to give —
+     iOS Safari, and any window already running as an installed app. */
+  body.no-full [data-act="full"] { display: none; }
 
   /* legend */
   .legend {
@@ -157,7 +181,7 @@
   }
   .legend-head:hover { color: var(--ink); }
   .legend-head .chev { font-size: 9px; }
-  .legend-body { padding: 12px 15px 14px; }
+  .legend-body { padding: 11px 15px 13px; }
   .legend.closed .legend-body { display: none; }
   .legend.closed .legend-head { border-bottom: 0; }
   .continents { display: grid; gap: 6px; }
@@ -181,8 +205,8 @@
 
   /* the item sheet */
   .sheet {
-    position: absolute; left: 22px; top: 158px; width: 406px; z-index: 5;
-    max-height: calc(100dvh - 204px - var(--bl)); display: flex; flex-direction: column;
+    position: absolute; left: 22px; top: 92px; width: 406px; z-index: 5;
+    max-height: calc(100dvh - 138px - var(--bl)); display: flex; flex-direction: column;
     padding: 0; pointer-events: auto;
   }
   .sheet[hidden] { display: none; }
@@ -456,23 +480,22 @@
 
   /* full screen / immersive */
   body.immersive .masthead, body.immersive .legend { display: none; }
+  body.mandala-view .legend { display: none; }
 
-  @media (max-width: 1180px) {
-    body.index-open .masthead { width: auto; max-width: 24ch; }
-    body.index-open .masthead p:not(.hint) { display: none; }
+  @media (max-width: 1320px) {
     /* the drawer squeezes the strip into the masthead: drop to glyphs */
     body.index-open .controls .btn .t { display: none; }
     body.index-open .controls .btn .g { margin-right: 0; font-size: 15px; }
     body.index-open .controls .btn { padding: 9px 13px 8px; font-size: 10px; }
   }
   @media (max-width: 980px) {
-    .masthead { width: auto; max-width: 31ch; }
+    .masthead { max-width: 31ch; }
     .legend { display: none; }
     .mandala-note { width: min(38ch, calc(100vw - 44px)); }
     .off-intro { display: none; }
   }
   /* icon-only control strip once the labels stop fitting */
-  @media (max-width: 900px) {
+  @media (max-width: 1080px) {
     .controls .btn .t { display: none; }
     .controls .btn .g { margin-right: 0; font-size: 15px; }
     .controls .btn, body.index-open .controls .btn { padding: 9px 13px 8px; font-size: 10px; }
@@ -485,18 +508,21 @@
   @media (max-width: 700px) {
     :root { --panel: min(342px, 88vw); }
     .masthead {
-      top: calc(9px + var(--sa-t)); left: 9px; right: 9px; width: auto; max-width: none;
-      padding: 10px 13px 11px;
+      top: calc(9px + var(--sa-t)); left: 9px; right: auto; width: auto; max-width: 74vw;
+      padding: 0;
     }
-    .masthead h1 { font-size: 20px; }
-    .masthead p:not(.hint), body.index-open .masthead p:not(.hint) { display: none; }
-    .masthead .hint { margin: 7px 0 0; padding-top: 7px; font-size: 9px; }
+    .masthead h1 { font-size: 17px; }
+    .title { padding: 8px 12px 9px; gap: 8px; }
+    .title .i { width: 16px; height: 16px; font-size: 9.5px; }
     .controls {
       top: auto; bottom: calc(9px + var(--sa-b)); left: 9px; right: 9px; z-index: 6;
     }
     body.index-open .controls { right: 9px; }
     .controls .btn { flex: 1; padding: 12px 0 11px; }
     .index { padding-bottom: calc(66px + var(--sa-b)); }
+    /* six controls at thumb size need the whole width; Full screen is
+       already gone on iOS, so five is what actually lands here */
+    .controls .btn { padding: 13px 0 12px; }
     .sheet {
       left: 9px; right: 9px; width: auto; top: auto;
       bottom: calc(58px + var(--sa-b) + var(--bl));
@@ -523,12 +549,10 @@
     .stepper .btn { padding: 9px 13px 8px; }
   }
   @media (max-height: 660px) and (min-width: 701px) {
-    .masthead > p:not(.hint) { display: none; }
-    .sheet { top: 140px; max-height: calc(100dvh - 182px - var(--bl)); }
+    .sheet { top: 108px; max-height: calc(100dvh - 150px - var(--bl)); }
   }
   /* phone landscape: keep the model clear */
   @media (max-height: 480px) and (max-width: 940px) {
-    .masthead p:not(.hint) { display: none; }
     .sheet { max-height: 74dvh; }
     .mandala-note { max-height: 72dvh; }
   }
@@ -536,18 +560,17 @@
 </head>
 <body>
 
-<three-d-stage name="buddhist-world-system" background="#efe8da" autorotate=""></three-d-stage>
+<three-d-stage name="buddhist-world-system" background="#efe8da"></three-d-stage>
 
 <div class="overlay">
   <header class="masthead card">
-    <h1>The World System</h1>
-    <p>Mount Meru, the seven golden ranges, the four continents and the twenty-eight realms above and below them, after Vasubandhu's <i>Abhidharmakośa</i> III and Jamgön Kongtrul's <i>Myriad Worlds</i>.</p>
-    <p class="hint">Click any part · drag to orbit · scroll to zoom</p>
+    <h1><button class="title" type="button" title="About this drawing — a">The World System<span class="i" aria-hidden="true">i</span></button></h1>
   </header>
 
   <div class="controls card">
     <button class="btn" data-act="index" type="button" aria-pressed="false" title="Index — i"><span class="g">☰</span><span class="t">Index</span></button>
     <button class="btn" data-act="mandala" type="button" aria-pressed="false" title="Mandala view — m"><span class="g">◎</span><span class="t">Mandala view</span></button>
+    <button class="btn" data-act="motion" type="button" aria-pressed="false" title="Set it turning — r"><span class="g">◐</span><span class="t">Motion</span></button>
     <button class="btn" data-act="night" type="button" aria-pressed="false" title="Night — n"><span class="g">☾</span><span class="t">Night</span></button>
     <button class="btn" data-act="full" type="button" aria-pressed="false" title="Full screen — f"><span class="g">⛶</span><span class="t">Full screen</span></button>
     <button class="btn" data-act="home" type="button" title="Reset view — Esc"><span class="g">⟲</span><span class="t">Reset view</span></button>
@@ -564,9 +587,10 @@
         <div class="row"><i style="background:#9e3f43"></i><span class="dir">West</span><span>Aparagodānīya — <em>round, ruby red</em></span></div>
         <div class="row"><i style="background:#3d7a5c"></i><span class="dir">North</span><span>Uttarakuru — <em>square, emerald green</em></span></div>
       </div>
-      <p class="note">Each continent takes its colour and shape from the face of Meru it stands opposite, and is flanked by two subcontinents of the same shape and half the size. Radial distances and heights hold the textual figures at 1&nbsp;m : 400,000 yojanas, with seven stated distortions — see <b>Notes on the drawing</b> in the index.</p>
     </div>
   </aside>
+
+  <p class="firsthint" hidden=""></p>
 
   <div class="marks" hidden=""></div>
 
@@ -1303,6 +1327,10 @@ world.add(jambu);
    with a painted glow that keeps it round from any angle. Some three times
    their measure — 51 and 50 yojanas across is a speck at this scale. */
 const LUM = {};
+/* Everything the sun and moon need in order to be walked around Meru: their
+   starting angle, the radius and height of the circuit, and the three objects
+   (disc, painted glow, click target) that have to travel together. */
+const LUMINARIES = [];
 function lens(rad, up, down, segs) {
   const pts = [], N = 12;
   for (let i = 0; i <= N; i++) {
@@ -1336,6 +1364,7 @@ function lens(rad, up, down, segs) {
     hit.userData.pickOnly = true;
     add(hit, name);
     LUM[name] = p;
+    LUMINARIES.push({ base: a, r: RIM * 0.88, h: yv(40000), objs: [d, s, hit] });
   }
 );
 
@@ -1456,6 +1485,18 @@ const E = {};
 const def = (id, o) => { E[id] = { id, ...o }; };
 
 /* — notes ————————————————————————————————————————————————————— */
+def('about', {
+  t: 'About this drawing', meta: 'What this is, and how to read it', k: 'start here',
+  f: [['After', 'Abhidharmakośa III; Myriad Worlds'],
+      ['Scale', '1 metre : 400,000 yojanas'],
+      ['Indexed', '154 entries']],
+  b: ['Mount Meru, the seven golden ranges, the four continents and the twenty-eight realms above and below them, after Vasubandhu\'s <i>Abhidharmakośa</i> III and Jamgön Kongtrul\'s <i>Myriad Worlds</i>.',
+      'Every part of the model is a click away from its entry: its name in Sanskrit and Tibetan, its measure, and what the texts say stands there. The index lists all of them, and takes a filter. <b>Mandala view</b> lays the world out heap by heap in the order the thirty-seven-point offering names it. <b>Motion</b> sets the sun and moon on their circuit and lets the view turn.',
+      'Each continent takes its colour and shape from the face of Meru it stands opposite, and is flanked by two subcontinents of the same shape and half the size.',
+      'Radial distances and heights hold the textual figures at one metre to 400,000 yojanas, with seven departures made deliberately and no others — they are set out under <b>The scale of this drawing</b>.'],
+  rel: ['about_scale', 'meru_core', 'about_mandala'],
+  src: 'Vasubandhu, <i>Abhidharmakośa</i> &amp; <i>bhāṣya</i> III.45–102 (La Vallée Poussin / Pruden); Chim Jampaiyang, <i>Ornament of Abhidharma</i>; Jamgön Kongtrul, <i>Myriad Worlds</i>; Mipham, <i>Gateway to Knowledge</i> II.'
+});
 def('about_scale', {
   t: 'The scale of this drawing', meta: 'Scale and its seven distortions', k: '1m : 400,000',
   f: [['Scale', '1 metre : 400,000 yojanas'], ['Heights', '×3.4 against radial distance']],
@@ -2318,7 +2359,7 @@ const HEAPS = [
 /* — the index tree ————————————————————————————————————————————— */
 const TREE = [
   ['Notes on the drawing', [
-    ['about_scale'], ['about_yojana'], ['about_time'],
+    ['about'], ['about_scale'], ['about_yojana'], ['about_time'],
     ['about_destruction'], ['about_thousandfold']
   ]],
   ['Mount Meru', [
@@ -2564,11 +2605,25 @@ grip.addEventListener('pointerdown', (ev) => {
 /* ── camera ──────────────────────────────────────────────────────────── */
 const cam = stage._camera, ctr = stage._controls;
 ctr.target.set(0, 0.10, 0);
-cam.position.copy(ctr.target).add(new THREE.Vector3(1, 0.62, 1.25).normalize().multiplyScalar(3.45));
+/* The opening view: a fixed direction, and a distance that answers the shape
+   of the window. A phone held upright is a third as wide as the desktop view
+   this composition was set for, and at a fixed distance the disc simply runs
+   off both edges — so the camera steps back as the frame narrows, up to a
+   limit past which the world would be a coin in a field of paper. */
+const HOME_DIR = new THREE.Vector3(1, 0.62, 1.25).normalize();
+const BASE_DIST = 3.45, REF_ASPECT = 1.5, MAX_PULL = 1.85;
+function homeDist() {
+  const a = (stage.clientWidth / Math.max(1, stage.clientHeight)) || cam.aspect || 1;
+  return BASE_DIST * Math.min(MAX_PULL, Math.max(1, REF_ASPECT / a));
+}
+cam.position.copy(ctr.target).add(HOME_DIR.clone().multiplyScalar(homeDist()));
 cam.near = 0.01;
 cam.updateProjectionMatrix();
 ctr.update();
 const HOME = { p: cam.position.clone(), t: ctr.target.clone(), near: cam.near };
+function refitHome() {
+  HOME.p.copy(HOME.t).add(HOME_DIR.clone().multiplyScalar(homeDist()));
+}
 /* touch: one finger slides the world, two turn and zoom it. Keeping rotation
    off the single finger means a tap never nudges the angle before it picks. */
 ctr.touches.ONE = THREE.TOUCH.PAN;
@@ -2577,6 +2632,29 @@ ctr.screenSpacePanning = true;
 ctr.rotateSpeed = 0.9;
 let anim = null;
 const ease = (x) => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
+/* ── motion ──────────────────────────────────────────────────────────────
+   One button, two movements: the sun and moon walk their circuit around
+   Meru at the height of Yugandhara, and the view turns slowly with them.
+   Both are off until asked for, so the model holds still while it is being
+   read, and a phone renders nothing at all when idle. */
+const LUM_SPEED = Math.PI * 2 / 40;     // one circuit, forty seconds
+let motion = false, lumSpin = 0, lastFrame = 0;
+function placeLuminaries() {
+  LUMINARIES.forEach((L) => {
+    const a = L.base + lumSpin;
+    const x = Math.sin(a) * L.r, z = Math.cos(a) * L.r;
+    L.objs.forEach((o) => o.position.set(x, L.h, z));
+  });
+}
+function stepMotion() {
+  const now = performance.now();
+  const dt = Math.min((now - lastFrame) / 1000, 0.1);   // a backgrounded tab must not lurch
+  lastFrame = now;
+  lumSpin += dt * LUM_SPEED;
+  placeLuminaries();
+  invalidate(2);
+}
+
 function fly(toPos, toTarget, dur = 800) {
   ctr.autoRotate = false;
   const fromP = cam.position.clone(), fromT = ctr.target.clone();
@@ -2588,6 +2666,7 @@ function fly(toPos, toTarget, dur = 800) {
     ctr.target.lerpVectors(fromT, toTarget, e);
     ctr.update();
     anim = k < 1 ? requestAnimationFrame(walk) : null;
+    if (!anim && motion) ctr.autoRotate = true;   // a flight interrupts the turn, it does not end it
   };
   walk();
 }
@@ -2607,6 +2686,7 @@ function reshadow() { gl.shadowMap.needsUpdate = true; invalidate(); }
 ctr.addEventListener('change', () => invalidate(2));
 window.addEventListener('resize', () => invalidate());document.addEventListener('visibilitychange', () => { if (!document.hidden) invalidate(); });
 const drawLoop = () => {
+  if (motion) stepMotion();
   ctr.update();                        // fires 'change' → invalidate, when moving
   if (frames <= 0) return;
   frames--;
@@ -2797,6 +2877,7 @@ function placeMarks() {
 }
 const OVERHEAD = ['heaven_', 'formless_'];
 function setMandala(on) {
+  if (on && motion) setMotion(false);   // pins on a spinning plate read as nothing
   mandala = on;
   document.body.classList.toggle('mandala-view', on);
   document.querySelector('[data-act="mandala"]').setAttribute('aria-pressed', String(on));
@@ -3108,15 +3189,74 @@ document.querySelector('.controls').addEventListener('click', (ev) => {
   if (!act) return;
   if (act.dataset.act === 'index') setOpen(!document.body.classList.contains('index-open'));
   if (act.dataset.act === 'mandala') setMandala(!mandala);
+  if (act.dataset.act === 'motion') setMotion(!motion);
   if (act.dataset.act === 'night') applyTheme(!night);
   if (act.dataset.act === 'home') { close(); if (mandala) setMandala(false); else home(); }
   if (act.dataset.act === 'full') toggleFullScreen();
 });
 
+/* ── the motion switch ───────────────────────────────────────────────── */
+const motionBtn = document.querySelector('[data-act="motion"]');
+function setMotion(on) {
+  if (on && mandala) setMandala(false);
+  motion = on;
+  lastFrame = performance.now();
+  ctr.autoRotate = on;
+  ctr.autoRotateSpeed = 0.7;           // a turn and a half in the time a circuit takes
+  if (!on) { lumSpin = 0; placeLuminaries(); }   // put them back where the text has them
+  motionBtn.setAttribute('aria-pressed', String(on));
+  motionBtn.querySelector('.g').textContent = on ? '❙❙' : '◐';
+  motionBtn.querySelector('.t').textContent = on ? 'Hold still' : 'Motion';
+  motionBtn.title = (on ? 'Hold still' : 'Set it turning') + ' \u2014 r';
+  invalidate(4);
+  try { localStorage.setItem('ws-motion', on ? '1' : '0'); } catch (err) {}
+}
+
+/* ── reset: enabled only when there is something to undo ─────────────── */
+const homeBtn = document.querySelector('[data-act="home"]');
+function syncHome() {
+  const moved = cam.position.distanceToSquared(HOME.p) > 1e-7
+             || ctr.target.distanceToSquared(HOME.t) > 1e-7;
+  homeBtn.disabled = !(moved || !sheet.hidden || mandala);
+}
+ctr.addEventListener('change', syncHome);
+window.addEventListener('resize', () => {
+  const untouched = homeBtn.disabled;
+  refitHome();
+  if (untouched) { cam.position.copy(HOME.p); ctr.update(); invalidate(); }
+});
+document.addEventListener('click', () => setTimeout(syncHome, 60), true);
+window.addEventListener('keyup', () => setTimeout(syncHome, 60));
+
+/* ── about ───────────────────────────────────────────────────────────── */
+document.querySelector('.title').addEventListener('click', () => show('about', true));
+
+/* ── the one-time hint ───────────────────────────────────────────────── */
+(() => {
+  const el = document.querySelector('.firsthint');
+  let seen = null;
+  try { seen = localStorage.getItem('ws-hint'); } catch (err) {}
+  if (seen === '1') return;
+  el.textContent = window.matchMedia('(pointer: coarse)').matches
+    ? 'Tap any part · one finger to slide · two to turn'
+    : 'Click any part · drag to orbit · scroll to zoom';
+  el.hidden = false;
+  const dismiss = () => {
+    el.classList.add('gone');
+    setTimeout(() => { el.hidden = true; }, 900);
+    try { localStorage.setItem('ws-hint', '1'); } catch (err) {}
+  };
+  setTimeout(dismiss, 6500);
+  window.addEventListener('pointerdown', dismiss, { once: true });
+})();
+
 /* ── full screen ─────────────────────────────────────────────────────── */
 const fsBtn = document.querySelector('[data-act="full"]');
 const root = document.documentElement;
 const canFull = !!(root.requestFullscreen || root.webkitRequestFullscreen);
+const standalone = window.matchMedia('(display-mode: standalone)').matches
+  || window.navigator.standalone === true;
+document.body.classList.toggle('no-full', !canFull || standalone);
 const isFull = () => !!(document.fullscreenElement || document.webkitFullscreenElement);
 function syncFull() {
   const on = canFull ? isFull() : document.body.classList.contains('immersive');
@@ -3141,10 +3281,6 @@ function toggleFullScreen() {
 }
 document.addEventListener('fullscreenchange', syncFull);
 document.addEventListener('webkitfullscreenchange', syncFull);
-if (window.matchMedia('(pointer: coarse)').matches) {
-  document.querySelector('.masthead .hint').textContent =
-    'Tap any part \u00b7 one finger to slide \u00b7 two to turn and zoom';
-}
 
 /* keep the framing honest as panels open, fold and resize */
 const chromeRO = new ResizeObserver(() => syncChrome());
@@ -3169,6 +3305,10 @@ setOpen(saved === null ? window.innerWidth > 1120 : saved === '1');
 let savedNight = null;
 try { savedNight = localStorage.getItem('ws-night'); } catch (err) {}
 applyTheme(savedNight === '1');
+let savedMotion = null;
+try { savedMotion = localStorage.getItem('ws-motion'); } catch (err) {}
+setMotion(savedMotion === '1');
+syncHome();
 
 /* ── click any part ──────────────────────────────────────────────────── */
 const canvas = stage.shadowRoot.querySelector('canvas');
@@ -3209,6 +3349,8 @@ window.addEventListener('keydown', (e) => {
   if (e.key === 'ArrowUp' && !sheet.hidden) { e.preventDefault(); step(-1); }
   if (e.key === 'i' || e.key === 'I') setOpen(!document.body.classList.contains('index-open'));
   if (e.key === 'n' || e.key === 'N') applyTheme(!night);
+  if (e.key === 'r' || e.key === 'R') setMotion(!motion);
+  if (e.key === 'a' || e.key === 'A') show('about', true);
   if (e.key === 'p' || e.key === 'P') { e.preventDefault(); playToggle(); }
   if (e.key === 'v' || e.key === 'V') { if (mandala) toggleFull(); }
   if (e.key === '.' || e.key === '>') stepBy(1);

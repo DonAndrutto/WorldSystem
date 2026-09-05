@@ -65,6 +65,23 @@ The index runs from the ground up:
 - **The eight hot hells**, **the eight cold hells**, and **the other destinies**
 - **The maṇḍala of thirty-seven**
 
+## Controls
+
+Six, and every one of them does something:
+
+| | |
+| --- | --- |
+| **Index** `i` | The drawer of all 154 entries, with a filter. |
+| **Mandala view** `m` | The thirty-seven heaps, in the order the offering names them. |
+| **Motion** `r` | Sets the sun and moon on their circuit around Meru — forty seconds to the day — and lets the view turn slowly with them. Off until asked for, so the model holds still while it is being read. |
+| **Night** `n` | Paper or dark. |
+| **Full screen** `f` | Hidden where the platform has none to give: iOS Safari, and any window already running as an installed app. |
+| **Reset view** `Esc` | Disabled when there is nothing to undo. |
+
+The title opens **About this drawing** (`a`) — what this is, how to read it, and
+what the colours mean. That, and every other word of prose, lives in the sheet
+with the entries rather than standing on the model.
+
 ## Maṇḍala mode
 
 The second control lays the world out heap by heap in the order the thirty-seven-point
