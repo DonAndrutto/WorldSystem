@@ -10,13 +10,15 @@ Click any part to open its entry; drag to orbit, scroll to zoom.
 
 | file | what it is |
 | --- | --- |
-| `world-system.html` | The page — the model, the index of 154 entries, the maṇḍala mode, and all of the interface. |
+| `index.html` | The page — the model, the index of 154 entries, the maṇḍala mode, and all of the interface. |
 | `three-d-stage.js` | The `<three-d-stage>` custom element it imports: WebGL renderer, studio lighting with a soft ground shadow, orbit controls, an auto-framed camera, and OBJ + MTL / GLB export. |
 | `icon.svg` | The home-screen and tab icon: Meru on the golden ground, in the model's own colours. Source for the PNGs. |
 | `apple-touch-icon.png`, `icon-192.png`, `icon-512.png`, `icon-maskable-512.png` | Rasterised from `icon.svg`. |
 | `manifest.webmanifest` | Name, colours and icons for installing the page. |
 
-Open `world-system.html` over HTTP (not `file://` — it uses ES modules). three.js
+Serve the directory over HTTP and open it (not `file://` — the page uses ES
+modules). It is published with GitHub Pages at
+<https://donandrutto.github.io/WorldSystem/>. three.js
 0.184.0 loads from unpkg through the pinned import map in the head, with integrity
 hashes; the fonts are EB Garamond and IBM Plex Mono from Google Fonts. Nothing else
 is fetched: the sun and moon glows and the cloud backdrop are drawn onto canvases at
