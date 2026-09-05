@@ -21,8 +21,9 @@ modules). It is published with GitHub Pages at
 <https://donandrutto.github.io/WorldSystem/>. three.js
 0.184.0 loads from unpkg through the pinned import map in the head, with integrity
 hashes; the fonts are EB Garamond and IBM Plex Mono from Google Fonts. Nothing else
-is fetched: the sun and moon glows and the cloud backdrop are drawn onto canvases at
-runtime.
+is fetched: the sun and moon glows, the cloud backdrop — clouds after the convention
+of the thangka painters, a head of stacked lobes with a streamer that closes in a
+spiral — and the night's stars are all drawn onto canvases at runtime.
 
 ## Adding it to the home screen
 
@@ -73,14 +74,20 @@ Six, and every one of them does something:
 | --- | --- |
 | **Index** `i` | The drawer of all 154 entries, with a filter. |
 | **Mandala view** `m` | The thirty-seven heaps, in the order the offering names them. |
-| **Motion** `r` | Sets the sun and moon on their circuit around Meru — forty seconds to the day — and lets the view turn slowly with them. Off until asked for, so the model holds still while it is being read. |
-| **Night** `n` | Paper or dark. |
+| **Motion** `r` | Sets the sun and moon on their circuit around Meru — forty seconds to the day — and lets the view turn slowly with them. The sun is what lights the world, so Meru's shadow walks round the continents with it. Off until asked for, so the model holds still while it is being read. |
+| **Night** `n` | Paper or dark. At night the moon takes over the lighting, and the clouds stand against a faint field of stars. |
 | **Full screen** `f` | Hidden where the platform has none to give: iOS Safari, and any window already running as an installed app. |
 | **Reset view** `Esc` | Disabled when there is nothing to undo. |
 
 The title opens **About this drawing** (`a`) — what this is, how to read it, and
 what the colours mean. That, and every other word of prose, lives in the sheet
 with the entries rather than standing on the model.
+
+The one thing that does stand on it is a small compass rose, bottom right, which
+turns with the view so that north can be found without turning the world to look
+for it. In the maṇḍala view, seen from straight above with north at the top, the
+four directions are lettered at the edge of the plate instead, with the Tibetan the
+offering names them by.
 
 ## Maṇḍala mode
 
