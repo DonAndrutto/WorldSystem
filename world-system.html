@@ -5,6 +5,20 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>The World System — Abhidharma Cosmology</title>
 
+<!-- Added to the home screen: iOS reads the apple-* tags, everything else the
+     manifest. The icon must be an opaque PNG — Safari composites a transparent
+     one onto black — and carries no corners of its own, since iOS applies its
+     own mask. Night mode is a manual toggle that starts off, so the status bar
+     and theme colour follow the paper the page opens on. -->
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<link rel="icon" type="image/svg+xml" href="icon.svg">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="World System">
+<meta name="theme-color" content="#efe8da">
+
 <!-- three.js for <three-d-stage>, pinned with integrity hashes. -->
 <script type="importmap">
 {

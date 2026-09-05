@@ -1,0 +1,17 @@
+{
+  "id": "world-system",
+  "name": "The World System — Abhidharma Cosmology",
+  "short_name": "World System",
+  "description": "Mount Meru, the seven golden ranges, the four continents and the twenty-eight realms above and below them, after Vasubandhu's Abhidharmakośa III and Jamgön Kongtrul's Myriad Worlds.",
+  "start_url": "world-system.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#efe8da",
+  "theme_color": "#efe8da",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml" }
+  ]
+}
