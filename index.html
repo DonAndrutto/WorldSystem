@@ -184,6 +184,45 @@
   .legend-body { padding: 11px 15px 13px; }
   .legend.closed .legend-body { display: none; }
   .legend.closed .legend-head { border-bottom: 0; }
+
+  /* compass — a small rose that turns with the view, so that north can be
+     found without turning the world to look for it. It stands out of the
+     way above the export buttons, and gives way to the drawer. */
+  .compass {
+    position: absolute; right: 22px; bottom: 66px; width: 46px; height: 46px;
+    border-radius: 50%; border: 1px solid var(--rule); background: var(--surface);
+    pointer-events: none; z-index: 3; opacity: .9;
+    transition: right .34s cubic-bezier(.4,0,.2,1), background-color .55s ease,
+      border-color .55s ease, opacity .3s;
+  }
+  .compass .cd {
+    position: absolute; left: 50%; top: 50%; width: 14px; height: 14px; margin: -7px 0 0 -7px;
+    display: grid; place-items: center; font-family: "IBM Plex Mono", monospace;
+    font-size: 8.5px; line-height: 1; color: var(--ink-3);
+    transition: color .55s ease;
+  }
+  .compass .cd[data-d="N"] { color: var(--accent); font-weight: 500; }
+  .compass .pin {
+    position: absolute; left: 50%; top: 50%; width: 3px; height: 3px; margin: -1.5px 0 0 -1.5px;
+    border-radius: 50%; background: var(--rule-2);
+  }
+  body.index-open .compass { right: calc(var(--panel) + 22px); }
+  body.mandala-view .compass { display: none; }
+  /* on a phone the controls hold the bottom edge and the hint stands above
+     them: the rose takes the free corner, top right, and is a little smaller */
+  @media (max-width: 700px) {
+    .compass { top: calc(9px + var(--sa-t)); right: 9px; bottom: auto; width: 40px; height: 40px; }
+    body.index-open .compass { right: 9px; }
+  }
+  /* the mandala view is seen from straight above, north at the top: the
+     four directions are lettered at the edge of the plate instead */
+  .cp {
+    position: absolute; transform: translate(-50%, -50%); pointer-events: none;
+    display: grid; justify-items: center; gap: 1px; color: var(--ink-3);
+    font-family: "IBM Plex Mono", monospace; font-size: 10px; letter-spacing: .12em;
+  }
+  .cp b { font-weight: 500; }
+  .cp i { font-style: normal; font-family: "EB Garamond", Georgia, serif; font-size: 14px; line-height: 1.5; letter-spacing: 0; opacity: .85; }
   .continents { display: grid; gap: 6px; }
   .continents .row {
     display: grid; grid-template-columns: 12px 7.5ch minmax(0,1fr);
@@ -592,6 +631,12 @@
 
   <p class="firsthint" hidden=""></p>
 
+  <div class="compass" aria-hidden="true">
+    <span class="cd" data-d="N">N</span><span class="cd" data-d="E">E</span>
+    <span class="cd" data-d="S">S</span><span class="cd" data-d="W">W</span>
+    <i class="pin"></i>
+  </div>
+
   <div class="marks" hidden=""></div>
 
   <aside class="mandala-note card" hidden="">
@@ -735,112 +780,242 @@ const glowTex = (rgb, rays) => canvasTex(512, 512, (x, w) => {
   x.fillStyle = g; x.fillRect(0, 0, w, w);
 });
 
-/* The backdrop: a band of stylised clouds after the Tibetan convention —
-   a body of stacked lobes with concentric scallops inside it and a curled
-   tail. Kept at low contrast so the world reads in front of it. */
-const cloudTex = (dark) => canvasTex(2048, 1024, (x, w, h) => {
-  const sky = dark ? ['#0a0c12', '#141a27', '#1d2432'] : ['#e4dac3', '#f1eade', '#eee3cf'];
+/* The backdrop: a frieze of clouds after the Tibetan convention — the
+   cloud of the thangka painters, which is a head of stacked round lobes
+   on a flat base, each lobe echoed inside by a contour or two, and a
+   streamer trailing off one end that thins and closes in a spiral. Each
+   is painted flat, outlined fine, and given a graded wash toward its
+   base so it has weight; the night sky carries the same clouds in slate,
+   in front of a faint field of stars. Nothing here is loaded: it is all
+   drawn onto the canvas at start. */
+const cloudTex = (dark) => canvasTex(2048, 1024, (ctx, w, h) => {
+  const x = ctx;
+  /* the sky itself: light gathers at the horizon, and the zenith cools */
   const g = x.createLinearGradient(0, 0, 0, h);
-  g.addColorStop(0, sky[0]); g.addColorStop(0.55, sky[1]); g.addColorStop(1, sky[2]);
+  (dark
+    ? [[0, '#06080f'], [0.3, '#0d1220'], [0.47, '#182033'], [0.5, '#1e2739'],
+       [0.54, '#161d2c'], [1, '#090c14']]
+    : [[0, '#e1dbcb'], [0.28, '#e9e3d4'], [0.46, '#f2ecdf'], [0.5, '#f6f0e3'],
+       [0.54, '#eee6d5'], [1, '#d9cfb9']]
+  ).forEach(([t, c]) => g.addColorStop(t, c));
   x.fillStyle = g; x.fillRect(0, 0, w, h);
 
-  const fill = dark ? '56,74,108' : '255,252,243';
-  const line = dark ? '136,164,202' : '104,86,58';
-  const K = dark ? 0.6 : 1;
   let seed = 20240;
   const rnd = () => (seed = (seed * 1103515245 + 12345) & 0x7fffffff) / 0x7fffffff;
 
-  function cloud(cx, cy, s, dir, al) {
-    const lobes = 6, pts = [];
-    for (let i = 0; i < lobes; i++) {
-      const u = i / (lobes - 1);
-      pts.push({
-        x: cx + dir * (u - 0.42) * s * 1.62,
-        y: cy - Math.pow(Math.sin(u * Math.PI), 0.8) * s * 0.4 + (u - 0.5) * s * 0.14,
-        r: s * (0.2 + 0.32 * Math.sin(u * Math.PI) + 0.055 * ((i * 7) % 3))
-      });
-    }
-    if (dir < 0) pts.reverse();
-    x.save();
-    x.globalAlpha = al;
-    x.fillStyle = `rgba(${fill},0.95)`;
-    x.beginPath();
-    pts.forEach((p) => { x.moveTo(p.x + p.r, p.y); x.arc(p.x, p.y, p.r, 0, Math.PI * 2); });
-    x.fill();
-
-    /* Outline: only the part of each lobe that stands clear of its
-       neighbours, so the cloud reads as one drawn edge and not a heap of
-       circles. The cut is where two lobes cross. */
-    const cut = (a, b) => {
-      const d = Math.hypot(b.x - a.x, b.y - a.y);
-      if (d >= a.r + b.r || d <= Math.abs(a.r - b.r)) return null;
-      return { th: Math.atan2(b.y - a.y, b.x - a.x),
-               al: Math.acos((d * d + a.r * a.r - b.r * b.r) / (2 * d * a.r)) };
+  /* stars, faint, above the horizon only; a few of them bright enough to
+     carry a glint, and a thin drift of the faintest along one arc of the
+     sky for a milky way */
+  if (dark) {
+    const star = (sx, sy, r, al) => {
+      x.globalAlpha = al;
+      x.beginPath(); x.arc(sx, sy, r, 0, Math.PI * 2); x.fill();
     };
-    x.lineWidth = Math.max(1, s * 0.022);
-    x.strokeStyle = `rgba(${line},0.5)`;
-    x.beginPath();
-    const wrap = (a) => Math.atan2(Math.sin(a), Math.cos(a));
-    pts.forEach((p, i) => {
-      const blocked = [];
-      let buried = false;
-      pts.forEach((q, j) => {
-        if (i === j || buried) return;
-        const d = Math.hypot(q.x - p.x, q.y - p.y);
-        if (d + p.r <= q.r) { buried = true; return; }
-        const c2 = cut(p, q);
-        if (c2) blocked.push(c2);
-      });
-      if (buried) return;
-      const N = 110;
-      let open = false;
-      for (let k = 0; k <= N; k++) {
-        const a = -Math.PI + (k / N) * Math.PI * 2;
-        const hid = blocked.some((b) => Math.abs(wrap(a - b.th)) <= b.al);
-        if (hid) { open = false; continue; }
-        const px = p.x + Math.cos(a) * p.r, py = p.y + Math.sin(a) * p.r;
-        open ? x.lineTo(px, py) : x.moveTo(px, py);
-        open = true;
-      }
-    });
-    x.stroke();
-
-    x.globalAlpha = al * 0.52;
-    x.lineWidth = Math.max(1, s * 0.02);
-    x.beginPath();
-    pts.forEach((p) => {
-      const f = Math.PI * 1.12, t2 = Math.PI * 1.92;
-      x.moveTo(p.x + Math.cos(f) * p.r * 0.66, p.y + Math.sin(f) * p.r * 0.66);
-      x.arc(p.x, p.y, p.r * 0.66, f, t2);
-    });
-    x.stroke();
-
-    // one curled tail, at the trailing end
-    const tail = dir > 0 ? pts[0] : pts[pts.length - 1];
-    const tx = tail.x - dir * tail.r * 0.35, ty = tail.y + tail.r * 0.55;
-    x.globalAlpha = al * 0.9;
-    x.lineWidth = Math.max(1, s * 0.026);
-    x.beginPath();
-    for (let t = 0; t <= 1.001; t += 0.02) {
-      const a = t * Math.PI * 2.6, r = s * 0.26 * (1 - t * 0.9);
-      const px = tx - dir * (Math.cos(a) * r - s * 0.26 + s * 0.34 * t);
-      const py = ty + Math.sin(a) * r * 0.82;
-      t ? x.lineTo(px, py) : x.moveTo(px, py);
+    x.fillStyle = '#e8eefb';
+    for (let i = 0; i < 900; i++) {
+      const sy = (0.01 + Math.pow(rnd(), 0.8) * 0.46) * h;
+      star(rnd() * w, sy, 0.5 + rnd() * 1.1, 0.12 + rnd() * 0.5);
     }
-    x.stroke();
-    x.restore();
+    for (let i = 0; i < 700; i++) {                 // the milky way
+      const u = rnd();
+      const sy = (0.1 + 0.26 * Math.sin(u * Math.PI * 1.4 + 0.6)) * h + (rnd() - 0.5) * 0.11 * h;
+      if (sy > 0.48 * h) continue;
+      star(u * w, sy, 0.4 + rnd() * 0.8, 0.05 + rnd() * 0.18);
+    }
+    for (let i = 0; i < 40; i++) {                  // the bright ones
+      const sx = rnd() * w, sy = (0.02 + rnd() * 0.42) * h, r = 1.3 + rnd() * 1.2;
+      const gl = x.createRadialGradient(sx, sy, 0, sx, sy, r * 4);
+      gl.addColorStop(0, 'rgba(232,238,251,0.55)'); gl.addColorStop(1, 'rgba(232,238,251,0)');
+      x.globalAlpha = 1; x.fillStyle = gl;
+      x.fillRect(sx - r * 4, sy - r * 4, r * 8, r * 8);
+      x.fillStyle = '#f4f7ff';
+      star(sx, sy, r * 0.75, 0.9);
+      x.strokeStyle = 'rgba(232,238,251,0.35)'; x.lineWidth = 0.8;
+      x.beginPath();
+      x.moveTo(sx - r * 3.2, sy); x.lineTo(sx + r * 3.2, sy);
+      x.moveTo(sx, sy - r * 3.2); x.lineTo(sx, sy + r * 3.2);
+      x.stroke();
+      x.fillStyle = '#e8eefb';
+    }
+    x.globalAlpha = 1;
   }
 
-  // four bands of cloud above the horizon, thinning as they rise
-  [[0.15, 0.085, 4, 0.36], [0.28, 0.115, 5, 0.5],
-   [0.4, 0.1, 5, 0.56], [0.51, 0.07, 5, 0.44]].forEach(([v, sz, n, al]) => {
+  const ink = dark ? '128,150,190' : '104,86,58';   // the drawn line
+  const fill = dark ? '#283349' : '#fffcf3';         // the body of the cloud
+  const shade = dark ? '12,16,28' : '112,96,72';     // the wash toward the base
+  const light = dark ? '196,210,236' : '255,255,255';
+
+  /* One cloud. cx, cy is the middle of its base; s its scale — about the
+     height of the head; dir which way it faces (its streamer trails the
+     other way); al its strength. kind picks the extras it carries. It is
+     painted opaque on a canvas of its own and then laid on the sky at
+     strength, so that a faint cloud is a faint cloud and not a
+     see-through one. */
+  function trin(cx, cy, s, dir, al, kind) {
+    const W = Math.ceil(s * 4.3), H = Math.ceil(s * 1.85);
+    const oc = document.createElement('canvas');
+    oc.width = W; oc.height = H;
+    const x = oc.getContext('2d');
+    const ox = dir > 0 ? s * 2.55 : W - s * 2.55, oy = s * 1.4;
+    const X = (u) => ox + dir * u * s, Y = (v) => oy + v * s;
+    const lobes = [
+      [-0.62, -0.02, 0.30], [-0.21, -0.06, 0.33], [0.21, -0.06, 0.33], [0.62, -0.02, 0.30],
+      [-0.42, -0.36, 0.30], [0.0, -0.42, 0.33], [0.42, -0.36, 0.30],
+      [-0.24, -0.66, 0.26], [0.2, -0.70, 0.28], [0.14, -0.94, 0.23]
+    ];
+    if (kind & 1) lobes.push([0.86, -0.24, 0.2]);
+    if (kind & 2) lobes.push([-0.86, -0.2, 0.18]);
+    const base = { x0: -0.78, x1: 0.78, y0: -0.15, y1: 0.28, r: 0.12 };
+    const lw = Math.max(0.9, s * 0.011);
+
+    /* is a point (in cloud units) inside the head? */
+    const inside = (u, v) =>
+      lobes.some(([lx, ly, lr]) => (u - lx) ** 2 + (v - ly) ** 2 < lr * lr) ||
+      (u > base.x0 && u < base.x1 && v > base.y0 && v < base.y1);
+
+    const headPath = () => {
+      x.beginPath();
+      lobes.forEach(([lx, ly, lr]) => {
+        x.moveTo(X(lx) + lr * s, Y(ly));
+        x.arc(X(lx), Y(ly), lr * s, 0, Math.PI * 2);
+      });
+      const bx0 = X(base.x0), bx1 = X(base.x1), by0 = Y(base.y0), by1 = Y(base.y1);
+      const r = base.r * s, l = Math.min(bx0, bx1), rt = Math.max(bx0, bx1);
+      x.moveTo(l + r, by0);
+      x.lineTo(rt - r, by0); x.arcTo(rt, by0, rt, by0 + r, r);
+      x.lineTo(rt, by1 - r); x.arcTo(rt, by1, rt - r, by1, r);
+      x.lineTo(l + r, by1); x.arcTo(l, by1, l, by1 - r, r);
+      x.lineTo(l, by0 + r); x.arcTo(l, by0, l + r, by0, r);
+      x.closePath();
+    };
+
+    /* the streamer: a ribbon along a curve that thins as it goes, then a
+       spiral — drawn as strokes, the outline first and the body over it */
+    const ribbon = (pts, w0, w1, colour, extra) => {
+      x.strokeStyle = colour; x.lineCap = 'round'; x.lineJoin = 'round';
+      for (let i = 1; i < pts.length; i++) {
+        const t = i / (pts.length - 1);
+        x.lineWidth = Math.max(0.6, (w0 + (w1 - w0) * t) * s + extra);
+        x.beginPath();
+        x.moveTo(pts[i - 1][0], pts[i - 1][1]); x.lineTo(pts[i][0], pts[i][1]);
+        x.stroke();
+      }
+    };
+    const bez = (p0, p1, p2, p3, n) => {
+      const out = [];
+      for (let i = 0; i <= n; i++) {
+        const t = i / n, m = 1 - t;
+        out.push([X(m * m * m * p0[0] + 3 * m * m * t * p1[0] + 3 * m * t * t * p2[0] + t * t * t * p3[0]),
+                  Y(m * m * m * p0[1] + 3 * m * m * t * p1[1] + 3 * m * t * t * p2[1] + t * t * t * p3[1])]);
+      }
+      return out;
+    };
+    const spiral = (c, r0, r1, turns, a0, n, sense) => {
+      const out = [];
+      for (let i = 0; i <= n; i++) {
+        const t = i / n, a = a0 + sense * t * turns * Math.PI * 2, r = r0 + (r1 - r0) * t;
+        out.push([X(c[0] + Math.cos(a) * r), Y(c[1] + Math.sin(a) * r)]);
+      }
+      return out;
+    };
+    const tail = bez([-0.66, 0.06], [-1.15, 0.22], [-1.45, -0.3], [-1.9, -0.06], 22)
+      .concat(spiral([-2.08, -0.16], 0.16, 0.025, 1.6, Math.PI * 0.1, 30, -1));
+    const wisp = (kind & 4)
+      ? bez([0.8, -0.36], [1.1, -0.42], [1.1, -0.78], [1.3, -0.82], 12)
+          .concat(spiral([1.42, -0.78], 0.1, 0.02, 1.3, Math.PI, 16, 1))
+      : null;
+    const hook = (kind & 8) ? spiral([0.42, -1.06], 0.12, 0.02, 1.25, Math.PI * 0.9, 18, 1) : null;
+    /* the small curls the painters tuck into the notches between lobes */
+    const curls = [[0.0, -0.22, 1], [-0.44, -0.6, -1], [0.44, -0.62, 1]]
+      .map(([u, v, sn]) => spiral([u, v], 0.075, 0.012, 1.15, Math.PI * (sn > 0 ? 0.5 : 0.5), 14, sn));
+
+    /* 1 — the outline, laid down first under everything */
+    x.strokeStyle = `rgba(${ink},0.85)`; x.lineWidth = lw * 2;
+    headPath(); x.stroke();
+    ribbon(tail, 0.17, 0.045, `rgba(${ink},0.85)`, lw * 2);
+    if (wisp) ribbon(wisp, 0.08, 0.03, `rgba(${ink},0.85)`, lw * 2);
+    if (hook) ribbon(hook, 0.06, 0.025, `rgba(${ink},0.85)`, lw * 2);
+    /* 2 — the body over it, hiding the inner half of every line */
+    ribbon(tail, 0.17, 0.045, fill, 0);
+    if (wisp) ribbon(wisp, 0.08, 0.03, fill, 0);
+    if (hook) ribbon(hook, 0.06, 0.025, fill, 0);
+    x.fillStyle = fill; headPath(); x.fill();
+    /* 3 — a wash: light along the top, weight toward the base */
+    x.save();
+    headPath(); x.clip();
+    const wash = x.createLinearGradient(0, Y(-1.15), 0, Y(0.34));
+    wash.addColorStop(0, `rgba(${light},${dark ? 0.16 : 0.4})`);
+    wash.addColorStop(0.42, `rgba(${light},0)`);
+    wash.addColorStop(0.7, `rgba(${shade},0)`);
+    wash.addColorStop(1, `rgba(${shade},${dark ? 0.5 : 0.3})`);
+    x.fillStyle = wash;
+    x.fillRect(0, 0, W, H);
+    x.restore();
+    /* 4 — the echo contours: inside each lobe, one or two lines following
+       the part of its rim that stands clear of its neighbours */
+    x.lineCap = 'round';
+    lobes.forEach(([lx, ly, lr]) => {
+      const spans = [];
+      let open = null;
+      const N = 96;
+      for (let k = 0; k <= N; k++) {
+        const a = (k / N) * Math.PI * 2;
+        const u = lx + Math.cos(a) * lr * 1.02, v = ly + Math.sin(a) * lr * 1.02;
+        const clear = !inside(u, v);
+        if (clear && open === null) open = a;
+        if ((!clear || k === N) && open !== null) { spans.push([open, a]); open = null; }
+      }
+      [[0.78, 0.66, 0.85], [0.57, 0.5, 0.7]].forEach(([rr, al2, wk], n) => {
+        x.strokeStyle = `rgba(${ink},${al2})`; x.lineWidth = lw * wk;
+        spans.forEach(([a0, a1]) => {
+          const trim = 0.16 + n * 0.1;
+          if (a1 - a0 < trim * 2.2) return;
+          x.beginPath();
+          x.arc(X(lx), Y(ly), lr * rr * s, dir > 0 ? a0 + trim : Math.PI - (a1 - trim),
+                dir > 0 ? a1 - trim : Math.PI - (a0 + trim));
+          x.stroke();
+        });
+      });
+      /* and a highlight along the top of the rim */
+      x.strokeStyle = `rgba(${light},${dark ? 0.3 : 0.75})`; x.lineWidth = lw * 0.9;
+      spans.forEach(([a0, a1]) => {
+        const lo = Math.max(a0, Math.PI * 1.1), hi = Math.min(a1, Math.PI * 1.75);
+        if (hi - lo < 0.3) return;
+        x.beginPath();
+        x.arc(X(lx), Y(ly), lr * 0.9 * s, dir > 0 ? lo : Math.PI - hi, dir > 0 ? hi : Math.PI - lo);
+        x.stroke();
+      });
+    });
+    /* 5 — a line inside the streamer, so it reads as folded cloth, and
+       the curls in the notches */
+    x.strokeStyle = `rgba(${ink},0.4)`; x.lineWidth = lw * 0.8;
+    x.beginPath();
+    tail.slice(2, 22).forEach(([px, py], i) => (i ? x.lineTo(px, py + s * 0.04) : x.moveTo(px, py + s * 0.04)));
+    x.stroke();
+    if (kind & 16) curls.forEach((c) => ribbon(c, 0.02, 0.006, `rgba(${ink},0.62)`, 0));
+    /* onto the sky, thrice, a canvas-width apart, so the seam wraps */
+    ctx.globalAlpha = al;
+    [-w, 0, w].forEach((o) => ctx.drawImage(oc, Math.round(cx - ox + o), Math.round(cy - oy)));
+    ctx.globalAlpha = 1;
+  }
+
+  /* four courses of cloud above the horizon, smaller and fainter as they
+     rise, the far ones laid first so the near ones stand in front. Each
+     is drawn thrice, a canvas-width apart, so the seam wraps. */
+  /* Held faint: the backdrop is there so the world stands in front of
+     something, and a cloud that competes with the model has failed. */
+  const K = dark ? 0.72 : 1;
+  [[0.16, 0.034, 3, 0.11], [0.26, 0.044, 4, 0.15],
+   [0.365, 0.054, 5, 0.19], [0.462, 0.062, 6, 0.24]].forEach(([v, sz, n, al], row) => {
     for (let i = 0; i < n; i++) {
-      const cx = ((i + 0.5) / n + (rnd() - 0.5) * 0.5 / n) * w;
-      const cy = (v + (rnd() - 0.5) * 0.035) * h;
-      const s = sz * h * (0.72 + rnd() * 0.6);
+      const cx = ((i + 0.5) / n + (rnd() - 0.5) * 0.42 / n + row * 0.11) * w;
+      const cy = (v + (rnd() - 0.5) * 0.03) * h;
+      const s = sz * h * (0.78 + rnd() * 0.5);
       const dir = rnd() > 0.5 ? 1 : -1;
-      const a = al * (0.7 + rnd() * 0.45) * K;
-      [-w, 0, w].forEach((o) => cloud(cx + o, cy, s, dir, a));
+      const kind = (rnd() > 0.5 ? 1 : 0) | (rnd() > 0.5 ? 2 : 0) | (rnd() > 0.45 ? 4 : 0)
+                 | (rnd() > 0.5 ? 8 : 0) | (rnd() > 0.35 ? 16 : 0);
+      const a = al * (0.8 + rnd() * 0.25) * K;
+      [-w, 0, w].forEach((o) => trin(cx + o, cy, s, dir, a, kind));
     }
   });
 });
@@ -864,12 +1039,12 @@ const M = {
              { flatShading: true, emissive: 0x1d2c27, emissiveIntensity: 0.4 }),
   wood:    mat('jambu_wood', 0x6b4f32, 0.68, 0.02),
   leaf:    mat('jambu_foliage', 0x4f7a4a, 0.62, 0.02),
-  sun:     mat('sun_disc', 0xf0ad46, 0.26, 0.08, { emissive: 0xd9701c, emissiveIntensity: 0.5 }),
+  sun:     mat('sun', 0xf6c25a, 0.3, 0.05, { emissive: 0xe0801e, emissiveIntensity: 0.9 }),
   sunGlow: Object.assign(new THREE.SpriteMaterial({
     map: glowTex('255,205,120', 18), transparent: true, opacity: 0.5,
     depthWrite: false, blending: THREE.AdditiveBlending, toneMapped: false
   }), { name: 'sun_halo' }),
-  moonDisc:mat('moon_disc', 0xf3f7fa, 0.2, 0.07, { emissive: 0x9db8cd, emissiveIntensity: 0.22 }),
+  moonDisc:mat('moon', 0xf6f9fc, 0.3, 0.05, { emissive: 0xc9d9e8, emissiveIntensity: 0.62 }),
   moonGlow: Object.assign(new THREE.SpriteMaterial({
     map: glowTex('204,228,250', 0), transparent: true, opacity: 0.6,
     depthWrite: false, blending: THREE.AdditiveBlending, toneMapped: false
@@ -1633,34 +1808,22 @@ add(canopy, 'jambu_canopy', jambu);
 world.add(jambu);
 
 /* ── Sun and moon, circling at the height of Yugandhara ───────────────
-   The Kośa gives them as discs of fire-crystal and water-crystal, not as
-   spheres: each is drawn as a lens, tipped a little toward the mountain,
-   with a painted glow that keeps it round from any angle. Some three times
-   their measure — 51 and 50 yojanas across is a speck at this scale. */
-const LUM = {};
+   The Kośa gives them as discs of fire-crystal and water-crystal; they are
+   drawn as spheres, each with a painted glow, so that they read as lights
+   from any angle and so that the sun can be what lights the world (see
+   "The sun lights the world", below). Some three times their measure — 51
+   and 50 yojanas across is a speck at this scale. */
 /* Everything the sun and moon need in order to be walked around Meru: their
    starting angle, the radius and height of the circuit, and the three objects
-   (disc, painted glow, click target) that have to travel together. */
+   (sphere, painted glow, click target) that have to travel together. */
 const LUMINARIES = [];
-function lens(rad, up, down, segs) {
-  const pts = [], N = 12;
-  for (let i = 0; i <= N; i++) {
-    const t = i / N;
-    pts.push(new THREE.Vector2(Math.sin(t * Math.PI / 2) * rad, Math.cos(t * Math.PI / 2) * up));
-  }
-  for (let i = N - 1; i >= 0; i--) {
-    const t = i / N;
-    pts.push(new THREE.Vector2(Math.sin(t * Math.PI / 2) * rad, -Math.cos(t * Math.PI / 2) * down));
-  }
-  return new THREE.LatheGeometry(pts, segs);
-}
-[['sun', M.sun, M.sunGlow, 4.6, Math.PI * 0.5, 7.2, 0.2],
- ['moon', M.moonDisc, M.moonGlow, 4.3, -Math.PI * 0.5, 8.4, -0.2]].forEach(
-  ([name, material, glow, r, a, gr, tilt]) => {
+[['sun', M.sun, M.sunGlow, 4.6, Math.PI * 0.5, 7.2],
+ ['moon', M.moonDisc, M.moonGlow, 4.3, -Math.PI * 0.5, 8.4]].forEach(
+  ([name, material, glow, r, a, gr]) => {
     const rad = y(7000) * r;
     const p = new THREE.Vector3(Math.sin(a) * RIM * 0.88, yv(40000), Math.cos(a) * RIM * 0.88);
-    const d = new THREE.Mesh(lens(rad, rad * 0.155, rad * 0.115, 88), material);
-    d.position.copy(p); d.rotation.z = tilt;
+    const d = new THREE.Mesh(new THREE.SphereGeometry(rad, 40, 28), material);
+    d.position.copy(p);
     add(d, name);
     const s = new THREE.Sprite(glow);
     s.position.copy(p);
@@ -1674,7 +1837,6 @@ function lens(rad, up, down, segs) {
     hit.castShadow = false; hit.receiveShadow = false;
     hit.userData.pickOnly = true;
     add(hit, name);
-    LUM[name] = p;
     LUMINARIES.push({ base: a, r: RIM * 0.88, h: yv(40000), objs: [d, s, hit] });
   }
 );
@@ -1755,7 +1917,14 @@ FORMLESS.forEach((name, i) => {
 });
 
 stage.setObject(world);
-world.traverse((o) => { if (o.material === M.formless) o.castShadow = false; });
+/* the stage turns shadows on for every mesh: take them back off the
+   wireframe spheres, the invisible click targets, and the sun and moon —
+   which stand in the light's own line and would put themselves on Meru */
+world.traverse((o) => {
+  if (!o.isMesh) return;
+  if (o.material === M.formless || o.userData.pickOnly ||
+      o.material === M.sun || o.material === M.moonDisc) o.castShadow = false;
+});
 
 /* ── The backdrop ─────────────────────────────────────────────────────
    A cloud band on the inside of a large sphere, so the world stands in
@@ -1802,7 +1971,7 @@ def('about', {
       ['Scale', '1 metre : 400,000 yojanas'],
       ['Indexed', '154 entries']],
   b: ['Mount Meru, the seven golden ranges, the four continents and the twenty-eight realms above and below them, after Vasubandhu\'s <i>Abhidharmakośa</i> III and Jamgön Kongtrul\'s <i>Myriad Worlds</i>.',
-      'Every part of the model is a click away from its entry: its name in Sanskrit and Tibetan, its measure, and what the texts say stands there. The index lists all of them, and takes a filter. <b>Mandala view</b> lays the world out heap by heap in the order the thirty-seven-point offering names it. <b>Motion</b> sets the sun and moon on their circuit and lets the view turn.',
+      'Every part of the model is a click away from its entry: its name in Sanskrit and Tibetan, its measure, and what the texts say stands there. The index lists all of them, and takes a filter. <b>Mandala view</b> lays the world out heap by heap in the order the thirty-seven-point offering names it. <b>Motion</b> sets the sun and moon on their circuit and lets the view turn; the sun is what lights the world, so Meru\'s shadow walks round the continents with it — the Kośa\'s account of night. The small compass rose turns with the view; in the mandala view the four directions are lettered at the edge of the plate.',
       'Each continent takes its colour and shape from the face of Meru it stands opposite, and is flanked by two subcontinents of the same shape and half the size.',
       'Radial distances and heights hold the textual figures at one metre to 400,000 yojanas, with seven departures made deliberately and no others — they are set out under <b>The scale of this drawing</b>.'],
   rel: ['about_scale', 'meru_core', 'about_mandala'],
@@ -2744,13 +2913,16 @@ function applyTheme(on) {
     l.intensity = baseInt[i] * t.k;
     if (l.isHemisphereLight) { l.color.setHex(t.sky); l.groundColor.setHex(t.ground); }
   });
-  M.sun.emissiveIntensity = on ? 1.15 : 0.5;
-  M.sunGlow.opacity = on ? 0.85 : 0.5;
-  M.moonDisc.emissive.setHex(on ? 0xa6c6e0 : 0x9db8cd);
-  M.moonDisc.emissiveIntensity = on ? 0.6 : 0.22;
+  /* at night the sun is on the far side of the world: it keeps its
+     colour but not its blaze, and the moon comes up to full */
+  M.sun.emissiveIntensity = on ? 0.7 : 0.9;
+  M.sunGlow.opacity = on ? 0.42 : 0.5;
+  M.moonDisc.emissive.setHex(on ? 0xa6c6e0 : 0xc9d9e8);
+  M.moonDisc.emissiveIntensity = on ? 0.62 : 0.62;
   M.moonGlow.opacity = on ? 0.78 : 0.6;
   M.formless.color.setHex(on ? 0xb9b09a : 0x8a8578);
   setSky(on);
+  lightFromSky();
   invalidate();
   const btn = document.querySelector('[data-act="night"]');
   btn.setAttribute('aria-pressed', String(on));
@@ -2963,6 +3135,7 @@ function stepMotion() {
   lastFrame = now;
   lumSpin += dt * LUM_SPEED;
   placeLuminaries();
+  lightFromSky();
   invalidate(2);
 }
 
@@ -2994,6 +3167,26 @@ gl.shadowMap.needsUpdate = true;
 let frames = 4;
 function invalidate(n = 3) { frames = Math.max(frames, n); }
 function reshadow() { gl.shadowMap.needsUpdate = true; invalidate(); }
+
+/* ── The sun lights the world ───────────────────────────────────────────
+   The stage's key light is not fixed: it stands where the sun stands and
+   walks the circuit with it, so that Meru's shadow falls across whichever
+   continent lies opposite — which is the Kośa's account of night: it
+   falls on a continent when Meru stands between it and the sun. The light
+   is held higher than the sun's 40,000 yojanas, or the model would be
+   half in shadow at all hours; its direction around Meru is the sun's
+   own. At night the moon takes it over from the other side, cool and dim. */
+const key = stage._key;
+const LIGHT_TAN = 0.9;                  // the light's elevation: about 42°
+const _lightDir = new THREE.Vector3();
+function lightFromSky() {
+  const o = LUMINARIES[night ? 1 : 0].objs[0].position;
+  _lightDir.set(o.x, 0, o.z).normalize();
+  key.position.set(_lightDir.x * 10, LIGHT_TAN * 10, _lightDir.z * 10);
+  key.color.setHex(night ? 0xc4d4ee : 0xfff5e4);
+  key.intensity = night ? 0.9 : 2.3;
+  gl.shadowMap.needsUpdate = true;
+}
 ctr.addEventListener('change', () => invalidate(2));
 window.addEventListener('resize', () => invalidate());document.addEventListener('visibilitychange', () => { if (!document.hidden) invalidate(); });
 const drawLoop = () => {
@@ -3002,7 +3195,7 @@ const drawLoop = () => {
   if (frames <= 0) return;
   frames--;
   gl.render(stage._scene, cam);
-  if (mandala) placeMarks();
+  if (mandala) placeMarks(); else placeCompass();
 };
 stage._loop = drawLoop;
 gl.setAnimationLoop(drawLoop);
@@ -3185,6 +3378,47 @@ function placeMarks() {
     const cur = String(m.id === current);
     if (cur !== m.cur) { m.el.setAttribute('aria-current', cur); m.cur = cur; }
   });
+  CPTS.forEach((c) => {
+    NDC.copy(c.p).project(cam);
+    const x = Math.round((NDC.x * 0.5 + 0.5) * w), y = Math.round((-NDC.y * 0.5 + 0.5) * hgt);
+    if (x !== c.x || y !== c.y) {
+      c.el.style.left = x + 'px';
+      c.el.style.top = y + 'px';
+      c.x = x; c.y = y;
+    }
+  });
+}
+
+/* ── the compass ────────────────────────────────────────────────────────
+   East is +x and south +z, the way the continents are laid. In the
+   mandala view the four directions are lettered at the edge of the plate,
+   with the Tibetan the offering names them by; everywhere else a small
+   rose turns with the camera, each letter standing where its direction
+   lies on the screen. */
+const CPTS = [['E', 'ཤར', 1, 0], ['S', 'ལྷོ', 0, 1], ['W', 'ནུབ', -1, 0], ['N', 'བྱང', 0, -1]]
+  .map(([d, tib, dx, dz]) => {
+    const el = document.createElement('span');
+    el.className = 'cp';
+    /* the Tibetan goes on the outer side, away from the heaps */
+    el.innerHTML = dz < 0 ? '<i>' + tib + '</i><b>' + d + '</b>'
+                          : '<b>' + d + '</b><i>' + tib + '</i>';
+    marksEl.appendChild(el);
+    return { el, p: V3(dx * RIM * 2.2, 0, dz * RIM * 2.2) };
+  });
+const compassEl = document.querySelector('.compass');
+const ROSE = [['N', 0, -1], ['E', 1, 0], ['S', 0, 1], ['W', -1, 0]]
+  .map(([d, dx, dz]) => ({ el: compassEl.querySelector('[data-d="' + d + '"]'), dx, dz, was: '' }));
+function placeCompass() {
+  const fx = ctr.target.x - cam.position.x, fz = ctr.target.z - cam.position.z;
+  const len = Math.hypot(fx, fz);
+  if (len < 1e-5) return;                       // looking straight down: hold
+  const ux = fx / len, uz = fz / len;           // screen-up, on the ground
+  const rx = -uz, rz = ux;                      // screen-right
+  ROSE.forEach((r) => {
+    const sx = r.dx * rx + r.dz * rz, sy = r.dx * ux + r.dz * uz;
+    const t = 'translate(' + (sx * 15).toFixed(1) + 'px,' + (-sy * 15).toFixed(1) + 'px)';
+    if (t !== r.was) { r.el.style.transform = t; r.was = t; }
+  });
 }
 const OVERHEAD = ['heaven_', 'formless_'];
 function setMandala(on) {
@@ -3195,6 +3429,7 @@ function setMandala(on) {
   world.traverse((o) => {
     if (o.isMesh && OVERHEAD.some((p) => o.name.startsWith(p))) o.visible = !on;
   });
+  stage._ground.visible = !on;          // a diagram casts no shadow on the page
   reshadow();
   marksEl.hidden = !on;
   noteEl.hidden = !on;
@@ -3514,7 +3749,7 @@ function setMotion(on) {
   lastFrame = performance.now();
   ctr.autoRotate = on;
   ctr.autoRotateSpeed = 0.7;           // a turn and a half in the time a circuit takes
-  if (!on) { lumSpin = 0; placeLuminaries(); }   // put them back where the text has them
+  if (!on) { lumSpin = 0; placeLuminaries(); lightFromSky(); }   // back where the text has them
   motionBtn.setAttribute('aria-pressed', String(on));
   motionBtn.querySelector('.g').textContent = on ? '❙❙' : '◐';
   motionBtn.querySelector('.t').textContent = on ? 'Hold still' : 'Motion';
