@@ -15,6 +15,7 @@ Click any part to open its entry; drag to orbit, scroll to zoom.
 | file | what it is |
 | --- | --- |
 | `index.html` | The page: the model, the searchable index, the maṇḍala mode, and all of the interface. |
+| `mandala-offerings.js` | Sculpted study miniatures for offerings 18–37, using the page's existing Three.js instance and materials. |
 | `three-d-stage.js` | The `<three-d-stage>` custom element it imports: WebGL renderer, studio lighting with a soft ground shadow, orbit controls, an auto-framed camera, and OBJ + MTL / GLB export. |
 | `icon.svg` | The home-screen and tab icon: Meru on the golden ground, in the model's own colours. Source for the PNGs. |
 | `apple-touch-icon.png`, `icon-192.png`, `icon-512.png`, `icon-maskable-512.png` | Rasterised from `icon.svg`. |
@@ -103,9 +104,22 @@ offering names them by.
 
 ## Maṇḍala mode
 
-The second control lays the world out heap by heap in the order the thirty-seven-point
-offering names it, with the Tibetan, a phonetic reading and the English, and a player
-that steps or runs through the verse.
+The second control opens a complete view of all thirty-seven offerings, with
+Tibetan, a phonetic reading and English. Play or step through the verse to reveal
+each offering in order. Reset returns to the complete reference view.
+
+Meru, the four continents, eight subcontinents and four treasures use the existing
+world geometry. The outer rings carry sculpted miniatures of the seven royal
+emblems, treasure vase, eight offering goddesses, sun, moon, parasol and victory
+banner. These reliefs face upward so their attributes can be read from above.
+Select a form or its number to open its entry, choose **Zoom in** to examine it,
+and **Whole mandala** to return to the complete diagram. Selecting an offering
+that has not yet been laid pauses playback and restores the reference view.
+
+The goddesses are distinguished by a mirror, garland, lute, dance pose, flowers,
+incense, butter lamp and perfume vessel. Their poses, colours and proportions
+are illustrative study choices. The figures are built locally from geometry,
+with parts combined by material to keep the number of draw calls down.
 
 Numbering and placement follow the [thirty-seven-point diagram](https://dudjomtersarngondro.com/wp-content/uploads/2017/12/37-pt-mandala-lsr.png)
 compiled by Lama Sonam Rinpoche for the 2017 Ngöndro retreat at Pema Ösel Ling,
@@ -120,9 +134,10 @@ For a physical offering, orient the plate according to your practice instruction
 | 26–33, offering goddesses | South-east, south-west, north-west, north-east, east, south, west, north |
 | 34–37, sun, moon, parasol and banner | East, west, south, north |
 
-Heaps 18–37 are marked on rings outside the iron wall for readability. These
-rings show offering positions. The sun and moon also have their own places in
-the cosmological model, which the numbered marks do not track.
+Heaps 18–37 occupy rings outside the iron wall, spaced to keep the miniatures
+and numbers clear. These rings show offering positions. In this mode the sun
+and moon use dedicated miniatures; returning to the world view restores their
+cosmological forms and positions.
 
 The thirty-seven-point offering text is attributed to Chögyal Pakpa Lodrö Gyaltsen.
 The English translation is by Rigpa Translations, published by [Lotsawa House](https://www.lotsawahouse.org/tibetan-masters/chogyal-pakpa-lodro-gyaltsen/thirty-seven-point-mandala-offering),
@@ -135,3 +150,8 @@ practitioner's tradition.
 Vasubandhu, *Abhidharmakośa* & *bhāṣya* III.45–102 (La Vallée Poussin / Pruden);
 Chim Jampaiyang, *Ornament of Abhidharma*; Jamgön Kongtrul, *Myriad Worlds*
 (*Treasury of Knowledge* I); Mipham, *Gateway to Knowledge* II.
+
+Visual references: Himalayan Art Resources on the
+[Seven Jewels of Royal Power](https://www.himalayanart.org/search/set.cfm?setID=1176)
+and the Rubin Museum's [Offering Table](https://rubinmuseum.org/collection/c2011-10/).
+The miniatures are original schematic models; no artwork images are reproduced.
