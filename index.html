@@ -642,7 +642,7 @@
   <aside class="mandala-note card" hidden="">
     <h3>The thirty-seven-point offering</h3>
     <p class="off-tib">༄༅། །མཎྜལ་སོ་བདུན་མ་བཞུགས་སོ། །</p>
-    <p class="off-intro">Order and direction follow the diagram compiled by Lama Sonam Rinpoche (Ngöndro retreat, Pema Ösel Ling, 2017). Heaps 18 to 37 have no place in the geography: they are drawn as rings outside the iron wall, in the eight directions the plate gives them.</p>
+    <p class="off-intro">Placement follows <a href="https://dudjomtersarngondro.com/wp-content/uploads/2017/12/37-pt-mandala-lsr.png" target="_blank" rel="noopener">Lama Sonam Rinpoche’s 2017 diagram</a> from Pema Ösel Ling. North is at the top, south at the bottom. For a physical offering, orient the plate according to your practice instructions. The outer numbered rings show offering positions.</p>
     <div class="off-player">
       <button class="pb wide" data-p="play" type="button" aria-pressed="false" title="Play — p"><span class="gl">▶</span>Play</button>
       <button class="pb" data-p="prev" type="button" title="Back one — ," aria-label="Back one">‹</button>
@@ -710,9 +710,9 @@ const { THREE } = await stage.ready;
 stage.shadowRoot.querySelector('.note')?.remove();   // the page carries its own hint
 
 /* ── scale ───────────────────────────────────────────────────────────────
-   S: metres per yojana for every radius and height. V exaggerates heights
-   above the water against radial distance so Meru reads as a mountain.
-   All distortions are listed in the index under "Notes on the drawing".  */
+   S: the base conversion from yojanas to metres. V exaggerates core
+   heights above the water; other geometry also uses schematic measures.
+   The principal adaptations are described in "The scale of this drawing". */
 const S = 1 / 400000;
 const SQUEEZE = 0.503;            // the outer salt ocean, drawn at half width
 const CONT = 40;                  // the twelve landmasses, drawn at 40×
@@ -1811,8 +1811,8 @@ world.add(jambu);
    The Kośa gives them as discs of fire-crystal and water-crystal; they are
    drawn as spheres, each with a painted glow, so that they read as lights
    from any angle and so that the sun can be what lights the world (see
-   "The sun lights the world", below). Some three times their measure — 51
-   and 50 yojanas across is a speck at this scale. */
+   "The sun lights the world", below). Their sizes are strongly exaggerated:
+   51 and 50 yojanas across would be specks at this scale. */
 /* Everything the sun and moon need in order to be walked around Meru: their
    starting angle, the radius and height of the circuit, and the three objects
    (sphere, painted glow, click target) that have to travel together. */
@@ -1842,10 +1842,9 @@ const LUMINARIES = [];
 );
 
 /* ── The axis above the summit ────────────────────────────────────────
-   Each level stands twice as high above the water as the one below it,
-   40,000 yojanas doubling to some 167 billion, so even steps here read as
-   even doublings — a log scale. Their extents double too, which the taper
-   ignores: a widening tower would bury the world beneath it.           */
+   Regular steps within groups suggest the doubling of textual heights.
+   Gaps separate the groups, and the tower narrows for visibility. This
+   is a schematic arrangement, not a common scale with Meru below.     */
 const CLUSTERS = [
   [M.gold, ['yama', 'tushita', 'nirmanarati', 'paranirmitavashavartin']],
   [M.crystal, ['brahmaparishadya', 'brahmapurohita', 'mahabrahma']],
@@ -1968,22 +1967,27 @@ const def = (id, o) => { E[id] = { id, ...o }; };
 def('about', {
   t: 'About this drawing', meta: 'What this is, and how to read it', k: 'start here',
   f: [['After', 'Abhidharmakośa III; Myriad Worlds'],
-      ['Scale', '1 metre : 400,000 yojanas'],
-      ['Indexed', '154 entries']],
+      ['Base scale', '1 metre : 400,000 yojanas; schematic adaptations'],
+      ['Index', 'Explanatory entries with search']],
   b: ['Mount Meru, the seven golden ranges, the four continents, the heavens, formless absorptions, and other realms of existence, after Vasubandhu\'s <i>Abhidharmakośa</i> III and Jamgön Kongtrul\'s <i>Myriad Worlds</i>.',
       'A visual study aid for practitioners learning and visualizing mandala offerings, and for anyone studying Buddhist cosmology.',
-      'Every part of the model is a click away from its entry: its name in Sanskrit and Tibetan, its measure, and what the texts say stands there. The index lists all of them, and takes a filter. <b>Mandala view</b> lays the world out heap by heap in the order the thirty-seven-point offering names it. <b>Motion</b> sets the sun and moon on their circuit and lets the view turn; the sun is what lights the world, so Meru\'s shadow walks round the continents with it — the Kośa\'s account of night. The small compass rose turns with the view; in the mandala view the four directions are lettered at the edge of the plate.',
+      'Every part of the model is a click away from its entry: its name in Sanskrit and Tibetan, its measure, and what the texts say stands there. The index lists all of them, and takes a filter. <b>Mandala view</b> lays the world out heap by heap in the order the thirty-seven-point offering names it. <b>Motion</b> sets the sun and moon on their circuit and lets the view turn. The light follows the sun around Meru, or the moon in night mode, from a higher angle chosen for visibility. The small compass rose turns with the view; in the mandala view the four directions are lettered in English and Tibetan at the edge of the plate.',
       'Each continent takes its colour and shape from the face of Meru it stands opposite, and is flanked by two subcontinents of the same shape and half the size.',
-      'Radial distances and heights hold the textual figures at one metre to 400,000 yojanas, with seven departures made deliberately and no others — they are set out under <b>The scale of this drawing</b>.'],
+      'The model uses schematic changes of scale, shape, placement, and lighting to make its features readable. <b>The scale of this drawing</b> describes the principal adaptations.'],
   rel: ['about_scale', 'meru_core', 'about_mandala'],
   src: 'Vasubandhu, <i>Abhidharmakośa</i> &amp; <i>bhāṣya</i> III.45–102 (La Vallée Poussin / Pruden); Chim Jampaiyang, <i>Ornament of Abhidharma</i>; Jamgön Kongtrul, <i>Myriad Worlds</i>; Mipham, <i>Gateway to Knowledge</i> II.'
 });
 def('about_scale', {
-  t: 'The scale of this drawing', meta: 'Scale and its seven distortions', k: '1m : 400,000',
-  f: [['Scale', '1 metre : 400,000 yojanas'], ['Heights', '×3.4 against radial distance']],
-  b: ['Radial distances and heights hold the textual figures at one metre to 400,000 yojanas. Seven departures are made deliberately, and no others:',
-      '1 — Heights above the water are drawn at 3.4× radial distance, so Meru reads as a mountain; every height stays in true proportion to every other height. 2 — Meru is tapered, base wider than summit; the Kośa gives it as square in constant section, 80,000 a side throughout. 3 — The outer salt ocean is drawn at half width. 4 — The twelve landmasses are drawn at forty times, since 2,000 yojanas against a 600,000-yojana radius is a speck. 5 — The four outer ranges are given a floor of 9,000 yojanas in width and 3,400 in height; truly they fall to 625. 6 — The strata below the golden ground are compressed and narrowed. 7 — The hells lie inside the golden ground beneath Jambudvīpa; they are hung below the disc to be seen.',
-      'The vertical axis above the summit is a log scale: each heaven stands twice as high as the one below, so even steps read as even doublings.'],
+  t: 'The scale of this drawing', meta: 'Scale, shape, placement and lighting', k: '1m : 400,000',
+  f: [['Base scale', '1 metre : 400,000 yojanas'],
+      ['Core heights', '×3.4 against radial distance above the water'],
+      ['Heavens', 'schematic spacing with gaps between groups']],
+  b: ['The drawing starts from one metre to 400,000 yojanas and makes several deliberate adaptations for legibility. The dimensions in the entries describe the sources; they cannot all be measured from the displayed model. The principal adaptations are:',
+      '<b>Meru and the surrounding world.</b> Core heights above the water are multiplied by 3.4. Meru is tapered, with a wider base; the Kośa describes a constant square section. The ranges are drawn as circular ridges. The outer salt ocean is about half its stated width, and the twelve landmasses are enlarged fortyfold. Smaller ranges and their intervening seas are widened to at least 9,000 yojanas; range heights have a minimum of 3,400 before vertical exaggeration. The iron wall and small details are also enlarged for visibility.',
+      '<b>Below the ground.</b> The foundation layers are compressed and narrowed. The hot hells and the preta realm are displayed below the disc so they can be seen; the cold hells are offset to one side. These display positions are schematic.',
+      '<b>Above the summit.</b> Regular steps between heavens suggest the doubling of textual heights, with extra gaps between groups and a narrowing tower. This roughly logarithmic arrangement does not share the scale of Meru. The formless absorptions are represented by open meshes as a study aid; they have no physical location or dimensions.',
+      '<b>Sun, moon and light.</b> The textual discs are represented by strongly enlarged spheres with painted glows. The light follows the sun around Meru, or the moon in night mode, from a higher angle chosen to keep the world visible. The changing shadows are illustrative.',
+      '<b>The offering diagram.</b> Numbered marks for heaps 18–37 occupy rings outside the iron wall. These are offering positions; the sun and moon also appear within the cosmological model. The diagram\'s spacing and the small treasure emblems are chosen for readability.'],
   src: 'The model'
 });
 def('about_yojana', {
@@ -2664,6 +2668,8 @@ const OFFERING_CREDIT = 'The thirty-seven-point offering text is attributed to C
   'English translation by Rigpa Translations, published by <a href="https://www.lotsawahouse.org/tibetan-masters/chogyal-pakpa-lodro-gyaltsen/thirty-seven-point-mandala-offering" target="_blank" rel="noopener">Lotsawa House</a>, ' +
   '<a href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank" rel="noopener">CC BY-NC 4.0</a>.';
 const MO = OFFERING_CREDIT + ' Background: Patrul Rinpoche, Words of My Perfect Teacher V; Kongtrul, Myriad Worlds.';
+const MANDALA_DIAGRAM = 'Placement: <a href="https://dudjomtersarngondro.com/wp-content/uploads/2017/12/37-pt-mandala-lsr.png" target="_blank" rel="noopener">Lama Sonam Rinpoche, diagram of the mandala with thirty-seven features</a>, 2017 Ngöndro retreat, Pema Ösel Ling; ' +
+  '<a href="https://dudjomtersarngondro.com/download/texts/free-text-downloads/37-point-diagram-and-key" target="_blank" rel="noopener">diagram and key</a>.';
 
 def('about_mandala', {
   t: 'The mandala of thirty-seven', tib: 'maṇḍala so bdun ma', k: '37 heaps',
@@ -2676,14 +2682,18 @@ def('about_mandala', {
       ['18–24', 'the seven emblems of a universal monarch'],
       ['25', 'the vase of inexhaustible treasure'],
       ['26–33', 'the eight offering goddesses'],
-      ['Each ring', 'laid east, south, west, north, then the four intermediate points'],
+      ['18–25 directions', 'east, south, west, north, south-east, south-west, north-west, north-east'],
+      ['26–33 directions', 'south-east, south-west, north-west, north-east, east, south, west, north'],
       ['34–37', 'sun, moon, parasol, and banner'],
+      ['34–37 directions', 'east, west, south, north'],
       ['Then', 'the whole is given away, and the giving is the point']],
   b: ['The mandala offering takes the cosmology drawn here and hands it over. Grain or jewels are laid on a plate in thirty-seven heaps, each named aloud as it is placed, beginning with Meru at the centre and working outward through the continents, their treasures, the wealth of a universal monarch, the goddesses of the senses, and the lights of the sky. When the last heap is down, the whole plate is offered and swept clean.',
       'This thirty-seven-point offering text is attributed to Chögyal Pakpa Lodrö Gyaltsen. Mandala offerings also have other forms. The form used and the method of counting follow the instructions of the practitioner\'s tradition.',
-      'Every heap in this list is drawn or marked in the model. The numbered marks appear in the top-down view; the order of the numbers is the order of the offering. Pressing play there lays them one at a time, in step with the line of the verse that names them.'],
+      'Every heap in this list is drawn or marked in the model. The numbered marks appear in the top-down view; the order of the numbers is the order of the offering. Pressing play there lays them one at a time, in step with the line of the verse that names them.',
+      'The placement follows Lama Sonam Rinpoche\'s 2017 diagram from Pema Ösel Ling. Heaps 18–25 start at the cardinal directions; the goddesses, heaps 26–33, start at the intermediate directions. The outer four points place the sun east, the moon west, the parasol south and the banner north.',
+      'The diagram is seen from above, with north at the top, east at the right, south at the bottom and west at the left. It does not specify the practitioner\'s position. For a physical offering, orient the plate according to your practice instructions. The outer numbered rings are a schematic guide to offering positions.'],
   rel: ['meru_core', 'treasure_mountain', 'emblem_wheel', 'goddess_lasya'],
-  src: MO
+  src: MO + ' ' + MANDALA_DIAGRAM
 });
 
 const TREASURES = [
@@ -2802,11 +2812,11 @@ def('mandala_parasol', {
   f: [['Form', 'a white parasol, its ribs of gold, hung with silk'],
       ['Held above', 'a monarch, a teacher, or an image, never above oneself'],
       ['Shelters from', 'heat, and from the harm that follows wrongdoing'],
-      ['In the offering', 'heap 36; in some arrangements it is placed south']],
+      ['In the offering', 'heap 36; south in the diagram used here']],
   b: ['A parasol is carried over whoever is being honoured, and it has meant rank in India long before it meant anything in Buddhism. In the offering it is the shade under which beings are protected — the last heaps are the sky over the world, and this is what stands between the world and the sun.',
-      'Positions differ. Some traditions place the parasol in the east with the sun and the banner in the west with the moon; others put them south and north, as they are marked here.'],
+      'Lama Sonam Rinpoche\'s 2017 diagram places the parasol south and the banner north, as they are marked here. Follow your practice instructions for the arrangement of a physical offering.'],
   rel: ['about_mandala', 'mandala_banner', 'sun'],
-  src: MO
+  src: MO + ' ' + MANDALA_DIAGRAM
 });
 def('mandala_banner', {
   t: 'The banner of victory', tib: 'phyogs las rnam par rgyal ba\'i rgyal mtshan', k: 'heap 37',
@@ -2814,11 +2824,11 @@ def('mandala_banner', {
   f: [['Form', 'a cylindrical banner of silk, in tiers, on a staff'],
       ['Stands for', 'the teaching prevailing over what obstructs it'],
       ['Placed on', 'the roofs of temples, at the four corners'],
-      ['In the offering', 'heap 37 — the last, and then the whole is given']],
+      ['In the offering', 'heap 37; north in the diagram used here']],
   b: ['The banner marks a victory already won: not over an enemy but over the four māras — the afflictions, the aggregates, death, and distraction. It is the thirty-seventh heap, and with it the plate is complete.',
       'What follows is the offering proper. The mandala is lifted, given away, and the grain swept off; then it is built again. The form used and the method of counting follow the instructions of the practitioner\'s tradition.'],
   rel: ['about_mandala', 'mandala_parasol', 'moon'],
-  src: MO
+  src: MO + ' ' + MANDALA_DIAGRAM
 });
 
 /* the order of the heaps, with the point in the model each one marks */
@@ -3245,8 +3255,8 @@ const SUBOF = {
   shatha: ['aparagodaniya', -1], uttaramantrina: ['aparagodaniya', 1],
   kurava: ['uttarakuru', -1], kaurava: ['uttarakuru', 1]
 };
-/* east, south, west, north, then the four intermediate directions —
-   the order in which heaps 18–25 and 26–33 are laid on the plate */
+/* Heaps 18–25: east, south, west, north, then the intermediate directions.
+   Verified against Lama Sonam Rinpoche's 2017 diagram (MANDALA_DIAGRAM). */
 const EIGHT = [Math.PI / 2, 0, -Math.PI / 2, Math.PI,
                Math.PI / 4, -Math.PI / 4, -3 * Math.PI / 4, 3 * Math.PI / 4];
 /* the goddesses run the intermediate directions first, then the cardinals */
@@ -3255,10 +3265,9 @@ const ring = (rad, k) => {
   const a = EIGHT[k];
   return V3(Math.sin(a) * rad, 0, Math.cos(a) * rad);
 };
-/* Rings 18–25, 26–33 and 34–37 belong to the plate, not to the geography:
-   the ocean band has no room for them, so they are drawn as concentric
-   rings outside the iron wall, in the order and directions the diagram
-   gives them — emblems, then goddesses, then sun, moon, parasol, banner. */
+/* The numbered offering positions occupy rings outside the iron wall for
+   readability. Sun and moon also have geometry within the world; their
+   offering marks stay at the diagram's directions rather than tracking it. */
 const R_EMBLEM = RIM * 1.13;
 const R_GODDESS = RIM * 1.42;
 function heapPoint(id, i) {
