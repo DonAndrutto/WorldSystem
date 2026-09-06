@@ -2,7 +2,11 @@
 
 An interactive 3D model of the Buddhist world system, after Vasubandhu's
 *Abhidharmakośa* III and Jamgön Kongtrul's *Myriad Worlds*: Mount Meru, the seven
-golden ranges, the four continents and the twenty-eight realms above and below them.
+golden ranges, the four continents, the heavens, formless absorptions, and other
+realms of existence.
+
+A visual study aid for practitioners learning and visualizing mandala offerings,
+and for anyone studying Buddhist cosmology.
 
 Click any part to open its entry; drag to orbit, scroll to zoom.
 
@@ -98,8 +102,11 @@ that steps or runs through the verse.
 Order and direction follow the diagram compiled by Lama Sonam Rinpoche (Ngöndro
 retreat, Pema Ösel Ling, 2017). Heaps 18 to 37 have no place in the geography and are
 drawn as rings outside the iron wall, in the eight directions the plate gives them.
-The English translation is by Rigpa Translations, [Lotsawa House](https://www.lotsawahouse.org/tibetan-masters/chogyal-pakpa-lodro-gyaltsen/thirty-seven-point-mandala-offering),
+The thirty-seven-point offering text is attributed to Chögyal Pakpa Lodrö Gyaltsen.
+The English translation is by Rigpa Translations, published by [Lotsawa House](https://www.lotsawahouse.org/tibetan-masters/chogyal-pakpa-lodro-gyaltsen/thirty-seven-point-mandala-offering),
 [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/).
+The form used and the method of counting follow the instructions of the
+practitioner's tradition.
 
 ## Sources
 
