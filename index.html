@@ -1970,7 +1970,8 @@ def('about', {
   f: [['After', 'Abhidharmakośa III; Myriad Worlds'],
       ['Scale', '1 metre : 400,000 yojanas'],
       ['Indexed', '154 entries']],
-  b: ['Mount Meru, the seven golden ranges, the four continents and the twenty-eight realms above and below them, after Vasubandhu\'s <i>Abhidharmakośa</i> III and Jamgön Kongtrul\'s <i>Myriad Worlds</i>.',
+  b: ['Mount Meru, the seven golden ranges, the four continents, the heavens, formless absorptions, and other realms of existence, after Vasubandhu\'s <i>Abhidharmakośa</i> III and Jamgön Kongtrul\'s <i>Myriad Worlds</i>.',
+      'A visual study aid for practitioners learning and visualizing mandala offerings, and for anyone studying Buddhist cosmology.',
       'Every part of the model is a click away from its entry: its name in Sanskrit and Tibetan, its measure, and what the texts say stands there. The index lists all of them, and takes a filter. <b>Mandala view</b> lays the world out heap by heap in the order the thirty-seven-point offering names it. <b>Motion</b> sets the sun and moon on their circuit and lets the view turn; the sun is what lights the world, so Meru\'s shadow walks round the continents with it — the Kośa\'s account of night. The small compass rose turns with the view; in the mandala view the four directions are lettered at the edge of the plate.',
       'Each continent takes its colour and shape from the face of Meru it stands opposite, and is flanked by two subcontinents of the same shape and half the size.',
       'Radial distances and heights hold the textual figures at one metre to 400,000 yojanas, with seven departures made deliberately and no others — they are set out under <b>The scale of this drawing</b>.'],
@@ -2300,11 +2301,12 @@ def('continent_uttarakuru', {
   src: `${AK}; lifespans AK III.78`
 });
 def('jambu', {
-  t: 'The rose-apple tree', tib: '\'dzam bu\'i shing', en: 'jambu · the treasure of the south', k: 'south',
+  t: 'The rose-apple tree', tib: '\'dzam bu\'i shing', en: 'jambu · the tree that names Jambudvīpa', k: 'south',
   meta: 'On the bank of Lake Anavatapta',
   f: [['Place', 'north of the inhabited land, by Lake Anavatapta'],
       ['Fruit', 'the size of a jar, sweet; falls with a sound heard far off']],
-  b: 'The tree from which our continent takes its name, growing at the edge of the lake beyond the northern mountains. In the Tibetan mandala offering it is the treasure of the southern continent, the wish-granting tree, matching the jewel mountain of the east, the cow of the west and the unsown harvest of the north.',
+  b: 'The jambu tree from which Jambudvīpa takes its name, described beside Lake Anavatapta in the geography of the southern continent. The wish-fulfilling tree offered as heap 15 has its own entry in the mandala section.',
+  rel: ['continent_jambudvipa', 'anavatapta', 'treasure_tree'],
   src: MW
 });
 
@@ -2655,11 +2657,13 @@ def('vajrasana', {
 
 /* ════════════════════════════════════════════════════════════════════════
    THE THIRTY-SEVEN-POINT MANDALA
-   The offering set out in the Sakya tradition after Drakpa Gyaltsen and
-   used in every Tibetan school: the world system given away piece by
-   piece, in a fixed order, from Meru outward.
+   The text attributed to Chögyal Pakpa Lodrö Gyaltsen: the world system
+   given away piece by piece, in a fixed order, from Meru outward.
    ════════════════════════════════════════════════════════════════════════ */
-const MO = 'Drakpa Gyaltsen, the thirty-seven-heap mandala; Patrul Rinpoche, Words of My Perfect Teacher V; Kongtrul, Myriad Worlds';
+const OFFERING_CREDIT = 'The thirty-seven-point offering text is attributed to Chögyal Pakpa Lodrö Gyaltsen. ' +
+  'English translation by Rigpa Translations, published by <a href="https://www.lotsawahouse.org/tibetan-masters/chogyal-pakpa-lodro-gyaltsen/thirty-seven-point-mandala-offering" target="_blank" rel="noopener">Lotsawa House</a>, ' +
+  '<a href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank" rel="noopener">CC BY-NC 4.0</a>.';
+const MO = OFFERING_CREDIT + ' Background: Patrul Rinpoche, Words of My Perfect Teacher V; Kongtrul, Myriad Worlds.';
 
 def('about_mandala', {
   t: 'The mandala of thirty-seven', tib: 'maṇḍala so bdun ma', k: '37 heaps',
@@ -2676,7 +2680,7 @@ def('about_mandala', {
       ['34–37', 'sun, moon, parasol, and banner'],
       ['Then', 'the whole is given away, and the giving is the point']],
   b: ['The mandala offering takes the cosmology drawn here and hands it over. Grain or jewels are laid on a plate in thirty-seven heaps, each named aloud as it is placed, beginning with Meru at the centre and working outward through the continents, their treasures, the wealth of a universal monarch, the goddesses of the senses, and the lights of the sky. When the last heap is down, the whole plate is offered and swept clean.',
-      'The count is not the only one. Seven-heap and twenty-three-heap forms are common, and the Nyingma long form adds further heaps. The thirty-seven follow Drakpa Gyaltsen and are the standard for the preliminary practices, where a hundred thousand of them are counted.',
+      'This thirty-seven-point offering text is attributed to Chögyal Pakpa Lodrö Gyaltsen. Mandala offerings also have other forms. The form used and the method of counting follow the instructions of the practitioner\'s tradition.',
       'Every heap in this list is drawn or marked in the model. The numbered marks appear in the top-down view; the order of the numbers is the order of the offering. Pressing play there lays them one at a time, in step with the line of the verse that names them.'],
   rel: ['meru_core', 'treasure_mountain', 'emblem_wheel', 'goddess_lasya'],
   src: MO
@@ -2686,7 +2690,7 @@ const TREASURES = [
   ['treasure_mountain', 'The precious mountain', 'ri bo rin po che', 'Pūrvavideha, east',
    'A mountain of jewels, its four sides gold, silver, lapis and crystal, standing on the eastern continent. It is the emblem of inexhaustible substance: what is taken from it does not diminish it.'],
   ['treasure_tree', 'The wish-fulfilling tree', 'dpag bsam gyi shing', 'Jambudvīpa, south',
-   'Its roots are in the land of the asuras and its fruit ripens in the heaven of the thirty-three, which is the old cause of the war between them. It gives whatever is asked of it. It is not the rose-apple tree, which is a real tree of the southern continent; the two are often drawn together.'],
+   'The wish-fulfilling tree offered as the southern continent\'s treasure. It is heap 15, following the jewel mountain and preceding the wish-fulfilling cow. Its name expresses the abundance offered with the world system. The rose-apple tree of Jambudvīpa is described in a separate entry.'],
   ['treasure_cow', 'The wish-fulfilling cow', 'ba glang \'dod \'jo', 'Aparagodānīya, west',
    'The cow that yields whatever is wished for rather than milk. The western continent is named for cattle — go-dānīya, where cattle are the currency — and this is its treasure.'],
   ['treasure_harvest', 'The unsown harvest', 'ma rmos pa\'i lo tog', 'Uttarakuru, north',
@@ -2702,7 +2706,8 @@ TREASURES.forEach(([id, t, tib, where, body]) => {
         ['Drawn', 'as an emblem; at true measure it would not be visible']],
     b: [body],
     rel: ['about_mandala', 'continent_' + { east: 'purvavideha', south: 'jambudvipa',
-      west: 'aparagodaniya', north: 'uttarakuru' }[where.split(',')[1].trim()]],
+      west: 'aparagodaniya', north: 'uttarakuru' }[where.split(',')[1].trim()],
+      ...(id === 'treasure_tree' ? ['jambu'] : [])],
     src: MO
   });
 });
@@ -2811,7 +2816,7 @@ def('mandala_banner', {
       ['Placed on', 'the roofs of temples, at the four corners'],
       ['In the offering', 'heap 37 — the last, and then the whole is given']],
   b: ['The banner marks a victory already won: not over an enemy but over the four māras — the afflictions, the aggregates, death, and distraction. It is the thirty-seventh heap, and with it the plate is complete.',
-      'What follows is the offering proper. The mandala is lifted, given away, and the grain swept off; then it is built again. A hundred thousand times, in the preliminary practices.'],
+      'What follows is the offering proper. The mandala is lifted, given away, and the grain swept off; then it is built again. The form used and the method of counting follow the instructions of the practitioner\'s tradition.'],
   rel: ['about_mandala', 'mandala_parasol', 'moon'],
   src: MO
 });
@@ -3023,7 +3028,8 @@ function show(id, reveal) {
     sRelRow.appendChild(b);
   });
   sRel.hidden = !rel.length;
-  sSrc.textContent = e.src || '';
+  // Source entries are authored with the app, including linked text and licence credits.
+  sSrc.innerHTML = e.src || '';
   sSrc.hidden = !e.src;
   zoomBtn.disabled = !ms.length;
   sheet.hidden = false;
@@ -3449,7 +3455,7 @@ function setMandala(on) {
 noteEl.querySelector('[data-open]').addEventListener('click', () => show('about_mandala', true));
 
 /* ── the offering, played ────────────────────────────────────────────
-   Drakpa Gyaltsen's thirty-seven-point verse, line by line, with the
+   Chögyal Pakpa Lodrö Gyaltsen's thirty-seven-point verse, line by line, with the
    heaps each line names. Playing it lays the world system out in the
    order it is spoken: one heap at a time, the one being named lit.  */
 const HEAP_ID = {};
@@ -3504,9 +3510,7 @@ const VERSE = [
   ['བཞེས་ནས་བྱིན་གྱིས་བརླབ་ཏུ་གསོལ།', 'zhé né jingyi lab tu sol',
    'Having accepted it, please grant your blessing!', []]
 ];
-const CREDIT = 'Chögyal Pakpa Lodrö Gyaltsen (1235–1280), <i>maṇḍala so bdun ma</i>. ' +
-  'English translation by <a href="https://www.lotsawahouse.org/tibetan-masters/chogyal-pakpa-lodro-gyaltsen/thirty-seven-point-mandala-offering" target="_blank" rel="noopener">Rigpa Translations, Lotsawa House</a>, ' +
-  '<a href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank" rel="noopener">CC BY-NC 4.0</a>.';
+const CREDIT = OFFERING_CREDIT;
 const HINT = 'Press play: the world system is laid out heap by heap, in the order the verse names it.';
 
 /* one step per heap, plus one for each line that names no heap */
