@@ -14,7 +14,7 @@ Click any part to open its entry; drag to orbit, scroll to zoom.
 
 | file | what it is |
 | --- | --- |
-| `index.html` | The page — the model, the index of 154 entries, the maṇḍala mode, and all of the interface. |
+| `index.html` | The page: the model, the searchable index, the maṇḍala mode, and all of the interface. |
 | `three-d-stage.js` | The `<three-d-stage>` custom element it imports: WebGL renderer, studio lighting with a soft ground shadow, orbit controls, an auto-framed camera, and OBJ + MTL / GLB export. |
 | `icon.svg` | The home-screen and tab icon: Meru on the golden ground, in the model's own colours. Source for the PNGs. |
 | `apple-touch-icon.png`, `icon-192.png`, `icon-512.png`, `icon-maskable-512.png` | Rasterised from `icon.svg`. |
@@ -45,11 +45,19 @@ install it the same way.
 
 ## The drawing
 
-Radial distances and heights hold the textual figures at **1 m : 400,000 yojanas**,
-with seven stated distortions — all of them listed in the index under *Notes on the
-drawing* rather than applied silently. The largest are the outer salt ocean at half
-its width, the twelve landmasses at forty times their size, and a 3.4× vertical
-exaggeration above the water so that Meru reads as a mountain.
+The drawing starts from **1 m : 400,000 yojanas** and makes several deliberate
+adaptations for legibility. The outer salt ocean is drawn at about half its width,
+the twelve landmasses at forty times their size, and core heights above the water
+at 3.4× radial scale. Smaller ranges and seas are widened, Meru is tapered, and
+the foundation and hells are compressed or moved so they can be seen.
+
+The heavens use schematic spacing inspired by the doubling of textual heights,
+with gaps between groups and a narrowing tower. The sun and moon are enlarged
+spheres with painted glows; the lighting follows their direction around Meru
+from a higher angle for visibility. Offering marks use separate rings around
+the world. *The scale of this drawing* describes these and other principal
+adaptations. The dimensions in the entries describe the sources; they cannot
+all be measured from the displayed model.
 
 Each continent takes its colour and shape from the face of Meru it stands opposite —
 crystal white east, lapis blue south, ruby red west, emerald green north — and is
@@ -76,7 +84,7 @@ Six, and every one of them does something:
 
 | | |
 | --- | --- |
-| **Index** `i` | The drawer of all 154 entries, with a filter. |
+| **Index** `i` | The drawer of explanatory entries, with a filter. |
 | **Mandala view** `m` | The thirty-seven heaps, in the order the offering names them. |
 | **Motion** `r` | Sets the sun and moon on their circuit around Meru — forty seconds to the day — and lets the view turn slowly with them. The sun is what lights the world, so Meru's shadow walks round the continents with it. Off until asked for, so the model holds still while it is being read. |
 | **Night** `n` | Paper or dark. At night the moon takes over the lighting, and the clouds stand against a faint field of stars. |
@@ -99,9 +107,23 @@ The second control lays the world out heap by heap in the order the thirty-seven
 offering names it, with the Tibetan, a phonetic reading and the English, and a player
 that steps or runs through the verse.
 
-Order and direction follow the diagram compiled by Lama Sonam Rinpoche (Ngöndro
-retreat, Pema Ösel Ling, 2017). Heaps 18 to 37 have no place in the geography and are
-drawn as rings outside the iron wall, in the eight directions the plate gives them.
+Numbering and placement follow the [thirty-seven-point diagram](https://dudjomtersarngondro.com/wp-content/uploads/2017/12/37-pt-mandala-lsr.png)
+compiled by Lama Sonam Rinpoche for the 2017 Ngöndro retreat at Pema Ösel Ling,
+with its [published key](https://dudjomtersarngondro.com/download/texts/free-text-downloads/37-point-diagram-and-key).
+The diagram is seen from above: north at the top, east at the right, south at the
+bottom and west at the left. It does not specify the practitioner's position.
+For a physical offering, orient the plate according to your practice instructions.
+
+| Heaps | Placement in this diagram |
+| --- | --- |
+| 18–25, emblems and treasure vase | East, south, west, north, south-east, south-west, north-west, north-east |
+| 26–33, offering goddesses | South-east, south-west, north-west, north-east, east, south, west, north |
+| 34–37, sun, moon, parasol and banner | East, west, south, north |
+
+Heaps 18–37 are marked on rings outside the iron wall for readability. These
+rings show offering positions. The sun and moon also have their own places in
+the cosmological model, which the numbered marks do not track.
+
 The thirty-seven-point offering text is attributed to Chögyal Pakpa Lodrö Gyaltsen.
 The English translation is by Rigpa Translations, published by [Lotsawa House](https://www.lotsawahouse.org/tibetan-masters/chogyal-pakpa-lodro-gyaltsen/thirty-seven-point-mandala-offering),
 [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/).
