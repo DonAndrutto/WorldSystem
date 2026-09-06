@@ -492,7 +492,7 @@
     margin-top: 5px; padding: 9px 2px 2px; border-top: 1px solid var(--rule);
     font-family: "IBM Plex Mono", monospace; font-size: 9.5px; line-height: 1.75; color: var(--ink-3);
   }
-  .off-foot { display: flex; gap: 6px; margin-top: 11px; }
+  .off-foot { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 11px; }
 
   /* staged reveal */
   .mk { transition: opacity .26s; }
@@ -660,6 +660,7 @@
     <div class="off-full scroll" hidden=""></div>
     <div class="off-foot">
       <button class="btn" data-p="full" type="button" title="The whole verse — v">Full verse</button>
+      <button class="btn" data-p="overview" type="button">Whole mandala</button>
       <button class="btn" data-open="about_mandala" type="button">About the offering</button>
     </div>
   </aside>
@@ -678,7 +679,7 @@
       <p class="src"></p>
     </div>
     <footer class="sheet-foot">
-      <button class="btn zoom" type="button">Zoom to this</button>
+      <button class="btn zoom" type="button">Zoom in</button>
       <div class="stepper">
         <button class="btn prev" type="button" title="Previous entry">←</button>
         <button class="btn next" type="button" title="Next entry">→</button>
@@ -705,6 +706,7 @@
 </div>
 
 <script type="module">
+import { createOfferingModels } from './mandala-offerings.js';
 const stage = document.querySelector('three-d-stage');
 const { THREE } = await stage.ready;
 stage.shadowRoot.querySelector('.note')?.remove();   // the page carries its own hint
@@ -2689,7 +2691,8 @@ def('about_mandala', {
       ['Then', 'the whole is given away, and the giving is the point']],
   b: ['The mandala offering takes the cosmology drawn here and hands it over. Grain or jewels are laid on a plate in thirty-seven heaps, each named aloud as it is placed, beginning with Meru at the centre and working outward through the continents, their treasures, the wealth of a universal monarch, the goddesses of the senses, and the lights of the sky. When the last heap is down, the whole plate is offered and swept clean.',
       'This thirty-seven-point offering text is attributed to Chögyal Pakpa Lodrö Gyaltsen. Mandala offerings also have other forms. The form used and the method of counting follow the instructions of the practitioner\'s tradition.',
-      'Every heap in this list is drawn or marked in the model. The numbered marks appear in the top-down view; the order of the numbers is the order of the offering. Pressing play there lays them one at a time, in step with the line of the verse that names them.',
+      'All thirty-seven offerings have visual forms. Meru, the continents, subcontinents and their treasures use the world model. Sculpted miniatures represent the royal emblems, treasure vase, eight offering goddesses, sun, moon, parasol and banner on the outer rings. Pressing play reveals the offerings one at a time, in step with the line of the verse that names them.',
+      'The miniatures are simplified study figures. Their poses, colours and proportions are illustrative; the mirror, garland, lute, dance pose, flowers, incense, lamp and perfume vessel help distinguish the eight goddesses. Select a figure or its number to read its entry, use <b>Zoom in</b> to examine it, and choose <b>Whole mandala</b> to return to the diagram.',
       'The placement follows Lama Sonam Rinpoche\'s 2017 diagram from Pema Ösel Ling. Heaps 18–25 start at the cardinal directions; the goddesses, heaps 26–33, start at the intermediate directions. The outer four points place the sun east, the moon west, the parasol south and the banner north.',
       'The diagram is seen from above, with north at the top, east at the right, south at the bottom and west at the left. It does not specify the practitioner\'s position. For a physical offering, orient the plate according to your practice instructions. The outer numbered rings are a schematic guide to offering positions.'],
   rel: ['meru_core', 'treasure_mountain', 'emblem_wheel', 'goddess_lasya'],
@@ -2960,10 +2963,17 @@ world.traverse((o) => {
   if (!byName.has(o.name)) byName.set(o.name, []);
   byName.get(o.name).push(o);
 });
+const visibleInScene = (object) => {
+  for (let parent = object; parent; parent = parent.parent) if (!parent.visible) return false;
+  return true;
+};
 const meshesFor = (id) => {
+  if (mandala && HEAP_NUMBERS.has(id)) {
+    return HEAP_MEMBERS.get(HEAP_NUMBERS.get(id)).filter(visibleInScene);
+  }
   const out = [];
   byName.forEach((list, name) => {
-    if (name === id || ALIAS[name] === id) out.push.apply(out, list);
+    if (name === id || ALIAS[name] === id) out.push(...list.filter(visibleInScene));
   });
   return out;
 };
@@ -2974,7 +2984,11 @@ const tint = (m) => Object.assign(m.clone(),
 const tintable = (m) => m.material && !Array.isArray(m.material)
   && m.material !== M.formless && !m.userData.pickOnly;
 function clearPick() {
-  picked.forEach((m, i) => { m.material = pickedMats[i]; });
+  picked.forEach((m, i) => {
+    const highlight = m.material;
+    m.material = pickedMats[i];
+    if (highlight !== pickedMats[i]) highlight.dispose();
+  });
   picked = []; pickedMats = [];
 }
 
@@ -3009,6 +3023,13 @@ function close() {
 function show(id, reveal) {
   const e = E[id];
   if (!e) return;
+  // These figures belong to the offering diagram. Entries remain reachable
+  // from the ordinary index, including before mandala mode has been opened.
+  if (/^(emblem_|goddess_|mandala_)/.test(id) && !mandala) setMandala(true);
+  if (mandala && HEAP_NUMBERS.has(id)) {
+    pausePlay();
+    if (!HEAP_MEMBERS.get(HEAP_NUMBERS.get(id)).some(visibleInScene)) resetPlay();
+  }
   invalidate(3);
   clearPick();
   current = id;
@@ -3067,7 +3088,6 @@ const step = (d) => {
 sheet.querySelector('.x').addEventListener('click', close);
 zoomBtn.addEventListener('click', () => {
   if (!current) return;
-  if (mandala) setMandala(false);
   focus(current);
 });
 prevBtn.addEventListener('click', () => step(-1));
@@ -3241,10 +3261,8 @@ function home() {
 }
 
 /* ── the mandala view ────────────────────────────────────────────────
-   Top-down, with the thirty-seven heaps numbered in the order they are
-   laid. Sixteen of them have no geometry: the emblems of the monarch and
-   the eight goddesses belong to the plate, not to the cosmology, and are
-   marked in the eight directions where the plate puts them.          */
+   Top-down, with visual forms and numbers for all thirty-seven heaps.
+   The outer twenty use study miniatures on the offering diagram.     */
 const marksEl = document.querySelector('.marks');
 const noteEl = document.querySelector('.mandala-note');
 const V3 = (x, yy, z) => new THREE.Vector3(x, yy, z);
@@ -3268,8 +3286,10 @@ const ring = (rad, k) => {
 /* The numbered offering positions occupy rings outside the iron wall for
    readability. Sun and moon also have geometry within the world; their
    offering marks stay at the diagram's directions rather than tracking it. */
-const R_EMBLEM = RIM * 1.13;
-const R_GODDESS = RIM * 1.42;
+const R_EMBLEM = RIM * 1.24;
+const R_GODDESS = RIM * 1.69;
+const R_OUTER = RIM * 2.14;
+const OFFERING_SIZE = RIM * 0.32;
 function heapPoint(id, i) {
   if (id === 'meru_core') return V3(0, SUMMIT, 0);
   if (id.startsWith('continent_')) {
@@ -3290,22 +3310,78 @@ function heapPoint(id, i) {
   if (id.startsWith('emblem_')) return ring(R_EMBLEM, i - 18);
   if (id.startsWith('goddess_')) return ring(R_GODDESS, GORD[i - 26]);
   /* the outer ring: sun east, moon west, parasol south, banner north */
-  const rr3 = RIM * 1.71;
-  if (id === 'sun') return V3(rr3, yv(30000), 0);
-  if (id === 'moon') return V3(-rr3, yv(30000), 0);
-  if (id === 'mandala_parasol') return V3(0, yv(30000), rr3);
-  return V3(0, yv(30000), -rr3);
+  if (id === 'sun') return V3(R_OUTER, 0, 0);
+  if (id === 'moon') return V3(-R_OUTER, 0, 0);
+  if (id === 'mandala_parasol') return V3(0, 0, R_OUTER);
+  return V3(0, 0, -R_OUTER);
+}
+const HEAP_NUMBERS = new Map(HEAPS.map(([n, id]) => [id, n]));
+const HEAP_MEMBERS = new Map(HEAPS.map(([n]) => [n, []]));
+const ORIGINAL_VISIBILITY = new Map();
+// All faces, terraces and summit architecture arrive with Meru; the jambu
+// tree arrives with its continent, separately from the treasure at point 15.
+world.traverse(object => {
+  let number = HEAP_NUMBERS.get(object.name);
+  if (/^(meru_|king_|vaijayanta_)/.test(object.name) || object.name === 'sudarshana_city') number = 1;
+  if (/^jambu_/.test(object.name)) number = 3;
+  if (!object.isMesh && !object.isSprite) return;
+  if (!number) return;
+  ORIGINAL_VISIBILITY.set(object, object.visible);
+  if (number < 18) HEAP_MEMBERS.get(number).push(object);
+});
+const OFFERING_MODELS = createOfferingModels(THREE, M);
+const offeringLayer = new THREE.Group();
+offeringLayer.name = 'mandala_offerings';
+offeringLayer.visible = false;
+OFFERING_MODELS.forEach((model, id) => {
+  const number = HEAP_NUMBERS.get(id);
+  model.position.copy(heapPoint(id, number));
+  model.scale.setScalar(OFFERING_SIZE);
+  offeringLayer.add(model);
+  model.traverse(mesh => {
+    if (!mesh.isMesh) return;
+    HEAP_MEMBERS.get(number).push(mesh);
+    if (!byName.has(id)) byName.set(id, []);
+    byName.get(id).push(mesh);
+  });
+  E[id].f = [...(E[id].f || []), ['Study miniature', model.userData.attribute]];
+});
+world.add(offeringLayer);
+world.updateMatrixWorld(true);
+
+function syncOfferingVisibility(laid = null) {
+  offeringLayer.visible = mandala;
+  OFFERING_MODELS.forEach((model, id) => {
+    model.visible = laid === null || HEAP_NUMBERS.get(id) <= laid;
+  });
+  ORIGINAL_VISIBILITY.forEach((visible, object) => {
+    if (!mandala) { object.visible = visible; return; }
+    const number = HEAP_NUMBERS.get(object.name);
+    // Sun and moon have dedicated offering miniatures in this mode.
+    if (number === 34 || number === 35) object.visible = false;
+  });
+  for (let number = 1; number <= 17; number++) {
+    HEAP_MEMBERS.get(number).forEach(object => {
+      object.visible = ORIGINAL_VISIBILITY.get(object) && (!mandala || laid === null || number <= laid);
+    });
+  }
+  reshadow();
 }
 const MARKS = HEAPS.map(([n, id]) => {
   const b = document.createElement('button');
   b.type = 'button';
   b.className = 'mk';
   b.dataset.id = id;
+  b.setAttribute('aria-label', n + '. ' + E[id].t);
   b.innerHTML = '<span class="n">' + n + '</span><span class="lb">' +
     (E[id] ? E[id].t : id) + '</span>';
   b.addEventListener('click', () => { pausePlay(); show(id, true); });
   marksEl.appendChild(b);
-  return { el: b, p: heapPoint(id, n), id };
+  const p = heapPoint(id, n);
+  // Keep the number below its miniature, leaving the face and attribute clear.
+  const labelP = p.clone();
+  if (n >= 18) labelP.z += OFFERING_SIZE * 0.65;
+  return { el: b, p, labelP, id };
 });
 
 let mandala = false;
@@ -3361,7 +3437,8 @@ function freeRect() {
 let mRad = 0;
 function mandalaRadius() {
   if (!mRad && MARKS.length) {
-    mRad = MARKS.reduce((m, k) => Math.max(m, Math.hypot(k.p.x, k.p.z)), RIM) * 1.08;
+    mRad = Math.max(RIM * 2.60,
+      MARKS.reduce((m, k) => Math.max(m, Math.hypot(k.labelP.x, k.labelP.z)), RIM));
   }
   return mRad || RIM * 1.5;
 }
@@ -3380,7 +3457,7 @@ const NDC = new THREE.Vector3();
 function placeMarks() {
   const w = stage.clientWidth, hgt = stage.clientHeight;
   MARKS.forEach((m) => {
-    NDC.copy(m.p).project(cam);
+    NDC.copy(m.labelP).project(cam);
     const on = NDC.z < 1;
     if (on !== m.was) { m.el.style.display = on ? '' : 'none'; m.was = on; }
     if (!on) return;
@@ -3418,7 +3495,7 @@ const CPTS = [['E', 'ཤར', 1, 0], ['S', 'ལྷོ', 0, 1], ['W', 'ནུབ'
     el.innerHTML = dz < 0 ? '<i>' + tib + '</i><b>' + d + '</b>'
                           : '<b>' + d + '</b><i>' + tib + '</i>';
     marksEl.appendChild(el);
-    return { el, p: V3(dx * RIM * 2.2, 0, dz * RIM * 2.2) };
+    return { el, p: V3(dx * RIM * 2.55, 0, dz * RIM * 2.55) };
   });
 const compassEl = document.querySelector('.compass');
 const ROSE = [['N', 0, -1], ['E', 1, 0], ['S', 0, 1], ['W', -1, 0]]
@@ -3572,6 +3649,7 @@ function applyStep(i) {
   pStep = i;
   const s = STEPS[i] || null;
   const laidNow = s ? s.laid : 0;
+  syncOfferingVisibility(i < 0 ? null : laidNow);
   MARKS.forEach((m, k) => {
     const n = k + 1;
     m.el.classList.toggle('on', n <= laidNow);
@@ -3618,7 +3696,10 @@ function tick() {
     tick();
   }, wait);
 }
-function arm() { marksEl.dataset.stage = '1'; }
+function arm() {
+  marksEl.dataset.stage = '1';
+  syncOfferingVisibility(pStep < 0 ? 0 : STEPS[pStep].laid);
+}
 function pausePlay() { if (playing) setPlaying(false); }
 function resetPlay() {
   clearTimeout(pTimer);
@@ -3667,6 +3748,11 @@ noteEl.querySelector('.off-player').addEventListener('click', (ev) => {
   }
 });
 fullBtn.addEventListener('click', toggleFull);
+noteEl.querySelector('[data-p="overview"]').addEventListener('click', () => {
+  pausePlay();
+  close();
+  mandalaFly(700);
+});
 resetPlay();
 /* while the mandala is shown, selecting an entry must not fly the camera */
 const goTo = (id) => { if (!mandala) focus(id); };
@@ -3889,8 +3975,9 @@ canvas.addEventListener('pointerup', (e) => {
     -((e.clientY - r.top) / r.height) * 2 + 1
   ), cam);
   for (const hit of ray.intersectObjects(world.children, true)) {
+    if (!visibleInScene(hit.object)) continue;
     const e2 = entryFor(hit.object.name);
-    if (e2) { show(e2.id, true); return; }
+    if (e2) { pausePlay(); show(e2.id, true); return; }
   }
   close();
 });
