@@ -2801,7 +2801,7 @@ def('about_mandala', {
       ['Then', 'the whole is given away, and the giving is the point']],
   b: ['The mandala offering takes the cosmology drawn here and hands it over. Grain or jewels are laid on a plate in thirty-seven heaps, each named aloud as it is placed, beginning with Meru at the centre and working outward through the continents, their treasures, the wealth of a universal monarch, the goddesses of the senses, and the lights of the sky. When the last heap is down, the whole plate is offered and swept clean.',
       'This thirty-seven-point offering text is attributed to Chögyal Pakpa Lodrö Gyaltsen. Mandala offerings also have other forms. The form used and the method of counting follow the instructions of the practitioner\'s tradition.',
-      'All thirty-seven offerings have visual forms. Meru, the continents and subcontinents use the world model. Detailed painted cutouts depict the four treasures, royal emblems, treasure vase, eight offering goddesses, sun, moon, parasol and banner. In <b>Recitation</b>, the view is from above and the offerings appear in the order the verse names them.',
+      'All thirty-seven offerings have visual forms. Meru, the continents and subcontinents use the world model. Detailed painted cutouts depict the four treasures, royal emblems, treasure vase, eight offering goddesses, sun, moon, parasol and banner. They face you as you turn the camera, floating clear of the plate and continents, and lie flat when viewed directly from above. In <b>Recitation</b>, the view is from above and the offerings appear in the order the verse names them.',
       'Choose <b>Tour the 37 heaps</b> for a separate, untimed study route. Each offering is shown on its own with space around it, a short explanation and access to its full entry and sources. Surrounding geometry is restored when you leave the tour. Use Previous and Next, the arrow keys or the offering selector. Return to the whole mandala whenever you wish. The index, entries and offering controls share one panel area.',
       'The offering cutouts are contemporary illustrations made with AI assistance for this app, informed by traditional descriptions and Himalayan painting. They remain painted images when the camera turns. Body colours, costume, ornaments and individual poses are pictorial choices, and have not been certified as the prescribed forms of a particular lineage. The royal wheel abbreviates the thousand spokes described in the texts. See the <a href="https://github.com/DonAndrutto/WorldSystem/blob/main/ARTWORK.md" target="_blank" rel="noopener">artwork notes and references</a> for the sources and remaining questions.',
       'The placement follows Lama Sonam Rinpoche\'s 2017 diagram from Pema Ösel Ling. Heaps 18–25 start at the cardinal directions; the goddesses, heaps 26–33, start at the intermediate directions. The outer four points place the sun east, the moon west, the parasol south and the banner north.',
@@ -3356,9 +3356,16 @@ function focus(id, direction = null, padding = 1.3) {
   if (box.isEmpty()) return;
   const sph = box.getBoundingSphere(new THREE.Sphere());
   const r = Math.max(sph.radius, 0.025);
-  const fr = freeRect(), h = Math.max(stage.clientHeight, 1), w = Math.max(stage.clientWidth, 1);
+  const illustration = touring ? OFFERING_MODELS.get(id) : null;
+  const fr = illustration ? tourImageRect() : freeRect();
+  const h = Math.max(stage.clientHeight, 1), w = Math.max(stage.clientWidth, 1);
   const half = Math.tan(cam.fov * Math.PI / 360);
-  const dist = r * padding / half * h / Math.min(fr.w, fr.h);
+  // A camera-facing image can be fitted by its actual width and height.
+  // Keep the more conservative sphere framing for volumetric heaps.
+  const dist = illustration
+    ? Math.max(0.73 * illustration.scale.x / fr.w, 0.98 * illustration.scale.y / fr.h)
+      * h / (2 * half * 0.84)
+    : r * padding / half * h / Math.min(fr.w, fr.h);
   const dir = direction ? direction.clone() : cam.position.clone().sub(ctr.target);
   if (dir.lengthSq() < 1e-9) dir.set(1, 0.6, 1.25);
   dir.normalize();
@@ -3473,6 +3480,15 @@ OFFERING_MODELS.forEach((model, id) => {
   model.position.copy(heapPoint(id, number));
   model.scale.setScalar(OFFERING_SIZE * (number < 18 ? 0.75 : 1));
   model.userData.baseY = model.position.y;
+  // Lift the full silhouette clear of its support at any camera angle.
+  // The four treasures also clear the top of their continent meshes.
+  if (number >= 14 && number <= 17) {
+    const continent = ['purvavideha', 'jambudvipa', 'aparagodaniya', 'uttarakuru'][number - 14];
+    const support = new THREE.Box3();
+    (byName.get('continent_' + continent) || []).forEach(mesh => support.expandByObject(mesh));
+    if (!support.isEmpty()) model.userData.baseY = Math.max(model.userData.baseY, support.max.y);
+  }
+  model.position.y = model.userData.baseY + model.scale.x * 0.70;
   offeringLayer.add(model);
   model.traverse(mesh => {
     if (!mesh.isMesh) return;
@@ -3624,11 +3640,17 @@ const NDC = new THREE.Vector3();
 function placeMarks() {
   const w = stage.clientWidth, hgt = stage.clientHeight;
   MARKS.forEach((m) => {
-    NDC.copy(m.labelP).project(cam);
+    const illustration = OFFERING_MODELS.get(m.id);
+    if (illustration) {
+      // Follow the illustration's lower edge instead of its old plate anchor.
+      illustration.children[0].localToWorld(NDC.set(0, -0.49, 0));
+      NDC.project(cam);
+    } else NDC.copy(m.labelP).project(cam);
     const on = NDC.z < 1;
     if (on !== m.was) { m.el.style.display = on ? '' : 'none'; m.was = on; }
     if (!on) return;
-    const x = Math.round((NDC.x * 0.5 + 0.5) * w), y = Math.round((-NDC.y * 0.5 + 0.5) * hgt);
+    const x = Math.round((NDC.x * 0.5 + 0.5) * w);
+    const y = Math.round((-NDC.y * 0.5 + 0.5) * hgt) + (illustration ? 18 : 0);
     if (x !== m.x || y !== m.y) {
       m.el.style.left = x + 'px';
       m.el.style.top = y + 'px';
@@ -3943,12 +3965,19 @@ HEAPS.forEach(([number, id]) => {
   tourSelect.appendChild(option);
 });
 function orientOfferingCards() {
+  if (!mandala) return;
   OFFERING_MODELS.forEach(model => {
     const card = model.children[0];
-    if (touring) card.quaternion.copy(cam.quaternion);
-    else card.rotation.set(-Math.PI / 2, 0, 0);
-    model.position.y = model.userData.baseY + (touring ? model.scale.x * 0.53 : 0.008);
+    // Billboarding keeps each painted subject upright on screen while orbiting.
+    // Looking straight down naturally makes its plane horizontal.
+    card.quaternion.copy(cam.quaternion);
   });
+}
+function tourImageRect() {
+  const fr = freeRect();
+  // Leave a separate strip below the image for its numbered marker.
+  const markerSpace = Math.min(36, fr.h * 0.2);
+  return {...fr, y: fr.y - markerSpace / 2, h: fr.h - markerSpace};
 }
 function tourFocus() {
   const [n, id] = HEAPS[tourIndex];

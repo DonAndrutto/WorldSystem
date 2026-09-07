@@ -114,18 +114,20 @@ each offering in order. Reset returns to the complete reference view.
 Meru, the four continents and eight subcontinents retain the existing 3D
 geometry. The remaining twenty-four offerings use detailed painted cutouts:
 the four treasures, seven royal emblems, treasure vase, eight goddesses,
-sun, moon, parasol and victory banner. They lie face-up in the diagram, with
-transparent backgrounds and no rectangular frames.
+sun, moon, parasol and victory banner. They face the camera as you orbit,
+becoming flat when viewed directly from above. The illustrations float clear
+of the plate and continents, with transparent backgrounds and no frames.
 Returning to the world view restores the original treasure and luminary meshes.
 
 **Tour the 37 heaps** opens a separate, untimed study route. Each stop shows the
-current heap with a generous camera margin and hides surrounding geometry so it
+current heap and hides surrounding geometry so it
 cannot obscure the subject. It has a short looking prompt, its name and access to the full source
 entry. Use Previous/Next, the left/right arrow keys or the 37-item selector.
 The final stop offers Finish tour; Return to whole mandala is always available.
 An entry also has Tour from here. The full scene returns when leaving the tour.
-Illustrations face the camera during the tour;
-they are painted illustrations, not volumetric sculptures.
+Painted images use a larger view fitted to their rectangular bounds, with
+space reserved below for the heap number. Meru and the continents retain
+their wider framing. The cutouts remain paintings as the camera turns.
 
 The index, entry, recitation and tour occupy one shared dock. Only one is shown
 at a time, with return controls restoring the appropriate view. On phones the

@@ -9,7 +9,9 @@ lineage-certified deity images. The source artworks were not copied into the app
 The earlier procedural figurines have been replaced by transparent painted illustrations. Meru and
 the twelve continents retain their existing geometry. The four treasures use
 illustrations in the offering views and retain their original meshes in the world view.
-Illustrations lie flat during recitation and face the viewer in the study tour. Turning
+Illustrations face the camera in both recitation and the study tour, becoming
+horizontal when seen directly from above. They float above their supports so
+their lower edges do not intersect the plate or continent surfaces. Turning
 the camera does not reveal sculpted backs or sides of the painted subjects.
 
 The three WebP sheets total about 2.0 MB, loaded on first entering an offering
@@ -19,8 +21,10 @@ the scene illustrations; no separate cropped image files are required. Colours a
 independent of scene lighting so the painted attributes remain readable at night.
 Their alpha channels preserve the standalone silhouettes, without rectangular
 backings or borders. Transparent pixels do not write to the scene depth buffer.
-The study tour isolates the current heap and frames it with additional space;
-returning to recitation or world view restores the surrounding geometry.
+The study tour isolates the current heap. Painted images fill 84% of the
+limiting dimension of the available image area, with a separate strip below
+for the heap number. Volumetric heaps keep their wider framing. Returning to
+recitation or world view restores the surrounding geometry.
 
 ## Sources and their scope
 

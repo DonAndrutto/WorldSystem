@@ -75,7 +75,7 @@ export function createOfferingModels(THREE, onStatus = () => {}) {
     });
     sheets.get(art.url).materials.push(material);
     const face = new THREE.Mesh(geometry, material);
-    face.position.z = 0.007; face.name = id;
+    face.name = id;
     face.userData.offering = true; face.userData.artwork = true;
     card.add(face);
     models.set(id, group);
