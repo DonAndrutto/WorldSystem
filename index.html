@@ -595,6 +595,80 @@
     .sheet { max-height: 74dvh; }
     .mandala-note { max-height: 72dvh; }
   }
+
+  /* A single dock prevents the index, entry and offering panels overlapping. */
+  .panel-dock {
+    position: absolute; right: 22px; top: 82px; bottom: 84px;
+    width: min(406px, calc(100vw - 44px)); pointer-events: none;
+    display: flex; flex-direction: column; align-items: stretch; gap: 8px; z-index: 5;
+  }
+  .panel-dock[hidden], .panel-dock [hidden] { display: none !important; }
+  .panel-dock > .sheet, .panel-dock > .mandala-note, .panel-dock > .index, .panel-dock > .tour-panel {
+    position: relative; inset: auto; transform: none; width: 100%; min-height: 0;
+    max-height: 100%; margin: 0; flex: 0 1 auto; pointer-events: auto;
+  }
+  .panel-dock > .index { border: 1px solid var(--rule); padding-bottom: 16px; }
+  .panel-dock > .mandala-note { overflow-y: auto; overscroll-behavior: contain; }
+  .panel-dock .sheet-scroll { min-height: 0; }
+  .panel-dock .grip { cursor: default; touch-action: auto; }
+  .sheet-foot { flex-wrap: wrap; justify-content: flex-start; }
+  .sheet-foot .stepper { margin-left: auto; }
+  .controls, body.index-open .controls { right: 22px; top: 22px; left: auto; bottom: auto; max-width: calc(100vw - 44px); }
+  .controls .btn { min-height: 40px; }
+  body.panel-open .legend { display: none; }
+  .mode-tabs { display: flex; gap: 5px; margin-bottom: 18px; }
+  .mode-tabs .btn { flex: 1; white-space: normal; font-size: 11px; letter-spacing: .03em; min-height: 42px; }
+  .tour-panel { display: flex; flex-direction: column; padding: 16px; }
+  .tour-scroll { min-height: 0; }
+  .tour-count { font-size: 12px; color: var(--accent); margin: 0 0 8px; }
+  .tour-progress { display: block; width: 100%; height: 4px; accent-color: var(--accent); margin: 0 0 18px; }
+  .tour-title { font-size: 29px; font-weight: 400; line-height: 1.12; margin: 0 0 7px; }
+  .tour-name { font-size: 16px; color: var(--ink-2); margin: 0 0 8px; }
+  .tour-position { font-size: 11px; color: var(--accent); line-height: 1.5; margin: 0 0 15px; }
+  .tour-copy { font-size: 18px; line-height: 1.5; margin: 0 0 16px; }
+  .tour-art-note, .tour-help { font-size: 14px; color: var(--ink-2); line-height: 1.45; }
+  .tour-art-note { border-left: 2px solid var(--rule-2); padding-left: 10px; }
+  .tour-jump-label { display: block; font-size: 15px; margin: 16px 0 5px; }
+  #tour-jump { width: 100%; min-height: 44px; font: inherit; font-size: 16px; padding: 8px;
+    color: var(--ink); background: var(--paper); border: 1px solid var(--rule-2); border-radius: 0; }
+  .tour-links, .tour-foot { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+  .tour-foot { flex-shrink: 0; border-top: 1px solid var(--rule); padding-top: 12px; }
+  .tour-foot .btn { flex: 1; min-height: 44px; }
+  .tour-foot [data-tour="next"] { background: var(--accent); color: var(--paper); }
+  .tour-overview { min-height: 38px; margin-top: 8px; flex-shrink: 0; white-space: normal; }
+  .entry-art { margin: 14px 0; }
+  .entry-art > div { width: min(100%, 260px); aspect-ratio: 3 / 4; margin: auto;
+    background-size: 400% 200%; background-repeat: no-repeat; border: 1px solid var(--rule-2); }
+  .entry-art figcaption { font-size: 13px; text-align: center; color: var(--ink-2); margin-top: 6px; }
+  .art-status { flex-shrink: 0; padding: 9px 12px; margin: 0; font-size: 14px; line-height: 1.4; pointer-events: auto; }
+  .art-status .btn { margin-top: 6px; }
+  body.tour-view .marks .mk:not([aria-current="true"]), body.tour-view .marks .cp { display: none !important; }
+  body.tour-view .mk .lb { display: none; }
+  body.tour-view .compass { display: block; top: 22px; bottom: auto; left: 22px; right: auto; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+  @media (max-width: 700px) {
+    .controls, body.index-open .controls { top: auto; bottom: calc(9px + var(--sa-b)); left: 9px; right: 9px; max-width: none; }
+    .controls .btn { min-height: 44px; }
+    .panel-dock { left: 9px; right: 9px; top: auto; bottom: calc(66px + var(--sa-b));
+      width: auto; max-height: min(54dvh, calc(100dvh - 126px - var(--sa-b) - var(--sa-t))); }
+    .panel-dock > .sheet, .panel-dock > .mandala-note, .panel-dock > .index, .panel-dock > .tour-panel { max-height: inherit; }
+    .tour-panel { padding: 12px; }
+    .tour-panel .mode-tabs { margin-bottom: 10px; }
+    .tour-title { font-size: 25px; }
+    .tour-copy { font-size: 16px; }
+    .tour-help { display: none; }
+    body.tour-view .compass { top: calc(9px + var(--sa-t)); left: 9px; }
+  }
+  @media (max-height: 480px) and (min-width: 701px) {
+    .panel-dock { top: 74px; bottom: 12px; width: 340px; }
+    .tour-panel { padding: 10px; }
+    .mode-tabs { margin-bottom: 8px; }
+    .tour-help { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+  }
+
 </style>
 </head>
 <body>
@@ -639,7 +713,13 @@
 
   <div class="marks" hidden=""></div>
 
+  <div class="panel-dock" hidden>
+  <p class="art-status card" role="status" hidden><span></span> <button class="btn" type="button" data-art-retry hidden>Retry images</button></p>
   <aside class="mandala-note card" hidden="">
+    <div class="mode-tabs" aria-label="Offering views">
+      <button class="btn" type="button" aria-pressed="true" data-view="recitation">Recitation</button>
+      <button class="btn" type="button" aria-pressed="false" data-view="tour">Tour the 37 heaps</button>
+    </div>
     <h3>The thirty-seven-point offering</h3>
     <p class="off-tib">༄༅། །མཎྜལ་སོ་བདུན་མ་བཞུགས་སོ། །</p>
     <p class="off-intro">Placement follows <a href="https://dudjomtersarngondro.com/wp-content/uploads/2017/12/37-pt-mandala-lsr.png" target="_blank" rel="noopener">Lama Sonam Rinpoche’s 2017 diagram</a> from Pema Ösel Ling. North is at the top, south at the bottom. For a physical offering, orient the plate according to your practice instructions. The outer numbered rings show offering positions.</p>
@@ -665,6 +745,31 @@
     </div>
   </aside>
 
+  <section class="tour-panel card" aria-label="Tour of the 37 heaps" hidden>
+    <div class="mode-tabs" aria-label="Offering views">
+      <button class="btn" type="button" aria-pressed="false" data-view="recitation">Recitation</button>
+      <button class="btn" type="button" aria-pressed="true" data-view="tour">Tour the 37 heaps</button>
+    </div>
+    <div class="tour-scroll scroll">
+      <p class="tour-count mono" role="status" aria-live="polite" aria-atomic="true"></p>
+      <progress class="tour-progress" max="37" value="1" aria-label="Tour progress"></progress>
+      <h2 class="tour-title"></h2><p class="tour-name"></p><p class="tour-position mono"></p>
+      <p class="tour-copy"></p>
+      <p class="tour-art-note">Modern painted interpretation. Colours, dress and poses are illustrative.</p>
+      <label class="tour-jump-label" for="tour-jump">Go to an offering</label>
+      <select id="tour-jump" aria-label="Go to an offering"></select>
+      <div class="tour-links">
+        <button class="btn" type="button" data-tour="entry">Read entry &amp; sources</button>
+        <button class="btn" type="button" data-tour="frame">Re-centre</button>
+      </div>
+      <p class="tour-help">Take your time. Drag to look around and scroll or pinch to zoom. Use the arrows to visit the next heap.</p>
+    </div>
+    <footer class="tour-foot">
+      <button class="btn" type="button" data-tour="prev">Previous</button>
+      <button class="btn" type="button" data-tour="next">Next heap</button>
+    </footer>
+    <button class="btn tour-overview" type="button" data-tour="overview">Return to whole mandala</button>
+  </section>
   <section class="sheet card" hidden="">
     <div class="grip">
       <p class="eyebrow"></p>
@@ -674,12 +779,15 @@
       <h2></h2>
       <p class="sub"></p>
       <dl></dl>
+      <figure class="entry-art" hidden><div role="img"></div><figcaption>Modern painted interpretation</figcaption></figure>
       <div class="bodies"></div>
       <div class="rel" hidden=""><p>See also</p><div></div></div>
       <p class="src"></p>
     </div>
     <footer class="sheet-foot">
       <button class="btn zoom" type="button">Zoom in</button>
+      <button class="btn" type="button" data-sheet="tour" hidden>Tour from here</button>
+      <button class="btn" type="button" data-sheet="back" hidden>Back to recitation</button>
       <div class="stepper">
         <button class="btn prev" type="button" title="Previous entry">←</button>
         <button class="btn next" type="button" title="Next entry">→</button>
@@ -687,7 +795,7 @@
     </footer>
   </section>
 
-  <nav class="index card scroll">
+  <nav class="index card scroll" hidden>
     <div class="head">
       <div class="line">
         <h2>Index of the world system</h2>
@@ -703,10 +811,12 @@
       Mipham, <i>Gateway to Knowledge</i> II.
     </p>
   </nav>
+  </div>
 </div>
 
 <script type="module">
-import { createOfferingModels } from './mandala-offerings.js';
+import { createOfferingModels, OFFERING_ART } from './mandala-offerings.js';
+import { TOUR_NOTES } from './mandala-tour.js';
 const stage = document.querySelector('three-d-stage');
 const { THREE } = await stage.ready;
 stage.shadowRoot.querySelector('.note')?.remove();   // the page carries its own hint
@@ -2691,8 +2801,9 @@ def('about_mandala', {
       ['Then', 'the whole is given away, and the giving is the point']],
   b: ['The mandala offering takes the cosmology drawn here and hands it over. Grain or jewels are laid on a plate in thirty-seven heaps, each named aloud as it is placed, beginning with Meru at the centre and working outward through the continents, their treasures, the wealth of a universal monarch, the goddesses of the senses, and the lights of the sky. When the last heap is down, the whole plate is offered and swept clean.',
       'This thirty-seven-point offering text is attributed to Chögyal Pakpa Lodrö Gyaltsen. Mandala offerings also have other forms. The form used and the method of counting follow the instructions of the practitioner\'s tradition.',
-      'All thirty-seven offerings have visual forms. Meru, the continents, subcontinents and their treasures use the world model. Sculpted miniatures represent the royal emblems, treasure vase, eight offering goddesses, sun, moon, parasol and banner on the outer rings. Pressing play reveals the offerings one at a time, in step with the line of the verse that names them.',
-      'The miniatures are simplified study figures. Their poses, colours and proportions are illustrative; the mirror, garland, lute, dance pose, flowers, incense, lamp and perfume vessel help distinguish the eight goddesses. Select a figure or its number to read its entry, use <b>Zoom in</b> to examine it, and choose <b>Whole mandala</b> to return to the diagram.',
+      'All thirty-seven offerings have visual forms. Meru, the continents and subcontinents use the world model. Detailed painted cards depict the four treasures, royal emblems, treasure vase, eight offering goddesses, sun, moon, parasol and banner. In <b>Recitation</b>, the view is from above and the offerings appear in the order the verse names them.',
+      'Choose <b>Tour the 37 heaps</b> for a separate, untimed study route. The camera approaches each offering, with a short explanation and access to its full entry and sources. Use Previous and Next, the arrow keys or the offering selector. Return to the whole mandala whenever you wish. The index, entries and offering controls share one panel area.',
+      'The offering cards are contemporary illustrations made with AI assistance for this app, informed by traditional descriptions and Himalayan painting. They remain painted images when the camera turns. Body colours, costume, ornaments and individual poses are pictorial choices, and have not been certified as the prescribed forms of a particular lineage. The royal wheel abbreviates the thousand spokes described in the texts. See the <a href="https://github.com/DonAndrutto/WorldSystem/blob/main/ARTWORK.md" target="_blank" rel="noopener">artwork notes and references</a> for the sources and remaining questions.',
       'The placement follows Lama Sonam Rinpoche\'s 2017 diagram from Pema Ösel Ling. Heaps 18–25 start at the cardinal directions; the goddesses, heaps 26–33, start at the intermediate directions. The outer four points place the sun east, the moon west, the parasol south and the banner north.',
       'The diagram is seen from above, with north at the top, east at the right, south at the bottom and west at the left. It does not specify the practitioner\'s position. For a physical offering, orient the plate according to your practice instructions. The outer numbered rings are a schematic guide to offering positions.'],
   rel: ['meru_core', 'treasure_mountain', 'emblem_wheel', 'goddess_lasya'],
@@ -2765,7 +2876,7 @@ EMBLEMS.forEach(([key, t, tib, gloss, body], i) => {
 def('emblem_vase', {
   t: 'The vase of great treasure', tib: 'gter chen po\'i bum pa', k: 'heap 25',
   meta: 'The eighth of the precious things',
-  f: [['Form', 'a sealed vase, its mouth stopped with a wish-granting tree'],
+  f: [['Form', 'a treasure vase; the illustration uses a jewel finial'],
       ['Contents', 'never exhausted, however much is drawn out'],
       ['Placed', 'on the ring beyond the continents, to the north-east — the eighth place'],
       ['Buried', 'in Tibetan practice, vases are set in the ground for the prosperity of a place'],
@@ -2778,11 +2889,11 @@ def('emblem_vase', {
 
 const GODDESSES = [
   ['lasya', 'Lāsyā', 'sgeg mo ma', 'the goddess of beauty', 'form',
-   'She holds a mirror, or nothing, and offers grace of body. Hers is the offering of everything seen.'],
+   'She offers beauty and grace of body. In this illustration her posture and empty hands express graceful bearing.'],
   ['mala', 'Mālā', 'phreng ba ma', 'the goddess of garlands', 'adornment',
    'She strings flowers and offers the garland. Hers is the offering of ornament — the world made pleasing on purpose.'],
   ['gita', 'Gītā', 'glu ma', 'the goddess of song', 'sound',
-   'She holds a lute and offers everything heard: music, speech, and the sound of the teaching itself.'],
+   'She offers song. This illustration shows her singing; larger offering groups also include separate goddesses who play musical instruments.'],
   ['nritya', 'Nṛtyā', 'gar ma', 'the goddess of dance', 'movement',
    'She offers motion. In the mandala she stands for the whole of bodily action given over to the offering.'],
   ['pushpa', 'Puṣpā', 'me tog ma', 'the goddess of flowers', 'flowers',
@@ -2792,7 +2903,7 @@ const GODDESSES = [
   ['aloka', 'Ālokā', 'snang gsal ma', 'the goddess of light', 'light',
    'She holds the lamp and offers everything that makes seeing possible — in the commentaries, the wisdom that lights its own object.'],
   ['gandha', 'Gandhā', 'dri chab ma', 'the goddess of perfume', 'anointing',
-   'She carries scented water and offers what is touched and tasted, closing the eight.']
+   'She offers scented water, closing the eight. This illustration presents it in a conch shell.']
 ];
 GODDESSES.forEach(([key, t, tib, en, sense, body], i) => {
   def('goddess_' + key, {
@@ -2982,7 +3093,7 @@ const tint = (m) => Object.assign(m.clone(),
   m.emissive ? { emissive: new THREE.Color(0x6b4a12), emissiveIntensity: 0.5 }
              : { color: new THREE.Color(0x6b4a12) });
 const tintable = (m) => m.material && !Array.isArray(m.material)
-  && m.material !== M.formless && !m.userData.pickOnly;
+  && m.material !== M.formless && !m.userData.pickOnly && !m.userData.artwork;
 function clearPick() {
   picked.forEach((m, i) => {
     const highlight = m.material;
@@ -3010,8 +3121,16 @@ const nextBtn = sheet.querySelector('.next');
 const indexEl = document.querySelector('.index');
 
 let order = [];   // flat reading order, filled when the index is built
+let touring = false, tourIndex = 0;
+const dock = document.querySelector('.panel-dock');
+const tourEl = document.querySelector('.tour-panel');
+const tourSelect = document.querySelector('#tour-jump');
+const sheetBack = sheet.querySelector('[data-sheet="back"]');
+const sheetTour = sheet.querySelector('[data-sheet="tour"]');
+const entryArt = sheet.querySelector('.entry-art');
 
 function close() {
+  if (touring) { visitHeap(tourIndex, false); return; }
   invalidate(3);
   clearPick();
   current = null;
@@ -3023,6 +3142,8 @@ function close() {
 function show(id, reveal) {
   const e = E[id];
   if (!e) return;
+  setOpen(false, false);
+  pausePlay();
   // These figures belong to the offering diagram. Entries remain reachable
   // from the ordinary index, including before mandala mode has been opened.
   if (/^(emblem_|goddess_|mandala_)/.test(id) && !mandala) setMandala(true);
@@ -3066,6 +3187,17 @@ function show(id, reveal) {
   sheet.hidden = false;
   if (window.matchMedia('(max-width: 980px)').matches) legend.hidden = true;
   sScroll.scrollTop = 0;
+  const art = OFFERING_ART.get(id);
+  entryArt.hidden = !art;
+  if (art) {
+    const image = entryArt.querySelector('div');
+    image.style.backgroundImage = 'url("' + art.url + '")';
+    image.style.backgroundPosition = ((art.cell % 4) / 3 * 100) + '% ' + (Math.floor(art.cell / 4) * 100) + '%';
+    image.setAttribute('aria-label', art.attribute);
+  }
+  sheetTour.hidden = !HEAP_NUMBERS.has(id) || touring;
+  sheetBack.hidden = !mandala;
+  sheetBack.textContent = touring ? 'Back to tour' : 'Back to recitation';
   const pos = order.indexOf(id);
   prevBtn.disabled = pos <= 0;
   nextBtn.disabled = pos < 0 || pos >= order.length - 1;
@@ -3090,36 +3222,12 @@ zoomBtn.addEventListener('click', () => {
   if (!current) return;
   focus(current);
 });
+sheetBack.addEventListener('click', close);
+sheetTour.addEventListener('click', () => startTour(HEAP_NUMBERS.get(current) - 1));
 prevBtn.addEventListener('click', () => step(-1));
 nextBtn.addEventListener('click', () => step(1));
 
-/* drag the sheet by its head */
-const grip = sheet.querySelector('.grip');
-grip.addEventListener('pointerdown', (ev) => {
-  if (ev.target.closest('.x')) return;
-  if (window.matchMedia('(max-width: 700px)').matches) return;   // docked as a bottom sheet
-  const r = sheet.getBoundingClientRect();
-  const dx = ev.clientX - r.left, dy = ev.clientY - r.top;
-  sheet.style.top = r.top + 'px';
-  sheet.style.left = r.left + 'px';
-  sheet.style.bottom = 'auto';
-  sheet.style.right = 'auto';
-  sheet.style.maxHeight = 'calc(100vh - ' + Math.round(r.top + 24) + 'px)';
-  grip.setPointerCapture(ev.pointerId);
-  const move = (m) => {
-    const x = Math.min(Math.max(8, m.clientX - dx), window.innerWidth - r.width - 8);
-    const yy = Math.min(Math.max(8, m.clientY - dy), window.innerHeight - 90);
-    sheet.style.left = x + 'px';
-    sheet.style.top = yy + 'px';
-    sheet.style.maxHeight = 'calc(100vh - ' + Math.round(yy + 24) + 'px)';
-  };
-  const up = () => {
-    grip.removeEventListener('pointermove', move);
-    grip.removeEventListener('pointerup', up);
-  };
-  grip.addEventListener('pointermove', move);
-  grip.addEventListener('pointerup', up);
-});
+/* Entries stay in the shared dock to keep all menus apart. */
 
 /* ── camera ──────────────────────────────────────────────────────────── */
 const cam = stage._camera, ctr = stage._controls;
@@ -3176,6 +3284,7 @@ function stepMotion() {
 }
 
 function fly(toPos, toTarget, dur = 800) {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) dur = 1;
   ctr.autoRotate = false;
   const fromP = cam.position.clone(), fromT = ctr.target.clone();
   const t0 = performance.now();
@@ -3230,29 +3339,41 @@ const drawLoop = () => {
   ctr.update();                        // fires 'change' → invalidate, when moving
   if (frames <= 0) return;
   frames--;
+  orientOfferingCards();
   gl.render(stage._scene, cam);
-  if (mandala) placeMarks(); else placeCompass();
+  if (mandala) placeMarks();
+  if (!mandala || touring) placeCompass();
 };
 stage._loop = drawLoop;
 gl.setAnimationLoop(drawLoop);
 
-function focus(id) {
+function focus(id, direction = null) {
   const ms = meshesFor(id);
   if (!ms.length) return;
+  world.updateMatrixWorld(true);
   const box = new THREE.Box3();
-  ms.forEach((m) => box.expandByObject(m));
+  ms.forEach(m => box.expandByObject(m));
   if (box.isEmpty()) return;
   const sph = box.getBoundingSphere(new THREE.Sphere());
-  const r = Math.max(sph.radius, 0.055);
-  const dist = (r / Math.tan((cam.fov * Math.PI) / 360)) * 2.0;
-  const dir = cam.position.clone().sub(ctr.target);
-  if (dir.lengthSq() < 1e-9) dir.set(1, 0.5, 1.25);
+  const r = Math.max(sph.radius, 0.025);
+  const fr = freeRect(), h = Math.max(stage.clientHeight, 1), w = Math.max(stage.clientWidth, 1);
+  const half = Math.tan(cam.fov * Math.PI / 360);
+  const dist = r * 1.3 / half * h / Math.min(fr.w, fr.h);
+  const dir = direction ? direction.clone() : cam.position.clone().sub(ctr.target);
+  if (dir.lengthSq() < 1e-9) dir.set(1, 0.6, 1.25);
   dir.normalize();
   if (dir.y < 0.22) { dir.y = 0.22; dir.normalize(); }
+  const right = new THREE.Vector3().crossVectors(new THREE.Vector3(0, 1, 0), dir).normalize();
+  const up = new THREE.Vector3().crossVectors(dir, right).normalize();
+  const perPx = 2 * dist * half / h;
+  const target = sph.center.clone()
+    .addScaledVector(right, -(fr.x - w / 2) * perPx)
+    .addScaledVector(up, (fr.y - h / 2) * perPx);
   cam.near = Math.max(dist / 400, 0.0006);
   cam.updateProjectionMatrix();
-  fly(sph.center.clone().add(dir.multiplyScalar(dist)), sph.center.clone());
+  fly(target.clone().addScaledVector(dir, dist), target);
 }
+
 function home() {
   cam.clearViewOffset();
   cam.near = HOME.near;
@@ -3262,7 +3383,7 @@ function home() {
 
 /* ── the mandala view ────────────────────────────────────────────────
    Top-down, with visual forms and numbers for all thirty-seven heaps.
-   The outer twenty use study miniatures on the offering diagram.     */
+   Painted cards distinguish the treasures and the outer twenty offerings.     */
 const marksEl = document.querySelector('.marks');
 const noteEl = document.querySelector('.mandala-note');
 const V3 = (x, yy, z) => new THREE.Vector3(x, yy, z);
@@ -3327,16 +3448,31 @@ world.traverse(object => {
   if (!object.isMesh && !object.isSprite) return;
   if (!number) return;
   ORIGINAL_VISIBILITY.set(object, object.visible);
-  if (number < 18) HEAP_MEMBERS.get(number).push(object);
+  if (number < 14) HEAP_MEMBERS.get(number).push(object);
 });
-const OFFERING_MODELS = createOfferingModels(THREE, M);
+const artStatus = document.querySelector('.art-status');
+const artRetry = document.querySelector('[data-art-retry]');
+let imageStates = [];
+function reportArt(states) {
+  imageStates = states;
+  const failed = states.includes('failed');
+  artStatus.querySelector('span').textContent = failed
+    ? 'Some illustrations could not load. The numbered offerings and text are still available.'
+    : 'Loading the offering illustrations…';
+  artRetry.hidden = !failed;
+  syncChrome();
+  invalidate();
+}
+const OFFERING_MODELS = createOfferingModels(THREE, M, reportArt);
+artRetry.addEventListener('click', () => OFFERING_MODELS.load());
 const offeringLayer = new THREE.Group();
 offeringLayer.name = 'mandala_offerings';
 offeringLayer.visible = false;
 OFFERING_MODELS.forEach((model, id) => {
   const number = HEAP_NUMBERS.get(id);
   model.position.copy(heapPoint(id, number));
-  model.scale.setScalar(OFFERING_SIZE);
+  model.scale.setScalar(OFFERING_SIZE * (number < 18 ? 0.75 : 1));
+  model.userData.baseY = model.position.y;
   offeringLayer.add(model);
   model.traverse(mesh => {
     if (!mesh.isMesh) return;
@@ -3344,7 +3480,8 @@ OFFERING_MODELS.forEach((model, id) => {
     if (!byName.has(id)) byName.set(id, []);
     byName.get(id).push(mesh);
   });
-  E[id].f = [...(E[id].f || []), ['Study miniature', model.userData.attribute]];
+  E[id].f = [...(E[id].f || []), ['In this illustration', model.userData.attribute]];
+  E[id].src = (E[id].src || '') + ' Artwork: contemporary AI-assisted illustration; <a href="https://github.com/DonAndrutto/WorldSystem/blob/main/ARTWORK.md" target="_blank" rel="noopener">visual sources and adaptations</a>.';
 });
 world.add(offeringLayer);
 world.updateMatrixWorld(true);
@@ -3357,10 +3494,10 @@ function syncOfferingVisibility(laid = null) {
   ORIGINAL_VISIBILITY.forEach((visible, object) => {
     if (!mandala) { object.visible = visible; return; }
     const number = HEAP_NUMBERS.get(object.name);
-    // Sun and moon have dedicated offering miniatures in this mode.
-    if (number === 34 || number === 35) object.visible = false;
+    // Treasure and luminary world meshes give way to painted offering cards.
+    if (number >= 14) object.visible = false;
   });
-  for (let number = 1; number <= 17; number++) {
+  for (let number = 1; number <= 13; number++) {
     HEAP_MEMBERS.get(number).forEach(object => {
       object.visible = ORIGINAL_VISIBILITY.get(object) && (!mandala || laid === null || number <= laid);
     });
@@ -3375,10 +3512,13 @@ const MARKS = HEAPS.map(([n, id]) => {
   b.setAttribute('aria-label', n + '. ' + E[id].t);
   b.innerHTML = '<span class="n">' + n + '</span><span class="lb">' +
     (E[id] ? E[id].t : id) + '</span>';
-  b.addEventListener('click', () => { pausePlay(); show(id, true); });
+  b.addEventListener('click', () => {
+    if (touring) visitHeap(n - 1);
+    else { pausePlay(); show(id, true); }
+  });
   marksEl.appendChild(b);
   const p = heapPoint(id, n);
-  // Keep the number below its miniature, leaving the face and attribute clear.
+  // Keep the number below its card, leaving the image clear.
   const labelP = p.clone();
   if (n >= 18) labelP.z += OFFERING_SIZE * 0.65;
   return { el: b, p, labelP, id };
@@ -3386,14 +3526,22 @@ const MARKS = HEAPS.map(([n, id]) => {
 
 let mandala = false;
 let minPlay = false, framePut = null;
-/* panels report their footprint so nothing sits on anything else: --bl is
-   whatever holds the bottom-left corner, which caps the item card on the
-   desktop and lifts it clear on a phone. */
+/* One active panel occupies the shared dock. Its footprint is also used
+   to frame the model in the remaining canvas area. */
 function syncChrome() {
-  const bl = !noteEl.hidden ? noteEl : (!legend.hidden ? legend : null);
-  const h = bl ? Math.round(bl.getBoundingClientRect().height) + 12 : 0;
-  document.documentElement.style.setProperty('--bl', h + 'px');
-  document.body.classList.toggle('min-menus', minPlay || (mandala && !sheet.hidden));
+  const indexOpen = document.body.classList.contains('index-open');
+  indexEl.hidden = !indexOpen;
+  indexEl.inert = !indexOpen;
+  if (indexOpen) sheet.hidden = true;
+  noteEl.hidden = !mandala || touring || !sheet.hidden || indexOpen;
+  tourEl.hidden = !touring || !sheet.hidden || indexOpen;
+  dock.hidden = sheet.hidden && noteEl.hidden && tourEl.hidden && !indexOpen;
+  artStatus.hidden = !mandala || !imageStates.some(s => s === 'loading' || s === 'failed');
+  document.body.classList.toggle('panel-open', !dock.hidden);
+  document.body.classList.toggle('min-menus', minPlay);
+  document.body.classList.toggle('tour-view', touring);
+  document.documentElement.style.setProperty('--bl', '0px');
+  stage.toggleAttribute('no-toolbar', !dock.hidden);
 }
 /* ── framing ────────────────────────────────────────────────────────────
    the rectangle of canvas no panel is standing on. Each visible panel is
@@ -3406,7 +3554,7 @@ function freeRect() {
      width to a corner panel than height */
   const square = (i) => Math.min(w - i.l - i.r, h - i.t - i.b);
   const eat = (el) => {
-    if (!el || el.hidden) return;
+    if (!el || el.hidden || (el === legend && !dock.hidden)) return;
     const q = el.getBoundingClientRect();
     if (q.width < 6 || q.height < 6) return;
     const cand = [['t', q.bottom], ['b', h - q.top], ['l', q.right], ['r', w - q.left]]
@@ -3421,13 +3569,10 @@ function freeRect() {
     ins[best.k] = Math.max(ins[best.k], best.v);
   };
   [document.querySelector('.controls'), document.querySelector('.masthead'),
-   legend, noteEl, sheet].forEach(eat);
-  if (document.body.classList.contains('index-open') && window.innerWidth > 820) {
-    ins.r = Math.max(ins.r, indexEl.getBoundingClientRect().width);
-  }
+   legend, dock].forEach(eat);
   const pad = 14;
   const l = Math.min(ins.l + pad, w * 0.4), r = Math.min(ins.r + pad, w * 0.4);
-  const t = Math.min(ins.t + pad, h * 0.4), b = Math.min(ins.b + pad, h * 0.4);
+  const t = Math.min(ins.t + pad, h * 0.3), b = Math.min(ins.b + pad, h * 0.72);
   return {
     x: (l + (w - r)) / 2, y: (t + (h - b)) / 2,
     w: Math.max(140, w - l - r), h: Math.max(140, h - t - b)
@@ -3514,6 +3659,9 @@ function placeCompass() {
 }
 const OVERHEAD = ['heaven_', 'formless_'];
 function setMandala(on) {
+  touring = false;
+  sheet.hidden = true;
+  current = null;
   if (on && motion) setMotion(false);   // pins on a spinning plate read as nothing
   mandala = on;
   document.body.classList.toggle('mandala-view', on);
@@ -3526,7 +3674,9 @@ function setMandala(on) {
   marksEl.hidden = !on;
   noteEl.hidden = !on;
   resetPlay();
-  if (on && window.innerWidth < 1180) setOpen(false);
+  setOpen(false, false);
+  if (on) OFFERING_MODELS.load();
+  orientOfferingCards();
   legend.hidden = on;
   syncChrome();
   if (on) {
@@ -3713,6 +3863,7 @@ function resetPlay() {
   applyStep(-1);
 }
 function playToggle() {
+  if (touring) endTour();
   if (!mandala) setMandala(true);
   if (playing) { setPlaying(false); return; }
   close();
@@ -3722,6 +3873,7 @@ function playToggle() {
   setPlaying(true);
 }
 function stepBy(d) {
+  if (touring) { visitHeap(tourIndex + d); return; }
   if (!mandala) setMandala(true);
   if (playing) setPlaying(false);
   arm();
@@ -3755,7 +3907,92 @@ noteEl.querySelector('[data-p="overview"]').addEventListener('click', () => {
 });
 resetPlay();
 /* while the mandala is shown, selecting an entry must not fly the camera */
-const goTo = (id) => { if (!mandala) focus(id); };
+const goTo = (id) => {
+  if (touring && HEAP_NUMBERS.has(id)) visitHeap(HEAP_NUMBERS.get(id) - 1);
+  else if (!mandala) focus(id);
+};
+
+/* The study tour has no recitation timer. Each stop corresponds to one heap. */
+HEAPS.forEach(([number, id]) => {
+  const option = document.createElement('option');
+  option.value = String(number - 1);
+  option.textContent = number + '. ' + (id.startsWith('goddess_') ? E[id].en : E[id].t);
+  tourSelect.appendChild(option);
+});
+function orientOfferingCards() {
+  OFFERING_MODELS.forEach(model => {
+    const card = model.children[0];
+    if (touring) card.quaternion.copy(cam.quaternion);
+    else card.rotation.set(-Math.PI / 2, 0, 0);
+    model.position.y = model.userData.baseY + (touring ? model.scale.x * 0.53 : 0.008);
+  });
+}
+function tourFocus() {
+  const [n, id] = HEAPS[tourIndex];
+  const p = heapPoint(id, n);
+  const dir = n === 1 ? new THREE.Vector3(1, 0.7, 1.25)
+    : new THREE.Vector3(p.x, Math.max(0.4, Math.hypot(p.x, p.z) * 0.75), p.z);
+  if (OFFERING_ART.has(id)) dir.set(0.35, 0.7, 1.5);
+  orientOfferingCards();
+  focus(id, dir);
+}
+function reframeOffering() { if (touring) tourFocus(); else mandalaFly(420); }
+function visitHeap(index, move = true) {
+  if (!touring) return;
+  tourIndex = Math.max(0, Math.min(HEAPS.length - 1, index));
+  clearTimeout(framePut);
+  pausePlay();
+  setOpen(false, false);
+  sheet.hidden = true;
+  const [number, id] = HEAPS[tourIndex], entry = E[id];
+  current = id;
+  syncOfferingVisibility(null);
+  delete marksEl.dataset.stage;
+  MARKS.forEach(m => m.el.setAttribute('aria-current', String(m.id === id)));
+  tourEl.querySelector('.tour-count').textContent = 'Heap ' + number + ' of 37';
+  tourEl.querySelector('.tour-progress').value = number;
+  tourEl.querySelector('.tour-title').textContent = entry.t;
+  tourEl.querySelector('.tour-name').textContent = [entry.tib, entry.en].filter(Boolean).join(' · ');
+  tourEl.querySelector('.tour-position').textContent = entry.meta || '';
+  tourEl.querySelector('.tour-copy').textContent = TOUR_NOTES[tourIndex];
+  tourEl.querySelector('.tour-art-note').hidden = !OFFERING_ART.has(id);
+  tourEl.querySelector('[data-tour="prev"]').disabled = tourIndex === 0;
+  tourEl.querySelector('[data-tour="next"]').textContent = number === 37 ? 'Finish tour' : 'Next heap';
+  tourSelect.value = String(tourIndex);
+  tourEl.querySelector('.tour-scroll').scrollTop = 0;
+  syncChrome();
+  tintOnly(id);
+  if (move) tourFocus();
+  invalidate();
+}
+function startTour(index = 0) {
+  setMandala(true);
+  touring = true;
+  resetPlay();
+  visitHeap(index);
+}
+function endTour() {
+  touring = false;
+  sheet.hidden = true;
+  current = null;
+  resetPlay();
+  orientOfferingCards();
+  syncChrome();
+  mandalaFly(700);
+}
+for (const button of document.querySelectorAll('[data-view]')) button.addEventListener('click', () => {
+  if (button.dataset.view === 'tour') startTour(touring ? tourIndex : 0);
+  else if (touring) endTour();
+});
+tourSelect.addEventListener('change', () => visitHeap(Number(tourSelect.value)));
+tourEl.addEventListener('click', event => {
+  const action = event.target.closest('[data-tour]')?.dataset.tour;
+  if (action === 'prev') visitHeap(tourIndex - 1);
+  if (action === 'next') { if (tourIndex === 36) endTour(); else visitHeap(tourIndex + 1); }
+  if (action === 'overview') endTour();
+  if (action === 'frame') tourFocus();
+  if (action === 'entry') show(HEAPS[tourIndex][1], true);
+});
 
 /* ── build the index ─────────────────────────────────────────────────── */
 const rowsEl = document.querySelector('.index .rows');
@@ -3822,11 +4059,12 @@ search.addEventListener('input', () => {
 
 /* ── controls ────────────────────────────────────────────────────────── */
 const indexBtn = document.querySelector('[data-act="index"]');
-const setOpen = (open) => {
+const setOpen = (open, reframeView = true) => {
+  if (open) pausePlay();
   document.body.classList.toggle('index-open', open);
-  stage.toggleAttribute('no-toolbar', open);   // the drawer covers its corner
+  syncChrome();
   indexBtn.setAttribute('aria-pressed', String(open));
-  if (mandala) setTimeout(() => mandalaFly(420), 340);
+  if (mandala && reframeView) setTimeout(() => { if (mandala) reframeOffering(); }, 340);
   try { localStorage.setItem('ws-index', open ? '1' : '0'); } catch (err) {}
 };
 document.querySelector('.controls').addEventListener('click', (ev) => {
@@ -3909,7 +4147,7 @@ function syncFull() {
   fsBtn.querySelector('.t').textContent = on ? 'Exit full screen' : 'Full screen';
   fsBtn.title = (on ? 'Leave full screen' : 'Full screen') + ' \u2014 f';
   invalidate();
-  setTimeout(() => { if (mandala) mandalaFly(280); }, 140);
+  setTimeout(() => { if (mandala) reframeOffering(); }, 140);
 }
 function toggleFullScreen() {
   if (!canFull) {                       /* iOS Safari: hide the page chrome instead */
@@ -3931,12 +4169,13 @@ document.addEventListener('webkitfullscreenchange', syncFull);
 const chromeRO = new ResizeObserver(() => syncChrome());
 chromeRO.observe(noteEl);
 chromeRO.observe(legend);
+chromeRO.observe(tourEl);
 syncChrome();
 let reframe = null;
 window.addEventListener('resize', () => {
   syncChrome();
   clearTimeout(reframe);
-  reframe = setTimeout(() => { if (mandala) mandalaFly(240); }, 180);
+  reframe = setTimeout(() => { if (mandala) reframeOffering(); }, 180);
 });
 document.querySelector('[data-act="close-index"]').addEventListener('click', () => setOpen(false));
 legend.querySelector('.legend-head').addEventListener('click', () => {
@@ -3977,14 +4216,25 @@ canvas.addEventListener('pointerup', (e) => {
   for (const hit of ray.intersectObjects(world.children, true)) {
     if (!visibleInScene(hit.object)) continue;
     const e2 = entryFor(hit.object.name);
-    if (e2) { pausePlay(); show(e2.id, true); return; }
+    if (e2) {
+      if (touring && HEAP_NUMBERS.has(e2.id)) visitHeap(HEAP_NUMBERS.get(e2.id) - 1);
+      else { pausePlay(); show(e2.id, true); }
+      return;
+    }
   }
-  close();
+  if (!touring) close();
 });
 window.addEventListener('keydown', (e) => {
-  if (e.target.tagName === 'INPUT') { if (e.key === 'Escape') e.target.blur(); return; }
+  if (['INPUT', 'SELECT', 'TEXTAREA'].includes(e.target.tagName) || e.target.isContentEditable) {
+    if (e.key === 'Escape') e.target.blur(); return;
+  }
+  if (touring && sheet.hidden && !document.body.classList.contains('index-open') && ['ArrowLeft', 'ArrowRight'].includes(e.key)) {
+    e.preventDefault(); visitHeap(tourIndex + (e.key === 'ArrowRight' ? 1 : -1)); return;
+  }
   if (e.key === 'Escape') {
-    if (!sheet.hidden) close();
+    if (document.body.classList.contains('index-open')) setOpen(false);
+    else if (!sheet.hidden) close();
+    else if (touring) endTour();
     else if (mandala) setMandala(false);
     else if (isFull() || document.body.classList.contains('immersive')) toggleFullScreen();
     else home();
