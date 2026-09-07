@@ -1,4 +1,4 @@
-/* Modern painted offering cards, not scans or 3D sculptures. See ARTWORK.md.
+/* Transparent painted offerings, not scans or 3D sculptures. See ARTWORK.md.
  * Three shared textures; UVs select cards without duplicating image memory. */
 const atlas = name => new URL('./assets/offerings/' + name + '.webp', import.meta.url).href;
 const royals = atlas('royal-atlas'), goddesses = atlas('goddess-atlas'), treasures = atlas('treasure-atlas');
@@ -30,7 +30,7 @@ const records = [
 ];
 export const OFFERING_ART = new Map(records.map(([id, url, cell, attribute]) => [id, {url, cell, attribute}]));
 
-export function createOfferingModels(THREE, palette, onStatus = () => {}) {
+export function createOfferingModels(THREE, onStatus = () => {}) {
   const models = new Map(), sheets = new Map();
   for (const url of [royals, goddesses, treasures]) sheets.set(url, {state: 'idle', materials: []});
   const report = () => onStatus([...sheets.values()].map(s => s.state));
@@ -44,7 +44,7 @@ export function createOfferingModels(THREE, palette, onStatus = () => {}) {
         texture.anisotropy = 4;
         sheet.materials.forEach(material => {
           material.map = texture;
-          material.color.setHex(0xffffff);
+          material.opacity = 1;
           material.needsUpdate = true;
         });
         sheet.state = 'ready'; report();
@@ -60,9 +60,6 @@ export function createOfferingModels(THREE, palette, onStatus = () => {}) {
     const card = new THREE.Group();
     card.rotation.x = -Math.PI / 2;
     group.add(card);
-    const backing = new THREE.Mesh(new THREE.BoxGeometry(0.75, 1, 0.012), palette.goldDeep);
-    backing.name = id; backing.userData.offering = true;
-    card.add(backing);
     const geometry = new THREE.PlaneGeometry(0.73, 0.98);
     const uv = geometry.getAttribute('uv');
     const col = art.cell % 4, row = Math.floor(art.cell / 4);
@@ -70,7 +67,12 @@ export function createOfferingModels(THREE, palette, onStatus = () => {}) {
     for (let i = 0; i < uv.count; i++) uv.setXY(i,
       col / 4 + insetU + uv.getX(i) * (1 / 4 - 2 * insetU),
       (1 - (row + 1) / 2) + insetV + uv.getY(i) * (1 / 2 - 2 * insetV));
-    const material = new THREE.MeshBasicMaterial({color: 0x14212c, toneMapped: false});
+    // Preserve the cutout edges without invisible rectangles writing depth.
+    // Stay invisible until the atlas arrives, including on failed requests.
+    const material = new THREE.MeshBasicMaterial({
+      color: 0xffffff, toneMapped: false, transparent: true,
+      alphaTest: 0.02, depthWrite: false, opacity: 0
+    });
     sheets.get(art.url).materials.push(material);
     const face = new THREE.Mesh(geometry, material);
     face.position.z = 0.007; face.name = id;

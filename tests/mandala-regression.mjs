@@ -83,10 +83,17 @@ const heaps = () => [...app.HEAP_MEMBERS].filter(([,members])=>members.some(app.
 assert.equal(app.HEAPS.length,37); assert.equal(TOUR_NOTES.length,37);
 assert.equal(app.OFFERING_MODELS.size,24); assert.equal(textureRequests.length,0,'Images are lazy');
 panel(null);
+const worldVisibility = new Map();
+app.world.traverse(o => worldVisibility.set(o, o.visible));
 app.setMandala(true); advance(1200); panel('.mandala-note');
+const mandalaVisibility = new Map();
+app.world.traverse(o => mandalaVisibility.set(o, o.visible));
 assert.equal(textureRequests.length,3);
 assert.equal(heaps().length,37);
 assert.ok(app.LUMINARIES.every(l=>l.objs.every(o=>!o.visible)));
+app.OFFERING_MODELS.forEach(model => model.traverse(m => {
+  if (m.isMesh) assert.equal(m.material.opacity,0,'No solid placeholder before loading');
+}));
 // Failed image requests have a visible retry and do not break the tour.
 textureRequests[0].failure();
 textureRequests[1].success(new THREE.Texture()); textureRequests[2].success(new THREE.Texture());
@@ -106,6 +113,10 @@ for(const [id,model] of app.OFFERING_MODELS) {
     if(m.userData.artwork) front=m;
   });
   assert.ok(front?.material.map,'Texture assigned');
+  assert.equal(front.material.transparent,true,'Respect image alpha');
+  assert.equal(front.material.depthWrite,false,'Transparent canvas cannot occlude neighbours');
+  assert.ok(front.material.alphaTest>0,'Discard nearly transparent background pixels');
+  assert.equal(front.material.opacity,1,'Loaded artwork is visible');
   assert.equal(front.material.map.colorSpace,THREE.SRGBColorSpace);
   const art=OFFERING_ART.get(id), u=art.cell%4, v=Math.floor(art.cell/4);
   const uv=front.geometry.attributes.uv;
@@ -115,7 +126,7 @@ for(const [id,model] of app.OFFERING_MODELS) {
   }
   assert.ok(fs.existsSync(fileURLToPath(art.url)),'Local artwork missing');
 }
-assert.equal(triangles,336);
+assert.equal(triangles,48,'Only the 24 illustration planes, with no rectangular backings');
 // Directions independently transcribed from the existing verified diagram.
 const dirs=[[1,0],[0,1],[-1,0],[0,-1],[1,1],[-1,1],[-1,-1],[1,-1],
  [1,1],[-1,1],[-1,-1],[1,-1],[1,0],[0,1],[-1,0],[0,-1],[1,0],[-1,0],[0,1],[0,-1]];
@@ -138,12 +149,33 @@ for(const size of [{w:1280,h:900},{w:390,h:844},{w:844,h:390}]) {
   assert.equal(app.state().tourIndex,i); assert.equal(q('#tour-jump').value,String(i));
   assert.equal(q('.tour-copy').textContent,TOUR_NOTES[i]);
   assert.equal(app.state().current,app.HEAPS[i][1]);
-  assert.equal(app.state().playing,false); assert.equal(heaps().length,37);
+  assert.equal(app.state().playing,false); assert.deepEqual(heaps(),[i+1],'Only the current heap is shown');
+  const selected = new Set(app.HEAP_MEMBERS.get(i+1));
+  for (const member of [...selected]) {
+    for (let p=member.parent;p;p=p.parent) selected.add(p);
+  }
+  app.world.traverse(o=>{
+    if ((o.isMesh||o.isSprite||o.isLine||o.isPoints)&&app.visibleInScene(o))
+      assert.ok(selected.has(o),'No unrelated geometry can obscure the selected heap');
+  });
   assert.ok(app.cam.position.toArray().every(Number.isFinite));
   const b=new THREE.Box3(); app.meshesFor(app.HEAPS[i][1]).forEach(m=>b.expandByObject(m));
   const point=b.getCenter(new THREE.Vector3()).project(app.cam), fr=app.freeRect();
   const screen={x:(point.x+.999999)*size.w/2,y:(1-point.y)*size.h/2};
   assert.ok(Math.abs(screen.x-fr.x)<2 && Math.abs(screen.y-fr.y)<2,`Close-up framing ${i+1} at ${size.w}`);
+  // Project every selected vertex, including the full billboard after it turns
+  // toward the final camera. Require breathing room on all four sides.
+  for (const m of app.meshesFor(app.HEAPS[i][1])) {
+    const vertices=m.geometry?.attributes.position;
+    if(!vertices)continue;
+    for(let j=0;j<vertices.count;j++) {
+      const v=new THREE.Vector3().fromBufferAttribute(vertices,j).applyMatrix4(m.matrixWorld).project(app.cam);
+      const x=(v.x+1)*size.w/2, y=(1-v.y)*size.h/2;
+      assert.ok(Math.abs(x-fr.x)<=fr.w*.38 && Math.abs(y-fr.y)<=fr.h*.38,
+        `Heap ${i+1} needs a margin at ${size.w}×${size.h}`);
+      assert.ok(v.z>-1 && v.z<1,'Selected geometry stays within camera clipping planes');
+    }
+  }
  }
 }
 q('[data-tour="entry"]').click(); panel('.sheet');
@@ -164,6 +196,8 @@ q('#tour-jump').value='36'; q('#tour-jump').dispatchEvent(new window.Event('chan
 assert.equal(q('[data-tour="next"]').textContent,'Finish tour');
 q('[data-tour="next"]').click(); advance(1000); panel('.mandala-note');
 assert.equal(app.state().touring,false);
+assert.equal(heaps().length,37);
+mandalaVisibility.forEach((visible,obj)=>assert.equal(obj.visible,visible,'Whole mandala restored'));
 app.OFFERING_MODELS.forEach(m=>assert.ok(Math.abs(m.children[0].rotation.x+Math.PI/2)<1e-6));
 app.show('emblem_elephant'); panel('.sheet'); app.setOpen(true); panel('.index');
 app.setOpen(false); panel('.mandala-note');
@@ -172,8 +206,9 @@ assert.equal(app.state().mandala,false); assert.equal(app.state().touring,false)
 app.setMotion(false); app.applyTheme(true); app.applyTheme(false);
 app.ORIGINAL_VISIBILITY.forEach((visible,obj)=>assert.equal(obj.visible,visible,'Original world restored'));
 app.OFFERING_MODELS.forEach(m=>assert.equal(app.visibleInScene(m),false));
+worldVisibility.forEach((visible,obj)=>assert.equal(obj.visible,visible,'All world context restored'));
 reduced=true; app.startTour(20); advance(20); panel('.tour-panel');
 assert.equal(app.state().tourIndex,20);
 console.log(JSON.stringify({result:'PASS',heaps:37,illustrations:24,triangles,atlasRequests:3,
- checks:'All reveals, full playback, all tour stops at three viewport sizes, camera math, exclusive panel states, image failure/retry, UV mapping, keyboard controls, reduced motion and world restoration.',
+ checks:'All reveals, full playback, all tour stops at three viewport sizes, projected silhouette margins, heap isolation, exclusive panels, alpha materials, image failure/retry, UV mapping, keyboard controls, reduced motion and full visibility restoration.',
  limits:'DOM and GPU substitutes; actual CSS layout, WebGL rendering and devices were not tested.'},null,2));

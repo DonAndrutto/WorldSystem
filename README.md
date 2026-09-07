@@ -112,16 +112,19 @@ Tibetan, a phonetic reading and English. Play or step through the verse to revea
 each offering in order. Reset returns to the complete reference view.
 
 Meru, the four continents and eight subcontinents retain the existing 3D
-geometry. The remaining twenty-four offerings use detailed painted cards:
+geometry. The remaining twenty-four offerings use detailed painted cutouts:
 the four treasures, seven royal emblems, treasure vase, eight goddesses,
-sun, moon, parasol and victory banner. They lie face-up in the diagram.
+sun, moon, parasol and victory banner. They lie face-up in the diagram, with
+transparent backgrounds and no rectangular frames.
 Returning to the world view restores the original treasure and luminary meshes.
 
-**Tour the 37 heaps** opens a separate, untimed study route. Each stop has a close
-camera view, a short looking prompt, its name and access to the full source
+**Tour the 37 heaps** opens a separate, untimed study route. Each stop shows the
+current heap with a generous camera margin and hides surrounding geometry so it
+cannot obscure the subject. It has a short looking prompt, its name and access to the full source
 entry. Use Previous/Next, the left/right arrow keys or the 37-item selector.
 The final stop offers Finish tour; Return to whole mandala is always available.
-An entry also has Tour from here. Cards face the camera during the tour;
+An entry also has Tour from here. The full scene returns when leaving the tour.
+Illustrations face the camera during the tour;
 they are painted illustrations, not volumetric sculptures.
 
 The index, entry, recitation and tour occupy one shared dock. Only one is shown

@@ -6,17 +6,21 @@ They are contemporary paintings informed by Tibetan visual traditions. They are
 not photographs of historical objects, reproductions of the sources below, or
 lineage-certified deity images. The source artworks were not copied into the app.
 
-The earlier procedural figurines have been replaced by painted cards. Meru and
+The earlier procedural figurines have been replaced by transparent painted illustrations. Meru and
 the twelve continents retain their existing geometry. The four treasures use
-cards in the offering views and retain their original meshes in the world view.
-Cards lie flat during recitation and face the viewer in the study tour. Turning
+illustrations in the offering views and retain their original meshes in the world view.
+Illustrations lie flat during recitation and face the viewer in the study tour. Turning
 the camera does not reveal sculpted backs or sides of the painted subjects.
 
-The three WebP sheets total about 1.8 MB, loaded on first entering an offering
+The three WebP sheets total about 2.0 MB, loaded on first entering an offering
 view. Each sheet is 1536 × 1024 pixels, with four columns and two rows. Each card
 therefore has 384 × 512 pixels of source detail. The same textures are shared by
-the scene cards; no separate cropped image files are required. Colours are kept
+the scene illustrations; no separate cropped image files are required. Colours are kept
 independent of scene lighting so the painted attributes remain readable at night.
+Their alpha channels preserve the standalone silhouettes, without rectangular
+backings or borders. Transparent pixels do not write to the scene depth buffer.
+The study tour isolates the current heap and frames it with additional space;
+returning to recitation or world view restores the surrounding geometry.
 
 ## Sources and their scope
 
@@ -57,9 +61,12 @@ lineage's complete iconographic manual.
 The [generation briefs](assets/offerings/PROMPTS.md) record the intended subjects,
 attributes, atlas order and visual direction. The generated images were visually
 inspected for subject order, principal attributes and obvious limb errors. They
-were then encoded to WebP without changing their composition. Backgrounds and
-some framing differ from the requested briefs, so the app presents complete
-rectangular cards instead of claiming transparent cutouts.
+were then encoded to WebP. The royal and goddess sheets already contained alpha
+channels, which the original opaque materials ignored. On 7 September 2026 the
+renderer was corrected to use that transparency and the rectangular backings
+were removed. The treasure sheet had an opaque blue background, so it received
+a background-extraction edit with the built-in image tool, retaining the eight
+subjects and their grid order. Its alpha was preserved in the WebP conversion.
 
 Before presenting any fine detail as an authoritative practice instruction,
 check it against the intended lineage's source and a qualified traditional

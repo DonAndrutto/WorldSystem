@@ -103,3 +103,20 @@ Bottom row:
 8. Upright cylindrical Tibetan victory standard with small domed canopy,
    jewel finial, three cascading red, blue and yellow silk tiers, gold patterned
    bands, long multicoloured streamers, shaft and lotus base. No rectangular flag.
+
+
+## Treasure atlas transparency edit, 7 September 2026
+
+Built-in image tool, using the existing treasure atlas as the edit target:
+
+> Remove only the dark navy blue backdrop to produce real transparent alpha,
+> including spaces within branches, between jewellery and streamers, around
+> the cow’s legs, and between grain stalks. Preserve all eight subjects, their
+> layout, sizes, positions and detailed appearance. Keep the 1536 × 1024 canvas
+> and 4-column, 2-row grid. Preserve lotus bases, tiny decorative details and
+> fine light rays with soft alpha edges. No redesign, cropping, added subjects,
+> labels, frames, coloured panels, checkerboard pattern or solid background.
+> Output a transparent PNG cutout atlas.
+
+The result was encoded as `treasure-atlas.webp`, preserving its alpha channel.
+The royal and goddess sheets already had alpha and were kept unchanged.
