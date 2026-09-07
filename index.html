@@ -77,14 +77,14 @@
     --field: rgba(255, 255, 255, .05);
     --shadow: 0 1px 2px rgba(0,0,0,.45), 0 16px 44px rgba(0,0,0,.55);
   }
-  html, body { margin: 0; height: 100%; overflow: hidden; }
+  html, body { margin: 0; height: 100%; overflow: hidden; touch-action: pan-x pan-y; }
   body {
     font-family: "EB Garamond", Georgia, serif; color: var(--ink);
     background: var(--paper); transition: background-color .55s ease;
     overscroll-behavior: none; -webkit-tap-highlight-color: transparent;
   }
   three-d-stage:not(:defined) { visibility: hidden; }
-  three-d-stage { display: block; width: 100vw; height: 100vh; height: 100dvh; }
+  three-d-stage { display: block; width: 100vw; height: 100vh; height: 100dvh; touch-action: none; }
   a { color: var(--accent); text-underline-offset: 2px; }
   a:hover { color: var(--ink); }
   ::selection { background: var(--hi-2); }
@@ -395,6 +395,7 @@
     padding: 0; cursor: pointer; font: inherit; color: var(--ink-2);
   }
   .mk .n {
+    touch-action: none;
     width: 21px; height: 21px; border-radius: 50%; display: grid; place-items: center;
     border: 1px solid var(--rule-2); background: var(--surface); pointer-events: auto;
     cursor: pointer; font-family: "IBM Plex Mono", monospace; font-size: 9.5px; line-height: 1;
@@ -501,6 +502,7 @@
   .marks[data-stage] .mk.on { opacity: 1; }
   .marks[data-stage] .mk.on .n { pointer-events: auto; }
   .mk.now { z-index: 4; }
+  body.hide-heap-numbers .marks .mk { display: none !important; }
   .mk.now .n {
     background: var(--accent); color: var(--paper); border-color: var(--accent);
     transform: scale(1.42);
@@ -683,7 +685,7 @@
   <div class="controls card">
     <button class="btn" data-act="index" type="button" aria-pressed="false" title="Index — i"><span class="g">☰</span><span class="t">Index</span></button>
     <button class="btn" data-act="mandala" type="button" aria-pressed="false" title="Mandala view — m"><span class="g">◎</span><span class="t">Mandala view</span></button>
-    <button class="btn" data-act="motion" type="button" aria-pressed="false" title="Set it turning — r"><span class="g">◐</span><span class="t">Motion</span></button>
+    <button class="btn" data-act="motion" type="button" aria-pressed="false" title="Set it turning — r"><span class="g">▶</span><span class="t">Motion</span></button>
     <button class="btn" data-act="night" type="button" aria-pressed="false" title="Night — n"><span class="g">☾</span><span class="t">Night</span></button>
     <button class="btn" data-act="full" type="button" aria-pressed="false" title="Full screen — f"><span class="g">⛶</span><span class="t">Full screen</span></button>
     <button class="btn" data-act="home" type="button" title="Reset view — Esc"><span class="g">⟲</span><span class="t">Reset view</span></button>
@@ -711,7 +713,7 @@
     <i class="pin"></i>
   </div>
 
-  <div class="marks" hidden=""></div>
+  <div class="marks" id="offering-marks" hidden=""></div>
 
   <div class="panel-dock" hidden>
   <p class="art-status card" role="status" hidden><span></span> <button class="btn" type="button" data-art-retry hidden>Retry images</button></p>
@@ -722,7 +724,7 @@
     </div>
     <h3>The thirty-seven-point offering</h3>
     <p class="off-tib">༄༅། །མཎྜལ་སོ་བདུན་མ་བཞུགས་སོ། །</p>
-    <p class="off-intro">Placement follows <a href="https://dudjomtersarngondro.com/wp-content/uploads/2017/12/37-pt-mandala-lsr.png" target="_blank" rel="noopener">Lama Sonam Rinpoche’s 2017 diagram</a> from Pema Ösel Ling. North is at the top, south at the bottom. For a physical offering, orient the plate according to your practice instructions. The outer numbered rings show offering positions.</p>
+    <p class="off-intro">Placement follows <a href="https://dudjomtersarngondro.com/wp-content/uploads/2017/12/37-pt-mandala-lsr.png" target="_blank" rel="noopener">Lama Sonam Rinpoche’s 2017 diagram</a> from Pema Ösel Ling. In the reference view, north is at the top and south at the bottom. The compass follows the view as it turns. For a physical offering, orient the plate according to your practice instructions. The outer numbered rings show offering positions.</p>
     <div class="off-player">
       <button class="pb wide" data-p="play" type="button" aria-pressed="false" title="Play — p"><span class="gl">▶</span>Play</button>
       <button class="pb" data-p="prev" type="button" title="Back one — ," aria-label="Back one">‹</button>
@@ -739,6 +741,7 @@
     </div>
     <div class="off-full scroll" hidden=""></div>
     <div class="off-foot">
+      <button class="btn" data-numbers type="button" aria-pressed="true" aria-controls="offering-marks">Numbers</button>
       <button class="btn" data-p="full" type="button" title="The whole verse — v">Full verse</button>
       <button class="btn" data-p="overview" type="button">Whole mandala</button>
       <button class="btn" data-open="about_mandala" type="button">About the offering</button>
@@ -759,6 +762,7 @@
       <label class="tour-jump-label" for="tour-jump">Go to an offering</label>
       <select id="tour-jump" aria-label="Go to an offering"></select>
       <div class="tour-links">
+        <button class="btn" data-numbers type="button" aria-pressed="true" aria-controls="offering-marks">Numbers</button>
         <button class="btn" type="button" data-tour="entry">Read entry &amp; sources</button>
         <button class="btn" type="button" data-tour="frame">Re-centre</button>
       </div>
@@ -817,6 +821,7 @@
 <script type="module">
 import { createOfferingModels, OFFERING_ART } from './mandala-offerings.js';
 import { TOUR_NOTES } from './mandala-tour.js';
+import { installViewportGestures } from './viewport-gestures.js';
 const stage = document.querySelector('three-d-stage');
 const { THREE } = await stage.ready;
 stage.shadowRoot.querySelector('.note')?.remove();   // the page carries its own hint
@@ -3266,6 +3271,13 @@ const ease = (x) => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
    read, and a phone renders nothing at all when idle. */
 const LUM_SPEED = Math.PI * 2 / 40;     // one circuit, forty seconds
 let motion = false, lumSpin = 0, lastFrame = 0;
+let orbitInteracting = false;
+ctr.addEventListener('start', () => { orbitInteracting = true; ctr.autoRotate = false; });
+ctr.addEventListener('end', () => {
+  orbitInteracting = false;
+  ctr.autoRotate = motion && !anim;
+  invalidate();
+});
 function placeLuminaries() {
   LUMINARIES.forEach((L) => {
     const a = L.base + lumSpin;
@@ -3295,7 +3307,7 @@ function fly(toPos, toTarget, dur = 800) {
     ctr.target.lerpVectors(fromT, toTarget, e);
     ctr.update();
     anim = k < 1 ? requestAnimationFrame(walk) : null;
-    if (!anim && motion) ctr.autoRotate = true;   // a flight interrupts the turn, it does not end it
+    if (!anim) ctr.autoRotate = motion && !orbitInteracting;
   };
   walk();
 }
@@ -3393,6 +3405,15 @@ function home() {
    Painted cards distinguish the treasures and the outer twenty offerings.     */
 const marksEl = document.querySelector('.marks');
 const noteEl = document.querySelector('.mandala-note');
+let showHeapNumbers = true;
+function setHeapNumbers(on) {
+  showHeapNumbers = on;
+  document.body.classList.toggle('hide-heap-numbers', !on);
+  document.querySelectorAll('[data-numbers]').forEach(button => button.setAttribute('aria-pressed', String(on)));
+}
+document.querySelectorAll('[data-numbers]').forEach(button => {
+  button.addEventListener('click', () => setHeapNumbers(!showHeapNumbers));
+});
 const V3 = (x, yy, z) => new THREE.Vector3(x, yy, z);
 const DIRS = { purvavideha: Math.PI / 2, jambudvipa: 0, aparagodaniya: -Math.PI / 2, uttarakuru: Math.PI };
 const SUBOF = {
@@ -3707,7 +3728,6 @@ function setMandala(on) {
   touring = false;
   sheet.hidden = true;
   current = null;
-  if (on && motion) setMotion(false);   // pins on a spinning plate read as nothing
   mandala = on;
   document.body.classList.toggle('mandala-view', on);
   document.querySelector('[data-act="mandala"]').setAttribute('aria-pressed', String(on));
@@ -4134,14 +4154,13 @@ document.querySelector('.controls').addEventListener('click', (ev) => {
 /* ── the motion switch ───────────────────────────────────────────────── */
 const motionBtn = document.querySelector('[data-act="motion"]');
 function setMotion(on) {
-  if (on && mandala) setMandala(false);
   motion = on;
   lastFrame = performance.now();
-  ctr.autoRotate = on;
+  ctr.autoRotate = on && !anim && !orbitInteracting;
   ctr.autoRotateSpeed = 0.7;           // a turn and a half in the time a circuit takes
   if (!on) { lumSpin = 0; placeLuminaries(); lightFromSky(); }   // back where the text has them
   motionBtn.setAttribute('aria-pressed', String(on));
-  motionBtn.querySelector('.g').textContent = on ? '❙❙' : '◐';
+  motionBtn.querySelector('.g').textContent = on ? '❙❙' : '▶';
   motionBtn.querySelector('.t').textContent = on ? 'Hold still' : 'Motion';
   motionBtn.title = (on ? 'Hold still' : 'Set it turning') + ' \u2014 r';
   invalidate(4);
@@ -4249,6 +4268,7 @@ syncHome();
 
 /* ── click any part ──────────────────────────────────────────────────── */
 const canvas = stage.shadowRoot.querySelector('canvas');
+const viewportGestures = installViewportGestures({canvas, marks: marksEl, camera: cam, controls: ctr, invalidate});
 canvas.style.cursor = 'crosshair';
 const ray = new THREE.Raycaster();
 let down = null;
@@ -4256,6 +4276,7 @@ canvas.addEventListener('pointerdown', (e) => {
   down = { x: e.clientX, y: e.clientY, t: Date.now() };
 });
 canvas.addEventListener('pointerup', (e) => {
+  if (!viewportGestures.allowScenePick(e)) { down = null; return; }
   if (!down) return;
   const moved = Math.hypot(e.clientX - down.x, e.clientY - down.y);
   const slow = Date.now() - down.t > 500;
@@ -4266,7 +4287,10 @@ canvas.addEventListener('pointerup', (e) => {
     ((e.clientX - r.left) / r.width) * 2 - 1,
     -((e.clientY - r.top) / r.height) * 2 + 1
   ), cam);
-  for (const hit of ray.intersectObjects(world.children, true)) {
+  const hits = ray.intersectObjects(world.children, true);
+  // Match the illustration overlay's visual priority when numbers are hidden.
+  if (mandala) hits.sort((a, b) => Number(!!b.object.userData.artwork) - Number(!!a.object.userData.artwork) || a.distance - b.distance);
+  for (const hit of hits) {
     if (!visibleInScene(hit.object)) continue;
     const e2 = entryFor(hit.object.name);
     if (e2) {

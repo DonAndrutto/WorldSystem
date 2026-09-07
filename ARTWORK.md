@@ -21,6 +21,9 @@ the scene illustrations; no separate cropped image files are required. Colours a
 independent of scene lighting so the painted attributes remain readable at night.
 Their alpha channels preserve the standalone silhouettes, without rectangular
 backings or borders. Transparent pixels do not write to the scene depth buffer.
+The painted cutouts render after the terrain without testing terrain depth,
+so mountains and oceans cannot obscure them at low camera angles. This is a
+diagram overlay for legibility, not physically correct occlusion of 3D objects.
 The study tour isolates the current heap. Painted images fill 84% of the
 limiting dimension of the available image area, with a separate strip below
 for the heap number. Volumetric heaps keep their wider framing. Returning to

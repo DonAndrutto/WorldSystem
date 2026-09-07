@@ -8,6 +8,7 @@ import * as RealThree from 'three';
 const repo = process.env.WORLDSYSTEM_REPO || fileURLToPath(new URL('../', import.meta.url));
 const {createOfferingModels, OFFERING_ART} = await import(pathToFileURL(repo + '/mandala-offerings.js'));
 const {TOUR_NOTES} = await import(pathToFileURL(repo + '/mandala-tour.js'));
+const {installViewportGestures} = await import(pathToFileURL(repo + '/viewport-gestures.js'));
 const html = fs.readFileSync(repo + '/index.html', 'utf8');
 const source = html.match(/<script type="module">([\s\S]*?)<\/script>/)[1].replace(/^import .*;\n/gm, '');
 const dom = new JSDOM(html, {url:'https://example.org/WorldSystem/', runScripts:'outside-only', pretendToBeVisual:true});
@@ -16,7 +17,7 @@ const textureRequests = [];
 const THREE = {...RealThree, TextureLoader: class {
   load(url, success, progress, failure) { textureRequests.push({url, success, failure}); }
 }};
-Object.assign(window, {createOfferingModels, OFFERING_ART, TOUR_NOTES});
+Object.assign(window, {createOfferingModels, OFFERING_ART, TOUR_NOTES, installViewportGestures});
 let viewport = {w:1280, h:900}, reduced = false;
 window.matchMedia = query => ({matches:query.includes('reduced-motion') ? reduced
   : query.includes('max-width: 700px') ? viewport.w <= 700
@@ -70,7 +71,7 @@ const app = await window.eval(`(async()=>{${source}\nreturn {
  STEPS, LUMINARIES, RIM, OFFERING_SIZE, freeRect, tourImageRect, meshesFor, visibleInScene,
  setMandala, show, close, setOpen, startTour, visitHeap, endTour, orientOfferingCards,
  applyStep, playToggle, stepBy, pausePlay, resetPlay, applyTheme, setMotion,
- state:()=>({mandala,touring,tourIndex,pStep,playing,current})
+ state:()=>({mandala,touring,tourIndex,pStep,playing,current,motion,showHeapNumbers,lumSpin})
 };})()`);
 advance(1200);
 const panels = ['.sheet','.mandala-note','.tour-panel','.index'];
@@ -91,6 +92,14 @@ app.world.traverse(o => mandalaVisibility.set(o, o.visible));
 assert.equal(textureRequests.length,3);
 assert.equal(heaps().length,37);
 assert.ok(app.LUMINARIES.every(l=>l.objs.every(o=>!o.visible)));
+assert.equal(app.state().showHeapNumbers,true,'Numbers start on');
+q('[data-numbers]').click();
+assert.equal(app.state().showHeapNumbers,false);
+assert.ok(document.body.classList.contains('hide-heap-numbers'));
+document.querySelectorAll('[data-numbers]').forEach(b=>assert.equal(b.getAttribute('aria-pressed'),'false'));
+q('.tour-panel [data-numbers]').click();
+assert.equal(app.state().showHeapNumbers,true);
+assert.ok(!document.body.classList.contains('hide-heap-numbers'));
 app.OFFERING_MODELS.forEach(model => model.traverse(m => {
   if (m.isMesh) assert.equal(m.material.opacity,0,'No solid placeholder before loading');
 }));
@@ -115,6 +124,11 @@ for(const [id,model] of app.OFFERING_MODELS) {
   assert.ok(front?.material.map,'Texture assigned');
   assert.equal(front.material.transparent,true,'Respect image alpha');
   assert.equal(front.material.depthWrite,false,'Transparent canvas cannot occlude neighbours');
+  assert.equal(front.material.depthTest,false,'Oceans and mountains cannot depth-occlude artwork');
+  app.world.traverse(o=>{
+    if(o.isMesh && !o.userData.artwork && o.material.transparent)
+      assert.ok(front.renderOrder>o.renderOrder,'Artwork is drawn after transparent terrain');
+  });
   assert.ok(front.material.alphaTest>0,'Discard nearly transparent background pixels');
   assert.equal(front.material.opacity,1,'Loaded artwork is visible');
   assert.equal(front.material.map.colorSpace,THREE.SRGBColorSpace);
@@ -237,8 +251,23 @@ mandalaVisibility.forEach((visible,obj)=>assert.equal(obj.visible,visible,'Whole
 app.OFFERING_MODELS.forEach(m=>assert.ok(m.children[0].quaternion.angleTo(app.cam.quaternion)<1e-6));
 app.show('emblem_elephant'); panel('.sheet'); app.setOpen(true); panel('.index');
 app.setOpen(false); panel('.mandala-note');
-app.startTour(14); app.setMotion(true); advance(1000); panel(null);
-assert.equal(app.state().mandala,false); assert.equal(app.state().touring,false);
+app.startTour(14); app.setMotion(true); advance(1600); panel('.tour-panel');
+assert.equal(app.state().mandala,true); assert.equal(app.state().touring,true);
+assert.equal(app.state().motion,true); assert.equal(app.ctr.autoRotate,true);
+app.setMandala(false); advance(1000); panel(null);
+assert.equal(app.state().mandala,false); assert.equal(app.state().motion,true);
+app.setMandala(true); advance(1000); panel('.mandala-note');
+assert.equal(app.state().mandala,true); assert.equal(app.state().motion,true);
+assert.equal(heaps().length,37); assert.equal(app.ctr.autoRotate,true,'Whole mandala turns with offerings');
+const spin=app.state().lumSpin; advance(100); assert.ok(app.state().lumSpin>spin);
+app.setMotion(false);
+assert.equal(app.state().mandala,true); assert.equal(app.ctr.autoRotate,false);
+assert.equal(q('[data-act="motion"] .g').textContent,'▶');
+app.setMotion(true); advance(100);
+assert.equal(q('[data-act="motion"] .g').textContent,'❙❙');
+app.ctr.dispatchEvent({type:'start'}); assert.equal(app.ctr.autoRotate,false);
+app.ctr.dispatchEvent({type:'end'}); assert.equal(app.ctr.autoRotate,true,'Motion resumes after a gesture');
+app.setMotion(false); app.setMandala(false); advance(1000);
 app.setMotion(false); app.applyTheme(true); app.applyTheme(false);
 app.ORIGINAL_VISIBILITY.forEach((visible,obj)=>assert.equal(obj.visible,visible,'Original world restored'));
 app.OFFERING_MODELS.forEach(m=>assert.equal(app.visibleInScene(m),false));
@@ -246,5 +275,5 @@ worldVisibility.forEach((visible,obj)=>assert.equal(obj.visible,visible,'All wor
 reduced=true; app.startTour(20); advance(20); panel('.tour-panel');
 assert.equal(app.state().tourIndex,20);
 console.log(JSON.stringify({result:'PASS',heaps:37,illustrations:24,triangles,atlasRequests:3,
- checks:'Recitation billboards from 16 camera angles, overhead orientation, surface clearance, marker placement, 84% tour image fit at three viewport sizes, all 37 stops, playback, isolation, exclusive panels, image failure/retry, keyboard controls, reduced motion and visibility restoration.',
+ checks:'Terrain overlay priority, independent motion/mandala switches and gesture resume, numbers toggle, billboards from 16 angles, 84% tour image fit at three viewport sizes, all 37 stops, playback, isolation, exclusive panels, image failure/retry, keyboard controls, reduced motion and visibility restoration.',
  limits:'DOM and GPU substitutes; actual CSS layout, WebGL rendering and devices were not tested.'},null,2));
