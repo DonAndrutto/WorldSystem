@@ -638,7 +638,7 @@
   .tour-overview { min-height: 38px; margin-top: 8px; flex-shrink: 0; white-space: normal; }
   .entry-art { margin: 14px 0; }
   .entry-art > div { width: min(100%, 260px); aspect-ratio: 3 / 4; margin: auto;
-    background-size: 400% 200%; background-repeat: no-repeat; border: 1px solid var(--rule-2); }
+    background-size: 400% 200%; background-repeat: no-repeat; }
   .entry-art figcaption { font-size: 13px; text-align: center; color: var(--ink-2); margin-top: 6px; }
   .art-status { flex-shrink: 0; padding: 9px 12px; margin: 0; font-size: 14px; line-height: 1.4; pointer-events: auto; }
   .art-status .btn { margin-top: 6px; }
@@ -2801,9 +2801,9 @@ def('about_mandala', {
       ['Then', 'the whole is given away, and the giving is the point']],
   b: ['The mandala offering takes the cosmology drawn here and hands it over. Grain or jewels are laid on a plate in thirty-seven heaps, each named aloud as it is placed, beginning with Meru at the centre and working outward through the continents, their treasures, the wealth of a universal monarch, the goddesses of the senses, and the lights of the sky. When the last heap is down, the whole plate is offered and swept clean.',
       'This thirty-seven-point offering text is attributed to Chögyal Pakpa Lodrö Gyaltsen. Mandala offerings also have other forms. The form used and the method of counting follow the instructions of the practitioner\'s tradition.',
-      'All thirty-seven offerings have visual forms. Meru, the continents and subcontinents use the world model. Detailed painted cards depict the four treasures, royal emblems, treasure vase, eight offering goddesses, sun, moon, parasol and banner. In <b>Recitation</b>, the view is from above and the offerings appear in the order the verse names them.',
-      'Choose <b>Tour the 37 heaps</b> for a separate, untimed study route. The camera approaches each offering, with a short explanation and access to its full entry and sources. Use Previous and Next, the arrow keys or the offering selector. Return to the whole mandala whenever you wish. The index, entries and offering controls share one panel area.',
-      'The offering cards are contemporary illustrations made with AI assistance for this app, informed by traditional descriptions and Himalayan painting. They remain painted images when the camera turns. Body colours, costume, ornaments and individual poses are pictorial choices, and have not been certified as the prescribed forms of a particular lineage. The royal wheel abbreviates the thousand spokes described in the texts. See the <a href="https://github.com/DonAndrutto/WorldSystem/blob/main/ARTWORK.md" target="_blank" rel="noopener">artwork notes and references</a> for the sources and remaining questions.',
+      'All thirty-seven offerings have visual forms. Meru, the continents and subcontinents use the world model. Detailed painted cutouts depict the four treasures, royal emblems, treasure vase, eight offering goddesses, sun, moon, parasol and banner. In <b>Recitation</b>, the view is from above and the offerings appear in the order the verse names them.',
+      'Choose <b>Tour the 37 heaps</b> for a separate, untimed study route. Each offering is shown on its own with space around it, a short explanation and access to its full entry and sources. Surrounding geometry is restored when you leave the tour. Use Previous and Next, the arrow keys or the offering selector. Return to the whole mandala whenever you wish. The index, entries and offering controls share one panel area.',
+      'The offering cutouts are contemporary illustrations made with AI assistance for this app, informed by traditional descriptions and Himalayan painting. They remain painted images when the camera turns. Body colours, costume, ornaments and individual poses are pictorial choices, and have not been certified as the prescribed forms of a particular lineage. The royal wheel abbreviates the thousand spokes described in the texts. See the <a href="https://github.com/DonAndrutto/WorldSystem/blob/main/ARTWORK.md" target="_blank" rel="noopener">artwork notes and references</a> for the sources and remaining questions.',
       'The placement follows Lama Sonam Rinpoche\'s 2017 diagram from Pema Ösel Ling. Heaps 18–25 start at the cardinal directions; the goddesses, heaps 26–33, start at the intermediate directions. The outer four points place the sun east, the moon west, the parasol south and the banner north.',
       'The diagram is seen from above, with north at the top, east at the right, south at the bottom and west at the left. It does not specify the practitioner\'s position. For a physical offering, orient the plate according to your practice instructions. The outer numbered rings are a schematic guide to offering positions.'],
   rel: ['meru_core', 'treasure_mountain', 'emblem_wheel', 'goddess_lasya'],
@@ -3347,7 +3347,7 @@ const drawLoop = () => {
 stage._loop = drawLoop;
 gl.setAnimationLoop(drawLoop);
 
-function focus(id, direction = null) {
+function focus(id, direction = null, padding = 1.3) {
   const ms = meshesFor(id);
   if (!ms.length) return;
   world.updateMatrixWorld(true);
@@ -3358,7 +3358,7 @@ function focus(id, direction = null) {
   const r = Math.max(sph.radius, 0.025);
   const fr = freeRect(), h = Math.max(stage.clientHeight, 1), w = Math.max(stage.clientWidth, 1);
   const half = Math.tan(cam.fov * Math.PI / 360);
-  const dist = r * 1.3 / half * h / Math.min(fr.w, fr.h);
+  const dist = r * padding / half * h / Math.min(fr.w, fr.h);
   const dir = direction ? direction.clone() : cam.position.clone().sub(ctr.target);
   if (dir.lengthSq() < 1e-9) dir.set(1, 0.6, 1.25);
   dir.normalize();
@@ -3463,7 +3463,7 @@ function reportArt(states) {
   syncChrome();
   invalidate();
 }
-const OFFERING_MODELS = createOfferingModels(THREE, M, reportArt);
+const OFFERING_MODELS = createOfferingModels(THREE, reportArt);
 artRetry.addEventListener('click', () => OFFERING_MODELS.load());
 const offeringLayer = new THREE.Group();
 offeringLayer.name = 'mandala_offerings';
@@ -3486,7 +3486,28 @@ OFFERING_MODELS.forEach((model, id) => {
 world.add(offeringLayer);
 world.updateMatrixWorld(true);
 
+// Snapshot only the renderables hidden for a tour stop. Restore before any
+// ordinary mode visibility changes, so world/recitation state stays intact.
+const TOUR_VISIBILITY = new Map();
+function restoreTourVisibility() {
+  TOUR_VISIBILITY.forEach((visible, object) => { object.visible = visible; });
+  TOUR_VISIBILITY.clear();
+}
+function isolateTourHeap() {
+  const members = new Set(HEAP_MEMBERS.get(HEAPS[tourIndex][0]));
+  // A renderable ancestor must remain visible for its selected children.
+  for (const member of [...members]) {
+    for (let parent = member.parent; parent; parent = parent.parent) members.add(parent);
+  }
+  world.traverse(object => {
+    if (!(object.isMesh || object.isSprite || object.isLine || object.isPoints)) return;
+    if (members.has(object)) return;
+    TOUR_VISIBILITY.set(object, object.visible);
+    object.visible = false;
+  });
+}
 function syncOfferingVisibility(laid = null) {
+  restoreTourVisibility();
   offeringLayer.visible = mandala;
   OFFERING_MODELS.forEach((model, id) => {
     model.visible = laid === null || HEAP_NUMBERS.get(id) <= laid;
@@ -3502,6 +3523,7 @@ function syncOfferingVisibility(laid = null) {
       object.visible = ORIGINAL_VISIBILITY.get(object) && (!mandala || laid === null || number <= laid);
     });
   }
+  if (touring) isolateTourHeap();
   reshadow();
 }
 const MARKS = HEAPS.map(([n, id]) => {
@@ -3659,6 +3681,7 @@ function placeCompass() {
 }
 const OVERHEAD = ['heaven_', 'formless_'];
 function setMandala(on) {
+  restoreTourVisibility();
   touring = false;
   sheet.hidden = true;
   current = null;
@@ -3934,7 +3957,8 @@ function tourFocus() {
     : new THREE.Vector3(p.x, Math.max(0.4, Math.hypot(p.x, p.z) * 0.75), p.z);
   if (OFFERING_ART.has(id)) dir.set(0.35, 0.7, 1.5);
   orientOfferingCards();
-  focus(id, dir);
+  // More room for the complete silhouette, including tall figures and Meru.
+  focus(id, dir, 2);
 }
 function reframeOffering() { if (touring) tourFocus(); else mandalaFly(420); }
 function visitHeap(index, move = true) {
