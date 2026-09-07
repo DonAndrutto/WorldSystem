@@ -71,11 +71,14 @@ export function createOfferingModels(THREE, onStatus = () => {}) {
     // Stay invisible until the atlas arrives, including on failed requests.
     const material = new THREE.MeshBasicMaterial({
       color: 0xffffff, toneMapped: false, transparent: true,
-      alphaTest: 0.02, depthWrite: false, opacity: 0
+      alphaTest: 0.02, depthWrite: false, depthTest: false, opacity: 0
     });
     sheets.get(art.url).materials.push(material);
     const face = new THREE.Mesh(geometry, material);
     face.name = id;
+    // These are diagram illustrations: draw after the terrain and its oceans.
+    // Alpha still preserves the holes and edges of each painted silhouette.
+    face.renderOrder = 100;
     face.userData.offering = true; face.userData.artwork = true;
     card.add(face);
     models.set(id, group);

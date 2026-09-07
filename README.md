@@ -17,6 +17,7 @@ Click any part to open its entry; drag to orbit, scroll to zoom.
 | `index.html` | The page: the model, the searchable index, the maṇḍala mode, and all of the interface. |
 | `mandala-offerings.js` | Shared image textures and offering cards for heaps 14–37. |
 | `mandala-tour.js` | Looking prompts for the 37 stops of the separate study tour. |
+| `viewport-gestures.js` | Routes scene gestures to the camera and prevents gestures from magnifying the menu interface. |
 | `assets/offerings/` | Three locally served artwork sheets, with the generation prompts. |
 | `ARTWORK.md` | Image provenance, source references and iconographic adaptations. |
 | `tests/mandala-regression.mjs` | DOM and geometry regression checks. |
@@ -118,6 +119,18 @@ sun, moon, parasol and victory banner. They face the camera as you orbit,
 becoming flat when viewed directly from above. The illustrations float clear
 of the plate and continents, with transparent backgrounds and no frames.
 Returning to the world view restores the original treasure and luminary meshes.
+The painted cutouts are drawn over the terrain so oceans and mountains cannot
+hide them when the camera is low. Their relative positions still belong to the
+mandala diagram; this overlay is a legibility adaptation.
+
+Motion and Mandala are independent switches. Enable both to turn the complete
+offering arrangement, including its images and labels. Motion uses a play
+triangle when stopped and pause bars while running. Dragging pauses the turn
+temporarily; releasing resumes it while Motion remains enabled.
+
+The **Numbers** switch in either offering menu hides or shows the heap labels.
+Numbers start visible and keep their setting while switching between offering
+views. The offering selector and tour progress remain available with numbers off.
 
 **Tour the 37 heaps** opens a separate, untimed study route. Each stop shows the
 current heap and hides surrounding geometry so it
@@ -133,6 +146,9 @@ The index, entry, recitation and tour occupy one shared dock. Only one is shown
 at a time, with return controls restoring the appropriate view. On phones the
 dock sits above the main controls. Close-ups account for the space occupied by
 the dock. Reduced-motion preferences disable animated camera flights.
+Wheel and pinch gestures over the scene, including its number markers, control
+the camera. Pinch gestures do not magnify the menus. Single-finger and wheel
+scrolling inside the menus remain available, as does browser keyboard zoom.
 
 The artwork is contemporary and AI-assisted, informed by traditional descriptions
 and Himalayan painting. Its costume, palette and individual poses remain
