@@ -17,6 +17,7 @@ Click any part to open its entry; drag to orbit, scroll to zoom.
 | `index.html` | The page: the model, the searchable index, the maṇḍala mode, and all of the interface. |
 | `mandala-offerings.js` | Shared image textures and offering cards for heaps 14–37. |
 | `mandala-tour.js` | Looking prompts for the 37 stops of the separate study tour. |
+| `sky-clouds.js` | Tibetan cloud silhouettes, layered colour bands and day/night cloud palettes. |
 | `world-surfaces.js` | Closed mountain ridges, depth-coloured seas and one shared procedural ripple normal map. |
 | `viewport-gestures.js` | Routes scene gestures to the camera and prevents gestures from magnifying the menu interface. |
 | `assets/offerings/` | Three locally served artwork sheets, with the generation prompts. |
@@ -34,8 +35,18 @@ modules). It is published with GitHub Pages at
 <https://donandrutto.github.io/WorldSystem/>. three.js
 0.184.0 loads from unpkg through the pinned import map in the head, with integrity
 hashes; the fonts are EB Garamond and IBM Plex Mono from Google Fonts. The offering views load three local WebP artwork sheets on first use. The sun and moon glows, the cloud backdrop — clouds after the convention
-of the thangka painters, a head of stacked lobes with a streamer that closes in a
-spiral — and the night's stars are all drawn onto canvases at runtime.
+of the thangka painters, with scalloped silhouettes, broad internal spirals and
+tapered wind tails — and the night's stars are all drawn onto canvases at runtime.
+
+The daytime sky grades from clear blue overhead to pale cyan at the horizon.
+Clouds use mainly ivory and periwinkle, with occasional jade, ochre and rose;
+night uses the same placement with muted blue-grey pigments and stars.
+Clouds continue below the horizon for elevated mandala views. Both sky textures
+are painted once and cached, with no additional image downloads or animated work.
+
+Day and night texture previews are in `assets/sky/`. To rebuild and check them,
+run `node scripts/preview-sky.cjs` with `@napi-rs/canvas` and `sharp` installed as
+development dependencies. These are flat texture previews, not WebGL screenshots.
 
 ## Adding it to the home screen
 

@@ -825,6 +825,7 @@ import { createOfferingModels, OFFERING_ART } from './mandala-offerings.js';
 import { TOUR_NOTES } from './mandala-tour.js';
 import { installViewportGestures } from './viewport-gestures.js';
 import { createGoldenRangeGeometry, createWaterNormalMap, createWaterMaterial, createWaterGeometry } from './world-surfaces.js';
+import { DAY_SKY, paintClouds } from './sky-clouds.js';
 const stage = document.querySelector('three-d-stage');
 const { THREE } = await stage.ready;
 stage.shadowRoot.querySelector('.note')?.remove();   // the page carries its own hint
@@ -892,14 +893,8 @@ const glowTex = (rgb, rays) => canvasTex(512, 512, (x, w) => {
   x.fillStyle = g; x.fillRect(0, 0, w, w);
 });
 
-/* The backdrop: a frieze of clouds after the Tibetan convention — the
-   cloud of the thangka painters, which is a head of stacked round lobes
-   on a flat base, each lobe echoed inside by a contour or two, and a
-   streamer trailing off one end that thins and closes in a spiral. Each
-   is painted flat, outlined fine, and given a graded wash toward its
-   base so it has weight; the night sky carries the same clouds in slate,
-   in front of a faint field of stars. Nothing here is loaded: it is all
-   drawn onto the canvas at start. */
+/* Tibetan cloud silhouettes and mineral-pigment spirals, painted once per
+   theme. Daylight grades from blue at the zenith to a soft cyan horizon. */
 const cloudTex = (dark) => canvasTex(2048, 1024, (ctx, w, h) => {
   const x = ctx;
   /* the sky itself: light gathers at the horizon, and the zenith cools */
@@ -907,8 +902,7 @@ const cloudTex = (dark) => canvasTex(2048, 1024, (ctx, w, h) => {
   (dark
     ? [[0, '#06080f'], [0.3, '#0d1220'], [0.47, '#182033'], [0.5, '#1e2739'],
        [0.54, '#161d2c'], [1, '#090c14']]
-    : [[0, '#e1dbcb'], [0.28, '#e9e3d4'], [0.46, '#f2ecdf'], [0.5, '#f6f0e3'],
-       [0.54, '#eee6d5'], [1, '#d9cfb9']]
+    : DAY_SKY
   ).forEach(([t, c]) => g.addColorStop(t, c));
   x.fillStyle = g; x.fillRect(0, 0, w, h);
 
@@ -952,184 +946,7 @@ const cloudTex = (dark) => canvasTex(2048, 1024, (ctx, w, h) => {
     x.globalAlpha = 1;
   }
 
-  const ink = dark ? '128,150,190' : '104,86,58';   // the drawn line
-  const fill = dark ? '#283349' : '#fffcf3';         // the body of the cloud
-  const shade = dark ? '12,16,28' : '112,96,72';     // the wash toward the base
-  const light = dark ? '196,210,236' : '255,255,255';
-
-  /* One cloud. cx, cy is the middle of its base; s its scale — about the
-     height of the head; dir which way it faces (its streamer trails the
-     other way); al its strength. kind picks the extras it carries. It is
-     painted opaque on a canvas of its own and then laid on the sky at
-     strength, so that a faint cloud is a faint cloud and not a
-     see-through one. */
-  function trin(cx, cy, s, dir, al, kind) {
-    const W = Math.ceil(s * 4.3), H = Math.ceil(s * 1.85);
-    const oc = document.createElement('canvas');
-    oc.width = W; oc.height = H;
-    const x = oc.getContext('2d');
-    const ox = dir > 0 ? s * 2.55 : W - s * 2.55, oy = s * 1.4;
-    const X = (u) => ox + dir * u * s, Y = (v) => oy + v * s;
-    const lobes = [
-      [-0.62, -0.02, 0.30], [-0.21, -0.06, 0.33], [0.21, -0.06, 0.33], [0.62, -0.02, 0.30],
-      [-0.42, -0.36, 0.30], [0.0, -0.42, 0.33], [0.42, -0.36, 0.30],
-      [-0.24, -0.66, 0.26], [0.2, -0.70, 0.28], [0.14, -0.94, 0.23]
-    ];
-    if (kind & 1) lobes.push([0.86, -0.24, 0.2]);
-    if (kind & 2) lobes.push([-0.86, -0.2, 0.18]);
-    const base = { x0: -0.78, x1: 0.78, y0: -0.15, y1: 0.28, r: 0.12 };
-    const lw = Math.max(0.9, s * 0.011);
-
-    /* is a point (in cloud units) inside the head? */
-    const inside = (u, v) =>
-      lobes.some(([lx, ly, lr]) => (u - lx) ** 2 + (v - ly) ** 2 < lr * lr) ||
-      (u > base.x0 && u < base.x1 && v > base.y0 && v < base.y1);
-
-    const headPath = () => {
-      x.beginPath();
-      lobes.forEach(([lx, ly, lr]) => {
-        x.moveTo(X(lx) + lr * s, Y(ly));
-        x.arc(X(lx), Y(ly), lr * s, 0, Math.PI * 2);
-      });
-      const bx0 = X(base.x0), bx1 = X(base.x1), by0 = Y(base.y0), by1 = Y(base.y1);
-      const r = base.r * s, l = Math.min(bx0, bx1), rt = Math.max(bx0, bx1);
-      x.moveTo(l + r, by0);
-      x.lineTo(rt - r, by0); x.arcTo(rt, by0, rt, by0 + r, r);
-      x.lineTo(rt, by1 - r); x.arcTo(rt, by1, rt - r, by1, r);
-      x.lineTo(l + r, by1); x.arcTo(l, by1, l, by1 - r, r);
-      x.lineTo(l, by0 + r); x.arcTo(l, by0, l + r, by0, r);
-      x.closePath();
-    };
-
-    /* the streamer: a ribbon along a curve that thins as it goes, then a
-       spiral — drawn as strokes, the outline first and the body over it */
-    const ribbon = (pts, w0, w1, colour, extra) => {
-      x.strokeStyle = colour; x.lineCap = 'round'; x.lineJoin = 'round';
-      for (let i = 1; i < pts.length; i++) {
-        const t = i / (pts.length - 1);
-        x.lineWidth = Math.max(0.6, (w0 + (w1 - w0) * t) * s + extra);
-        x.beginPath();
-        x.moveTo(pts[i - 1][0], pts[i - 1][1]); x.lineTo(pts[i][0], pts[i][1]);
-        x.stroke();
-      }
-    };
-    const bez = (p0, p1, p2, p3, n) => {
-      const out = [];
-      for (let i = 0; i <= n; i++) {
-        const t = i / n, m = 1 - t;
-        out.push([X(m * m * m * p0[0] + 3 * m * m * t * p1[0] + 3 * m * t * t * p2[0] + t * t * t * p3[0]),
-                  Y(m * m * m * p0[1] + 3 * m * m * t * p1[1] + 3 * m * t * t * p2[1] + t * t * t * p3[1])]);
-      }
-      return out;
-    };
-    const spiral = (c, r0, r1, turns, a0, n, sense) => {
-      const out = [];
-      for (let i = 0; i <= n; i++) {
-        const t = i / n, a = a0 + sense * t * turns * Math.PI * 2, r = r0 + (r1 - r0) * t;
-        out.push([X(c[0] + Math.cos(a) * r), Y(c[1] + Math.sin(a) * r)]);
-      }
-      return out;
-    };
-    const tail = bez([-0.66, 0.06], [-1.15, 0.22], [-1.45, -0.3], [-1.9, -0.06], 22)
-      .concat(spiral([-2.08, -0.16], 0.16, 0.025, 1.6, Math.PI * 0.1, 30, -1));
-    const wisp = (kind & 4)
-      ? bez([0.8, -0.36], [1.1, -0.42], [1.1, -0.78], [1.3, -0.82], 12)
-          .concat(spiral([1.42, -0.78], 0.1, 0.02, 1.3, Math.PI, 16, 1))
-      : null;
-    const hook = (kind & 8) ? spiral([0.42, -1.06], 0.12, 0.02, 1.25, Math.PI * 0.9, 18, 1) : null;
-    /* the small curls the painters tuck into the notches between lobes */
-    const curls = [[0.0, -0.22, 1], [-0.44, -0.6, -1], [0.44, -0.62, 1]]
-      .map(([u, v, sn]) => spiral([u, v], 0.075, 0.012, 1.15, Math.PI * (sn > 0 ? 0.5 : 0.5), 14, sn));
-
-    /* 1 — the outline, laid down first under everything */
-    x.strokeStyle = `rgba(${ink},0.85)`; x.lineWidth = lw * 2;
-    headPath(); x.stroke();
-    ribbon(tail, 0.17, 0.045, `rgba(${ink},0.85)`, lw * 2);
-    if (wisp) ribbon(wisp, 0.08, 0.03, `rgba(${ink},0.85)`, lw * 2);
-    if (hook) ribbon(hook, 0.06, 0.025, `rgba(${ink},0.85)`, lw * 2);
-    /* 2 — the body over it, hiding the inner half of every line */
-    ribbon(tail, 0.17, 0.045, fill, 0);
-    if (wisp) ribbon(wisp, 0.08, 0.03, fill, 0);
-    if (hook) ribbon(hook, 0.06, 0.025, fill, 0);
-    x.fillStyle = fill; headPath(); x.fill();
-    /* 3 — a wash: light along the top, weight toward the base */
-    x.save();
-    headPath(); x.clip();
-    const wash = x.createLinearGradient(0, Y(-1.15), 0, Y(0.34));
-    wash.addColorStop(0, `rgba(${light},${dark ? 0.16 : 0.4})`);
-    wash.addColorStop(0.42, `rgba(${light},0)`);
-    wash.addColorStop(0.7, `rgba(${shade},0)`);
-    wash.addColorStop(1, `rgba(${shade},${dark ? 0.5 : 0.3})`);
-    x.fillStyle = wash;
-    x.fillRect(0, 0, W, H);
-    x.restore();
-    /* 4 — the echo contours: inside each lobe, one or two lines following
-       the part of its rim that stands clear of its neighbours */
-    x.lineCap = 'round';
-    lobes.forEach(([lx, ly, lr]) => {
-      const spans = [];
-      let open = null;
-      const N = 96;
-      for (let k = 0; k <= N; k++) {
-        const a = (k / N) * Math.PI * 2;
-        const u = lx + Math.cos(a) * lr * 1.02, v = ly + Math.sin(a) * lr * 1.02;
-        const clear = !inside(u, v);
-        if (clear && open === null) open = a;
-        if ((!clear || k === N) && open !== null) { spans.push([open, a]); open = null; }
-      }
-      [[0.78, 0.66, 0.85], [0.57, 0.5, 0.7]].forEach(([rr, al2, wk], n) => {
-        x.strokeStyle = `rgba(${ink},${al2})`; x.lineWidth = lw * wk;
-        spans.forEach(([a0, a1]) => {
-          const trim = 0.16 + n * 0.1;
-          if (a1 - a0 < trim * 2.2) return;
-          x.beginPath();
-          x.arc(X(lx), Y(ly), lr * rr * s, dir > 0 ? a0 + trim : Math.PI - (a1 - trim),
-                dir > 0 ? a1 - trim : Math.PI - (a0 + trim));
-          x.stroke();
-        });
-      });
-      /* and a highlight along the top of the rim */
-      x.strokeStyle = `rgba(${light},${dark ? 0.3 : 0.75})`; x.lineWidth = lw * 0.9;
-      spans.forEach(([a0, a1]) => {
-        const lo = Math.max(a0, Math.PI * 1.1), hi = Math.min(a1, Math.PI * 1.75);
-        if (hi - lo < 0.3) return;
-        x.beginPath();
-        x.arc(X(lx), Y(ly), lr * 0.9 * s, dir > 0 ? lo : Math.PI - hi, dir > 0 ? hi : Math.PI - lo);
-        x.stroke();
-      });
-    });
-    /* 5 — a line inside the streamer, so it reads as folded cloth, and
-       the curls in the notches */
-    x.strokeStyle = `rgba(${ink},0.4)`; x.lineWidth = lw * 0.8;
-    x.beginPath();
-    tail.slice(2, 22).forEach(([px, py], i) => (i ? x.lineTo(px, py + s * 0.04) : x.moveTo(px, py + s * 0.04)));
-    x.stroke();
-    if (kind & 16) curls.forEach((c) => ribbon(c, 0.02, 0.006, `rgba(${ink},0.62)`, 0));
-    /* onto the sky, thrice, a canvas-width apart, so the seam wraps */
-    ctx.globalAlpha = al;
-    [-w, 0, w].forEach((o) => ctx.drawImage(oc, Math.round(cx - ox + o), Math.round(cy - oy)));
-    ctx.globalAlpha = 1;
-  }
-
-  /* four courses of cloud above the horizon, smaller and fainter as they
-     rise, the far ones laid first so the near ones stand in front. Each
-     is drawn thrice, a canvas-width apart, so the seam wraps. */
-  /* Held faint: the backdrop is there so the world stands in front of
-     something, and a cloud that competes with the model has failed. */
-  const K = dark ? 0.72 : 1;
-  [[0.16, 0.034, 3, 0.11], [0.26, 0.044, 4, 0.15],
-   [0.365, 0.054, 5, 0.19], [0.462, 0.062, 6, 0.24]].forEach(([v, sz, n, al], row) => {
-    for (let i = 0; i < n; i++) {
-      const cx = ((i + 0.5) / n + (rnd() - 0.5) * 0.42 / n + row * 0.11) * w;
-      const cy = (v + (rnd() - 0.5) * 0.03) * h;
-      const s = sz * h * (0.78 + rnd() * 0.5);
-      const dir = rnd() > 0.5 ? 1 : -1;
-      const kind = (rnd() > 0.5 ? 1 : 0) | (rnd() > 0.5 ? 2 : 0) | (rnd() > 0.45 ? 4 : 0)
-                 | (rnd() > 0.5 ? 8 : 0) | (rnd() > 0.35 ? 16 : 0);
-      const a = al * (0.8 + rnd() * 0.25) * K;
-      [-w, 0, w].forEach((o) => trin(cx + o, cy, s, dir, a, kind));
-    }
-  });
+  paintClouds(ctx, w, h, dark, () => document.createElement('canvas'));
 });
 
 const waterNormalMap = createWaterNormalMap(THREE);
