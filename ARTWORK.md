@@ -80,3 +80,10 @@ check it against the intended lineage's source and a qualified traditional
 artist. In particular, colours, gestures, royal dress and precise ornament
 remain open to refinement. Browser rendering and device usability are separate
 checks from this iconographic review.
+# App icon
+
+The gold-and-lapis Meru emblem was generated with OpenAI's built-in image tool
+on 2026-09-11, using the previous app icon as an identity reference. Its source
+brief, simplified ring count, and export details are recorded in
+[the app-icon notes](assets/app-icon/README.md). The interactive model retains
+all seven golden ranges. The emblem is used for home-screen and browser icons.
