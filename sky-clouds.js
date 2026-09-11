@@ -78,23 +78,24 @@ export function paintClouds(ctx, width, height, dark, makeCanvas = () => documen
   // Continue below the horizon for elevated and top-down mandala views.
   // Keep both poles clear to prevent equirectangular pinching.
   const courses = [
-    [0.16, 0.045, 8, 0.56], [0.28, 0.055, 8, 0.76],
-    [0.395, 0.070, 9, 0.92], [0.51, 0.073, 9, 0.84],
-    [0.635, 0.066, 8, 0.78], [0.75, 0.045, 7, 0.56]
+    [0.20, 0.066, 4, 0.40], [0.335, 0.084, 5, 0.52],
+    [0.47, 0.095, 5, 0.62], [0.61, 0.086, 5, 0.56],
+    [0.75, 0.066, 4, 0.42]
   ];
   ctx.save();
   courses.forEach(([v, scale, count, opacity], row) => {
     for (let i = 0; i < count; i++) {
       const x = ((i + 0.5 + row * 0.37 + (random() - 0.5) * 0.16) / count) * width;
-      const y = (v + (random() - 0.5) * 0.034) * height;
-      const size = scale * height * (0.83 + random() * 0.28);
+      const y = (v + (random() - 0.5) * 0.050) * height;
+      const size = scale * height;
+      const variation = 0.62 + random() * 0.48;
       const pigment = (i + row * 3) % 5 === 0 ? 2 + (i + row) % 3 : (i + row) % 2;
       const kind = (i + row) % 3, key = pigment * 3 + kind;
       if (!motifs.has(key)) motifs.set(key, cloudCanvas(makeCanvas, palettes[pigment], kind));
       const motif = motifs.get(key), flip = random() > 0.5 ? -1 : 1;
       const naturalWidth = size * 400 / 96 / Math.max(0.72, Math.sin(v * Math.PI));
       const fit = Math.min(1, width / count * 0.80 / naturalWidth);
-      const w = naturalWidth * fit, h = size * 220 / 96 * fit;
+      const w = naturalWidth * fit * variation, h = size * 220 / 96 * fit * variation;
       ctx.globalAlpha = opacity * (dark ? 0.68 : 1);
       // Draw each copy once: no overlapping wrap passes at the seam.
       for (const offset of [-width, 0, width]) {
