@@ -17,13 +17,16 @@ Click any part to open its entry; drag to orbit, scroll to zoom.
 | `index.html` | The page: the model, the searchable index, the maṇḍala mode, and all of the interface. |
 | `mandala-offerings.js` | Shared image textures and offering cards for heaps 14–37. |
 | `mandala-tour.js` | Looking prompts for the 37 stops of the separate study tour. |
+| `world-surfaces.js` | Closed mountain ridges, depth-coloured seas and one shared procedural ripple normal map. |
 | `viewport-gestures.js` | Routes scene gestures to the camera and prevents gestures from magnifying the menu interface. |
 | `assets/offerings/` | Three locally served artwork sheets, with the generation prompts. |
 | `ARTWORK.md` | Image provenance, source references and iconographic adaptations. |
 | `tests/mandala-regression.mjs` | DOM and geometry regression checks. |
 | `three-d-stage.js` | The `<three-d-stage>` custom element it imports: WebGL renderer, studio lighting with a soft ground shadow, orbit controls, an auto-framed camera, and OBJ + MTL / GLB export. |
-| `icon.svg` | The home-screen and tab icon: Meru on the golden ground, in the model's own colours. Source for the PNGs. |
-| `apple-touch-icon.png`, `icon-192.png`, `icon-512.png`, `icon-maskable-512.png` | Rasterised from `icon.svg`. |
+| `assets/app-icon/world-system-master.webp` | Gold-and-lapis Meru app-icon artwork; a symbolic emblem. See its source brief in `assets/app-icon/README.md`. |
+| `apple-touch-icon.png`, `icon-192.png`, `icon-512.png`, `icon-maskable-512.png` | Opaque home-screen icons, including an inset Android maskable version. |
+| `favicon.ico`, `favicon-32.png` | Matching browser-tab icons. |
+| `scripts/build-icons.cjs` | Rebuilds all icon sizes from the single master artwork, using Sharp. |
 | `manifest.webmanifest` | Name, colours and icons for installing the page. |
 
 Serve the directory over HTTP and open it (not `file://` — the page uses ES
@@ -55,6 +58,13 @@ adaptations for legibility. The outer salt ocean is drawn at about half its widt
 the twelve landmasses at forty times their size, and core heights above the water
 at 3.4× radial scale. Smaller ranges and seas are widened, Meru is tapered, and
 the foundation and hells are compressed or moved so they can be seen.
+
+The seven ranges have irregular crests, branching folds and warm gold facets.
+Their detail stays within each range's existing radial band, leaving the seas
+separate. Water grades from pale turquoise near the ranges to deeper teal or
+lapis, with crossing swells and a shared 128-pixel ripple normal map. This
+surface detail is static; it catches the existing moving light without adding
+a continuous water animation.
 
 The heavens use schematic spacing inspired by the doubling of textual heights,
 with gaps between groups and a narrowing tower. The sun and moon are enlarged
@@ -196,6 +206,8 @@ harness needs Node and two development dependencies:
 ```sh
 npm install --no-save --package-lock=false three@0.184.0 jsdom@26
 node tests/mandala-regression.mjs
+node tests/viewport-gestures.mjs
+node tests/world-surfaces.mjs
 ```
 
 It runs the complete app script with real Three.js geometry and camera math,
@@ -203,3 +215,11 @@ checking the 37 reveals, tour sequence, exclusive panel states, texture UVs,
 loading/retry behavior, keyboard controls and restoration of the world view.
 Canvas/GPU rendering, texture delivery and browser layout have test substitutes.
 A passing result does not establish actual WebGL appearance or device usability.
+
+The surface checks cover closed geometry seams, range separation, height and
+wave limits, and the shared ripple texture. They do not render the GPU scene.
+
+To rebuild the icon assets, install Sharp as an additional development dependency
+(`npm install --no-save --package-lock=false three@0.184.0 jsdom@26 sharp`) and run
+`node scripts/build-icons.cjs`. The artwork itself loads only as app metadata,
+not as a scene texture.
