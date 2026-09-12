@@ -54,6 +54,9 @@ export const zoneOf = (square) => ZONE_OF_CAT[square.cat] || 'human';
 
 // Band colours follow the world's own palette: gold for what rises, lapis for
 // the sutra route, cinnabar for tantra, white for the fields beyond the rim.
+// One colour per player, shared by the board, the trail and the world.
+export const PLAYER_COLOURS = ['#c9a227', '#3f63a8', '#a33f3a', '#4f7f6a'];
+
 export const BAND_COLOUR = {
   anchored: 0xc9a227, below: 0x7d4a3a, ground: 0xb08d3f, sutra: 0x3f63a8,
   tantra: 0xa33f3a, island: 0x4f7f6a, field: 0xd9d2c0, axis: 0xe0bb54
@@ -134,16 +137,72 @@ export function createBoardLayer(THREE, ctx) {
     nodes.set(s.n, holder);
   }
 
-  // A token that travels the board.
-  const token = new THREE.Mesh(
-    new THREE.ConeGeometry(ctx.SUMMIT * 0.022, ctx.SUMMIT * 0.062, 6),
-    new THREE.MeshStandardMaterial({
-      color: 0xf0d27a, roughness: 0.22, metalness: 0.8,
-      emissive: new THREE.Color(0xf0d27a).multiplyScalar(0.25)
-    })
-  );
-  token.name = 'rebirth_token';
-  group.add(token);
+  /* One standing marker per player, always present and always readable. A
+     single travelling token could not say who was where, and against a model
+     this busy a bare cone disappears — so each player gets a stem that lifts
+     the head clear of whatever it is standing on, a ring on the ground beneath
+     it to say which square that is, and a colour of their own. */
+  const tokens = PLAYER_COLOURS.map((hex, i) => {
+    const holder = new THREE.Group();
+    holder.name = 'rebirth_player_' + (i + 1);
+    holder.visible = false;
+    const colour = new THREE.Color(hex);
+    const skin = new THREE.MeshStandardMaterial({
+      color: colour, roughness: 0.3, metalness: 0.45,
+      emissive: colour.clone().multiplyScalar(0.45)
+    });
+    const stemH = ctx.SUMMIT * 0.16;
+    const stem = new THREE.Mesh(new THREE.CylinderGeometry(ctx.SUMMIT * 0.006, ctx.SUMMIT * 0.008, stemH, 6), skin);
+    stem.position.y = stemH / 2;
+    const head = new THREE.Mesh(new THREE.SphereGeometry(ctx.SUMMIT * 0.038, 16, 12), skin);
+    head.position.y = stemH + ctx.SUMMIT * 0.030;
+    // a flag off the head, so the marker reads as a marker from any angle
+    const flag = new THREE.Mesh(new THREE.ConeGeometry(ctx.SUMMIT * 0.030, ctx.SUMMIT * 0.072, 4), skin);
+    flag.position.set(ctx.SUMMIT * 0.030, stemH + ctx.SUMMIT * 0.030, 0);
+    flag.rotation.z = -Math.PI / 2;
+    const ring = new THREE.Mesh(
+      new THREE.RingGeometry(ctx.SUMMIT * 0.052, ctx.SUMMIT * 0.076, 24),
+      new THREE.MeshBasicMaterial({ color: colour, transparent: true, opacity: 0.62, side: THREE.DoubleSide,
+        depthWrite: false })
+    );
+    ring.rotation.x = -Math.PI / 2;
+    ring.position.y = ctx.SUMMIT * 0.002;
+    // the player whose turn it is carries a second, wider ring
+    const halo = new THREE.Mesh(
+      new THREE.RingGeometry(ctx.SUMMIT * 0.090, ctx.SUMMIT * 0.108, 28),
+      new THREE.MeshBasicMaterial({ color: colour, transparent: true, opacity: 0.5, side: THREE.DoubleSide,
+        depthWrite: false })
+    );
+    halo.rotation.x = -Math.PI / 2;
+    halo.position.y = ctx.SUMMIT * 0.002;
+    halo.visible = false;
+    holder.add(stem, head, flag, ring, halo);
+    holder.userData = { player: i, halo, head, skin };
+    group.add(holder);
+    return holder;
+  });
+
+  /* Put every player on the board. Players sharing a square are fanned apart
+     so that neither is hidden inside the other. */
+  function placeTokens(players, turn) {
+    const crowd = new Map();
+    players.forEach((p) => crowd.set(p.pos, (crowd.get(p.pos) || 0) + 1));
+    const seen = new Map();
+    tokens.forEach((holder, i) => {
+      const player = players[i];
+      holder.visible = !!player;
+      if (!player) return;
+      const at = positionOf(player.pos);
+      if (!at) return;
+      const n = seen.get(player.pos) || 0;
+      seen.set(player.pos, n + 1);
+      const total = crowd.get(player.pos) || 1;
+      const spread = total > 1 ? ctx.SUMMIT * 0.075 : 0;
+      const angle = (n / Math.max(1, total)) * Math.PI * 2;
+      holder.position.set(at.x + Math.cos(angle) * spread, at.y, at.z + Math.sin(angle) * spread);
+      holder.userData.halo.visible = player.i === turn;
+    });
+  }
 
   // Anchored squares need the live scene to tell them where their subject is.
   function placeAnchored(positionOfEntry) {
@@ -162,7 +221,7 @@ export function createBoardLayer(THREE, ctx) {
     return h ? h.position : null;
   }
 
-  return { group, nodes, token, placeAnchored, positionOf, materials: mats };
+  return { group, nodes, tokens, placeTokens, placeAnchored, positionOf, materials: mats };
 }
 
 function vec(THREE, p) { return new THREE.Vector3(p.x, p.y, p.z); }

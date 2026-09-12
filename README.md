@@ -25,7 +25,8 @@ Click any part to open its entry; drag to orbit, scroll to zoom.
 | `tests/mandala-regression.mjs` | DOM and geometry regression checks. |
 | `rebirth-board.js` | The 104 squares of the game of rebirth, the die-to-destination graph, and the armature that places the squares the world system has no room for. |
 | `rebirth-game.js` | The rules on their own: dead faces, the two counter traps, victory at 104, and each player's trail. No DOM, no WebGL. |
-| `rebirth-notes.js` | One note per square, written for this drawing. The 1977 commentary is not reproduced. |
+| `rebirth-notes.js` | Two entries per square, written for this drawing: the short note and the full one it expands to. The 1977 commentary is not reproduced. |
+| `rebirth-icons.js` | The slot for square iconography — empty until the artwork exists, and wired so that adding it is one line per square. |
 | `tests/rebirth-regression.mjs` | Board and rules checks, including the routes the Rules of Play claim. |
 | `three-d-stage.js` | The `<three-d-stage>` custom element it imports: WebGL renderer, studio lighting with a soft ground shadow, orbit controls, an auto-framed camera, and OBJ + MTL / GLB export. |
 | `assets/app-icon/world-system-master.webp` | Gold-and-lapis Meru app-icon artwork; a symbolic emblem. See its source brief in `assets/app-icon/README.md`. |
@@ -156,9 +157,39 @@ silently: square 85 reads a one to 71, as the other Buddha fields each give one
 sūtra exit and one tantric, and the reading that sends it to 73 is recorded
 beside it.
 
-The commentary prose of that edition is not reproduced. Every square instead
-carries a note written for this drawing, in the same voice as the rest of the
-index, in `rebirth-notes.js`.
+The commentary prose of that edition is not reproduced: it is copyright © 1977
+by Jody Kent, all rights reserved, and this page is public. Every square
+instead carries two entries written for this drawing, in the same voice as the
+rest of the index — a short note, and a fuller one that unfolds from it in the
+drawer. Both live in `rebirth-notes.js`, keyed by square number, so anyone
+holding permission to publish the 1977 text can substitute it there without
+touching anything else.
+
+### Throwing
+
+The die runs for a couple of seconds before it resolves, ticking and slowing,
+and shows nothing of the result until it stops; then the square arrived at is
+named in the middle of the board, large enough to read from across a room, and
+the card clears itself. Sound is off until asked for, under the `⋯` control
+beside the throw. `prefers-reduced-motion` gets the same game without the wait.
+
+### Where the players are
+
+Every player stands in the world as well as on the board: a marker in their own
+colour, on a stem that lifts it clear of whatever it is standing on, in a ring
+on the square beneath. Whoever holds the die carries a second, wider ring. Two
+players on one square are fanned apart rather than hidden inside one another.
+
+### Iconography, when there is some
+
+No square is painted yet. `rebirth-icons.js` holds the slot: register a square
+with its sheet and its cell and the picture appears in the corner of the board
+cell and on a billboard at its marker in the world, with the sheet fetched only
+when game mode is first opened. The convention — one sheet, four pictures
+across, counting from zero — is the one the offering artwork already uses. The
+path is covered by the test suite with two stubs, so it is known to work before
+any artwork exists. Record provenance in [ARTWORK.md](ARTWORK.md) as for
+everything else this project serves.
 
 ## Controls
 

@@ -13,7 +13,15 @@ const surfaces = await import(pathToFileURL(repo + '/world-surfaces.js'));
 const skyClouds = await import(pathToFileURL(repo + '/sky-clouds.js'));
 const rbBoard = await import(pathToFileURL(repo + '/rebirth-board.js'));
 const rbGame = await import(pathToFileURL(repo + '/rebirth-game.js'));
-const {SQUARE_NOTES} = await import(pathToFileURL(repo + '/rebirth-notes.js'));
+const {SQUARE_NOTES, SQUARE_FULL} = await import(pathToFileURL(repo + '/rebirth-notes.js'));
+const rbIcons = await import(pathToFileURL(repo + '/rebirth-icons.js'));
+// No square is painted yet. Register two stubs before the page is built, so
+// the slot that the artwork will one day use is exercised rather than assumed.
+assert.equal(rbIcons.SQUARE_ART.size, 0, 'the project ships with no square artwork');
+rbIcons.registerSquareArt([
+  [17, 'assets/test-squares.webp', 0, 'a stub, for the test only'],
+  [20, 'assets/test-squares.webp', 5, 'a second stub on the same sheet']
+]);
 const html = fs.readFileSync(repo + '/index.html', 'utf8');
 const source = html.match(/<script type="module">([\s\S]*?)<\/script>/)[1].replace(/^import .*;\n/gm, '');
 const dom = new JSDOM(html, {url:'https://example.org/WorldSystem/', runScripts:'outside-only', pretendToBeVisual:true});
@@ -26,7 +34,9 @@ Object.assign(window, {createOfferingModels, OFFERING_ART, TOUR_NOTES, installVi
   RB_SQUARES: rbBoard.SQUARES, RB_SPECIAL: rbBoard.SPECIAL, RB_START: rbBoard.START,
   RB_VICTORY: rbBoard.VICTORY, TRAP_QUOTA: rbBoard.TRAP_QUOTA, TRAP_QUOTA_NOTE64: rbBoard.TRAP_QUOTA_NOTE64,
   DIE_FACES: rbBoard.FACES, RB_BY_N: rbBoard.BY_N, createBoardLayer: rbBoard.createBoardLayer,
-  RB_VARIANTS: rbBoard.VARIANTS, rbZoneOf: rbBoard.zoneOf, SQUARE_NOTES,
+  RB_VARIANTS: rbBoard.VARIANTS, rbZoneOf: rbBoard.zoneOf, SQUARE_NOTES, SQUARE_FULL,
+  RB_COLOURS: rbBoard.PLAYER_COLOURS, SQUARE_ART: rbIcons.SQUARE_ART,
+  cellBackground: rbIcons.cellBackground, createSquareArt: rbIcons.createSquareArt,
   createGame: rbGame.createGame, throwDie: rbGame.throwDie,
   rbView: rbGame.view, rbDestination: rbGame.destination
 });
@@ -87,7 +97,7 @@ const app = await window.eval(`(async()=>{${source}\nreturn {
  STEPS, LUMINARIES, RIM, OFFERING_SIZE, freeRect, tourImageRect, meshesFor, visibleInScene,
  setMandala, setMode, show, close, setOpen, startTour, visitHeap, endTour, orientOfferingCards,
  applyStep, playToggle, stepBy, pausePlay, resetPlay, applyTheme, setMotion,
- rbBoard, rbGame:()=>rbGame,
+ rbBoard, rbArt, rbGame:()=>rbGame,
  state:()=>({mandala,mode,touring,tourIndex,pStep,playing,current,motion,showHeapNumbers,lumSpin})
 };})()`);
 advance(1200);
@@ -302,7 +312,10 @@ advance(1200); panel(null);
 const key = k => window.dispatchEvent(new window.KeyboardEvent('keydown',{key:k}));
 const boardEl = q('.board-view');
 const cellOf = n => boardEl.querySelector('[data-square="'+n+'"]');
-const boardMeshes = []; app.rbBoard.group.traverse(o=>{if(o.isMesh)boardMeshes.push(o);});
+// the square markers; the player markers are checked on their own below
+const boardMeshes = []; app.rbBoard.group.traverse(o=>{
+  if(o.isMesh && /^rebirth_square_/.test(o.name)) boardMeshes.push(o);
+});
 assert.equal(app.rbBoard.nodes.size,104);
 assert.ok(boardMeshes.every(m=>!app.visibleInScene(m)),'The board is away outside game mode');
 assert.equal(boardEl.hidden,true);
@@ -369,10 +382,67 @@ for (const el of [boardEl, ...q('.panel-dock').children]) {
     cls + ' is on the overlay but never gets pointer events back');
 }
 
+/* The iconography slot. No square is painted yet; two stubs were registered
+   before the page was built, and what has to be true of them is what will have
+   to be true of the artwork when it exists. */
+for (const n of [17, 20]) {
+  const icon = cellOf(n).querySelector('.bv-icon');
+  assert.ok(icon,'square '+n+' has somewhere to put a picture');
+  assert.equal(icon.hidden,false,'and shows the one it has');
+  assert.match(icon.style.backgroundImage,/test-squares\.webp/);
+  assert.ok(icon.style.backgroundPosition,'positioned on its sheet');
+  assert.match(cellOf(n).title,/stub/,'the attribution rides with it');
+  const plane = app.rbArt.planes.get(n);
+  assert.ok(plane,'and a billboard in the world');
+  assert.equal(plane.parent,app.rbBoard.nodes.get(n),'on that square\'s marker');
+}
+assert.equal(cellOf(17).querySelector('.bv-icon').style.backgroundPosition,
+             rbIcons.cellBackground(rbIcons.SQUARE_ART.get(17)).position,'cell 0 sits where the sheet says');
+assert.notEqual(cellOf(20).querySelector('.bv-icon').style.backgroundPosition,
+                cellOf(17).querySelector('.bv-icon').style.backgroundPosition,'and cell 5 elsewhere');
+for (const n of [18, 59]) {
+  assert.equal(cellOf(n).querySelector('.bv-icon').hidden,true,'an unpainted square shows nothing');
+  assert.equal(app.rbArt.planes.get(n),undefined,'and carries no billboard');
+}
+// One sheet, fetched once, when game mode is first opened.
+assert.deepEqual(app.rbArt.states(),['loading'],'the sheet is requested, not sooner');
+const artRequest = textureRequests.at(-1);
+assert.match(artRequest.url,/test-squares\.webp/);
+artRequest.success(new THREE.Texture());
+assert.deepEqual(app.rbArt.states(),['ready']);
+for (const n of [17, 20]) {
+  const plane = app.rbArt.planes.get(n);
+  assert.ok(plane.material.map,'the picture reaches the billboard');
+  assert.equal(plane.material.opacity,1);
+}
+// Billboards face the camera, like the offering illustrations do.
+app.rbArt.face(app.cam);
+assert.ok(app.rbArt.planes.get(17).quaternion.angleTo(app.cam.quaternion)<1e-6);
+
+// Every player stands in the world, in their own colour, and the one holding
+// the die is ringed. A single travelling token could not say who was where.
+assert.equal(app.rbBoard.tokens.length,4,'a marker for every possible player');
+const litTokens = () => app.rbBoard.tokens.filter(t=>t.visible);
+assert.equal(litTokens().length,2,'two players, two markers');
+assert.ok(app.rbBoard.tokens.slice(2).every(t=>!t.visible),'the other two stand down');
+assert.equal(app.rbBoard.tokens[0].userData.halo.visible,true,'the first player holds the die');
+assert.equal(app.rbBoard.tokens[1].userData.halo.visible,false);
+for (const holder of litTokens()) {
+  const parts = []; holder.traverse(o=>{if(o.isMesh)parts.push(o);});
+  assert.ok(parts.length>=4,'a marker is more than a dot');
+  assert.ok(parts.some(m=>m.geometry.type==='RingGeometry'),'and stands in a ring');
+  assert.ok([holder.position.x,holder.position.y,holder.position.z].every(Number.isFinite));
+}
+// two on one square are fanned apart rather than hidden inside each other
+assert.equal(app.rbGame().players[0].pos,app.rbGame().players[1].pos,'both start on 24');
+assert.ok(app.rbBoard.tokens[0].position.distanceTo(app.rbBoard.tokens[1].position)>0,
+  'and do not occupy the same point');
+
 // A loaded die, so the printed moves can be played through the board.
 let face = 1;
 window.Math.random = () => (face-1)/6 + 1e-6;
-const throwFace = f => { face=f; q('[data-game="throw"]').click(); advance(300); };
+// A throw now runs for a couple of seconds before it resolves.
+const throwFace = f => { face=f; q('[data-game="throw"]').click(); advance(3200); };
 assert.equal(q('#g-sound').checked,false,'The page stays silent until asked');
 q('#g-players').value='1'; q('#g-players').dispatchEvent(new window.Event('change'));
 assert.equal(app.rbGame().players.length,1);
@@ -380,8 +450,24 @@ assert.equal(app.rbGame().players[0].pos,rbBoard.START);
 assert.equal(cellOf(rbBoard.START).getAttribute('aria-selected'),'true','The start square is lit');
 assert.equal(cellOf(rbBoard.START).querySelector('.bv-tok')!==null,true,'and carries the token');
 
-throwFace(1);
+// The die keeps its answer until it stops, and says where you landed after.
+face = 1;
+q('[data-game="throw"]').click();
+advance(400);
+assert.equal(app.rbGame().players[0].pos,rbBoard.START,'the throw has not resolved yet');
+assert.equal(q('[data-game="throw"]').disabled,true,'and cannot be thrown again');
+assert.equal(q('[data-game="throw"]').textContent,'Throwing…');
+assert.ok(q('.die-face').classList.contains('tumbling'),'the die is running');
+assert.equal(q('.bv-card').hidden,true,'nothing is announced mid-throw');
+q('[data-game="throw"]').click();   // a second click must not start another
+advance(3000);
 assert.equal(app.rbGame().players[0].pos,27,'A one off the Heavenly Highway reaches the Four Great Kings');
+assert.ok(!q('.die-face').classList.contains('tumbling'),'the die has stopped');
+assert.equal(q('.bv-card').hidden,false,'the destination is announced');
+assert.equal(q('.bv-card .num').textContent,'27');
+assert.equal(q('.bv-card .nm').textContent,rbBoard.BY_N.get(27).name,'by name, in full');
+advance(3000);
+assert.equal(q('.bv-card').hidden,true,'and the card clears itself');
 assert.equal(cellOf(27).querySelector('.bv-tok')!==null,true,'the token moved with it');
 assert.equal(cellOf(rbBoard.START).querySelector('.bv-tok'),null,'and left the square behind');
 assert.equal(cellOf(27).getAttribute('aria-selected'),'true','the arrival is the selection');
@@ -444,6 +530,15 @@ q('[data-game="reset"]').click(); advance(300);
 assert.equal(app.rbGame().players[0].pos,rbBoard.START);
 assert.equal(chips().length,0,'a new game starts with an empty trail');
 
+// Reduced motion gets the same game without the wait.
+reduced = true;
+face = 1; q('[data-game="throw"]').click();
+assert.equal(app.rbGame().players[0].pos,27,'no suspense where none is wanted');
+assert.ok(!q('.die-face').classList.contains('tumbling'));
+advance(3000);
+reduced = false;
+q('[data-game="reset"]').click(); advance(3000);
+
 // Square 85 reads 71, and its entry says the other witness reads 73.
 assert.equal(rbGame.destination(85,'one'),71);
 assert.deepEqual(rbBoard.VARIANTS['85'],{one:73});
@@ -494,7 +589,8 @@ worldVisibility.forEach((visible,obj)=>assert.equal(obj.visible,visible,'All wor
 
 console.log(JSON.stringify({result:'PASS',heaps:37,illustrations:24,triangles,atlasRequests:3,
  squares:app.rbBoard.nodes.size,anchoredSquares:anchoredSquares.length,boardCells:cells.length,
- squareNotes:Object.keys(SQUARE_NOTES).length,
+ squareNotes:Object.keys(SQUARE_NOTES).length, fullEntries:Object.keys(SQUARE_FULL).length,
+ artSlotsProved:rbIcons.SQUARE_ART.size,
  checks:'Terrain overlay priority, independent motion/mandala switches and gesture resume, numbers toggle, '
    + 'billboards from 16 angles, 84% tour image fit at three viewport sizes, all 37 stops, playback, isolation, '
    + 'exclusive panels, image failure/retry, keyboard controls, reduced motion and visibility restoration. '
@@ -502,5 +598,8 @@ console.log(JSON.stringify({result:'PASS',heaps:37,illustrations:24,triangles,at
    + 'square, the world framed clear of the board, all 21 anchored squares over the geometry drawn for them, the printed '
    + 'first move, the karmic trail, selection shared between cell, entry and marker, reading a player without taking their '
    + 'turn, the counter trap end to end, victory and its rite, the board/world swap, silence until asked, pointer events on '
-   + 'every overlay panel, and the Escape cascade.',
+   + 'every overlay panel, and the Escape cascade. The throw: a die that keeps its answer until it stops, cannot be '
+   + 'thrown twice at once, announces where it landed, and resolves at once under reduced motion. A standing marker '
+   + 'for every player, ringed for whoever holds the die and fanned apart when they share a square. The iconography '
+   + 'slot proved with two stubs: cell, billboard, sheet fetched once and only in game mode.',
  limits:'DOM and GPU substitutes; actual CSS layout, WebGL rendering and devices were not tested.'},null,2));
