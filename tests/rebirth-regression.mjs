@@ -144,6 +144,72 @@ check('anchored squares name entries the world system already draws', () => {
   for (const s of loose) assert.notEqual(s.band, 'anchored', 'square ' + s.n + ' has nothing to anchor to');
 });
 
+check('square 85 reads 71, and the other witness is kept', () => {
+  assert.equal(game.destination(85, 'one'), 71, 'the first face reaches the First Sutra Stage');
+  assert.equal(game.destination(85, 'two'), 73);
+  assert.equal(game.destination(85, 'three'), 76);
+  assert.deepEqual(board.VARIANTS['85'], { one: 73 }, 'the reading not taken is still recorded');
+  // The other Buddha fields each give one sutra exit and one tantric one, which
+  // is the argument for 71 over a doubled 73.
+  for (const field of [76, 77]) {
+    const outs = FACES.map(f => game.destination(field, f)).filter(Boolean);
+    assert.equal(new Set(outs).size, outs.length, 'field ' + field + ' does not repeat a destination');
+  }
+});
+
+check('every zone is named and every square is in one', () => {
+  const named = new Set(board.ZONES.map(([id]) => id));
+  assert.equal(named.size, 7);
+  for (const s of SQUARES) assert.ok(named.has(board.zoneOf(s)), 'square ' + s.n + ' has a zone');
+});
+
+check('the trail records every step, traps included', () => {
+  const g = game.createGame({ players: 1 });
+  game.throwDie(g, 'one');                                   // 24 -> 27
+  assert.deepEqual(g.players[0].history, [{ face: 'one', from: 24, to: 27 }]);
+  game.throwDie(g, 'four');                                  // 27 -> 18
+  assert.deepEqual(g.players[0].history.at(-1), { face: 'four', from: 27, to: 18 });
+  const before = g.players[0].history.length;
+  g.players[0].pos = 24;
+  game.throwDie(g, 'one');
+  game.throwDie(g, 'one');                                   // 27 has no second one from 27? dead or move
+  assert.ok(g.players[0].history.length > before, 'moves keep being recorded');
+
+  // a dead face changes nothing, so it leaves no step
+  const d = game.createGame({ players: 1 });
+  d.players[0].pos = 84;                                      // only a one is listed
+  const dead = game.throwDie(d, 'six');
+  assert.equal(dead.kind, 'dead');
+  assert.deepEqual(d.players[0].history, [], 'a dead face is not a step');
+
+  // the trap and the escape are both steps
+  const t = game.createGame({ players: 1 });
+  t.players[0].pos = 33;
+  game.throwDie(t, 'six');                                    // 33 -> 1, the trap
+  for (let f = 1; f <= 6; f += 1) for (let i = 0; i < f; i += 1) game.throwDie(t, FACES[f - 1]);
+  assert.equal(t.players[0].pos, 9);
+  assert.deepEqual(t.players[0].history,
+    [{ face: 'six', from: 33, to: 1 }, { face: 'six', from: 1, to: 9 }],
+    'the fall and the climb out are two steps, not one position');
+});
+
+check('reading a player does not hand them the die', () => {
+  const g = game.createGame({ players: 3 });
+  assert.equal(g.turn, 0);
+  assert.equal(g.viewing, 0);
+  game.throwDie(g, 'one');
+  assert.equal(g.turn, 1, 'the die passed');
+  assert.equal(g.viewing, 1, 'and the trail follows play by default');
+  assert.equal(game.view(g, 2), 2);
+  assert.equal(g.turn, 1, 'looking at the third player did not give them the turn');
+  game.view(g, 0);
+  assert.equal(g.turn, 1);
+  game.view(g, 99);
+  assert.equal(g.viewing, 0, 'a player who does not exist is ignored');
+  game.throwDie(g, 'one');
+  assert.equal(g.viewing, g.turn, 'the next throw brings the trail back to whoever holds the die');
+});
+
 check('seam positions are finite and distinct', () => {
   const ctx = { RIM: 1.5, FLOOR: -0.2, SUMMIT: 0.68 };
   const seen = new Set();

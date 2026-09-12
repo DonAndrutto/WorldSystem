@@ -24,7 +24,9 @@ Click any part to open its entry; drag to orbit, scroll to zoom.
 | `ARTWORK.md` | Image provenance, source references and iconographic adaptations. |
 | `tests/mandala-regression.mjs` | DOM and geometry regression checks. |
 | `rebirth-board.js` | The 104 squares of the game of rebirth, the die-to-destination graph, and the armature that places the squares the world system has no room for. |
-| `rebirth-game.js` | The rules on their own: dead faces, the two counter traps, victory at 104. No DOM, no WebGL. |
+| `rebirth-game.js` | The rules on their own: dead faces, the two counter traps, victory at 104, and each player's trail. No DOM, no WebGL. |
+| `rebirth-notes.js` | Two entries per square, written for this drawing: the short note and the full one it expands to. The 1977 commentary is not reproduced. |
+| `rebirth-icons.js` | The slot for square iconography — empty until the artwork exists, and wired so that adding it is one line per square. |
 | `tests/rebirth-regression.mjs` | Board and rules checks, including the routes the Rules of Play claim. |
 | `three-d-stage.js` | The `<three-d-stage>` custom element it imports: WebGL renderer, studio lighting with a soft ground shadow, orbit controls, an auto-framed camera, and OBJ + MTL / GLB export. |
 | `assets/app-icon/world-system-master.webp` | Gold-and-lapis Meru app-icon artwork; a symbolic emblem. See its source brief in `assets/app-icon/README.md`. |
@@ -109,13 +111,25 @@ The index runs from the ground up:
 
 ## The game of rebirth
 
-The third mode puts a board of 104 squares over the world. It is the game
-attributed to Sakya Paṇḍita, from the 1977 English edition: the die names the
-square you go to rather than a number of steps, a face with no listed move is
-dead and costs the turn, and squares 1 and 48 are counter traps that hold a
-player until one 1, two 2s and so on through six 6s have been thrown. Victory
-is declared on arrival at 104. The throw that follows, which passes the relics
-into the stūpa, is a rite and settles nothing.
+The third mode is a whole board of 104 squares beside the world it is a section
+through. It is the game attributed to Sakya Paṇḍita, from the 1977 English
+edition: the die names the square you go to rather than a number of steps, a
+face with no listed move is dead and costs the turn, and squares 1 and 48 are
+counter traps that hold a player until one 1, two 2s and so on through six 6s
+have been thrown. Victory is declared on arrival at 104. The throw that
+follows, which passes the relics into the stūpa, is a rite and settles nothing.
+
+The board holds one side of the screen and the world keeps turning on the
+other, framed in whatever the board leaves. They share one selection: the lit
+square, the open entry and the tinted marker in the model are the same square,
+and the camera goes to each square a token arrives on. Where there is no room
+for both — a narrow window, a phone — one control hands the screen from the
+board to the world and back, and the throw stays reachable from either.
+
+Each player keeps a karmic trail: the whole arc travelled, a chip for every
+throw, which is the one thing a position cannot record. A fall to a hell and
+the climb out of it are the same square twice, and only the trail tells them
+apart. Reading another player's trail never hands them the die.
 
 Read as a section, the board is already a cosmology, and that is what makes it
 sit on this model at all. Its row is height above or below the golden ground;
@@ -138,16 +152,54 @@ on the board and all six of its die results.
 The move graph was reconstructed from three independent witnesses in the 1977
 edition — the printed chart, the individual square entries and the reverse
 index — and cross-checked cell by cell; all 624 square/face combinations
-resolve. The commentary prose of that edition is not reproduced.
+resolve. Where the witnesses disagree the entry says so rather than settling it
+silently: square 85 reads a one to 71, as the other Buddha fields each give one
+sūtra exit and one tantric, and the reading that sends it to 73 is recorded
+beside it.
+
+The commentary prose of that edition is not reproduced: it is copyright © 1977
+by Jody Kent, all rights reserved, and this page is public. Every square
+instead carries two entries written for this drawing, in the same voice as the
+rest of the index — a short note, and a fuller one that unfolds from it in the
+drawer. Both live in `rebirth-notes.js`, keyed by square number, so anyone
+holding permission to publish the 1977 text can substitute it there without
+touching anything else.
+
+### Throwing
+
+The die runs for a couple of seconds before it resolves, ticking and slowing,
+and shows nothing of the result until it stops; then the square arrived at is
+named in the middle of the board, large enough to read from across a room, and
+the card clears itself. Sound is off until asked for, under the `⋯` control
+beside the throw. `prefers-reduced-motion` gets the same game without the wait.
+
+### Where the players are
+
+Every player stands in the world as well as on the board: a marker in their own
+colour, on a stem that lifts it clear of whatever it is standing on, in a ring
+on the square beneath. Whoever holds the die carries a second, wider ring. Two
+players on one square are fanned apart rather than hidden inside one another.
+
+### Iconography, when there is some
+
+No square is painted yet. `rebirth-icons.js` holds the slot: register a square
+with its sheet and its cell and the picture appears in the corner of the board
+cell and on a billboard at its marker in the world, with the sheet fetched only
+when game mode is first opened. The convention — one sheet, four pictures
+across, counting from zero — is the one the offering artwork already uses. The
+path is covered by the test suite with two stubs, so it is known to work before
+any artwork exists. Record provenance in [ARTWORK.md](ARTWORK.md) as for
+everything else this project serves.
 
 ## Controls
 
-Six, and every one of them does something:
+Every one of them does something:
 
 | | |
 | --- | --- |
 | **Index** `i` | The drawer of explanatory entries, with a filter. |
-| **Mode** `e` `m` `g` | Explorer, Maṇḍala, Game. Explorer is the model and its index; Maṇḍala is the thirty-seven heaps, in the order the offering names them; Game lays the board of rebirth over the world. |
+| **Mode** `e` `m` `g` | Explorer, Maṇḍala, Game. Explorer is the model and its index; Maṇḍala is the thirty-seven heaps, in the order the offering names them; Game sets the board of rebirth beside the world. |
+| **Board or world** `w` | In game mode on a narrow window, hands the screen from the board to the world and back. Where both fit, they are both already there. |
 | **Motion** `r` | Sets the sun and moon on their circuit around Meru — forty seconds to the day — and lets the view turn slowly with them. The sun is what lights the world, so Meru's shadow walks round the continents with it. Off until asked for, so the model holds still while it is being read. |
 | **Night** `n` | Paper or dark. At night the moon takes over the lighting, and the clouds stand against a faint field of stars. |
 | **Full screen** `f` | Hidden where the platform has none to give: iOS Safari, and any window already running as an installed app. |
@@ -268,11 +320,13 @@ The surface checks cover closed geometry seams, range separation, height and
 wave limits, and the shared ripple texture. They do not render the GPU scene.
 
 The board checks run on the data and the rules alone, with no DOM: the 104
-squares, all 624 square/face combinations, the two counter traps, victory, and
-the routes the Rules of Play claim. Game mode itself — the mode switch, the
-board laid out over the geometry and put away again, the twenty-one anchored
-squares standing on what the model draws for them, and a game played through
-the panel — is checked in the mandala suite, which builds the real scene.
+squares, all 624 square/face combinations, the two counter traps, victory, the
+routes the Rules of Play claim, each player's trail, and that reading a player
+never hands them the die. Game mode itself — the mode switch, the 104 cells in
+the board's own order, an entry on every square, the world framed clear of the
+board, the twenty-one anchored squares standing on what the model draws for
+them, the shared selection, and a game played through the board — is checked in
+the maṇḍala suite, which builds the real scene.
 
 To rebuild the icon assets, install Sharp as an additional development dependency
 (`npm install --no-save --package-lock=false three@0.184.0 jsdom@26 sharp`) and run

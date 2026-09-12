@@ -284,6 +284,20 @@
     text-wrap: pretty;
   }
   .sheet .body + .body { margin-top: 8px; }
+  /* An entry that has more to say keeps it folded until it is asked for. */
+  .sheet .more { margin: 13px 0 0; }
+  .sheet .more[hidden] { display: none; }
+  .sheet .more > summary {
+    cursor: pointer; list-style: none; display: inline-flex; align-items: center; gap: 6px;
+    font-family: "IBM Plex Mono", monospace; font-size: 9.5px; letter-spacing: .12em;
+    text-transform: uppercase; color: var(--ink-3); padding: 4px 0;
+  }
+  .sheet .more > summary::-webkit-details-marker { display: none; }
+  .sheet .more > summary::before { content: "▸"; font-size: 11px; letter-spacing: 0; }
+  .sheet .more[open] > summary::before { content: "▾"; }
+  .sheet .more > summary:hover { color: var(--ink); }
+  .sheet .more > summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .sheet .more-body { border-top: 1px solid var(--rule); margin-top: 2px; padding-top: 4px; }
   .rel { margin: 15px 0 0; padding-top: 11px; border-top: 1px solid var(--rule); }
   .rel[hidden] { display: none; }
   .rel p {
@@ -610,8 +624,7 @@
     display: flex; flex-direction: column; align-items: stretch; gap: 8px; z-index: 5;
   }
   .panel-dock[hidden], .panel-dock [hidden] { display: none !important; }
-  .panel-dock > .sheet, .panel-dock > .mandala-note, .panel-dock > .index, .panel-dock > .tour-panel,
-  .panel-dock > .game {
+  .panel-dock > .sheet, .panel-dock > .mandala-note, .panel-dock > .index, .panel-dock > .tour-panel {
     position: relative; inset: auto; transform: none; width: 100%; min-height: 0;
     max-height: 100%; margin: 0; flex: 0 1 auto; pointer-events: auto;
   }
@@ -659,8 +672,7 @@
     .controls .btn { min-height: 44px; }
     .panel-dock { left: 9px; right: 9px; top: auto; bottom: calc(66px + var(--sa-b));
       width: auto; max-height: min(54dvh, calc(100dvh - 126px - var(--sa-b) - var(--sa-t))); }
-    .panel-dock > .sheet, .panel-dock > .mandala-note, .panel-dock > .index, .panel-dock > .tour-panel,
-    .panel-dock > .game { max-height: inherit; }
+    .panel-dock > .sheet, .panel-dock > .mandala-note, .panel-dock > .index, .panel-dock > .tour-panel { max-height: inherit; }
     .tour-panel { padding: 12px; }
     .tour-panel .mode-tabs { margin-bottom: 10px; }
     .tour-title { font-size: 25px; }
@@ -678,40 +690,237 @@
     *, *::before, *::after { animation: none !important; transition: none !important; }
   }
 
-  /* ── mode switch and the game of rebirth ──────────────────────────── */
+  /* ── mode switch ──────────────────────────────────────────────────── */
   .seg { display: inline-flex; gap: 0; border: 1px solid var(--rule-2); border-radius: 7px; overflow: hidden; }
   .seg button { border: 0; border-radius: 0; }
   .seg button + button { border-left: 1px solid var(--rule); }
   .seg button[aria-pressed="true"] { background: var(--hi-2); color: var(--ink); }
-  .panel-dock > .game { overflow-y: auto; overscroll-behavior: contain; }
-  .game { display: flex; flex-direction: column; gap: 12px; }
-  .game h2 { font-size: 15px; margin: 0; font-weight: 500; }
-  .game .who { display: flex; align-items: center; gap: 8px; font-size: 14px; }
-  .game .pip-dot { width: 11px; height: 11px; border-radius: 50%; flex: none; }
-  .game .throwrow { display: flex; gap: 10px; align-items: center; }
-  .die-face { width: 52px; height: 52px; flex: none; border: 1px solid var(--rule-2); border-radius: 8px;
-    background: var(--field); display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(3, 1fr);
-    padding: 7px; gap: 2px; }
-  .die-face i { width: 8px; height: 8px; border-radius: 50%; background: var(--ink); opacity: 0;
-    align-self: center; justify-self: center; }
+
+  /* ── the board of rebirth ─────────────────────────────────────────────
+     A whole board, not a readout: thirteen rows of eight filling the left
+     of the screen, with the world it is a section through still turning on
+     the right. The grid takes its height from the column, so all 104
+     squares are always on screen and the board never scrolls. */
+  .board-view {
+    position: absolute; left: 22px; top: 82px; bottom: 84px;
+    width: min(56vw, calc(100vw - var(--panel) - 88px)); min-width: 300px;
+    display: flex; flex-direction: column; gap: 9px; z-index: 5;
+    pointer-events: auto;
+  }
+  .board-view[hidden] { display: none !important; }
+  .bv-grid {
+    flex: 1 1 auto; min-height: 0;
+    display: grid; grid-template-columns: repeat(8, minmax(0, 1fr));
+    grid-template-rows: repeat(13, minmax(0, 1fr)); gap: 3px;
+    background: var(--surface); border: 1px solid var(--rule);
+    border-radius: 3px; padding: 4px; box-shadow: var(--shadow);
+    backdrop-filter: blur(7px) saturate(112%);
+  }
+  /* the seven zones of the board, in the world's own palette */
+  .bv-grid {
+    --z-lower: #7d4a3a; --z-human: #b08d3f; --z-heaven: #c9a227;
+    --z-shravaka: #4f7f6a; --z-sutra: #3f63a8; --z-tantra: #a33f3a; --z-pure: #8d6bb0;
+  }
+  .bv-sq {
+    position: relative; overflow: hidden; text-align: left; cursor: pointer;
+    border: 1px solid var(--rule); border-left: 3px solid var(--zone, var(--rule-2));
+    border-radius: 2px; background: var(--field); color: var(--ink-2);
+    font-family: inherit; padding: 3px 4px 3px 5px;
+    display: flex; flex-direction: column; gap: 1px;
+    transition: background-color .15s ease, border-color .15s ease;
+  }
+  .bv-sq:hover { background: var(--hi); border-color: var(--rule-2); }
+  .bv-sq:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+  .bv-sq .n { font-family: "IBM Plex Mono", monospace; font-size: 9px; color: var(--ink-3); letter-spacing: .04em; }
+  /* the slot for a square's picture, once there is one to show */
+  .bv-icon {
+    position: absolute; right: 3px; top: 3px; width: 20px; height: 20px;
+    border-radius: 2px; background-repeat: no-repeat; opacity: .92; pointer-events: none;
+  }
+  .bv-icon[hidden] { display: none; }
+  .bv-sq:has(.bv-icon:not([hidden])) .nm { padding-right: 22px; }
+  .bv-sq .nm {
+    font-size: 10px; line-height: 1.16; overflow: hidden;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+  }
+  .bv-sq[data-start] { background: var(--hi); }
+  .bv-sq[data-trap] .n::after { content: " ◈"; color: var(--z-tantra); }
+  .bv-sq[data-victory] { background: var(--hi-2); }
+  .bv-sq[aria-selected="true"] { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+  .bv-sq.lit { background: var(--hi-2); }
+  .bv-toks { display: flex; flex-wrap: wrap; gap: 2px; margin-top: auto; }
+  .bv-tok { width: 11px; height: 11px; border-radius: 50%; box-shadow: 0 0 0 1px var(--paper); flex: none; }
+  .bv-tok.turn { outline: 1px solid var(--ink); outline-offset: 1px; }
+
+  .bv-rail { display: flex; gap: 11px; align-items: flex-start; padding: 10px 12px; flex: none; }
+  .die-face {
+    width: 48px; height: 48px; flex: none; border: 1px solid var(--rule-2); border-radius: 8px;
+    background: var(--field); display: grid; grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr); padding: 6px; gap: 2px;
+  }
+  .die-face i {
+    width: 8px; height: 8px; border-radius: 50%; background: var(--ink); opacity: 0;
+    align-self: center; justify-self: center;
+  }
   .die-face i.on { opacity: 1; }
-  .game .go { flex: 1; }
-  .game .say { font-size: 13.5px; color: var(--ink-2); min-height: 3.2em; }
-  .game .say b { color: var(--ink); font-weight: 500; }
-  .game .tally { display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px; }
-  .game .tally div { border: 1px solid var(--rule); border-radius: 4px; text-align: center; padding: 4px 0;
-    font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--ink-2); background: var(--field); }
-  .game .tally div.full { background: var(--hi-2); border-color: var(--accent); color: var(--ink); }
-  .game .feed { list-style: none; margin: 0; padding: 0; max-height: 180px; overflow-y: auto;
-    display: flex; flex-direction: column-reverse; }
-  .game .feed li { font-size: 12.5px; color: var(--ink-2); padding: 4px 0; border-top: 1px solid var(--rule); }
-  .game .feed li .mono { color: var(--ink); }
-  .game .row2 { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; font-size: 12.5px; color: var(--ink-2); }
-  .game select { font: inherit; background: var(--field); color: var(--ink); border: 1px solid var(--rule-2);
-    border-radius: 5px; padding: 4px 6px; }
-  .game label.sw { display: flex; gap: 7px; align-items: center; font-size: 12.5px; color: var(--ink-2); }
+  .die-face.rolling { animation: shake .42s ease; }
+  @keyframes shake {
+    0%, 100% { transform: translateY(0) rotate(0); }
+    28% { transform: translateY(-4px) rotate(-7deg); }
+    72% { transform: translateY(-2px) rotate(6deg); }
+  }
+  /* the die keeps moving for as long as the throw is undecided */
+  .die-face.tumbling { animation: tumble .5s cubic-bezier(.36,.07,.31,1) infinite; border-color: var(--accent); }
+  @keyframes tumble {
+    0%   { transform: translateY(0) rotate(0deg) scale(1); }
+    25%  { transform: translateY(-7px) rotate(-9deg) scale(1.04); }
+    50%  { transform: translateY(0) rotate(0deg) scale(1); }
+    75%  { transform: translateY(-5px) rotate(8deg) scale(1.03); }
+    100% { transform: translateY(0) rotate(0deg) scale(1); }
+  }
+  /* Where the throw lands, said once and plainly, over the board. */
+  .bv-card {
+    position: absolute; inset: 0; display: grid; place-items: center;
+    pointer-events: none; z-index: 7;
+  }
+  .bv-card[hidden] { display: none !important; }
+  .bv-card-in {
+    max-width: min(92%, 30ch); padding: 22px 30px 24px; text-align: center;
+    background: var(--surface); border: 1px solid var(--accent); border-radius: 5px;
+    box-shadow: var(--shadow); backdrop-filter: blur(9px) saturate(115%);
+    display: flex; flex-direction: column; gap: 4px; align-items: center;
+    animation: card-in .34s cubic-bezier(.2,.9,.3,1.3) both;
+  }
+  .bv-card.out .bv-card-in { animation: card-out .3s ease both; }
+  @keyframes card-in  { from { opacity: 0; transform: scale(.88) translateY(7px); } to { opacity: 1; transform: none; } }
+  @keyframes card-out { to { opacity: 0; transform: scale(.97); } }
+  .bv-card .face {
+    font-family: "IBM Plex Mono", monospace; font-size: 10px; letter-spacing: .18em;
+    text-transform: uppercase; color: var(--ink-3);
+  }
+  .bv-card .num {
+    font-family: "IBM Plex Mono", monospace; font-size: 44px; line-height: 1;
+    font-weight: 500; color: var(--accent); letter-spacing: -.01em;
+  }
+  .bv-card .nm {
+    font-size: 25px; line-height: 1.14; font-weight: 500; color: var(--ink);
+    text-wrap: balance; letter-spacing: -.005em;
+  }
+  .bv-card .note { font-size: 13px; color: var(--ink-2); margin-top: 3px; }
+  .bv-card .note:empty { display: none; }
+  @media (max-width: 700px) {
+    .bv-card-in { padding: 16px 20px 18px; }
+    .bv-card .num { font-size: 34px; }
+    .bv-card .nm { font-size: 20px; }
+  }
+  .bv-rail .go { flex: none; min-width: 116px; align-self: stretch; }
+  .bv-mid { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 5px; }
+  .bv-who { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
+  .bv-pt {
+    display: inline-flex; align-items: center; gap: 5px; border: 1px solid var(--rule);
+    border-radius: 999px; padding: 2px 8px 2px 6px; background: var(--field);
+    font-family: "IBM Plex Mono", monospace; font-size: 10.5px; color: var(--ink-2); cursor: pointer;
+  }
+  .bv-pt .pip-dot { width: 9px; height: 9px; border-radius: 50%; flex: none; }
+  .bv-pt .full { font-family: "EB Garamond", Georgia, serif; font-size: 12px; }
+  .bv-pt[aria-current="true"] { border-color: var(--accent); background: var(--hi-2); color: var(--ink); }
+  .bv-say { margin: 0; font-size: 13px; line-height: 1.35; color: var(--ink-2); }
+  .bv-say b { color: var(--ink); font-weight: 500; }
+  .bv-tally { display: grid; grid-template-columns: repeat(6, minmax(0, 52px)); gap: 4px; }
+  .bv-tally div {
+    border: 1px solid var(--rule); border-radius: 4px; text-align: center; padding: 3px 0;
+    font-family: "IBM Plex Mono", monospace; font-size: 10px; color: var(--ink-2); background: var(--field);
+  }
+  .bv-tally div.full { background: var(--hi-2); border-color: var(--accent); color: var(--ink); }
+  /* The trail is the one thing a position cannot say: the whole arc travelled. */
+  .bv-trail { display: flex; gap: 3px; overflow-x: auto; overscroll-behavior-x: contain; padding-bottom: 2px; }
+  .bv-trail:empty { display: none; }
+  .bv-chip {
+    flex: none; display: flex; flex-direction: column; align-items: center; gap: 0;
+    border: 1px solid var(--rule); border-left: 2px solid var(--zone, var(--rule-2));
+    border-radius: 2px; background: var(--field); cursor: pointer;
+    font-family: "IBM Plex Mono", monospace; padding: 2px 4px; line-height: 1.1;
+  }
+  .bv-chip .f { font-size: 8.5px; color: var(--ink-3); }
+  .bv-chip .t { font-size: 10px; color: var(--ink-2); }
+  .bv-chip.last { border-color: var(--accent); background: var(--hi-2); }
+  .bv-chip.last .t { color: var(--ink); }
+
+  .bv-more { position: relative; flex: none; }
+  .bv-more > summary { display: inline-flex; list-style: none; cursor: pointer; }
+  .bv-more > summary::-webkit-details-marker { display: none; }
+  .bv-more-body {
+    position: absolute; right: 0; bottom: calc(100% + 7px); width: 268px;
+    display: flex; flex-direction: column; gap: 9px; padding: 12px; z-index: 6;
+  }
+  .bv-more-body h3 {
+    margin: 3px 0 0; font-family: "IBM Plex Mono", monospace; font-size: 9.5px;
+    letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); font-weight: 500;
+  }
+  .bv-setup { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; font-size: 12.5px; color: var(--ink-2); }
+  .board-view select {
+    font: inherit; background: var(--field); color: var(--ink);
+    border: 1px solid var(--rule-2); border-radius: 5px; padding: 4px 6px;
+  }
+  .board-view label.sw { display: flex; gap: 7px; align-items: center; font-size: 12.5px; color: var(--ink-2); }
+  .board-view .feed {
+    list-style: none; margin: 0; padding: 0; max-height: 172px; overflow-y: auto;
+    display: flex; flex-direction: column;
+  }
+  .board-view .feed li { font-size: 12px; color: var(--ink-2); padding: 4px 0; border-top: 1px solid var(--rule); }
+  .board-view .feed li .mono { color: var(--ink); }
+  /* the board and the world trade places only where they cannot sit side by side */
+  .bv-swap { display: none; flex: none; align-self: stretch; }
+
   body.game-view .compass { display: none; }
   body.game-view .legend { display: none; }
+  /* An open drawer wants the same screen. Where there is room for both, the
+     board yields width to it so the world keeps a strip worth looking at
+     rather than a slot; where there is not, they take turns instead. */
+  @media (min-width: 1081px) {
+    body.index-open .board-view { width: min(56vw, calc(100vw - var(--panel) * 2 - 88px)); }
+    body.panel-open .board-view { width: min(46vw, calc(100vw - 496px)); }
+  }
+
+  /* Below this width the board and the world cannot share the screen, so they
+     take turns: the board holds it, and one control hands it to the world. */
+  @media (max-width: 1080px) {
+    .board-view { left: 14px; right: 14px; width: auto; }
+    body.index-open .board-view { width: auto; right: calc(var(--panel) + 30px); }
+    .bv-swap { display: inline-flex; }
+    body.world-only .bv-grid { display: none; }
+    body.world-only .board-view { bottom: auto; }
+    body.world-only .bv-mid, body.world-only .die-face { display: none; }
+    .bv-sq .nm { -webkit-line-clamp: 3; }
+  }
+  @media (max-width: 820px) {
+    .bv-sq .nm { display: none; }
+    .bv-sq { justify-content: center; padding: 2px 3px; }
+    .bv-sq .n { font-size: 10px; color: var(--ink-2); }
+    .bv-rail { flex-wrap: wrap; gap: 8px; padding: 9px 10px; }
+    .bv-rail .go { min-width: 92px; }
+    .bv-tally { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+    /* the square's name is already in the status line and the entry */
+    .bv-pt .full { display: none; }
+    .bv-who, .bv-tally { flex-wrap: nowrap; overflow-x: auto; overscroll-behavior-x: contain; }
+  }
+  /* On a phone the entry is a bottom sheet over the board, as it is over the
+     canvas everywhere else, so the throw and the trail move to the top where
+     the sheet cannot cover them and the grid keeps its full height. */
+  @media (max-width: 700px) {
+    .board-view, body.index-open .board-view {
+      left: 9px; right: 9px; width: auto; top: calc(54px + var(--sa-t));
+      bottom: calc(66px + var(--sa-b)); flex-direction: column-reverse;
+    }
+    .bv-rail { padding: 7px 9px; gap: 7px; }
+    .bv-rail .go { min-width: 78px; }
+    .die-face { width: 40px; height: 40px; padding: 5px; }
+    .die-face i { width: 6px; height: 6px; }
+    .bv-say { font-size: 12px; overflow: hidden; display: -webkit-box;
+      -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+    .bv-more-body { bottom: auto; top: calc(100% + 7px); }
+    body.world-only .board-view { top: calc(54px + var(--sa-t)); bottom: auto; }
+  }
 </style>
 </head>
 <body>
@@ -760,25 +969,45 @@
 
   <div class="marks" id="offering-marks" hidden=""></div>
 
-  <div class="panel-dock" hidden>
-  <p class="art-status card" role="status" hidden><span></span> <button class="btn" type="button" data-art-retry hidden>Retry images</button></p>
-  <aside class="game card" aria-label="The game of rebirth" hidden>
-    <h2>The game of rebirth</h2>
-    <div class="who"><span class="pip-dot"></span><b class="g-name">Player 1</b><span class="mono g-at"></span></div>
-    <div class="throwrow">
+  <section class="board-view" aria-label="The board of rebirth" hidden>
+    <div class="bv-grid" role="grid" aria-label="The hundred and four squares"></div>
+    <div class="bv-card" role="status" aria-live="assertive" hidden>
+      <div class="bv-card-in">
+        <span class="face"></span>
+        <b class="num"></b>
+        <span class="nm"></span>
+        <span class="note"></span>
+      </div>
+    </div>
+    <div class="bv-rail card">
       <div class="die-face" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
       <button class="btn go" type="button" data-game="throw">Throw</button>
+      <div class="bv-mid">
+        <div class="bv-who"></div>
+        <p class="bv-say" role="status" aria-live="polite">Every token starts on 24, the Heavenly Highway. The die names a destination; it does not count spaces.</p>
+        <div class="bv-tally" hidden></div>
+        <div class="bv-trail" aria-label="The karmic trail"></div>
+      </div>
+      <details class="bv-more">
+        <summary class="btn" title="Game options and the move log">⋯</summary>
+        <div class="bv-more-body card">
+          <div class="bv-setup">
+            <label for="g-players">Players</label>
+            <select id="g-players"><option>1</option><option selected>2</option><option>3</option><option>4</option></select>
+            <button class="btn" type="button" data-game="reset">New game</button>
+          </div>
+          <label class="sw"><input type="checkbox" id="g-note64"> Note 64 trap quotas <span class="mono">[1,2,6,3,5,4]</span></label>
+          <label class="sw"><input type="checkbox" id="g-sound"> Sound</label>
+          <h3>Move log</h3>
+          <ul class="feed"></ul>
+        </div>
+      </details>
+      <button class="btn bv-swap" type="button" data-game="swap" title="Show the world — w">Show the world</button>
     </div>
-    <p class="say" role="status" aria-live="polite">Every token starts on 24, the Heavenly Highway. The die names a destination; it does not count spaces.</p>
-    <div class="tally" hidden></div>
-    <ul class="feed"></ul>
-    <div class="row2">
-      <label for="g-players">Players</label>
-      <select id="g-players"><option>1</option><option selected>2</option><option>3</option><option>4</option></select>
-      <button class="btn" type="button" data-game="reset">New game</button>
-    </div>
-    <label class="sw"><input type="checkbox" id="g-note64"> Note 64 trap quotas <span class="mono">[1,2,6,3,5,4]</span></label>
-  </aside>
+  </section>
+
+  <div class="panel-dock" hidden>
+  <p class="art-status card" role="status" hidden><span></span> <button class="btn" type="button" data-art-retry hidden>Retry images</button></p>
   <aside class="mandala-note card" hidden="">
     <div class="mode-tabs" aria-label="Offering views">
       <button class="btn" type="button" aria-pressed="true" data-view="recitation">Recitation</button>
@@ -847,6 +1076,7 @@
       <dl></dl>
       <figure class="entry-art" hidden><div role="img"></div><figcaption>Modern painted interpretation</figcaption></figure>
       <div class="bodies"></div>
+      <details class="more" hidden=""><summary></summary><div class="more-body"></div></details>
       <div class="rel" hidden=""><p>See also</p><div></div></div>
       <p class="src"></p>
     </div>
@@ -886,8 +1116,10 @@ import { TOUR_NOTES } from './mandala-tour.js';
 import { installViewportGestures } from './viewport-gestures.js';
 import { createGoldenRangeGeometry, createWaterNormalMap, createWaterMaterial, createWaterGeometry } from './world-surfaces.js';
 import { DAY_SKY, paintClouds } from './sky-clouds.js';
-import { SQUARES as RB_SQUARES, SPECIAL as RB_SPECIAL, START as RB_START, VICTORY as RB_VICTORY, TRAP_QUOTA, TRAP_QUOTA_NOTE64, FACES as DIE_FACES, BY_N as RB_BY_N, createBoardLayer } from './rebirth-board.js';
-import { createGame, throwDie, outstanding, destination as rbDestination } from './rebirth-game.js';
+import { SQUARES as RB_SQUARES, SPECIAL as RB_SPECIAL, START as RB_START, VICTORY as RB_VICTORY, TRAP_QUOTA, TRAP_QUOTA_NOTE64, FACES as DIE_FACES, BY_N as RB_BY_N, VARIANTS as RB_VARIANTS, zoneOf as rbZoneOf, PLAYER_COLOURS as RB_COLOURS, createBoardLayer } from './rebirth-board.js';
+import { createGame, throwDie, view as rbView, destination as rbDestination } from './rebirth-game.js';
+import { SQUARE_NOTES, SQUARE_FULL } from './rebirth-notes.js';
+import { SQUARE_ART, cellBackground, createSquareArt } from './rebirth-icons.js';
 const stage = document.querySelector('three-d-stage');
 const { THREE } = await stage.ready;
 stage.shadowRoot.querySelector('.note')?.remove();   // the page carries its own hint
@@ -2843,13 +3075,24 @@ RB_SQUARES.forEach((sqr) => {
   if (special && special.kind === 'tally') facts.push(['Trap', 'one 1, two 2s, and so on through six 6s, then out to ' + special.exit_to]);
   if (sqr.n === RB_START) facts.push(['Start', 'every token begins here']);
   if (special && special.kind === 'terminal') facts.push(['Victory', 'declared on arrival; the stupa throw that follows is a ceremony']);
-  const body = [RB_BAND_NOTE[sqr.band]];
+  // Where the witnesses read a face differently, the entry says so rather than
+  // settling it silently.
+  const variant = RB_VARIANTS[sqr.n];
+  if (variant) {
+    Object.entries(variant).forEach(([f, to]) => {
+      facts.push(['Variant reading', 'a ' + (DIE_FACES.indexOf(f) + 1) + ' to ' + to + '. '
+                  + RB_BY_N.get(to).name + ', in another witness']);
+    });
+  }
+  const body = [SQUARE_NOTES[sqr.n], RB_BAND_NOTE[sqr.band]];
   if (special && special.kind === 'tally') {
     body.push('A trap. Throws that are still needed let you keep going in the same turn; a throw you no longer need ends it, and the counts are kept until the next. Twenty-one useful throws in all.');
   }
   def('rebirth_sq_' + sqr.n, {
     t: sqr.n + '. ' + sqr.name, k: RB_BAND_LABEL[sqr.band], meta: sqr.cat,
-    f: facts.concat(outs), b: body, src: 'Tatz and Kent, <i>Rebirth: The Tibetan Game of Liberation</i> (1977); move graph reconstructed from the printed chart, the square entries and the reverse index, cross-checked cell by cell.'
+    f: facts.concat(outs), b: body,
+    more: SQUARE_FULL[sqr.n], moreLabel: 'The full entry',
+    src: 'Board, names and move graph: Tatz and Kent, <i>Rebirth: The Tibetan Game of Liberation</i> (1977), reconstructed from the printed chart, the square entries and the reverse index and cross-checked cell by cell. The commentary of that edition is not reproduced; this entry is written for this drawing.'
   });
 });
 def('rebirth_game', {
@@ -3009,6 +3252,7 @@ const sTitle = sheet.querySelector('h2');
 const sSub = sheet.querySelector('.sub');
 const sList = sheet.querySelector('dl');
 const sBodies = sheet.querySelector('.bodies');
+const sMore = sheet.querySelector('.more');
 const sRel = sheet.querySelector('.rel');
 const sRelRow = sRel.querySelector('div');
 const sSrc = sheet.querySelector('.src');
@@ -3022,7 +3266,7 @@ let order = [];   // flat reading order, filled when the index is built
 let touring = false, tourIndex = 0;
 const dock = document.querySelector('.panel-dock');
 const tourEl = document.querySelector('.tour-panel');
-const gameEl = document.querySelector('.game');
+const boardEl = document.querySelector('.board-view');
 const tourSelect = document.querySelector('#tour-jump');
 const sheetBack = sheet.querySelector('[data-sheet="back"]');
 const sheetTour = sheet.querySelector('[data-sheet="tour"]');
@@ -3048,6 +3292,7 @@ function show(id, reveal) {
   if (/^(emblem_|goddess_|mandala_)/.test(id) && !mandala) setMandala(true);
   // A square of the board stands nowhere unless the board is laid out.
   if (/^rebirth_sq_/.test(id) && mode !== 'game') setMode('game');
+  if (/^rebirth_sq_/.test(id) && mode === 'game') rbSelect(Number(id.slice(11)), false);
   if (mandala && HEAP_NUMBERS.has(id)) {
     pausePlay();
     if (!HEAP_MEMBERS.get(HEAP_NUMBERS.get(id)).some(visibleInScene)) resetPlay();
@@ -3071,6 +3316,13 @@ function show(id, reveal) {
   sList.innerHTML = (e.f || []).map((r) => '<dt>' + r[0] + '</dt><dd>' + r[1] + '</dd>').join('');
   sList.hidden = !(e.f || []).length;
   sBodies.innerHTML = [].concat(e.b || []).map((p) => '<p class="body">' + p + '</p>').join('');
+  const more = [].concat(e.more || []);
+  sMore.hidden = !more.length;
+  sMore.open = false;
+  if (more.length) {
+    sMore.querySelector('summary').textContent = e.moreLabel || 'The full entry';
+    sMore.querySelector('.more-body').innerHTML = more.map((p) => '<p class="body">' + p + '</p>').join('');
+  }
   const rel = (e.rel || []).filter((r) => E[r]);
   sRelRow.innerHTML = '';
   rel.forEach((r) => {
@@ -3250,6 +3502,7 @@ const drawLoop = () => {
   orientOfferingCards();
   gl.render(stage._scene, cam);
   if (mandala) placeMarks();
+  if (mode === 'game') rbArt.face(cam);
   if (!mandala || touring) placeCompass();
 };
 stage._loop = drawLoop;
@@ -3274,6 +3527,16 @@ function focus(id, direction = null, padding = 1.3) {
     ? Math.max(0.73 * illustration.scale.x / fr.w, 0.98 * illustration.scale.y / fr.h)
       * h / (2 * half * 0.84)
     : r * padding / half * h / Math.min(fr.w, fr.h);
+  aimAt(sph.center, dist, fr, direction);
+}
+
+/* Put a point at the centre of a rectangle of canvas, at a given distance.
+   The rectangle is rarely the middle of the screen — a panel is usually
+   standing on part of it — so the target is slid across the camera's own
+   right and up before the eye is placed along the view direction. */
+function aimAt(centre, dist, fr, direction = null, dur) {
+  const h = Math.max(stage.clientHeight, 1), w = Math.max(stage.clientWidth, 1);
+  const half = Math.tan(cam.fov * Math.PI / 360);
   const dir = direction ? direction.clone() : cam.position.clone().sub(ctr.target);
   if (dir.lengthSq() < 1e-9) dir.set(1, 0.6, 1.25);
   dir.normalize();
@@ -3281,12 +3544,12 @@ function focus(id, direction = null, padding = 1.3) {
   const right = new THREE.Vector3().crossVectors(new THREE.Vector3(0, 1, 0), dir).normalize();
   const up = new THREE.Vector3().crossVectors(dir, right).normalize();
   const perPx = 2 * dist * half / h;
-  const target = sph.center.clone()
+  const target = centre.clone()
     .addScaledVector(right, -(fr.x - w / 2) * perPx)
     .addScaledVector(up, (fr.y - h / 2) * perPx);
   cam.near = Math.max(dist / 400, 0.0006);
   cam.updateProjectionMatrix();
-  fly(target.clone().addScaledVector(dir, dist), target);
+  fly(target.clone().addScaledVector(dir, dist), target, dur);
 }
 
 function home() {
@@ -3494,8 +3757,8 @@ function syncChrome() {
   if (indexOpen) sheet.hidden = true;
   noteEl.hidden = !mandala || touring || !sheet.hidden || indexOpen;
   tourEl.hidden = !touring || !sheet.hidden || indexOpen;
-  gameEl.hidden = mode !== 'game' || !sheet.hidden || indexOpen;
-  dock.hidden = sheet.hidden && noteEl.hidden && tourEl.hidden && gameEl.hidden && !indexOpen;
+  boardEl.hidden = mode !== 'game';
+  dock.hidden = sheet.hidden && noteEl.hidden && tourEl.hidden && !indexOpen;
   artStatus.hidden = !mandala || !imageStates.some(s => s === 'loading' || s === 'failed');
   document.body.classList.toggle('panel-open', !dock.hidden);
   document.body.classList.toggle('min-menus', minPlay);
@@ -3530,9 +3793,11 @@ function freeRect() {
     ins[best.k] = Math.max(ins[best.k], best.v);
   };
   [document.querySelector('.controls'), document.querySelector('.masthead'),
-   legend, dock, gameEl].forEach(eat);
+   legend, dock, boardEl].forEach(eat);
   const pad = 14;
-  const l = Math.min(ins.l + pad, w * 0.4), r = Math.min(ins.r + pad, w * 0.4);
+  /* a dock panel may claim two fifths of the width; the board claims most of it */
+  const side = mode === 'game' ? 0.76 : 0.4;
+  const l = Math.min(ins.l + pad, w * side), r = Math.min(ins.r + pad, w * side);
   const t = Math.min(ins.t + pad, h * 0.3), b = Math.min(ins.b + pad, h * 0.72);
   return {
     x: (l + (w - r)) / 2, y: (t + (h - b)) / 2,
@@ -3879,9 +4144,10 @@ noteEl.querySelector('[data-p="overview"]').addEventListener('click', () => {
 });
 resetPlay();
 /* while the mandala is shown, selecting an entry must not fly the camera */
+const RB_SQUARE_PAD = 6.5;
 const goTo = (id) => {
   if (touring && HEAP_NUMBERS.has(id)) visitHeap(HEAP_NUMBERS.get(id) - 1);
-  else if (!mandala) focus(id);
+  else if (!mandala) focus(id, null, /^rebirth_sq_/.test(id) ? RB_SQUARE_PAD : 1.3);
 };
 
 /* The study tour has no recitation timer. Each stop corresponds to one heap. */
@@ -4061,6 +4327,18 @@ rbBoard.group.traverse((o) => {
   if (o.userData.square) ALIAS[o.name] = 'rebirth_sq_' + o.userData.square;
 });
 
+/* The same slot in the world: a billboard on the marker of any square that
+   has a picture. Nothing is built and no sheet is fetched while none has. */
+const rbArt = createSquareArt(THREE, { SUMMIT }, (states) => {
+  // The offerings' retry strip belongs to the offerings. A square sheet that
+  // fails says so here instead; rbArt.load() retries only what failed, so the
+  // affordance can be added with the artwork.
+  if (states.some((state) => state === 'failed')) {
+    rbSay.innerHTML = '<b>Some square artwork did not load.</b> The board is unaffected.';
+  }
+});
+rbBoard.nodes.forEach((holder, n) => rbArt.attach(holder, n));
+
 const rbBox = new THREE.Box3();
 function positionOfEntry(id) {
   const meshes = byName.get(id) || [];
@@ -4072,15 +4350,94 @@ function positionOfEntry(id) {
 }
 
 let rbGame = createGame({ players: 2 });
-const rbDie = gameEl.querySelector('.die-face');
-const rbSay = gameEl.querySelector('.say');
-const rbFeed = gameEl.querySelector('.feed');
-const rbTally = gameEl.querySelector('.tally');
-const rbName = gameEl.querySelector('.g-name');
-const rbAt = gameEl.querySelector('.g-at');
-const rbDot = gameEl.querySelector('.pip-dot');
+const rbDie = boardEl.querySelector('.die-face');
+const rbSay = boardEl.querySelector('.bv-say');
+const rbFeed = boardEl.querySelector('.feed');
+const rbTally = boardEl.querySelector('.bv-tally');
+const rbWho = boardEl.querySelector('.bv-who');
+const rbTrail = boardEl.querySelector('.bv-trail');
+const rbGrid = boardEl.querySelector('.bv-grid');
+const rbThrowBtn = boardEl.querySelector('[data-game="throw"]');
 const RB_PIPS = { 1: [4], 2: [0, 8], 3: [0, 4, 8], 4: [0, 2, 6, 8], 5: [0, 2, 4, 6, 8], 6: [0, 2, 3, 5, 6, 8] };
-const RB_COLOURS = ['#c9a227', '#3f63a8', '#a33f3a', '#4f7f6a'];
+const rbNamed = (n) => n + ' ' + RB_BY_N.get(n).name;
+
+/* The board is built once and then only updated. Thirteen rows of eight, read
+   right to left and rising from the bottom, so square 104 is the top left cell
+   and square 1 the bottom right — the order the board itself is numbered in. */
+const rbCells = new Map();
+for (let row = 12; row >= 0; row -= 1) {
+  for (let col = 7; col >= 0; col -= 1) {
+    const sq = RB_BY_N.get(row * 8 + col + 1);
+    const cell = document.createElement('button');
+    cell.type = 'button';
+    cell.className = 'bv-sq';
+    cell.style.setProperty('--zone', 'var(--z-' + rbZoneOf(sq) + ')');
+    cell.dataset.square = String(sq.n);
+    cell.setAttribute('role', 'gridcell');
+    cell.title = sq.n + ' · ' + sq.name;
+    if (sq.n === RB_START) cell.dataset.start = '';
+    if (RB_SPECIAL[sq.n] && RB_SPECIAL[sq.n].kind === 'tally') cell.dataset.trap = '';
+    if (sq.n === RB_VICTORY) cell.dataset.victory = '';
+    cell.innerHTML = '<i class="bv-icon" aria-hidden="true" hidden></i>'
+      + '<span class="n"></span><span class="nm"></span><span class="bv-toks"></span>';
+    cell.querySelector('.n').textContent = String(sq.n);
+    cell.querySelector('.nm').textContent = sq.name;
+    // The slot for iconography. Empty until a square is painted; see
+    // rebirth-icons.js for how one is registered.
+    const art = SQUARE_ART.get(sq.n);
+    if (art) {
+      const icon = cell.querySelector('.bv-icon');
+      const where = cellBackground(art);
+      icon.style.backgroundImage = 'url("' + art.sheet + '")';
+      icon.style.backgroundPosition = where.position;
+      icon.style.backgroundSize = where.size;
+      icon.hidden = false;
+      if (art.attribute) cell.title += ' · ' + art.attribute;
+    }
+    rbGrid.appendChild(cell);
+    rbCells.set(sq.n, cell);
+  }
+}
+rbGrid.addEventListener('click', (ev) => {
+  const cell = ev.target.closest('[data-square]');
+  if (cell) show('rebirth_sq_' + cell.dataset.square, true);
+});
+
+/* — sound: off until asked for, like motion —————————————————————— */
+let rbAudio = null;
+const rbSoundOn = () => boardEl.querySelector('#g-sound').checked;
+function rbTone(freq, dur, type, vol, delay = 0) {
+  if (!rbSoundOn()) return;
+  if (!rbAudio) {
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return;
+    try { rbAudio = new AC(); } catch (err) { return; }
+  }
+  if (rbAudio.state === 'suspended') rbAudio.resume();
+  const at = rbAudio.currentTime + delay;
+  const osc = rbAudio.createOscillator(), gain = rbAudio.createGain();
+  osc.type = type;
+  osc.frequency.setValueAtTime(freq, at);
+  gain.gain.setValueAtTime(0, at);
+  gain.gain.linearRampToValueAtTime(vol, at + 0.01);
+  gain.gain.exponentialRampToValueAtTime(0.0001, at + dur);
+  osc.connect(gain).connect(rbAudio.destination);
+  osc.start(at);
+  osc.stop(at + dur + 0.05);
+}
+const RB_SOUND = {
+  // A throw is meant to be a small suspense, so the ticks slow and drop as the
+  // die runs down, and the landing is one soft note rather than a report.
+  tick: (progress) => rbTone(720 - 250 * progress, 0.035, 'triangle', 0.045),
+  land: () => { rbTone(330, 0.16, 'sine', 0.10); rbTone(494, 0.22, 'sine', 0.055, 0.03); },
+  move: () => rbTone(500, 0.10, 'triangle', 0.08),
+  trap: () => { rbTone(180, 0.40, 'sawtooth', 0.12); rbTone(160, 0.50, 'sawtooth', 0.10, 0.10); },
+  escape: () => { rbTone(400, 0.15, 'sine', 0.11); rbTone(600, 0.15, 'sine', 0.11, 0.10); rbTone(800, 0.30, 'sine', 0.11, 0.20); },
+  dead: () => rbTone(220, 0.18, 'sine', 0.07),
+  victory: () => [523, 659, 784, 1047].forEach((f, i) => rbTone(f, i === 3 ? 0.6 : 0.3, 'sine', 0.13, i * 0.15))
+};
+
+const reducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 function rbSetDie(face) {
   const on = RB_PIPS[face] || [];
@@ -4090,96 +4447,281 @@ function rbLog(html) {
   const li = document.createElement('li');
   li.innerHTML = html;
   rbFeed.prepend(li);
-  while (rbFeed.children.length > 40) rbFeed.lastChild.remove();
+  while (rbFeed.children.length > 60) rbFeed.lastChild.remove();
 }
 function rbPlaceToken() {
-  const player = rbGame.players[rbGame.turn];
-  const at = rbBoard.positionOf(player.pos);
-  if (at) rbBoard.token.position.copy(at).add(new THREE.Vector3(0, SUMMIT * 0.055, 0));
-  rbBoard.token.material.color.set(RB_COLOURS[player.i]);
+  rbBoard.placeTokens(rbGame.players, rbGame.turn);
   invalidate(3);
 }
+/* One selection, shared: the lit cell, the open entry and the tinted marker in
+   the world are the same square. */
+function rbSelect(n, moveCamera) {
+  rbCells.forEach((cell, sq) => cell.setAttribute('aria-selected', String(sq === n)));
+  if (moveCamera && mode === 'game') focus('rebirth_sq_' + n, null, RB_SQUARE_PAD);
+}
+function rbFlash(n) {
+  const cell = rbCells.get(n);
+  if (!cell) return;
+  cell.classList.add('lit');
+  setTimeout(() => cell.classList.remove('lit'), 1200);
+}
+function rbSyncTokens() {
+  const here = new Map();
+  rbGame.players.forEach((p) => {
+    if (!here.has(p.pos)) here.set(p.pos, []);
+    here.get(p.pos).push(p);
+  });
+  rbCells.forEach((cell, n) => {
+    const box = cell.querySelector('.bv-toks');
+    const on = here.get(n) || [];
+    if (box.childElementCount === on.length
+        && on.every((p, i) => box.children[i].dataset.p === String(p.i))) return;
+    box.textContent = '';
+    on.forEach((p) => {
+      const dot = document.createElement('span');
+      dot.className = 'bv-tok' + (p.i === rbGame.turn && !rbGame.over ? ' turn' : '');
+      dot.dataset.p = String(p.i);
+      dot.style.background = RB_COLOURS[p.i];
+      dot.title = 'Player ' + (p.i + 1);
+      box.appendChild(dot);
+    });
+  });
+}
+function rbSyncWho() {
+  rbWho.textContent = '';
+  rbGame.players.forEach((p) => {
+    const tab = document.createElement('button');
+    tab.type = 'button';
+    tab.className = 'bv-pt';
+    tab.dataset.player = String(p.i);
+    tab.setAttribute('aria-current', String(p.i === rbGame.viewing));
+    tab.title = 'Player ' + (p.i + 1) + ' on ' + rbNamed(p.pos);
+    tab.innerHTML = '<span class="pip-dot"></span><span class="short"></span><span class="full"></span>';
+    tab.querySelector('.pip-dot').style.background = RB_COLOURS[p.i];
+    tab.querySelector('.short').textContent = 'P' + (p.i + 1) + ' · ' + p.pos;
+    tab.querySelector('.full').textContent = RB_BY_N.get(p.pos).name;
+    rbWho.appendChild(tab);
+  });
+}
+/* Reading another player's trail must not hand them the die. */
+rbWho.addEventListener('click', (ev) => {
+  const tab = ev.target.closest('[data-player]');
+  if (!tab) return;
+  rbView(rbGame, Number(tab.dataset.player));
+  rbSync();
+});
+function rbSyncTrail() {
+  const player = rbGame.players[rbGame.viewing] || rbGame.players[rbGame.turn];
+  rbTrail.textContent = '';
+  player.history.slice(-60).forEach((step, i, all) => {
+    const chip = document.createElement('button');
+    chip.type = 'button';
+    chip.className = 'bv-chip' + (i === all.length - 1 ? ' last' : '');
+    chip.dataset.square = String(step.to);
+    chip.style.setProperty('--zone', 'var(--z-' + rbZoneOf(RB_BY_N.get(step.to)) + ')');
+    chip.title = 'threw ' + (DIE_FACES.indexOf(step.face) + 1) + ': ' + step.from + ' → ' + rbNamed(step.to);
+    chip.innerHTML = '<span class="f"></span><span class="t"></span>';
+    chip.querySelector('.f').textContent = String(DIE_FACES.indexOf(step.face) + 1);
+    chip.querySelector('.t').textContent = String(step.to);
+    rbTrail.appendChild(chip);
+  });
+  rbTrail.scrollLeft = rbTrail.scrollWidth;
+}
+rbTrail.addEventListener('click', (ev) => {
+  const chip = ev.target.closest('[data-square]');
+  if (chip) show('rebirth_sq_' + chip.dataset.square, true);
+});
 function rbSync() {
   const player = rbGame.players[rbGame.turn];
-  rbName.textContent = 'Player ' + (player.i + 1);
-  rbAt.textContent = '· ' + player.pos + ' ' + RB_BY_N.get(player.pos).name;
-  rbDot.style.background = RB_COLOURS[player.i];
   const quotas = rbGame.quotas;
   if (player.trap) {
     rbTally.hidden = false;
     rbTally.innerHTML = DIE_FACES.map((f, i) =>
-      '<div class="' + (player.trap[f] >= quotas[f] ? 'full' : '') + '">' + (i + 1) + '<br>' + player.trap[f] + '/' + quotas[f] + '</div>').join('');
+      '<div class="' + (player.trap[f] >= quotas[f] ? 'full' : '') + '">' + (i + 1)
+      + '<br>' + player.trap[f] + '/' + quotas[f] + '</div>').join('');
   } else rbTally.hidden = true;
-  gameEl.querySelector('[data-game="throw"]').textContent =
-    rbGame.over ? (rbGame.stupa === null ? 'Stupa throw' : 'Game over') : (player.trap ? 'Throw (trapped)' : 'Throw');
-  gameEl.querySelector('[data-game="throw"]').disabled = rbGame.over && rbGame.stupa !== null;
+  rbThrowBtn.textContent = rbRolling ? 'Throwing…'
+    : rbGame.over ? (rbGame.stupa === null ? 'Stupa throw' : 'Game over')
+    : (player.trap ? 'Throw (trapped)' : 'Throw for P' + (player.i + 1));
+  rbThrowBtn.disabled = rbRolling || (rbGame.over && rbGame.stupa !== null);
+  rbSyncWho();
+  rbSyncTokens();
+  rbSyncTrail();
   rbPlaceToken();
 }
+/* ── the throw ──────────────────────────────────────────────────────────
+   A die that resolves the instant it is clicked tells you the answer before
+   you have asked the question. This one runs for a couple of seconds, ticking
+   and slowing, shows nothing of the result until it stops, and then says
+   where you have arrived in letters large enough to read across a room. */
+const RB_TUMBLE_MS = 2300, RB_TUMBLE_TICKS = 17, RB_CARD_MS = 2100;
+let rbRolling = false, rbTumbleTimer = null, rbCardTimer = null;
+const rbCard = boardEl.querySelector('.bv-card');
+
+function rbShowCard(face, title, name, note) {
+  clearTimeout(rbCardTimer);
+  rbCard.classList.remove('out');
+  rbCard.querySelector('.face').textContent = title;
+  rbCard.querySelector('.num').textContent = name === null ? '—' : String(name);
+  rbCard.querySelector('.nm').textContent = name === null ? '' : RB_BY_N.get(name).name;
+  rbCard.querySelector('.note').textContent = note || '';
+  rbCard.hidden = false;
+  rbCardTimer = setTimeout(() => {
+    rbCard.classList.add('out');
+    rbCardTimer = setTimeout(() => { rbCard.hidden = true; rbCard.classList.remove('out'); }, 300);
+  }, RB_CARD_MS);
+}
+function rbHideCard() {
+  clearTimeout(rbCardTimer);
+  rbCard.hidden = true;
+  rbCard.classList.remove('out');
+}
+// Walk the faces the die is not going to land on, so the answer never shows early.
+function rbTumble(final, done) {
+  const others = [1, 2, 3, 4, 5, 6].filter((f) => f !== final);
+  const at = (k) => Math.round(RB_TUMBLE_MS * (1 - Math.pow(1 - k / RB_TUMBLE_TICKS, 2.3)));
+  rbDie.classList.add('tumbling');
+  let i = 0;
+  const step = () => {
+    i += 1;
+    if (i >= RB_TUMBLE_TICKS) {
+      rbDie.classList.remove('tumbling');
+      rbSetDie(final);
+      RB_SOUND.land();
+      done();
+      return;
+    }
+    rbSetDie(others[i % others.length]);
+    RB_SOUND.tick(i / RB_TUMBLE_TICKS);
+    rbTumbleTimer = setTimeout(step, at(i + 1) - at(i));
+  };
+  rbTumbleTimer = setTimeout(step, at(1));
+}
 function rbThrow() {
+  if (rbRolling || rbGame.over && rbGame.stupa !== null) return;
   const face = 1 + Math.floor(Math.random() * 6);
-  rbSetDie(face);
+  rbHideCard();
+  if (reducedMotion()) { rbSetDie(face); rbResolve(face); return; }
+  rbRolling = true;
+  rbSync();
+  rbTumble(face, () => { rbRolling = false; rbResolve(face); });
+}
+function rbResolve(face) {
   const who = 'P' + (rbGame.turn + 1);
   const ev = throwDie(rbGame, face);
-  const named = (n) => n + ' ' + RB_BY_N.get(n).name;
   if (ev.kind === 'stupa') {
     rbSay.innerHTML = ev.placed ? '<b>The relics pass into the stupa.</b> A rite after the fact; it settles nothing.'
                                 : '<b>Nothing follows.</b> The victory already stands.';
     rbLog('<span class="mono">' + face + '</span> stupa throw');
+    rbShowCard(face, 'The stupa throw', null, ev.placed ? 'The relics are placed.' : 'Nothing follows.');
   } else if (ev.kind === 'dead') {
     rbSay.innerHTML = '<b>A dead face.</b> Square ' + ev.square + ' lists no move on a ' + face + ', so the token stays and the die passes.';
     rbLog('<span class="mono">' + face + '</span> ' + who + ' dead at ' + ev.square);
+    RB_SOUND.dead();
+    rbShowCard(face, 'A dead face', ev.square, 'No move on a ' + face + '. The token stays.');
   } else if (ev.kind === 'trap-progress') {
     rbSay.innerHTML = '<b>Needed.</b> ' + ev.left + ' throws still outstanding. Throw again.';
     rbLog('<span class="mono">' + face + '</span> ' + who + ' counts it — ' + ev.left + ' left');
+    rbShowCard(face, 'Counted', rbGame.players[ev.player].pos, ev.left + ' throws still outstanding.');
   } else if (ev.kind === 'trap-blocked') {
     rbSay.innerHTML = '<b>Not needed.</b> The counts are kept; the die passes.';
     rbLog('<span class="mono">' + face + '</span> ' + who + ' passes');
+    rbShowCard(face, 'Not needed', ev.square, 'The counts are kept; the die passes.');
   } else if (ev.kind === 'trap-complete') {
-    rbSay.innerHTML = '<b>The checklist is complete.</b> Out to ' + named(ev.to) + '.';
+    rbSay.innerHTML = '<b>The checklist is complete.</b> Out to ' + rbNamed(ev.to) + '.';
     rbLog('<span class="mono">' + face + '</span> ' + who + ' leaves ' + ev.from + ' → ' + ev.to);
+    RB_SOUND.escape();
+    rbShowCard(face, 'Out of the trap', ev.to, 'The checklist is complete.');
+    rbFlash(ev.to);
+    rbSelect(ev.to, true);
   } else if (ev.kind === 'trapped') {
     rbSay.innerHTML = '<b>' + RB_BY_N.get(ev.to).name + '.</b> A trap. Counting begins next turn.';
     rbLog('<span class="mono">' + face + '</span> ' + who + ' ' + ev.from + ' → ' + ev.to);
+    RB_SOUND.trap();
+    rbShowCard(face, 'Trapped', ev.to, 'Counting begins next turn.');
+    rbFlash(ev.to);
+    rbSelect(ev.to, true);
   } else if (ev.kind === 'victory') {
     rbSay.innerHTML = '<b>Player ' + (ev.player + 1) + ' reaches Nirvana.</b> Victory is declared on arrival. A further 1 or 2 passes the relics into the stupa.';
     rbLog('<span class="mono">' + face + '</span> ' + who + ' wins at 104');
+    RB_SOUND.victory();
+    rbShowCard(face, 'Player ' + (ev.player + 1) + ' wins', ev.to, 'Victory is declared on arrival.');
+    rbFlash(ev.to);
+    rbSelect(ev.to, true);
   } else {
     rbSay.innerHTML = '<b>' + RB_BY_N.get(ev.to).name + '</b> — square ' + ev.to + '.';
     rbLog('<span class="mono">' + face + '</span> ' + who + ' ' + ev.from + ' → ' + ev.to);
+    RB_SOUND.move();
+    rbShowCard(face, who + ' threw a ' + face, ev.to, null);
+    rbFlash(ev.to);
+    rbSelect(ev.to, true);
   }
   rbSync();
 }
 function rbReset() {
+  clearTimeout(rbTumbleTimer);
+  rbDie.classList.remove('tumbling');
+  rbRolling = false;
+  rbHideCard();
   rbGame = createGame({
-    players: Number(gameEl.querySelector('#g-players').value),
-    quotas: gameEl.querySelector('#g-note64').checked ? TRAP_QUOTA_NOTE64 : TRAP_QUOTA
+    players: Number(boardEl.querySelector('#g-players').value),
+    quotas: boardEl.querySelector('#g-note64').checked ? TRAP_QUOTA_NOTE64 : TRAP_QUOTA
   });
   rbSetDie(1);
-  rbFeed.innerHTML = '';
+  rbFeed.textContent = '';
   rbSay.innerHTML = 'Every token starts on 24, the Heavenly Highway.';
+  rbSelect(RB_START, false);
   rbSync();
 }
-gameEl.addEventListener('click', (ev) => {
+boardEl.addEventListener('click', (ev) => {
   const b = ev.target.closest('[data-game]');
   if (!b) return;
   if (b.dataset.game === 'throw') rbThrow();
   if (b.dataset.game === 'reset') rbReset();
+  if (b.dataset.game === 'swap') rbSwap();
 });
-gameEl.querySelector('#g-players').addEventListener('change', rbReset);
-gameEl.querySelector('#g-note64').addEventListener('change', rbReset);
+boardEl.querySelector('#g-players').addEventListener('change', rbReset);
+boardEl.querySelector('#g-note64').addEventListener('change', rbReset);
 
+/* Where the board and the world cannot sit side by side, they take turns. */
+function rbSwap(to) {
+  const worldOnly = to === undefined ? !document.body.classList.contains('world-only') : to;
+  document.body.classList.toggle('world-only', worldOnly);
+  boardEl.querySelector('[data-game="swap"]').textContent = worldOnly ? 'Show the board' : 'Show the world';
+  framePut = null;
+  invalidate(4);
+  requestAnimationFrame(() => { if (mode === 'game') reframeGame(); });
+}
+
+/* The world in game mode is the home view, fitted into whatever the board
+   leaves — on a wide screen a tall strip on the right. WORLD_R is the radius
+   the home distance frames, so the two views agree on how big the world is. */
+const WORLD_R = BASE_DIST * Math.tan(cam.fov * Math.PI / 360);
+function reframeGame(dur = 700) {
+  const fr = freeRect();
+  const h = Math.max(stage.clientHeight, 1);
+  const half = Math.tan(cam.fov * Math.PI / 360);
+  const dist = WORLD_R * 1.04 / half * h / Math.min(fr.w, fr.h);
+  aimAt(HOME.t, dist, fr, HOME_DIR, dur);
+}
 function enterGame() {
   rbBoard.group.visible = true;
   rbBoard.placeAnchored(positionOfEntry);
+  rbArt.load();
   rbSetDie(1);
+  rbSelect(rbGame.players[rbGame.turn].pos, false);
   rbSync();
-  const d = RIM * 2.4;
-  fly(new THREE.Vector3(d * 0.72, SUMMIT * 2.1, d * 0.72), new THREE.Vector3(0, SUMMIT * 0.6, 0), 900);
+  document.body.classList.remove('world-only');
+  boardEl.querySelector('[data-game="swap"]').textContent = 'Show the world';
   reshadow();
+  requestAnimationFrame(() => { if (mode === 'game') reframeGame(900); });
   invalidate(4);
 }
 function leaveGame() {
   rbBoard.group.visible = false;
+  // stand the players down too, so the world is left exactly as it was found
+  rbBoard.tokens.forEach((t) => { t.visible = false; t.userData.halo.visible = false; });
+  document.body.classList.remove('world-only');
   reshadow();
   invalidate(4);
 }
@@ -4305,7 +4847,7 @@ const chromeRO = new ResizeObserver(() => syncChrome());
 chromeRO.observe(noteEl);
 chromeRO.observe(legend);
 chromeRO.observe(tourEl);
-chromeRO.observe(gameEl);
+chromeRO.observe(boardEl);
 syncChrome();
 let reframe = null;
 window.addEventListener('resize', () => {
@@ -4384,6 +4926,7 @@ window.addEventListener('keydown', (e) => {
   if (e.key === 'f' || e.key === 'F') { e.preventDefault(); toggleFullScreen(); }
   if (e.key === 'm' || e.key === 'M') setMode(mode === 'mandala' ? 'explore' : 'mandala');
   if (e.key === 'g' || e.key === 'G') setMode(mode === 'game' ? 'explore' : 'game');
+  if ((e.key === 'w' || e.key === 'W') && mode === 'game') rbSwap();
   if (e.key === 'e' || e.key === 'E') setMode('explore');
   if (e.key === 'ArrowDown' && !sheet.hidden) { e.preventDefault(); step(1); }
   if (e.key === 'ArrowUp' && !sheet.hidden) { e.preventDefault(); step(-1); }
