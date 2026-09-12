@@ -673,6 +673,40 @@
     *, *::before, *::after { animation: none !important; transition: none !important; }
   }
 
+  /* ── mode switch and the game of rebirth ──────────────────────────── */
+  .seg { display: inline-flex; gap: 0; border: 1px solid var(--rule-2); border-radius: 7px; overflow: hidden; }
+  .seg button { border: 0; border-radius: 0; }
+  .seg button + button { border-left: 1px solid var(--rule); }
+  .seg button[aria-pressed="true"] { background: var(--hi-2); color: var(--ink); }
+  .panel-dock > .game { overflow-y: auto; overscroll-behavior: contain; }
+  .game { display: flex; flex-direction: column; gap: 12px; }
+  .game h2 { font-size: 15px; margin: 0; font-weight: 500; }
+  .game .who { display: flex; align-items: center; gap: 8px; font-size: 14px; }
+  .game .pip-dot { width: 11px; height: 11px; border-radius: 50%; flex: none; }
+  .game .throwrow { display: flex; gap: 10px; align-items: center; }
+  .die-face { width: 52px; height: 52px; flex: none; border: 1px solid var(--rule-2); border-radius: 8px;
+    background: var(--field); display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(3, 1fr);
+    padding: 7px; gap: 2px; }
+  .die-face i { width: 8px; height: 8px; border-radius: 50%; background: var(--ink); opacity: 0;
+    align-self: center; justify-self: center; }
+  .die-face i.on { opacity: 1; }
+  .game .go { flex: 1; }
+  .game .say { font-size: 13.5px; color: var(--ink-2); min-height: 3.2em; }
+  .game .say b { color: var(--ink); font-weight: 500; }
+  .game .tally { display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px; }
+  .game .tally div { border: 1px solid var(--rule); border-radius: 4px; text-align: center; padding: 4px 0;
+    font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--ink-2); background: var(--field); }
+  .game .tally div.full { background: var(--hi-2); border-color: var(--accent); color: var(--ink); }
+  .game .feed { list-style: none; margin: 0; padding: 0; max-height: 180px; overflow-y: auto;
+    display: flex; flex-direction: column-reverse; }
+  .game .feed li { font-size: 12.5px; color: var(--ink-2); padding: 4px 0; border-top: 1px solid var(--rule); }
+  .game .feed li .mono { color: var(--ink); }
+  .game .row2 { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; font-size: 12.5px; color: var(--ink-2); }
+  .game select { font: inherit; background: var(--field); color: var(--ink); border: 1px solid var(--rule-2);
+    border-radius: 5px; padding: 4px 6px; }
+  .game label.sw { display: flex; gap: 7px; align-items: center; font-size: 12.5px; color: var(--ink-2); }
+  body.game-view .compass { display: none; }
+  body.game-view .legend { display: none; }
 </style>
 </head>
 <body>
@@ -686,7 +720,11 @@
 
   <div class="controls card">
     <button class="btn" data-act="index" type="button" aria-pressed="false" title="Index — i"><span class="g">☰</span><span class="t">Index</span></button>
-    <button class="btn" data-act="mandala" type="button" aria-pressed="false" title="Mandala view — m"><span class="g">◎</span><span class="t">Mandala view</span></button>
+    <div class="seg" role="group" aria-label="Mode">
+      <button class="btn" data-mode="explore" type="button" aria-pressed="true" title="Explorer — e"><span class="g">✦</span><span class="t">Explorer</span></button>
+      <button class="btn" data-mode="mandala" type="button" aria-pressed="false" title="Mandala — m"><span class="g">◎</span><span class="t">Mandala</span></button>
+      <button class="btn" data-mode="game" type="button" aria-pressed="false" title="Game of rebirth — g"><span class="g">⚄</span><span class="t">Game</span></button>
+    </div>
     <button class="btn" data-act="motion" type="button" aria-pressed="false" title="Set it turning — r"><span class="g">▶</span><span class="t">Motion</span></button>
     <button class="btn" data-act="night" type="button" aria-pressed="false" title="Night — n"><span class="g">☾</span><span class="t">Night</span></button>
     <button class="btn" data-act="full" type="button" aria-pressed="false" title="Full screen — f"><span class="g">⛶</span><span class="t">Full screen</span></button>
@@ -719,6 +757,23 @@
 
   <div class="panel-dock" hidden>
   <p class="art-status card" role="status" hidden><span></span> <button class="btn" type="button" data-art-retry hidden>Retry images</button></p>
+  <aside class="game card" aria-label="The game of rebirth" hidden>
+    <h2>The game of rebirth</h2>
+    <div class="who"><span class="pip-dot"></span><b class="g-name">Player 1</b><span class="mono g-at"></span></div>
+    <div class="throwrow">
+      <div class="die-face" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+      <button class="btn go" type="button" data-game="throw">Throw</button>
+    </div>
+    <p class="say" role="status" aria-live="polite">Every token starts on 24, the Heavenly Highway. The die names a destination; it does not count spaces.</p>
+    <div class="tally" hidden></div>
+    <ul class="feed"></ul>
+    <div class="row2">
+      <label for="g-players">Players</label>
+      <select id="g-players"><option>1</option><option selected>2</option><option>3</option><option>4</option></select>
+      <button class="btn" type="button" data-game="reset">New game</button>
+    </div>
+    <label class="sw"><input type="checkbox" id="g-note64"> Note 64 trap quotas <span class="mono">[1,2,6,3,5,4]</span></label>
+  </aside>
   <aside class="mandala-note card" hidden="">
     <div class="mode-tabs" aria-label="Offering views">
       <button class="btn" type="button" aria-pressed="true" data-view="recitation">Recitation</button>
@@ -826,6 +881,8 @@ import { TOUR_NOTES } from './mandala-tour.js';
 import { installViewportGestures } from './viewport-gestures.js';
 import { createGoldenRangeGeometry, createWaterNormalMap, createWaterMaterial, createWaterGeometry } from './world-surfaces.js';
 import { DAY_SKY, paintClouds } from './sky-clouds.js';
+import { SQUARES as RB_SQUARES, SPECIAL as RB_SPECIAL, START as RB_START, VICTORY as RB_VICTORY, TRAP_QUOTA, TRAP_QUOTA_NOTE64, FACES as DIE_FACES, BY_N as RB_BY_N, createBoardLayer } from './rebirth-board.js';
+import { createGame, throwDie, outstanding, destination as rbDestination } from './rebirth-game.js';
 const stage = document.querySelector('three-d-stage');
 const { THREE } = await stage.ready;
 stage.shadowRoot.querySelector('.note')?.remove();   // the page carries its own hint
@@ -2748,6 +2805,60 @@ const HEAPS = [
 ];
 
 /* — the index tree ————————————————————————————————————————————— */
+
+/* ── the game of rebirth: one entry per square ──────────────────────────
+   Twenty-three squares name something this model already draws and say so.
+   The rest are paths, attainments, sacred lands and Buddha fields, which the
+   sources put outside the Meru world system; the board gives them a place. */
+const RB_BAND_NOTE = {
+  anchored: 'This square names something the world system already builds. Its marker floats above whatever the model draws for it.',
+  below: 'A destination beneath the golden ground, among the states the board reaches by its lowest throws.',
+  ground: 'A human condition rather than a region: the board counts ways of living where the world system counts places.',
+  sutra: 'A station on the sutra route. The paths of training are stages of a person, not regions of the world, so the world system has no coordinate for this; the board supplies one, rising on the left.',
+  tantra: 'A station on the tantric route. It marks an attainment rather than a place, and stands on the right-hand ascent the board itself arranges.',
+  island: 'A land the sources describe as lying on the earth, though no account of the world system fixes where. It stands out beyond the rim.',
+  field: 'A Buddha field. The sources hold that these lie outside the Meru world system altogether, so it floats clear of the rim.',
+  axis: 'A body or an act of a Buddha. These are not places at all; they stand on the axis above the summit, in the order the board tells them.'
+};
+const RB_BAND_LABEL = {
+  anchored: 'In the world system', below: 'Below the ground', ground: 'The human condition',
+  sutra: 'Sutra route', tantra: 'Tantric route', island: 'Sacred land',
+  field: 'Buddha field', axis: 'Body and act of a Buddha'
+};
+RB_SQUARES.forEach((sqr) => {
+  const outs = DIE_FACES.map((f, i) => {
+    const to = rbDestination(sqr.n, f);
+    return [String(i + 1), to ? (to + '. ' + RB_BY_N.get(to).name) : 'dead — stay and pass'];
+  });
+  const special = RB_SPECIAL[sqr.n];
+  const facts = [['Square', sqr.n + ' of 104'],
+                 ['On the board', 'row ' + (sqr.row + 1) + ', column ' + (sqr.col + 1) + ' from the right'],
+                 ['Stands', RB_BAND_LABEL[sqr.band]]];
+  if (sqr.anchor) facts.push(['Drawn as', sqr.anchor.replace(/_/g, ' ')]);
+  if (special && special.kind === 'tally') facts.push(['Trap', 'one 1, two 2s, and so on through six 6s, then out to ' + special.exit_to]);
+  if (sqr.n === RB_START) facts.push(['Start', 'every token begins here']);
+  if (special && special.kind === 'terminal') facts.push(['Victory', 'declared on arrival; the stupa throw that follows is a ceremony']);
+  const body = [RB_BAND_NOTE[sqr.band]];
+  if (special && special.kind === 'tally') {
+    body.push('A trap. Throws that are still needed let you keep going in the same turn; a throw you no longer need ends it, and the counts are kept until the next. Twenty-one useful throws in all.');
+  }
+  def('rebirth_sq_' + sqr.n, {
+    t: sqr.n + '. ' + sqr.name, k: RB_BAND_LABEL[sqr.band], meta: sqr.cat,
+    f: facts.concat(outs), b: body, src: 'Tatz and Kent, <i>Rebirth: The Tibetan Game of Liberation</i> (1977); move graph reconstructed from the printed chart, the square entries and the reverse index, cross-checked cell by cell.'
+  });
+});
+def('rebirth_game', {
+  t: 'The game of rebirth', tib: 'sa gsum rnam rgyal', en: 'victory over the three worlds',
+  meta: 'A board of 104 squares laid over the world system',
+  f: [['Squares', '104, in 13 rows of 8'], ['Numbering', 'right to left, rising from the bottom'],
+      ['Start', '24, the Heavenly Highway'], ['Victory', '104, Nirvana'],
+      ['Traps', '1 and 48'], ['Already in the model', '23 squares'], ['Given a place by the board', '81 squares']],
+  b: ['A game attributed to Sakya Pandita, in which a die names the square you go to rather than a number of steps to travel. A face with no listed move is dead: you stay where you are and pass.',
+      'Read as a section, the board is already a cosmology. Its row is height above or below the golden ground, and its two columns of paths separate the tantric route from the route of the sutras. Where a square names a region — a hell, a continent, a heaven — the world system has already built it, and the marker simply floats above it.',
+      'Where a square names a path, an attainment or a Buddha field, there is nothing in the world system to stand on. The sources say as much: Buddha fields lie outside the Meru arrangement. Those eighty-one squares are given a place here, on an armature that keeps the board’s own logic of height and side.'],
+  rel: ['rebirth_sq_24', 'rebirth_sq_1', 'rebirth_sq_48', 'rebirth_sq_104']
+});
+
 const TREE = [
   ['Notes on the drawing', [
     ['about'], ['about_scale'], ['about_yojana'], ['about_time'],
@@ -2906,6 +3017,7 @@ let order = [];   // flat reading order, filled when the index is built
 let touring = false, tourIndex = 0;
 const dock = document.querySelector('.panel-dock');
 const tourEl = document.querySelector('.tour-panel');
+const gameEl = document.querySelector('.game');
 const tourSelect = document.querySelector('#tour-jump');
 const sheetBack = sheet.querySelector('[data-sheet="back"]');
 const sheetTour = sheet.querySelector('[data-sheet="tour"]');
@@ -3241,6 +3353,9 @@ function heapPoint(id, i) {
   if (id === 'mandala_parasol') return V3(0, 0, R_OUTER);
   return V3(0, 0, -R_OUTER);
 }
+TREE.push(['The game of rebirth',
+  [['rebirth_game', 'About the game']].concat(RB_SQUARES.map(sq => ['rebirth_sq_' + sq.n, sq.n + '. ' + sq.name]))]);
+
 const HEAP_NUMBERS = new Map(HEAPS.map(([n, id]) => [id, n]));
 const HEAP_MEMBERS = new Map(HEAPS.map(([n]) => [n, []]));
 const ORIGINAL_VISIBILITY = new Map();
@@ -3361,6 +3476,7 @@ const MARKS = HEAPS.map(([n, id]) => {
 });
 
 let mandala = false;
+let mode = 'explore';            // 'explore' | 'mandala' | 'game'
 let minPlay = false, framePut = null;
 /* One active panel occupies the shared dock. Its footprint is also used
    to frame the model in the remaining canvas area. */
@@ -3371,11 +3487,13 @@ function syncChrome() {
   if (indexOpen) sheet.hidden = true;
   noteEl.hidden = !mandala || touring || !sheet.hidden || indexOpen;
   tourEl.hidden = !touring || !sheet.hidden || indexOpen;
-  dock.hidden = sheet.hidden && noteEl.hidden && tourEl.hidden && !indexOpen;
+  gameEl.hidden = mode !== 'game' || !sheet.hidden || indexOpen;
+  dock.hidden = sheet.hidden && noteEl.hidden && tourEl.hidden && gameEl.hidden && !indexOpen;
   artStatus.hidden = !mandala || !imageStates.some(s => s === 'loading' || s === 'failed');
   document.body.classList.toggle('panel-open', !dock.hidden);
   document.body.classList.toggle('min-menus', minPlay);
   document.body.classList.toggle('tour-view', touring);
+  document.body.classList.toggle('game-view', mode === 'game');
   document.documentElement.style.setProperty('--bl', '0px');
   stage.toggleAttribute('no-toolbar', !dock.hidden);
 }
@@ -3405,7 +3523,7 @@ function freeRect() {
     ins[best.k] = Math.max(ins[best.k], best.v);
   };
   [document.querySelector('.controls'), document.querySelector('.masthead'),
-   legend, dock].forEach(eat);
+   legend, dock, gameEl].forEach(eat);
   const pad = 14;
   const l = Math.min(ins.l + pad, w * 0.4), r = Math.min(ins.r + pad, w * 0.4);
   const t = Math.min(ins.t + pad, h * 0.3), b = Math.min(ins.b + pad, h * 0.72);
@@ -3506,8 +3624,9 @@ function setMandala(on) {
   sheet.hidden = true;
   current = null;
   mandala = on;
+  mode = on ? 'mandala' : (mode === 'mandala' ? 'explore' : mode);
+  document.querySelectorAll('[data-mode]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.mode === mode)));
   document.body.classList.toggle('mandala-view', on);
-  document.querySelector('[data-act="mandala"]').setAttribute('aria-pressed', String(on));
   world.traverse((o) => {
     if (o.isMesh && OVERHEAD.some((p) => o.name.startsWith(p))) o.visible = !on;
   });
@@ -3917,14 +4036,170 @@ const setOpen = (open, reframeView = true) => {
   if (mandala && reframeView) setTimeout(() => { if (mandala) reframeOffering(); }, 340);
   try { localStorage.setItem('ws-index', open ? '1' : '0'); } catch (err) {}
 };
+
+/* ── the game of rebirth ────────────────────────────────────────────────
+   A board laid over the world system. Squares that name a region bind to the
+   geometry already drawn for it; the rest stand on an armature that keeps the
+   board's own logic — row for height, side for which route you are on. */
+const rbBoard = createBoardLayer(THREE, { RIM, FLOOR, SUMMIT });
+world.add(rbBoard.group);
+rbBoard.group.traverse((o) => {
+  if (!o.isMesh) return;
+  if (!byName.has(o.name)) byName.set(o.name, []);
+  byName.get(o.name).push(o);
+  if (o.userData.square) ALIAS[o.name] = 'rebirth_sq_' + o.userData.square;
+});
+
+const rbBox = new THREE.Box3();
+function positionOfEntry(id) {
+  const meshes = byName.get(id) || [];
+  if (!meshes.length) return null;
+  rbBox.makeEmpty();
+  meshes.forEach(m => rbBox.expandByObject(m));
+  if (rbBox.isEmpty()) return null;
+  return rbBox.getCenter(new THREE.Vector3());
+}
+
+let rbGame = createGame({ players: 2 });
+const rbDie = gameEl.querySelector('.die-face');
+const rbSay = gameEl.querySelector('.say');
+const rbFeed = gameEl.querySelector('.feed');
+const rbTally = gameEl.querySelector('.tally');
+const rbName = gameEl.querySelector('.g-name');
+const rbAt = gameEl.querySelector('.g-at');
+const rbDot = gameEl.querySelector('.pip-dot');
+const RB_PIPS = { 1: [4], 2: [0, 8], 3: [0, 4, 8], 4: [0, 2, 6, 8], 5: [0, 2, 4, 6, 8], 6: [0, 2, 3, 5, 6, 8] };
+const RB_COLOURS = ['#c9a227', '#3f63a8', '#a33f3a', '#4f7f6a'];
+
+function rbSetDie(face) {
+  const on = RB_PIPS[face] || [];
+  [...rbDie.children].forEach((pip, i) => pip.classList.toggle('on', on.includes(i)));
+}
+function rbLog(html) {
+  const li = document.createElement('li');
+  li.innerHTML = html;
+  rbFeed.prepend(li);
+  while (rbFeed.children.length > 40) rbFeed.lastChild.remove();
+}
+function rbPlaceToken() {
+  const player = rbGame.players[rbGame.turn];
+  const at = rbBoard.positionOf(player.pos);
+  if (at) rbBoard.token.position.copy(at).add(new THREE.Vector3(0, SUMMIT * 0.055, 0));
+  rbBoard.token.material.color.set(RB_COLOURS[player.i]);
+  invalidate(3);
+}
+function rbSync() {
+  const player = rbGame.players[rbGame.turn];
+  rbName.textContent = 'Player ' + (player.i + 1);
+  rbAt.textContent = '· ' + player.pos + ' ' + RB_BY_N.get(player.pos).name;
+  rbDot.style.background = RB_COLOURS[player.i];
+  const quotas = rbGame.quotas;
+  if (player.trap) {
+    rbTally.hidden = false;
+    rbTally.innerHTML = DIE_FACES.map((f, i) =>
+      '<div class="' + (player.trap[f] >= quotas[f] ? 'full' : '') + '">' + (i + 1) + '<br>' + player.trap[f] + '/' + quotas[f] + '</div>').join('');
+  } else rbTally.hidden = true;
+  gameEl.querySelector('[data-game="throw"]').textContent =
+    rbGame.over ? (rbGame.stupa === null ? 'Stupa throw' : 'Game over') : (player.trap ? 'Throw (trapped)' : 'Throw');
+  gameEl.querySelector('[data-game="throw"]').disabled = rbGame.over && rbGame.stupa !== null;
+  rbPlaceToken();
+}
+function rbThrow() {
+  const face = 1 + Math.floor(Math.random() * 6);
+  rbSetDie(face);
+  const who = 'P' + (rbGame.turn + 1);
+  const ev = throwDie(rbGame, face);
+  const named = (n) => n + ' ' + RB_BY_N.get(n).name;
+  if (ev.kind === 'stupa') {
+    rbSay.innerHTML = ev.placed ? '<b>The relics pass into the stupa.</b> A rite after the fact; it settles nothing.'
+                                : '<b>Nothing follows.</b> The victory already stands.';
+    rbLog('<span class="mono">' + face + '</span> stupa throw');
+  } else if (ev.kind === 'dead') {
+    rbSay.innerHTML = '<b>A dead face.</b> Square ' + ev.square + ' lists no move on a ' + face + ', so the token stays and the die passes.';
+    rbLog('<span class="mono">' + face + '</span> ' + who + ' dead at ' + ev.square);
+  } else if (ev.kind === 'trap-progress') {
+    rbSay.innerHTML = '<b>Needed.</b> ' + ev.left + ' throws still outstanding. Throw again.';
+    rbLog('<span class="mono">' + face + '</span> ' + who + ' counts it — ' + ev.left + ' left');
+  } else if (ev.kind === 'trap-blocked') {
+    rbSay.innerHTML = '<b>Not needed.</b> The counts are kept; the die passes.';
+    rbLog('<span class="mono">' + face + '</span> ' + who + ' passes');
+  } else if (ev.kind === 'trap-complete') {
+    rbSay.innerHTML = '<b>The checklist is complete.</b> Out to ' + named(ev.to) + '.';
+    rbLog('<span class="mono">' + face + '</span> ' + who + ' leaves ' + ev.from + ' → ' + ev.to);
+  } else if (ev.kind === 'trapped') {
+    rbSay.innerHTML = '<b>' + RB_BY_N.get(ev.to).name + '.</b> A trap. Counting begins next turn.';
+    rbLog('<span class="mono">' + face + '</span> ' + who + ' ' + ev.from + ' → ' + ev.to);
+  } else if (ev.kind === 'victory') {
+    rbSay.innerHTML = '<b>Player ' + (ev.player + 1) + ' reaches Nirvana.</b> Victory is declared on arrival. A further 1 or 2 passes the relics into the stupa.';
+    rbLog('<span class="mono">' + face + '</span> ' + who + ' wins at 104');
+  } else {
+    rbSay.innerHTML = '<b>' + RB_BY_N.get(ev.to).name + '</b> — square ' + ev.to + '.';
+    rbLog('<span class="mono">' + face + '</span> ' + who + ' ' + ev.from + ' → ' + ev.to);
+  }
+  rbSync();
+}
+function rbReset() {
+  rbGame = createGame({
+    players: Number(gameEl.querySelector('#g-players').value),
+    quotas: gameEl.querySelector('#g-note64').checked ? TRAP_QUOTA_NOTE64 : TRAP_QUOTA
+  });
+  rbSetDie(1);
+  rbFeed.innerHTML = '';
+  rbSay.innerHTML = 'Every token starts on 24, the Heavenly Highway.';
+  rbSync();
+}
+gameEl.addEventListener('click', (ev) => {
+  const b = ev.target.closest('[data-game]');
+  if (!b) return;
+  if (b.dataset.game === 'throw') rbThrow();
+  if (b.dataset.game === 'reset') rbReset();
+});
+gameEl.querySelector('#g-players').addEventListener('change', rbReset);
+gameEl.querySelector('#g-note64').addEventListener('change', rbReset);
+
+function enterGame() {
+  rbBoard.group.visible = true;
+  rbBoard.placeAnchored(positionOfEntry);
+  rbSetDie(1);
+  rbSync();
+  const d = RIM * 2.4;
+  fly(new THREE.Vector3(d * 0.72, SUMMIT * 2.1, d * 0.72), new THREE.Vector3(0, SUMMIT * 0.6, 0), 900);
+  reshadow();
+  invalidate(4);
+}
+function leaveGame() {
+  rbBoard.group.visible = false;
+  reshadow();
+  invalidate(4);
+}
+function syncModeButtons() {
+  document.querySelectorAll('[data-mode]').forEach(b =>
+    b.setAttribute('aria-pressed', String(b.dataset.mode === mode)));
+}
+function setMode(next) {
+  if (next === mode) return;
+  if (mode === 'game') leaveGame();
+  if (next === 'mandala') setMandala(true);
+  else {
+    if (mandala) setMandala(false);
+    mode = next;
+  }
+  if (next === 'game') enterGame();
+  else if (next === 'explore' && !mandala) home();
+  syncModeButtons();
+  syncChrome();
+  syncHome();
+  invalidate(4);
+}
+
 document.querySelector('.controls').addEventListener('click', (ev) => {
-  const act = ev.target.closest('[data-act]');
+  const act = ev.target.closest('[data-act],[data-mode]');
   if (!act) return;
   if (act.dataset.act === 'index') setOpen(!document.body.classList.contains('index-open'));
-  if (act.dataset.act === 'mandala') setMandala(!mandala);
+  if (act.dataset.mode) setMode(act.dataset.mode);
   if (act.dataset.act === 'motion') setMotion(!motion);
   if (act.dataset.act === 'night') applyTheme(!night);
-  if (act.dataset.act === 'home') { close(); if (mandala) setMandala(false); else home(); }
+  if (act.dataset.act === 'home') { close(); if (mode !== 'explore') setMode('explore'); else home(); }
   if (act.dataset.act === 'full') toggleFullScreen();
 });
 
@@ -3949,7 +4224,7 @@ const homeBtn = document.querySelector('[data-act="home"]');
 function syncHome() {
   const moved = cam.position.distanceToSquared(HOME.p) > 1e-7
              || ctr.target.distanceToSquared(HOME.t) > 1e-7;
-  homeBtn.disabled = !(moved || !sheet.hidden || mandala);
+  homeBtn.disabled = !(moved || !sheet.hidden || mandala || mode === 'game');
 }
 ctr.addEventListener('change', syncHome);
 window.addEventListener('resize', () => {
@@ -4069,6 +4344,7 @@ canvas.addEventListener('pointerup', (e) => {
   if (mandala) hits.sort((a, b) => Number(!!b.object.userData.artwork) - Number(!!a.object.userData.artwork) || a.distance - b.distance);
   for (const hit of hits) {
     if (!visibleInScene(hit.object)) continue;
+    if (mode === 'game' && hit.object.userData.square) { show('rebirth_sq_' + hit.object.userData.square, true); return; }
     const e2 = entryFor(hit.object.name);
     if (e2) {
       if (touring && HEAP_NUMBERS.has(e2.id)) visitHeap(HEAP_NUMBERS.get(e2.id) - 1);
@@ -4089,12 +4365,14 @@ window.addEventListener('keydown', (e) => {
     if (document.body.classList.contains('index-open')) setOpen(false);
     else if (!sheet.hidden) close();
     else if (touring) endTour();
-    else if (mandala) setMandala(false);
+    else if (mode !== 'explore') setMode('explore');
     else if (isFull() || document.body.classList.contains('immersive')) toggleFullScreen();
     else home();
   }
   if (e.key === 'f' || e.key === 'F') { e.preventDefault(); toggleFullScreen(); }
-  if (e.key === 'm' || e.key === 'M') setMandala(!mandala);
+  if (e.key === 'm' || e.key === 'M') setMode(mode === 'mandala' ? 'explore' : 'mandala');
+  if (e.key === 'g' || e.key === 'G') setMode(mode === 'game' ? 'explore' : 'game');
+  if (e.key === 'e' || e.key === 'E') setMode('explore');
   if (e.key === 'ArrowDown' && !sheet.hidden) { e.preventDefault(); step(1); }
   if (e.key === 'ArrowUp' && !sheet.hidden) { e.preventDefault(); step(-1); }
   if (e.key === 'i' || e.key === 'I') setOpen(!document.body.classList.contains('index-open'));
