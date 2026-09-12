@@ -674,6 +674,7 @@
   }
 
 </style>
+<link rel="stylesheet" href="rebirth.css">
 </head>
 <body>
 
@@ -684,9 +685,14 @@
     <h1><button class="title" type="button" title="About this drawing — a">The World System<span class="i" aria-hidden="true">i</span></button></h1>
   </header>
 
+  <nav class="world-modes card" aria-label="World mode">
+    <button class="btn" data-act="explorer" type="button" aria-pressed="true" title="Explorer — e">Explorer</button>
+    <button class="btn" data-act="mandala" type="button" aria-pressed="false" title="Mandala offering — m">Mandala</button>
+    <button class="btn" data-act="rebirth" type="button" aria-pressed="false" title="Rebirth game — g">Rebirth</button>
+  </nav>
+  <button class="rb-marker" type="button" hidden></button>
   <div class="controls card">
     <button class="btn" data-act="index" type="button" aria-pressed="false" title="Index — i"><span class="g">☰</span><span class="t">Index</span></button>
-    <button class="btn" data-act="mandala" type="button" aria-pressed="false" title="Mandala view — m"><span class="g">◎</span><span class="t">Mandala view</span></button>
     <button class="btn" data-act="motion" type="button" aria-pressed="false" title="Set it turning — r"><span class="g">▶</span><span class="t">Motion</span></button>
     <button class="btn" data-act="night" type="button" aria-pressed="false" title="Night — n"><span class="g">☾</span><span class="t">Night</span></button>
     <button class="btn" data-act="full" type="button" aria-pressed="false" title="Full screen — f"><span class="g">⛶</span><span class="t">Full screen</span></button>
@@ -718,6 +724,7 @@
   <div class="marks" id="offering-marks" hidden=""></div>
 
   <div class="panel-dock" hidden>
+  <aside class="rebirth-panel card" aria-label="Rebirth game" hidden></aside>
   <p class="art-status card" role="status" hidden><span></span> <button class="btn" type="button" data-art-retry hidden>Retry images</button></p>
   <aside class="mandala-note card" hidden="">
     <div class="mode-tabs" aria-label="Offering views">
@@ -826,6 +833,10 @@ import { TOUR_NOTES } from './mandala-tour.js';
 import { installViewportGestures } from './viewport-gestures.js';
 import { createGoldenRangeGeometry, createWaterNormalMap, createWaterMaterial, createWaterGeometry } from './world-surfaces.js';
 import { DAY_SKY, paintClouds } from './sky-clouds.js';
+import { createRebirthScene } from './rebirth-scene.js';
+import { createRebirthUI } from './rebirth-ui.js';
+let appMode = 'explorer', rebirth = null, rebirthScene = null;
+const rebirthPanel = document.querySelector('.rebirth-panel');
 const stage = document.querySelector('three-d-stage');
 const { THREE } = await stage.ready;
 stage.shadowRoot.querySelector('.note')?.remove();   // the page carries its own hint
@@ -2978,8 +2989,8 @@ function show(id, reveal) {
     image.setAttribute('aria-label', art.attribute);
   }
   sheetTour.hidden = !HEAP_NUMBERS.has(id) || touring;
-  sheetBack.hidden = !mandala;
-  sheetBack.textContent = touring ? 'Back to tour' : 'Back to recitation';
+  sheetBack.hidden = !mandala && appMode !== 'rebirth';
+  sheetBack.textContent = appMode === 'rebirth' ? 'Back to game' : touring ? 'Back to tour' : 'Back to recitation';
   const pos = order.indexOf(id);
   prevBtn.disabled = pos <= 0;
   nextBtn.disabled = pos < 0 || pos >= order.length - 1;
@@ -3131,6 +3142,10 @@ const drawLoop = () => {
   orientOfferingCards();
   gl.render(stage._scene, cam);
   if (mandala) placeMarks();
+  if (appMode === 'rebirth') {
+    if (!rebirthPanel.hidden) rebirth?.project(cam, stage.clientWidth, stage.clientHeight);
+    else rebirth?.hideMarkers();
+  }
   if (!mandala || touring) placeCompass();
 };
 stage._loop = drawLoop;
@@ -3371,7 +3386,8 @@ function syncChrome() {
   if (indexOpen) sheet.hidden = true;
   noteEl.hidden = !mandala || touring || !sheet.hidden || indexOpen;
   tourEl.hidden = !touring || !sheet.hidden || indexOpen;
-  dock.hidden = sheet.hidden && noteEl.hidden && tourEl.hidden && !indexOpen;
+  rebirthPanel.hidden = appMode !== 'rebirth' || !sheet.hidden || indexOpen;
+  dock.hidden = sheet.hidden && noteEl.hidden && tourEl.hidden && rebirthPanel.hidden && !indexOpen;
   artStatus.hidden = !mandala || !imageStates.some(s => s === 'loading' || s === 'failed');
   document.body.classList.toggle('panel-open', !dock.hidden);
   document.body.classList.toggle('min-menus', minPlay);
@@ -3405,7 +3421,7 @@ function freeRect() {
     ins[best.k] = Math.max(ins[best.k], best.v);
   };
   [document.querySelector('.controls'), document.querySelector('.masthead'),
-   legend, dock].forEach(eat);
+   document.querySelector('.world-modes'), legend, dock].forEach(eat);
   const pad = 14;
   const l = Math.min(ins.l + pad, w * 0.4), r = Math.min(ins.r + pad, w * 0.4);
   const t = Math.min(ins.t + pad, h * 0.3), b = Math.min(ins.b + pad, h * 0.72);
@@ -3502,6 +3518,9 @@ function placeCompass() {
 const OVERHEAD = ['heaven_', 'formless_'];
 function setMandala(on) {
   restoreTourVisibility();
+  rebirth?.setActive(false);
+  appMode = on ? 'mandala' : 'explorer';
+  syncModeButtons();
   touring = false;
   sheet.hidden = true;
   current = null;
@@ -3924,7 +3943,7 @@ document.querySelector('.controls').addEventListener('click', (ev) => {
   if (act.dataset.act === 'mandala') setMandala(!mandala);
   if (act.dataset.act === 'motion') setMotion(!motion);
   if (act.dataset.act === 'night') applyTheme(!night);
-  if (act.dataset.act === 'home') { close(); if (mandala) setMandala(false); else home(); }
+  if (act.dataset.act === 'home') { close(); if (appMode === 'rebirth') rebirth.setBoardView(true); else if (mandala) setMandala(false); else home(); }
   if (act.dataset.act === 'full') toggleFullScreen();
 });
 
@@ -4069,6 +4088,10 @@ canvas.addEventListener('pointerup', (e) => {
   if (mandala) hits.sort((a, b) => Number(!!b.object.userData.artwork) - Number(!!a.object.userData.artwork) || a.distance - b.distance);
   for (const hit of hits) {
     if (!visibleInScene(hit.object)) continue;
+    if (appMode === 'rebirth') {
+      const square = rebirthScene.squareFor(hit.object);
+      if (square) { setOpen(false, false); close(); rebirth.inspect(square); return; }
+    }
     const e2 = entryFor(hit.object.name);
     if (e2) {
       if (touring && HEAP_NUMBERS.has(e2.id)) visitHeap(HEAP_NUMBERS.get(e2.id) - 1);
@@ -4090,9 +4113,13 @@ window.addEventListener('keydown', (e) => {
     else if (!sheet.hidden) close();
     else if (touring) endTour();
     else if (mandala) setMandala(false);
+    else if (appMode === 'rebirth') setAppMode('explorer');
     else if (isFull() || document.body.classList.contains('immersive')) toggleFullScreen();
     else home();
   }
+  if (e.key.toLowerCase() === 'g') setAppMode('rebirth');
+  if (e.key.toLowerCase() === 'e') setAppMode('explorer');
+  if (e.key === ' ' && appMode === 'rebirth' && !rebirthPanel.hidden && e.target.tagName !== 'BUTTON') { e.preventDefault(); rebirth.advance(); return; }
   if (e.key === 'f' || e.key === 'F') { e.preventDefault(); toggleFullScreen(); }
   if (e.key === 'm' || e.key === 'M') setMandala(!mandala);
   if (e.key === 'ArrowDown' && !sheet.hidden) { e.preventDefault(); step(1); }
@@ -4101,11 +4128,52 @@ window.addEventListener('keydown', (e) => {
   if (e.key === 'n' || e.key === 'N') applyTheme(!night);
   if (e.key === 'r' || e.key === 'R') setMotion(!motion);
   if (e.key === 'a' || e.key === 'A') show('about', true);
-  if (e.key === 'p' || e.key === 'P') { e.preventDefault(); playToggle(); }
+  if (appMode !== 'rebirth' && (e.key === 'p' || e.key === 'P')) { e.preventDefault(); playToggle(); }
   if (e.key === 'v' || e.key === 'V') { if (mandala) toggleFull(); }
-  if (e.key === '.' || e.key === '>') stepBy(1);
-  if (e.key === ',' || e.key === '<') stepBy(-1);
+  if (appMode !== 'rebirth' && (e.key === '.' || e.key === '>')) stepBy(1);
+  if (appMode !== 'rebirth' && (e.key === ',' || e.key === '<')) stepBy(-1);
 });
+
+/* Rebirth shares the world and dock, but owns its save, tokens and extra places. */
+function syncModeButtons() {
+  document.body.classList.toggle('rebirth-view', appMode === 'rebirth');
+  document.querySelectorAll('.world-modes [data-act]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.act === appMode)));
+}
+function frameRebirth(number = null) {
+  const fr = freeRect(), w = stage.clientWidth, h = stage.clientHeight;
+  const bounds = new THREE.Box3().setFromPoints([...rebirthScene.points.values()]);
+  bounds.expandByPoint(new THREE.Vector3(-RIM,0,-RIM));bounds.expandByPoint(new THREE.Vector3(RIM,0,RIM));
+  const board = bounds.getBoundingSphere(new THREE.Sphere());
+  const center = number ? rebirthScene.points.get(number).clone() : board.center;
+  const radius = number ? .29 : board.radius;
+  const half = Math.tan(cam.fov * Math.PI / 360);
+  const distance = radius * 1.2 / half * h / Math.min(fr.w, fr.h);
+  const direction = new THREE.Vector3(1, number && center.y < 0 ? -.12 : .68,1.25).normalize();
+  const right = new THREE.Vector3().crossVectors(new THREE.Vector3(0,1,0), direction).normalize();
+  const up = new THREE.Vector3().crossVectors(direction,right).normalize();
+  const pixel = 2 * distance * half / h;
+  const target = center.addScaledVector(right, -(fr.x-w/2)*pixel).addScaledVector(up,(fr.y-h/2)*pixel);
+  cam.near = .001; cam.updateProjectionMatrix();
+  fly(target.clone().addScaledVector(direction,distance),target,700);
+}
+function setAppMode(mode) {
+  if (!['explorer','mandala','rebirth'].includes(mode)) return;
+  if (mode === 'mandala') { setMandala(true); return; }
+  setMandala(false);
+  if (mode === 'rebirth') {
+    appMode = 'rebirth'; rebirth.setActive(true); syncModeButtons(); syncChrome();
+    frameRebirth(rebirth.state && !rebirth.fullBoard ? rebirth.selected : null);
+  }
+  invalidate(3);
+}
+rebirthScene = createRebirthScene(THREE, {world, meshesFor, radius:RIM, invalidate});
+rebirth = createRebirthUI({panel:rebirthPanel, marker:document.querySelector('.rb-marker'), scene:rebirthScene,
+  playArea:freeRect, onFocus:frameRebirth, onOverview:()=>frameRebirth(), onChange:()=>{syncChrome();invalidate(3);}});
+document.querySelector('.world-modes').addEventListener('click', e => {
+  const b = e.target.closest('[data-act]'); if (b) setAppMode(b.dataset.act);
+});
+window.addEventListener('resize',()=>{if(appMode === 'rebirth') frameRebirth(rebirth.fullBoard ? null : rebirth.selected);});
+
 </script>
 
 

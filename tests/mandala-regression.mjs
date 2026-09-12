@@ -11,6 +11,8 @@ const {TOUR_NOTES} = await import(pathToFileURL(repo + '/mandala-tour.js'));
 const {installViewportGestures} = await import(pathToFileURL(repo + '/viewport-gestures.js'));
 const surfaces = await import(pathToFileURL(repo + '/world-surfaces.js'));
 const skyClouds = await import(pathToFileURL(repo + '/sky-clouds.js'));
+const {createRebirthScene} = await import(pathToFileURL(repo + '/rebirth-scene.js'));
+const {createRebirthUI} = await import(pathToFileURL(repo + '/rebirth-ui.js'));
 const html = fs.readFileSync(repo + '/index.html', 'utf8');
 const source = html.match(/<script type="module">([\s\S]*?)<\/script>/)[1].replace(/^import .*;\n/gm, '');
 const dom = new JSDOM(html, {url:'https://example.org/WorldSystem/', runScripts:'outside-only', pretendToBeVisual:true});
@@ -19,7 +21,7 @@ const textureRequests = [];
 const THREE = {...RealThree, TextureLoader: class {
   load(url, success, progress, failure) { textureRequests.push({url, success, failure}); }
 }};
-Object.assign(window, {createOfferingModels, OFFERING_ART, TOUR_NOTES, installViewportGestures}, surfaces, skyClouds);
+Object.assign(window, {createOfferingModels, OFFERING_ART, TOUR_NOTES, installViewportGestures, createRebirthScene, createRebirthUI}, surfaces, skyClouds);
 let viewport = {w:1280, h:900}, reduced = false;
 window.matchMedia = query => ({matches:query.includes('reduced-motion') ? reduced
   : query.includes('max-width: 700px') ? viewport.w <= 700
@@ -71,9 +73,9 @@ q('.masthead').getBoundingClientRect = () => document.body.classList.contains('m
 const app = await window.eval(`(async()=>{${source}\nreturn {
  world, cam, ctr, E, HEAPS, MARKS, HEAP_MEMBERS, OFFERING_MODELS, ORIGINAL_VISIBILITY,
  STEPS, LUMINARIES, RIM, OFFERING_SIZE, freeRect, tourImageRect, meshesFor, visibleInScene,
- setMandala, show, close, setOpen, startTour, visitHeap, endTour, orientOfferingCards,
+ setAppMode, rebirth, rebirthScene, setMandala, show, close, setOpen, startTour, visitHeap, endTour, orientOfferingCards,
  applyStep, playToggle, stepBy, pausePlay, resetPlay, applyTheme, setMotion,
- state:()=>({mandala,touring,tourIndex,pStep,playing,current,motion,showHeapNumbers,lumSpin})
+ state:()=>({appMode,mandala,touring,tourIndex,pStep,playing,current,motion,showHeapNumbers,lumSpin})
 };})()`);
 advance(1200);
 const panels = ['.sheet','.mandala-note','.tour-panel','.index'];
@@ -279,3 +281,41 @@ assert.equal(app.state().tourIndex,20);
 console.log(JSON.stringify({result:'PASS',heaps:37,illustrations:24,triangles,atlasRequests:3,
  checks:'Terrain overlay priority, independent motion/mandala switches and gesture resume, numbers toggle, billboards from 16 angles, 84% tour image fit at three viewport sizes, all 37 stops, playback, isolation, exclusive panels, image failure/retry, keyboard controls, reduced motion and visibility restoration.',
  limits:'DOM and GPU substitutes; actual CSS layout, WebGL rendering and devices were not tested.'},null,2));
+
+// Rebirth and Mandala use one exclusive mode and dock, with separate state.
+app.setAppMode('rebirth'); advance(1200);
+assert.equal(app.state().appMode,'rebirth'); assert.equal(app.state().mandala,false);
+assert.equal(app.rebirthScene.layer.visible,true); assert.equal(q('.rebirth-panel').hidden,false);
+assert.equal(app.rebirthScene.points.size,104);
+for(const point of app.rebirthScene.points.values()) assert.ok([point.x,point.y,point.z].every(Number.isFinite));
+const mapping = await import(pathToFileURL(repo + '/rebirth-world-map.js'));
+for(const m of mapping.REBIRTH_WORLD_MAP) for(const id of m.worldIds) assert.ok(app.meshesFor(id).length, `Missing mapped geometry: ${id}`);
+q('#rb-names').value='Alice\nBob'; q('#rb-names').closest('form').dispatchEvent(new window.Event('submit',{bubbles:true,cancelable:true}));
+assert.equal(app.rebirth.state.players.length,2);
+q('[data-rb-action="advance"]').click(); assert.ok(app.rebirth.state.last);
+const saved=JSON.stringify(app.rebirth.state);assert.equal(window.localStorage.getItem('ws-rebirth-v1'),saved);
+app.rebirth.inspect(76); assert.equal(JSON.stringify(app.rebirth.state),saved,'Inspecting destinations never moves a player');
+assert.equal(app.rebirth.selected,76);
+app.setOpen(true);assert.equal(q('.rebirth-panel').hidden,true);app.setOpen(false);
+app.show('meru_core',true);assert.equal(q('.rebirth-panel').hidden,true);app.close();assert.equal(q('.rebirth-panel').hidden,false);
+for(const mode of ['explorer','mandala']) {
+ app.setAppMode(mode); advance(1200);assert.equal(app.rebirthScene.layer.visible,false);assert.equal(q('.rebirth-panel').hidden,true);
+ app.rebirthScene.additions.forEach(g=>assert.equal(app.visibleInScene(g),false,'Additional destinations stay out of the other modes'));
+ assert.equal(JSON.stringify(app.rebirth.state),saved);
+ app.setAppMode('rebirth'); advance(1200);assert.equal(JSON.stringify(app.rebirth.state),saved);
+ assert.equal([...document.querySelectorAll('.world-modes [aria-pressed="true"]')].length,1);
+}
+app.startTour(30); advance(1000);assert.equal(app.rebirthScene.layer.visible,false);
+app.setAppMode('rebirth'); advance(1000);
+app.rebirthScene.additions.forEach(g=>assert.equal(app.visibleInScene(g),true,'Tour isolation does not hide returning game destinations'));
+app.setAppMode('explorer'); advance(1000);app.OFFERING_MODELS.forEach(m=>assert.equal(app.visibleInScene(m),false));
+assert.equal(document.querySelectorAll('.index [data-id^="rebirth"]').length,0,'Game destinations do not leak into the explorer index');
+console.log(`PASS: Rebirth UI, multiplayer rolls, saved state, 104 finite map positions, ${app.rebirthScene.additions.size} game-only locations, inspection, exclusive dock and all mode transitions.`);
+app.setAppMode('rebirth');app.rebirth.setBoardView(true);advance(1200);
+const boardRect=app.freeRect();
+for(const [number,point] of app.rebirthScene.points){
+ const p=point.clone().project(app.cam),x=(p.x+1)*viewport.w/2,y=(1-p.y)*viewport.h/2;
+ assert.ok(x>=boardRect.x-boardRect.w/2&&x<=boardRect.x+boardRect.w/2&&y>=boardRect.y-boardRect.h/2&&y<=boardRect.y+boardRect.h/2,`Full board includes destination ${number}`);
+}
+app.rebirth.setBoardView(false);assert.equal(app.rebirth.fullBoard,false);
+console.log('PASS: Full board frames all 104 destinations inside the available canvas and toggles back to the selected destination.');

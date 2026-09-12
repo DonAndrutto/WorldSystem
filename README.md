@@ -10,6 +10,18 @@ and for anyone studying Buddhist cosmology.
 
 Click any part to open its entry; drag to orbit, scroll to zoom.
 
+Choose **Explorer**, **Mandala**, or **Rebirth**. Rebirth adds Mipham’s playable
+104-destination game to this world, with solo or shared-device multiplayer,
+saved journeys, a gentle animated die and destination reveal, expandable full
+passages, named player markers, and a **Full board** toggle. Twenty board
+identities reuse existing geometry; 84 lotus waystations appear only in game
+mode. The original 37-point offering and tour remain in Mandala mode.
+
+See [Rebirth rules, source decisions, controls, and artwork integration](docs/rebirth.md).
+This feature lives on `codex/rebirth-game-modes`, based on the original
+`d3bed0b` snapshot; the existing GitHub Pages site is unchanged until this branch
+is deliberately merged or deployed.
+
 ## Files
 
 | file | what it is |
@@ -20,6 +32,12 @@ Click any part to open its entry; drag to orbit, scroll to zoom.
 | `sky-clouds.js` | Tibetan cloud silhouettes, layered colour bands and day/night cloud palettes. |
 | `world-surfaces.js` | Closed mountain ridges, depth-coloured seas and one shared procedural ripple normal map. |
 | `viewport-gestures.js` | Routes scene gestures to the camera and prevents gestures from magnifying the menu interface. |
+| `rebirth-data.js`, `rebirth-engine.js` | Referenced 104-square / 624-outcome data and deterministic game rules. |
+| `rebirth-world-map.js`, `rebirth-scene.js` | Existing-world mappings, game-only locations, route lines, and traveller tokens. |
+| `rebirth-ui.js`, `rebirth.css`, `rebirth-presentation.js` | Game controls, full passages, named markers, dice animation, optional sound, and destination reveal. |
+| `rebirth-prose.js` | All 104 full passages from the user-supplied Destiny Path Catalogue, with source fingerprint. |
+| `rebirth-iconography.js`, `assets/rebirth/` | Shared artwork slots for future images in the scene and reading cards. |
+| `tests/rebirth-engine.mjs`, `tests/rebirth-presentation.mjs` | Rules, persistence, animation, sound, prose, and board-toggle checks. |
 | `assets/offerings/` | Three locally served artwork sheets, with the generation prompts. |
 | `ARTWORK.md` | Image provenance, source references and iconographic adaptations. |
 | `tests/mandala-regression.mjs` | DOM and geometry regression checks. |

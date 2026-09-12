@@ -1,0 +1,99 @@
+.masthead { max-width:none; }
+.masthead .title { white-space:nowrap; }
+.world-modes { position:absolute; left:22px; top:88px; display:flex; pointer-events:auto; z-index:6; padding:3px; gap:2px; }
+.world-modes .btn { min-height:40px; font-size:11px; padding:8px 13px; }
+.world-modes .btn[aria-pressed="true"] { background:var(--accent); color:var(--paper); }
+.panel-dock > .rebirth-panel { pointer-events:auto; overflow-y:auto; overscroll-behavior:contain; min-height:0; padding:22px; max-height:100%; }
+.rebirth-panel h2 { font-size:42px; line-height:1; font-weight:400; margin:10px 0; }
+.rebirth-panel h3 { font-size:25px; line-height:1.15; font-weight:400; margin:10px 0; }
+.rebirth-panel p { font-size:17px; line-height:1.4; margin:10px 0; }
+.rebirth-panel .rb-kicker { font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:.08em; text-transform:uppercase; color:var(--accent); }
+.rb-heading { border-bottom:1px solid var(--rule); padding-bottom:12px; margin-bottom:15px; }
+.rb-heading p { font-style:italic; color:var(--ink-2); }
+.rb-status { border-left:2px solid var(--accent); padding:8px 10px; margin:12px 0; background:var(--hi); font-size:16px; line-height:1.4; }
+.rebirth-panel label { display:block; margin:12px 0 5px; font-size:15px; }
+.rebirth-panel input,.rebirth-panel textarea,.rebirth-panel select { width:100%; max-width:100%; border:1px solid var(--rule-2); border-radius:0; background:var(--field); color:var(--ink); font:inherit; font-size:16px; padding:9px; min-height:44px; }
+.rebirth-panel select { background:var(--paper); }
+.rebirth-panel textarea { resize:vertical; }
+.rebirth-panel .btn { white-space:normal; min-height:44px; font-size:11px; }
+.rebirth-panel .rb-primary { background:var(--accent); color:var(--paper); flex:1; font-size:12px; margin:8px 0; }
+.rebirth-panel form .rb-primary { width:100%; }
+.rb-current,.rb-roster { border:0; border-bottom:1px solid var(--rule); color:var(--ink); background:transparent; padding:8px 0; width:100%; font:inherit; text-align:left; cursor:pointer; line-height:1.3; }
+.rb-current { font-size:19px; }
+.rb-dice-row { display:flex; align-items:center; gap:18px; }
+.rb-die { font-family:serif; color:var(--accent); font-size:58px; line-height:1; width:60px; text-align:center; }
+.rb-links { display:flex; gap:6px; margin:12px 0; }
+.rb-links .btn { flex:1; font-size:10px; padding:6px; }
+.rebirth-panel details { border-top:1px solid var(--rule); padding:12px 0; }
+.rebirth-panel summary { font-size:16px; cursor:pointer; padding:5px 0; }
+.rebirth-panel .rb-small,.rebirth-panel .rb-count,.rebirth-panel .rb-source { font-size:13px; color:var(--ink-2); }
+.rb-place { border-top:1px solid var(--rule); padding:20px 0 8px; }
+.rb-outcomes { display:grid; grid-template-columns:1fr 1fr; gap:5px; margin:15px 0; }
+.rb-outcome { border:1px solid var(--rule); background:var(--hi); color:var(--ink); text-align:left; font:inherit; font-size:14px; padding:9px; min-height:65px; cursor:pointer; }
+.rb-outcome:hover { background:var(--hi-2); }
+.rb-outcome span:first-child { display:block; color:var(--accent); font-family:'IBM Plex Mono',monospace; font-size:10px; margin-bottom:5px; }
+.rb-counters { display:grid; grid-template-columns:repeat(6,1fr); gap:4px; margin:12px 0; }
+.rb-counters div { border:1px solid var(--rule); padding:8px 2px; text-align:center; }
+.rb-counters span,.rb-counters strong { display:block; font:10px 'IBM Plex Mono',monospace; }
+.rb-counters strong { margin-top:8px; font-size:13px; }
+.rb-counters .complete { background:var(--hi-2); border-color:var(--accent); }
+.rb-journal { padding-left:20px; font-size:14px; line-height:1.5; }
+.rb-marker { position:absolute; transform:translate(-50%,-100%); max-width:210px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; background:var(--surface); color:var(--ink); border:1px solid var(--accent); font:12px 'EB Garamond',serif; padding:6px 9px; pointer-events:auto; z-index:2; box-shadow:var(--shadow); cursor:pointer; }
+.rb-marker[hidden] { display:none; }
+.rb-full-passage { margin:14px 0; }
+.rb-full-passage summary { font-weight:500; color:var(--accent); }
+.rb-prose p { white-space:pre-line; font-size:18px; line-height:1.6; }
+.rb-iconography { margin:18px 0; text-align:center; }
+.rb-iconography img { display:block; width:100%; max-height:360px; object-fit:contain; }
+.rb-iconography figcaption { font-size:12px; color:var(--ink-2); margin-top:8px; }
+.rb-sound { width:100%; margin:0 0 12px; }
+.rb-links [aria-pressed="true"],.rb-sound[aria-pressed="true"] { border-color:var(--accent); background:var(--hi-2); }
+.rb-roster { padding-left:8px; margin-top:4px; }
+.rb-player-markers { position:absolute; inset:0; pointer-events:none; z-index:3; }
+.rb-player-markers[hidden] { display:none; }
+.rb-player-leaders { width:100%; height:100%; position:absolute; inset:0; overflow:hidden; }
+.rb-player-leaders line { stroke-width:1.5; opacity:.85; }
+.rb-player-pin { display:flex; align-items:center; gap:7px; height:34px; position:absolute; padding:5px 7px; border:1px solid var(--rule-2); border-left:5px solid var(--player-colour); background:var(--surface); color:var(--ink); box-shadow:var(--shadow); font:15px 'EB Garamond',serif; cursor:pointer; pointer-events:auto; text-align:left; }
+.rb-player-pin strong { font:600 11px 'IBM Plex Mono',monospace; flex:none; }
+.rb-player-pin span { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-weight:500; }
+.rb-player-pin small { margin-left:auto; flex:none; font:11px 'IBM Plex Mono',monospace; border-left:1px solid var(--rule); padding-left:5px; }
+.rb-player-pin.is-current { outline:2px solid var(--accent); outline-offset:2px; }
+.rb-player-pin[hidden] { display:none; }
+.rb-reveal { position:fixed; inset:50% auto auto 50%; transform:translate(-50%,-50%); margin:0; width:min(560px,calc(100vw - 32px)); max-height:calc(100dvh - 36px); overflow:auto; padding:28px; background:var(--surface); color:var(--ink); border:2px solid var(--accent); box-shadow:var(--shadow); text-align:center; }
+.rb-reveal::backdrop { background:rgba(14,18,25,.42); backdrop-filter:blur(2px); }
+.rb-reveal h2 { font:700 clamp(27px,4vw,43px)/1.12 'EB Garamond',serif; margin:15px 0; text-wrap:balance; }
+.rb-reveal-who,.rb-reveal-face { font:11px/1.5 'IBM Plex Mono',monospace; text-transform:uppercase; letter-spacing:.08em; color:var(--accent); }
+.rb-reveal-copy { font:19px/1.4 'EB Garamond',serif; margin:15px 0 24px; }
+.rb-reveal-die { font:96px/1.1 serif; color:var(--accent); margin:14px auto; width:115px; }
+.rb-reveal .rb-primary { width:100%; min-height:46px; background:var(--accent); color:var(--paper); font-weight:500; }
+.rb-reveal.is-rolling .rb-reveal-die { animation:rb-tumble .54s ease-in-out infinite; }
+.rb-reveal.is-arrival h2 { animation:rb-arrive .55s ease-out both; }
+@keyframes rb-tumble { 0%,100% { transform:rotate(-12deg) translateY(0) scale(.96); } 50% { transform:rotate(14deg) translateY(-10px) scale(1.04); } }
+@keyframes rb-arrive { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+@media(prefers-reduced-motion:reduce) { .rb-reveal * { animation:none !important; } }
+body.rebirth-view .legend { display:none; }
+body.mandala-view .world-modes,body.tour-view .world-modes { top:22px; }
+@media(max-width:980px) {
+  body.rebirth-view .masthead { display:none; }
+  body.rebirth-view .world-modes { top:calc(9px + var(--sa-t)); left:9px; }
+  body.rebirth-view .controls { top:auto; bottom:calc(9px + var(--sa-b)); left:9px; right:9px; max-width:none; }
+  body.rebirth-view .controls .btn { flex:1; min-height:44px; }
+  body.rebirth-view .panel-dock { left:9px; right:9px; top:auto; bottom:calc(66px + var(--sa-b)); width:auto; max-height:48dvh; }
+  body.rebirth-view .panel-dock > .rebirth-panel { max-height:inherit; padding:14px; }
+  body.rebirth-view .rb-heading { padding-bottom:8px; margin-bottom:8px; }
+  body.rebirth-view .rb-heading h2 { font-size:26px; margin:5px 0; }
+  body.rebirth-view .rb-heading p { display:none; }
+}
+@media(max-width:700px) {
+  .world-modes,body.mandala-view .world-modes,body.tour-view .world-modes { top:calc(9px + var(--sa-t)); left:9px; right:9px; justify-content:center; }
+  .world-modes .btn { flex:1; min-height:40px; }
+  .masthead { display:none !important; }
+  .panel-dock > .rebirth-panel { padding:14px; max-height:inherit; }
+  .rb-heading h2 { font-size:32px; }
+  .rb-heading { padding-bottom:8px; margin-bottom:10px; }
+  .rb-heading p { display:none; }
+  .rebirth-panel h3 { font-size:23px; }
+  .rb-marker { max-width:160px; }
+  body.tour-view .compass { top:66px; }
+}
+@media(max-height:480px) and (min-width:701px) { .world-modes { top:78px; } }
