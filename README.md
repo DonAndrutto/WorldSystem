@@ -23,6 +23,9 @@ Click any part to open its entry; drag to orbit, scroll to zoom.
 | `assets/offerings/` | Three locally served artwork sheets, with the generation prompts. |
 | `ARTWORK.md` | Image provenance, source references and iconographic adaptations. |
 | `tests/mandala-regression.mjs` | DOM and geometry regression checks. |
+| `rebirth-board.js` | The 104 squares of the game of rebirth, the die-to-destination graph, and the armature that places the squares the world system has no room for. |
+| `rebirth-game.js` | The rules on their own: dead faces, the two counter traps, victory at 104. No DOM, no WebGL. |
+| `tests/rebirth-regression.mjs` | Board and rules checks, including the routes the Rules of Play claim. |
 | `three-d-stage.js` | The `<three-d-stage>` custom element it imports: WebGL renderer, studio lighting with a soft ground shadow, orbit controls, an auto-framed camera, and OBJ + MTL / GLB export. |
 | `assets/app-icon/world-system-master.webp` | Gold-and-lapis Meru app-icon artwork; a symbolic emblem. See its source brief in `assets/app-icon/README.md`. |
 | `apple-touch-icon.png`, `icon-192.png`, `icon-512.png`, `icon-maskable-512.png` | Opaque home-screen icons, including an inset Android maskable version. |
@@ -104,6 +107,39 @@ The index runs from the ground up:
 - **The eight hot hells**, **the eight cold hells**, and **the other destinies**
 - **The maṇḍala of thirty-seven**
 
+## The game of rebirth
+
+The third mode puts a board of 104 squares over the world. It is the game
+attributed to Sakya Paṇḍita, from the 1977 English edition: the die names the
+square you go to rather than a number of steps, a face with no listed move is
+dead and costs the turn, and squares 1 and 48 are counter traps that hold a
+player until one 1, two 2s and so on through six 6s have been thrown. Victory
+is declared on arrival at 104. The throw that follows, which passes the relics
+into the stūpa, is a rite and settles nothing.
+
+Read as a section, the board is already a cosmology, and that is what makes it
+sit on this model at all. Its row is height above or below the golden ground;
+its two columns of paths separate the tantric route from the route of the
+sūtras. Twenty-one squares name something this drawing already builds — the
+hot and cold hells, the four continents, the six heavens of sense desire, the
+Formless Realm, Akaniṣṭha — and their markers float above the existing
+geometry rather than duplicating it.
+
+The other eighty-three have no coordinate here, and could not have one. They are
+paths, stages of training, wisdom-holder attainments, sacred lands and Buddha
+fields, and the sources are explicit that Buddha fields lie outside the Meru
+world system. **These are the destinations that exist only in game mode.** They
+stand on an armature that keeps the board's own logic: the sūtra route rising
+on one side, tantra on the other, the three sacred lands out beyond the rim,
+the Buddha fields clear of it and higher, and the bodies and acts of a Buddha
+on the axis above the summit. Every square has an index entry giving its place
+on the board and all six of its die results.
+
+The move graph was reconstructed from three independent witnesses in the 1977
+edition — the printed chart, the individual square entries and the reverse
+index — and cross-checked cell by cell; all 624 square/face combinations
+resolve. The commentary prose of that edition is not reproduced.
+
 ## Controls
 
 Six, and every one of them does something:
@@ -111,7 +147,7 @@ Six, and every one of them does something:
 | | |
 | --- | --- |
 | **Index** `i` | The drawer of explanatory entries, with a filter. |
-| **Mandala view** `m` | The thirty-seven heaps, in the order the offering names them. |
+| **Mode** `e` `m` `g` | Explorer, Maṇḍala, Game. Explorer is the model and its index; Maṇḍala is the thirty-seven heaps, in the order the offering names them; Game lays the board of rebirth over the world. |
 | **Motion** `r` | Sets the sun and moon on their circuit around Meru — forty seconds to the day — and lets the view turn slowly with them. The sun is what lights the world, so Meru's shadow walks round the continents with it. Off until asked for, so the model holds still while it is being read. |
 | **Night** `n` | Paper or dark. At night the moon takes over the lighting, and the clouds stand against a faint field of stars. |
 | **Full screen** `f` | Hidden where the platform has none to give: iOS Safari, and any window already running as an installed app. |
@@ -217,6 +253,7 @@ harness needs Node and two development dependencies:
 ```sh
 npm install --no-save --package-lock=false three@0.184.0 jsdom@26
 node tests/mandala-regression.mjs
+node tests/rebirth-regression.mjs
 node tests/viewport-gestures.mjs
 node tests/world-surfaces.mjs
 ```
@@ -229,6 +266,13 @@ A passing result does not establish actual WebGL appearance or device usability.
 
 The surface checks cover closed geometry seams, range separation, height and
 wave limits, and the shared ripple texture. They do not render the GPU scene.
+
+The board checks run on the data and the rules alone, with no DOM: the 104
+squares, all 624 square/face combinations, the two counter traps, victory, and
+the routes the Rules of Play claim. Game mode itself — the mode switch, the
+board laid out over the geometry and put away again, the twenty-one anchored
+squares standing on what the model draws for them, and a game played through
+the panel — is checked in the mandala suite, which builds the real scene.
 
 To rebuild the icon assets, install Sharp as an additional development dependency
 (`npm install --no-save --package-lock=false three@0.184.0 jsdom@26 sharp`) and run
