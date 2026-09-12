@@ -10,6 +10,7 @@ const {createOfferingModels, OFFERING_ART} = await import(pathToFileURL(repo + '
 const {TOUR_NOTES} = await import(pathToFileURL(repo + '/mandala-tour.js'));
 const {installViewportGestures} = await import(pathToFileURL(repo + '/viewport-gestures.js'));
 const surfaces = await import(pathToFileURL(repo + '/world-surfaces.js'));
+const skyClouds = await import(pathToFileURL(repo + '/sky-clouds.js'));
 const html = fs.readFileSync(repo + '/index.html', 'utf8');
 const source = html.match(/<script type="module">([\s\S]*?)<\/script>/)[1].replace(/^import .*;\n/gm, '');
 const dom = new JSDOM(html, {url:'https://example.org/WorldSystem/', runScripts:'outside-only', pretendToBeVisual:true});
@@ -18,7 +19,7 @@ const textureRequests = [];
 const THREE = {...RealThree, TextureLoader: class {
   load(url, success, progress, failure) { textureRequests.push({url, success, failure}); }
 }};
-Object.assign(window, {createOfferingModels, OFFERING_ART, TOUR_NOTES, installViewportGestures}, surfaces);
+Object.assign(window, {createOfferingModels, OFFERING_ART, TOUR_NOTES, installViewportGestures}, surfaces, skyClouds);
 let viewport = {w:1280, h:900}, reduced = false;
 window.matchMedia = query => ({matches:query.includes('reduced-motion') ? reduced
   : query.includes('max-width: 700px') ? viewport.w <= 700

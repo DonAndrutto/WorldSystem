@@ -87,3 +87,12 @@ on 2026-09-11, using the previous app icon as an identity reference. Its source
 brief, simplified ring count, and export details are recorded in
 [the app-icon notes](assets/app-icon/README.md). The interactive model retains
 all seven golden ranges. The emblem is used for home-screen and browser icons.
+
+## Cloud and sky treatment
+
+The cloud renderer was revised using the two reference images supplied by the
+user, `IMG_4746.webp` and `IMG_4747.jpeg`: Tibetan painted clouds with scalloped
+silhouettes, internal spiral ribbons, mineral-colour bands and fine ivory edges.
+The artwork is drawn procedurally on canvas. No generated cloud image, copied
+reference image or external image service is loaded by the app. The day/night
+WebP images in `assets/sky/` are review previews of those canvas textures.
