@@ -65,35 +65,29 @@ export const BAND_COLOUR = {
 const TAU = Math.PI * 2;
 
 // Where a square stands, when the model has nowhere to put it.
+export const SPIRAL = { turns: 3.25, phase: 0.18 };
+
+/* How far off the spiral each band stands. The spiral carries the board's
+   order; the radius still says which route a square belongs to, so the two
+   ascents remain separable by eye where they run side by side. */
+const BAND_RADIUS = {
+  below: 1.00, ground: 1.08, sutra: 0.90, tantra: 1.10,
+  island: 1.26, field: 1.16, axis: 0.52, anchored: 1.00
+};
+
+/* One rising spiral, read in the board's own order: square 1 below the golden
+   ground at the widest turn, square 104 on the axis above the summit, and the
+   hundred and two between them winding up and inward. Nothing in the Meru
+   system has this shape — it is the board's shape, not the world's, which is
+   why it is drawn as a path through the world rather than as part of it. */
 export function seamPosition(square, ctx) {
   const { RIM, FLOOR, SUMMIT } = ctx;
-  const { row, col, band, n } = square;
-  const lift = row / 12;
-  const y = FLOOR * 0.55 + lift * (SUMMIT * 2.15 - FLOOR * 0.55);
-  const spread = (col + 0.5) / 8;
-  switch (band) {
-    case 'below':
-      return polar(RIM * (0.26 + row * 0.05) + spread * RIM * 0.20,
-                   (spread + row * 0.11) * TAU,
-                   FLOOR * (1.30 - row * 0.10 + spread * 0.35));
-    case 'ground':
-      return polar(RIM * (1.02 + row * 0.03),
-                   (0.62 + spread * 0.50 + row * 0.07) * TAU,
-                   SUMMIT * (0.05 + row * 0.02) + spread * SUMMIT * 0.05);
-    case 'sutra':
-      return polar(RIM * (0.80 + lift * 0.30), (0.52 + spread * 0.20 + lift * 0.06) * TAU, y);
-    case 'tantra':
-      return polar(RIM * (0.80 + lift * 0.30), (0.02 + spread * 0.20 + lift * 0.06) * TAU, y);
-    case 'island':
-      return polar(RIM * 1.34, (0.30 + (n - 59) * 0.14) * TAU, SUMMIT * 0.10);
-    case 'field':
-      return polar(RIM * 1.18, (0.16 + spread * 0.68) * TAU, SUMMIT * (1.25 + lift * 0.5));
-    case 'axis':
-      return polar(SUMMIT * 0.10 * (n % 2 ? 1 : -1), (n * 0.37) * TAU, SUMMIT * (1.35 + (n - 92) * 0.135));
-    default:
-      return polar(RIM * 0.9, spread * TAU, y);
-  }
-  function polar(r, a, h) { return { x: Math.cos(a) * r, y: h, z: Math.sin(a) * r }; }
+  const { band, n } = square;
+  const t = (n - 1) / 103;
+  const rise = FLOOR * 1.15 + t * (SUMMIT * 2.55 - FLOOR * 1.15);
+  const radius = RIM * (1.30 - 1.02 * Math.pow(t, 0.85)) * (BAND_RADIUS[band] || 1);
+  const angle = (SPIRAL.phase + t * SPIRAL.turns) * TAU;
+  return { x: Math.cos(angle) * radius, y: rise, z: Math.sin(angle) * radius };
 }
 
 // One marker per square. Anchored squares float their marker above whatever
@@ -111,8 +105,11 @@ export function createBoardLayer(THREE, ctx) {
     });
   }
   const pick = new THREE.MeshBasicMaterial({ visible: false });
-  const markGeo = new THREE.OctahedronGeometry(ctx.SUMMIT * 0.020, 0);
+  const markGeo = new THREE.OctahedronGeometry(ctx.SUMMIT * 0.022, 0);
   const pickGeo = new THREE.SphereGeometry(ctx.SUMMIT * 0.055, 8, 6);
+  // a plinth under each mark, so a square reads as somewhere to stand
+  const plinthGeo = new THREE.CylinderGeometry(ctx.SUMMIT * 0.036, ctx.SUMMIT * 0.040, ctx.SUMMIT * 0.008, 12);
+  const plinthMat = new THREE.MeshStandardMaterial({ color: 0xb08d3f, roughness: 0.5, metalness: 0.55 });
 
   const nodes = new Map();
   for (const s of SQUARES) {
@@ -123,7 +120,11 @@ export function createBoardLayer(THREE, ctx) {
     mark.userData.square = s.n;
     mark.castShadow = false;
     mark.receiveShadow = false;
+    mark.position.y = ctx.SUMMIT * 0.030;
     holder.add(mark);
+    const plinth = new THREE.Mesh(plinthGeo, plinthMat);
+    plinth.name = 'rebirth_plinth_' + s.n;
+    holder.add(plinth);
     const hit = new THREE.Mesh(pickGeo, pick);
     hit.name = 'rebirth_square_' + s.n;
     hit.userData.square = s.n;
@@ -204,6 +205,39 @@ export function createBoardLayer(THREE, ctx) {
     });
   }
 
+  /* Where a square can take you. Six faces at most, drawn as thin lines from
+     the square to each destination — enough to see that a throw from here
+     reaches there, faint enough not to compete with the world underneath. */
+  const links = new THREE.LineSegments(
+    new THREE.BufferGeometry(),
+    new THREE.LineBasicMaterial({ color: 0x7a5a2e, transparent: true, opacity: 0.42, depthWrite: false })
+  );
+  links.name = 'rebirth_links';
+  links.frustumCulled = false;
+  links.visible = false;
+  group.add(links);
+
+  function showLinks(square) {
+    const row = square === null ? null : MOVES[square];
+    const from = square === null ? null : positionOf(square);
+    if (!row || !from) { links.visible = false; return []; }
+    const reached = [];
+    const points = [];
+    for (const face of FACES) {
+      const to = row[face];
+      if (!to) continue;
+      const at = positionOf(to);
+      if (!at) continue;
+      reached.push(to);
+      points.push(from.x, from.y, from.z, at.x, at.y, at.z);
+    }
+    links.geometry.dispose();
+    links.geometry = new THREE.BufferGeometry();
+    links.geometry.setAttribute('position', new THREE.Float32BufferAttribute(points, 3));
+    links.visible = points.length > 0;
+    return reached;
+  }
+
   // Anchored squares need the live scene to tell them where their subject is.
   function placeAnchored(positionOfEntry) {
     for (const s of SQUARES) {
@@ -221,7 +255,7 @@ export function createBoardLayer(THREE, ctx) {
     return h ? h.position : null;
   }
 
-  return { group, nodes, tokens, placeTokens, placeAnchored, positionOf, materials: mats };
+  return { group, nodes, tokens, links, showLinks, placeTokens, placeAnchored, positionOf, materials: mats };
 }
 
 function vec(THREE, p) { return new THREE.Vector3(p.x, p.y, p.z); }

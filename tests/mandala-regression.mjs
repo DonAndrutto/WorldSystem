@@ -43,7 +43,8 @@ Object.assign(window, {createOfferingModels, OFFERING_ART, TOUR_NOTES, installVi
 let viewport = {w:1280, h:900}, reduced = false;
 window.matchMedia = query => ({matches:query.includes('reduced-motion') ? reduced
   : query.includes('max-width: 700px') ? viewport.w <= 700
-  : query.includes('max-width: 980px') ? viewport.w <= 980 : false});
+  : query.includes('max-width: 980px') ? viewport.w <= 980
+  : query.includes('max-width: 1080px') ? viewport.w <= 1080 : false});
 window.ResizeObserver = class {observe(){} disconnect(){}};
 window.localStorage.setItem('ws-hint','1'); window.localStorage.setItem('ws-index','0');
 let now = 0, serial = 0, renderLoop = () => {};
@@ -433,6 +434,11 @@ for (const holder of litTokens()) {
   assert.ok(parts.some(m=>m.geometry.type==='RingGeometry'),'and stands in a ring');
   assert.ok([holder.position.x,holder.position.y,holder.position.z].every(Number.isFinite));
 }
+// and every square is somewhere to stand rather than a dot in the air
+for (const n of [30, 59, 104]) {
+  const parts = []; app.rbBoard.nodes.get(n).traverse(o=>{if(o.isMesh)parts.push(o);});
+  assert.ok(parts.some(m=>m.name==='rebirth_plinth_'+n),'square '+n+' stands on a plinth');
+}
 // two on one square are fanned apart rather than hidden inside each other
 assert.equal(app.rbGame().players[0].pos,app.rbGame().players[1].pos,'both start on 24');
 assert.ok(app.rbBoard.tokens[0].position.distanceTo(app.rbBoard.tokens[1].position)>0,
@@ -443,8 +449,27 @@ let face = 1;
 window.Math.random = () => (face-1)/6 + 1e-6;
 // A throw now runs for a couple of seconds before it resolves.
 const throwFace = f => { face=f; q('[data-game="throw"]').click(); advance(3200); };
+/* Starting over goes through the dialog, which is also where players are
+   named. Nothing resets until Start is pressed. */
+const newGame = (count, names=[]) => {
+  q('[data-game="ask-new"]').click();
+  q('#g-players').value=String(count);
+  q('#g-players').dispatchEvent(new window.Event('change'));
+  [...q('.bv-names').querySelectorAll('input')].forEach((f,i)=>{ if(names[i]!==undefined) f.value=names[i]; });
+  q('.bv-ask form').dispatchEvent(new window.Event('submit',{cancelable:true,bubbles:true}));
+  advance(400);
+};
+
+// The control asks before it throws a game away, and never acts on its own.
+assert.equal(q('.bv-ask').hidden,true,'the dialog is shut to begin with');
+q('[data-game="ask-new"]').click();
+assert.equal(q('.bv-ask').hidden,false,'New game opens it');
+assert.equal(q('.bv-ask-warn').hidden,true,'with nothing to lose before a throw');
+assert.equal(q('.bv-names').querySelectorAll('input').length,2,'a field per player');
+q('[data-game="cancel-new"]').click();
+assert.equal(q('.bv-ask').hidden,true,'Keep playing shuts it again');
 assert.equal(q('#g-sound').checked,false,'The page stays silent until asked');
-q('#g-players').value='1'; q('#g-players').dispatchEvent(new window.Event('change'));
+newGame(1);
 assert.equal(app.rbGame().players.length,1);
 assert.equal(app.rbGame().players[0].pos,rbBoard.START);
 assert.equal(cellOf(rbBoard.START).getAttribute('aria-selected'),'true','The start square is lit');
@@ -487,6 +512,40 @@ assert.equal(boardEl.hidden,false,'the entry opens beside the board, not over it
 panel('.sheet');
 app.close(); advance(300);
 
+/* Where a square can take you, drawn. Selecting one lights the squares its
+   faces reach, on the board and as lines in the world, and names it where it
+   stands. */
+cellOf(30).click(); advance(600);
+const linkPoints = () => {
+  const a = app.rbBoard.links.geometry.getAttribute('position');
+  return a ? a.count / 2 : 0;
+};
+const destinations = rbBoard.FACES.map(f=>rbGame.destination(30,f)).filter(Boolean);
+assert.equal(destinations.length,6,'Tusita lists all six');
+assert.equal(linkPoints(),destinations.length,'a line to each of them');
+assert.equal(app.rbBoard.links.visible,true);
+for (const to of destinations) {
+  assert.ok(cellOf(to).classList.contains('reached'),'square '+to+' is lit as reachable');
+}
+assert.ok(!cellOf(1).classList.contains('reached'),'and a square it cannot reach is not');
+assert.match(q('.rb-label').textContent,/^30/,'the label names the square');
+assert.match(q('.rb-label').textContent,new RegExp(rbBoard.BY_N.get(30).name.slice(0,9)));
+/* It stands over the world, never over the board, which names the square
+   already — so it shows once the world has the screen to itself. */
+viewport={w:900,h:800}; window.dispatchEvent(new window.Event('resize')); advance(600);
+key('w'); advance(900);
+assert.ok(document.body.classList.contains('world-only'));
+assert.equal(q('.rb-label').hidden,false,'named where it stands, once the world has the screen');
+key('w'); advance(900);
+viewport={w:1280,h:900}; window.dispatchEvent(new window.Event('resize')); advance(600);
+key('w'); advance(600);
+assert.ok(!document.body.classList.contains('world-only'),
+  'and where both fit there is nothing to hand over');
+// a trap lists no moves of its own, so it draws nothing
+cellOf(48).click(); advance(600);
+assert.equal(app.rbBoard.links.visible,false,'Cessation leads nowhere by a throw');
+app.close(); advance(300);
+
 // Selecting a cell is the same selection in all three places.
 cellOf(59).click(); advance(600);
 assert.equal(app.state().current,'rebirth_sq_59');
@@ -495,7 +554,10 @@ assert.ok(app.meshesFor('rebirth_sq_59').length,'Shambhala is there to be pointe
 app.close(); advance(300);
 
 // Reading another player's trail must never hand them the die.
-q('#g-players').value='2'; q('#g-players').dispatchEvent(new window.Event('change'));
+newGame(2,['Tenzin','Drolma']);
+assert.deepEqual(app.rbGame().players.map(p=>p.name),['Tenzin','Drolma'],'players answer to their names');
+assert.match(q('[data-game="throw"]').textContent,/Tenzin/,'and the throw is offered to them by name');
+assert.match(boardEl.querySelector('.bv-pt .short').textContent,/^Tenzin/);
 throwFace(1);
 assert.equal(app.rbGame().turn,1,'the die passed to the second player');
 assert.equal(app.rbGame().viewing,1);
@@ -505,7 +567,7 @@ assert.equal(app.rbGame().turn,1,'but the turn has not moved');
 assert.deepEqual(chips().map(c=>+c.dataset.square),[27],'and the trail shown is theirs');
 
 // The counter trap, through the board: twenty-one useful throws and out to 9.
-q('#g-players').value='1'; q('#g-players').dispatchEvent(new window.Event('change'));
+newGame(1);
 app.rbGame().players[0].pos = 33;
 throwFace(6);
 assert.equal(app.rbGame().players[0].pos,1,'A six out of the lesser path falls to Vajra Hell');
@@ -526,9 +588,28 @@ throwFace(5);
 assert.equal(app.rbGame().winner,0,'the rite cannot change the winner');
 assert.equal(q('[data-game="throw"]').textContent,'Game over');
 assert.equal(q('[data-game="throw"]').disabled,true);
-q('[data-game="reset"]').click(); advance(300);
+// A game in play says so before it is thrown away.
+q('[data-game="ask-new"]').click();
+assert.equal(q('.bv-ask-warn').hidden,false,'the warning appears once there is a game to lose');
+q('[data-game="cancel-new"]').click();
+assert.equal(app.rbGame().winner,0,'and keeping playing changes nothing');
+newGame(1);
 assert.equal(app.rbGame().players[0].pos,rbBoard.START);
+assert.equal(app.rbGame().winner,null);
 assert.equal(chips().length,0,'a new game starts with an empty trail');
+
+// The dialog opens showing whoever is playing, so the usual case is two clicks.
+newGame(2,['Tenzin','Drolma']);
+q('[data-game="ask-new"]').click();
+assert.deepEqual([...q('.bv-names').querySelectorAll('input')].map(f=>f.value),['Tenzin','Drolma'],
+  'the names in play are already in the fields');
+q('#g-players').value='3'; q('#g-players').dispatchEvent(new window.Event('change'));
+assert.deepEqual([...q('.bv-names').querySelectorAll('input')].map(f=>f.value),['Tenzin','Drolma',''],
+  'and adding a player keeps them');
+q('[data-game="cancel-new"]').click();
+assert.equal(app.rbGame().players.length,2,'cancelling changes nothing');
+newGame(1,['']);
+assert.equal(app.rbGame().players[0].name,'Player 1','a name cleared falls back to the number');
 
 // Reduced motion gets the same game without the wait.
 reduced = true;
@@ -537,7 +618,7 @@ assert.equal(app.rbGame().players[0].pos,27,'no suspense where none is wanted');
 assert.ok(!q('.die-face').classList.contains('tumbling'));
 advance(3000);
 reduced = false;
-q('[data-game="reset"]').click(); advance(3000);
+newGame(1); advance(3000);
 
 // Square 85 reads 71, and its entry says the other witness reads 73.
 assert.equal(rbGame.destination(85,'one'),71);
@@ -564,6 +645,8 @@ key('Escape'); advance(1200);
 assert.equal(app.state().mode,'explore');
 assert.equal(boardEl.hidden,true);
 assert.ok(boardMeshes.every(m=>!app.visibleInScene(m)),'Escape puts the board away');
+assert.equal(q('.rb-label').hidden,true,'and the label with it');
+assert.equal(app.rbBoard.links.visible,false,'and the lines');
 assert.ok(!document.body.classList.contains('world-only'));
 
 // A square opened from the index lays the board out first.
@@ -601,5 +684,8 @@ console.log(JSON.stringify({result:'PASS',heaps:37,illustrations:24,triangles,at
    + 'every overlay panel, and the Escape cascade. The throw: a die that keeps its answer until it stops, cannot be '
    + 'thrown twice at once, announces where it landed, and resolves at once under reduced motion. A standing marker '
    + 'for every player, ringed for whoever holds the die and fanned apart when they share a square. The iconography '
-   + 'slot proved with two stubs: cell, billboard, sheet fetched once and only in game mode.',
+   + 'slot proved with two stubs: cell, billboard, sheet fetched once and only in game mode. One rising spiral in the '
+   + 'board\'s own order, each square on a plinth; the squares a selected one reaches lit on the board and drawn as '
+   + 'lines in the world, named where they stand; and a new game that asks first, takes the players\' names, and '
+   + 'changes nothing when cancelled.',
  limits:'DOM and GPU substitutes; actual CSS layout, WebGL rendering and devices were not tested.'},null,2));
