@@ -79,12 +79,13 @@ q('.masthead').getBoundingClientRect = () => document.body.classList.contains('m
 const app = await window.eval(`(async()=>{${source}\nreturn {
  world, cam, ctr, E, HEAPS, MARKS, HEAP_MEMBERS, OFFERING_MODELS, ORIGINAL_VISIBILITY,
  STEPS, LUMINARIES, RIM, OFFERING_SIZE, freeRect, tourImageRect, meshesFor, visibleInScene,
- setMandala, show, close, setOpen, startTour, visitHeap, endTour, orientOfferingCards,
+ setMandala, setMode, show, close, setOpen, startTour, visitHeap, endTour, orientOfferingCards,
  applyStep, playToggle, stepBy, pausePlay, resetPlay, applyTheme, setMotion,
- state:()=>({mandala,touring,tourIndex,pStep,playing,current,motion,showHeapNumbers,lumSpin})
+ rbBoard, rbGame:()=>rbGame,
+ state:()=>({mandala,mode,touring,tourIndex,pStep,playing,current,motion,showHeapNumbers,lumSpin})
 };})()`);
 advance(1200);
-const panels = ['.sheet','.mandala-note','.tour-panel','.index'];
+const panels = ['.sheet','.mandala-note','.tour-panel','.index','.game'];
 function panel(expected) {
   const visible=panels.filter(s=>!q(s).hidden);
   assert.deepEqual(visible,expected?[expected]:[],'Exactly one panel may be open');
@@ -284,6 +285,130 @@ app.OFFERING_MODELS.forEach(m=>assert.equal(app.visibleInScene(m),false));
 worldVisibility.forEach((visible,obj)=>assert.equal(obj.visible,visible,'All world context restored'));
 reduced=true; app.startTour(20); advance(20); panel('.tour-panel');
 assert.equal(app.state().tourIndex,20);
+
+/* ── the game of rebirth ────────────────────────────────────────────────
+   A mode of its own. It has to lay the board over the geometry already
+   drawn, and put it away again however the mode is left. */
+reduced=false; app.endTour(); app.setMandala(false); advance(1200); panel(null);
+const key = k => window.dispatchEvent(new window.KeyboardEvent('keydown',{key:k}));
+const boardMeshes = []; app.rbBoard.group.traverse(o=>{if(o.isMesh)boardMeshes.push(o);});
+assert.equal(app.rbBoard.nodes.size,104);
+assert.ok(boardMeshes.length>=208,'A marker and a target for every square');
+assert.ok(boardMeshes.every(m=>!app.visibleInScene(m)),'The board is away outside game mode');
+
+key('g'); advance(1200); panel('.game');
+assert.equal(app.state().mode,'game');
+// The dock sits on an overlay that swallows pointer events, and every panel in
+// it has to turn them back on. jsdom does not do CSS, so this is read from the
+// stylesheet: a panel left out of that rule looks right and cannot be used.
+const pointerRules = [...html.matchAll(/([^{}]+)\{[^{}]*pointer-events:\s*auto[^{}]*\}/g)].map(m=>m[1]);
+for (const child of q('.panel-dock').children) {
+  const cls = '.' + child.className.trim().split(/\s+/)[0];
+  assert.ok(pointerRules.some(sel=>sel.includes(cls)),
+    cls + ' is a panel in the dock but never gets pointer events back');
+}
+assert.ok(document.body.classList.contains('game-view'));
+assert.equal(q('[data-mode="game"]').getAttribute('aria-pressed'),'true');
+assert.equal(q('[data-mode="explore"]').getAttribute('aria-pressed'),'false');
+assert.ok(boardMeshes.every(m=>app.visibleInScene(m)),'The board is laid out in game mode');
+assert.equal(q('[data-act="home"]').disabled,false,'Game mode is something to come home from');
+const withGame = app.freeRect();
+assert.ok(withGame.w < viewport.w,'The game panel is charged to the free rectangle');
+
+// Every anchored square stands on the geometry the model already draws for it.
+// A mistyped anchor binds to nothing and drops onto the armature in silence.
+const anchoredSquares = rbBoard.SQUARES.filter(sq=>sq.anchor);
+assert.equal(anchoredSquares.length,21);
+for (const sq of anchoredSquares) {
+  const holder = app.rbBoard.nodes.get(sq.n);
+  assert.equal(holder.userData.anchored,true,'square '+sq.n+' binds to '+sq.anchor);
+  const drawn = app.meshesFor(sq.anchor);
+  assert.ok(drawn.length,'the model draws '+sq.anchor);
+  const box = new THREE.Box3(); drawn.forEach(m=>box.expandByObject(m));
+  const centre = box.getCenter(new THREE.Vector3());
+  assert.ok(Math.hypot(holder.position.x-centre.x,holder.position.z-centre.z)<1e-6,
+    'square '+sq.n+' stands over '+sq.anchor);
+  assert.ok(holder.position.y>centre.y,'square '+sq.n+' floats above '+sq.anchor);
+}
+for (const sq of rbBoard.SQUARES.filter(x=>!x.anchor)) {
+  const holder = app.rbBoard.nodes.get(sq.n);
+  assert.ok(!holder.userData.anchored,'square '+sq.n+' has nothing to anchor to');
+  assert.ok([holder.position.x,holder.position.y,holder.position.z].every(Number.isFinite));
+}
+
+// A loaded die, so the printed moves can be checked through the panel.
+let face = 1;
+window.Math.random = () => (face-1)/6 + 1e-6;
+const throwFace = f => { face=f; q('[data-game="throw"]').click(); advance(200); };
+q('#g-players').value='1'; q('#g-players').dispatchEvent(new window.Event('change'));
+assert.equal(app.rbGame().players.length,1);
+assert.equal(app.rbGame().players[0].pos,rbBoard.START);
+throwFace(1);
+assert.equal(app.rbGame().players[0].pos,27,'A one off the Heavenly Highway reaches the Four Great Kings');
+assert.match(q('.game .g-at').textContent,/^· 27 /);
+assert.equal(q('.game .feed').children.length,1);
+const tokenAt27 = app.rbBoard.token.position.clone();
+assert.ok(tokenAt27.distanceTo(app.rbBoard.nodes.get(27).position)>0,'The token floats over its square');
+
+// The counter trap, through the panel: twenty-one useful throws and out to 9.
+app.rbGame().players[0].pos = 33;
+throwFace(6);
+assert.equal(app.rbGame().players[0].pos,1,'A six out of the lesser path falls to Vajra Hell');
+assert.equal(q('.game .tally').hidden,false,'The checklist appears');
+assert.match(q('.game .say').textContent,/trap/i);
+for (let f=1; f<=6; f+=1) for (let i=0; i<f; i+=1) throwFace(f);
+assert.equal(app.rbGame().players[0].pos,9,'The completed checklist leaves for the Lord of the Dead');
+assert.equal(q('.game .tally').hidden,true);
+assert.match(q('.game .say').textContent,/complete/i);
+
+// Victory is declared on arrival; the throw that follows is a rite.
+app.rbGame().players[0].pos = 103;
+throwFace(1);
+assert.equal(app.rbGame().winner,0);
+assert.equal(q('[data-game="throw"]').textContent,'Stupa throw');
+assert.equal(q('[data-game="throw"]').disabled,false);
+throwFace(5);
+assert.equal(app.rbGame().winner,0,'The rite cannot change the winner');
+assert.equal(q('[data-game="throw"]').textContent,'Game over');
+assert.equal(q('[data-game="throw"]').disabled,true);
+q('[data-game="reset"]').click(); advance(200);
+assert.equal(app.rbGame().players[0].pos,rbBoard.START);
+assert.equal(q('.game .feed').children.length,0);
+
+// The panel takes its turn in the dock and its rung in the Escape cascade.
+app.setOpen(true); panel('.index');
+app.setOpen(false); advance(1000); panel('.game');
+app.show('rebirth_sq_104',true); panel('.sheet');
+assert.ok(app.meshesFor('rebirth_sq_104').length,'Nirvana is a square you can point at');
+key('Escape'); advance(1000); panel('.game');
+key('Escape'); advance(1200); panel(null);
+assert.equal(app.state().mode,'explore');
+assert.ok(boardMeshes.every(m=>!app.visibleInScene(m)),'Escape puts the board away');
+
+// A square opened from the index lays the board out first, the way the
+// offering figures open mandala mode.
+app.show('rebirth_sq_27',true); advance(1200);
+assert.equal(app.state().mode,'game');
+assert.ok(app.meshesFor('rebirth_sq_27').length,'The square is there to be tinted');
+app.close(); advance(200); panel('.game');
+
+// And an offering figure opened from game mode takes the board away with it.
+app.show('mandala_parasol',true); advance(1200); panel('.sheet');
+assert.equal(app.state().mode,'mandala');
+assert.equal(app.state().mandala,true);
+assert.ok(boardMeshes.every(m=>!app.visibleInScene(m)),'Mandala mode is not played over the board');
+
+app.close(); app.setMandala(false); advance(1200); panel(null);
+assert.equal(app.state().mode,'explore');
+key('m'); advance(1200); panel('.mandala-note'); assert.equal(app.state().mode,'mandala');
+key('g'); advance(1200); panel('.game'); assert.equal(app.state().mode,'game');
+assert.equal(app.state().mandala,false,'Game mode is not mandala mode');
+app.OFFERING_MODELS.forEach(m=>assert.equal(app.visibleInScene(m),false,'The offering is put away'));
+key('e'); advance(1200); panel(null); assert.equal(app.state().mode,'explore');
+app.ORIGINAL_VISIBILITY.forEach((visible,obj)=>assert.equal(obj.visible,visible,'Original world restored after the game'));
+worldVisibility.forEach((visible,obj)=>assert.equal(obj.visible,visible,'All world context restored after the game'));
+
 console.log(JSON.stringify({result:'PASS',heaps:37,illustrations:24,triangles,atlasRequests:3,
- checks:'Terrain overlay priority, independent motion/mandala switches and gesture resume, numbers toggle, billboards from 16 angles, 84% tour image fit at three viewport sizes, all 37 stops, playback, isolation, exclusive panels, image failure/retry, keyboard controls, reduced motion and visibility restoration.',
+ squares:app.rbBoard.nodes.size,anchoredSquares:anchoredSquares.length,
+ checks:'Terrain overlay priority, independent motion/mandala switches and gesture resume, numbers toggle, billboards from 16 angles, 84% tour image fit at three viewport sizes, all 37 stops, playback, isolation, exclusive panels, image failure/retry, keyboard controls, reduced motion and visibility restoration. Game mode: three-way mode switch, the board laid out and put away, all 21 anchored squares standing on the geometry drawn for them, the printed first move, the counter trap end to end, victory and its rite, every dock panel given pointer events back, dock and Escape order.',
  limits:'DOM and GPU substitutes; actual CSS layout, WebGL rendering and devices were not tested.'},null,2));

@@ -130,11 +130,18 @@ check('victory is declared on arrival and the stupa cannot undo it', () => {
   assert.equal(g.winner, 0, 'the winner does not change');
 });
 
+// Whether an anchor really binds to geometry needs the built scene, so that
+// check lives in tests/mandala-regression.mjs; here only the shape of the data.
 check('anchored squares name entries the world system already draws', () => {
   const anchored = SQUARES.filter(s => s.anchor);
-  assert.equal(anchored.length, 23);
-  for (const s of anchored) assert.match(s.anchor, /^[a-z0-9_]+$/);
-  assert.equal(SQUARES.filter(s => !s.anchor).length, 81);
+  assert.equal(anchored.length, 21);
+  for (const s of anchored) {
+    assert.match(s.anchor, /^[a-z0-9_]+$/);
+    assert.equal(s.band, 'anchored', 'square ' + s.n + ' is anchored');
+  }
+  const loose = SQUARES.filter(s => !s.anchor);
+  assert.equal(loose.length, 83);
+  for (const s of loose) assert.notEqual(s.band, 'anchored', 'square ' + s.n + ' has nothing to anchor to');
 });
 
 check('seam positions are finite and distinct', () => {

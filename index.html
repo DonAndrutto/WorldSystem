@@ -562,9 +562,12 @@
     }
     body.index-open .controls { right: 9px; }
     .controls .btn { flex: 1; padding: 12px 0 11px; }
+    /* the mode switch is three buttons in one shell: it takes three shares of
+       the bar so the strip stays evenly divided */
+    .controls .seg { flex: 3; }
     .index { padding-bottom: calc(66px + var(--sa-b)); }
-    /* six controls at thumb size need the whole width; Full screen is
-       already gone on iOS, so five is what actually lands here */
+    /* eight controls at thumb size need the whole width; Full screen is
+       already gone on iOS, so seven is what actually lands here */
     .controls .btn { padding: 13px 0 12px; }
     .sheet {
       left: 9px; right: 9px; width: auto; top: auto;
@@ -607,7 +610,8 @@
     display: flex; flex-direction: column; align-items: stretch; gap: 8px; z-index: 5;
   }
   .panel-dock[hidden], .panel-dock [hidden] { display: none !important; }
-  .panel-dock > .sheet, .panel-dock > .mandala-note, .panel-dock > .index, .panel-dock > .tour-panel {
+  .panel-dock > .sheet, .panel-dock > .mandala-note, .panel-dock > .index, .panel-dock > .tour-panel,
+  .panel-dock > .game {
     position: relative; inset: auto; transform: none; width: 100%; min-height: 0;
     max-height: 100%; margin: 0; flex: 0 1 auto; pointer-events: auto;
   }
@@ -655,7 +659,8 @@
     .controls .btn { min-height: 44px; }
     .panel-dock { left: 9px; right: 9px; top: auto; bottom: calc(66px + var(--sa-b));
       width: auto; max-height: min(54dvh, calc(100dvh - 126px - var(--sa-b) - var(--sa-t))); }
-    .panel-dock > .sheet, .panel-dock > .mandala-note, .panel-dock > .index, .panel-dock > .tour-panel { max-height: inherit; }
+    .panel-dock > .sheet, .panel-dock > .mandala-note, .panel-dock > .index, .panel-dock > .tour-panel,
+    .panel-dock > .game { max-height: inherit; }
     .tour-panel { padding: 12px; }
     .tour-panel .mode-tabs { margin-bottom: 10px; }
     .tour-title { font-size: 25px; }
@@ -2807,7 +2812,7 @@ const HEAPS = [
 /* — the index tree ————————————————————————————————————————————— */
 
 /* ── the game of rebirth: one entry per square ──────────────────────────
-   Twenty-three squares name something this model already draws and say so.
+   Twenty-one squares name something this model already draws and say so.
    The rest are paths, attainments, sacred lands and Buddha fields, which the
    sources put outside the Meru world system; the board gives them a place. */
 const RB_BAND_NOTE = {
@@ -2852,10 +2857,10 @@ def('rebirth_game', {
   meta: 'A board of 104 squares laid over the world system',
   f: [['Squares', '104, in 13 rows of 8'], ['Numbering', 'right to left, rising from the bottom'],
       ['Start', '24, the Heavenly Highway'], ['Victory', '104, Nirvana'],
-      ['Traps', '1 and 48'], ['Already in the model', '23 squares'], ['Given a place by the board', '81 squares']],
+      ['Traps', '1 and 48'], ['Already in the model', '21 squares'], ['Given a place by the board', '83 squares']],
   b: ['A game attributed to Sakya Pandita, in which a die names the square you go to rather than a number of steps to travel. A face with no listed move is dead: you stay where you are and pass.',
       'Read as a section, the board is already a cosmology. Its row is height above or below the golden ground, and its two columns of paths separate the tantric route from the route of the sutras. Where a square names a region — a hell, a continent, a heaven — the world system has already built it, and the marker simply floats above it.',
-      'Where a square names a path, an attainment or a Buddha field, there is nothing in the world system to stand on. The sources say as much: Buddha fields lie outside the Meru arrangement. Those eighty-one squares are given a place here, on an armature that keeps the board’s own logic of height and side.'],
+      'Where a square names a path, an attainment or a Buddha field, there is nothing in the world system to stand on. The sources say as much: Buddha fields lie outside the Meru arrangement. Those eighty-three squares are given a place here, on an armature that keeps the board’s own logic of height and side.'],
   rel: ['rebirth_sq_24', 'rebirth_sq_1', 'rebirth_sq_48', 'rebirth_sq_104']
 });
 
@@ -3041,6 +3046,8 @@ function show(id, reveal) {
   // These figures belong to the offering diagram. Entries remain reachable
   // from the ordinary index, including before mandala mode has been opened.
   if (/^(emblem_|goddess_|mandala_)/.test(id) && !mandala) setMandala(true);
+  // A square of the board stands nowhere unless the board is laid out.
+  if (/^rebirth_sq_/.test(id) && mode !== 'game') setMode('game');
   if (mandala && HEAP_NUMBERS.has(id)) {
     pausePlay();
     if (!HEAP_MEMBERS.get(HEAP_NUMBERS.get(id)).some(visibleInScene)) resetPlay();
@@ -3624,7 +3631,11 @@ function setMandala(on) {
   sheet.hidden = true;
   current = null;
   mandala = on;
+  // show() and the offering controls force mandala mode without going through
+  // setMode, so the board has to be put away here as well.
+  const leavingGame = on && mode === 'game';
   mode = on ? 'mandala' : (mode === 'mandala' ? 'explore' : mode);
+  if (leavingGame) leaveGame();
   document.querySelectorAll('[data-mode]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.mode === mode)));
   document.body.classList.toggle('mandala-view', on);
   world.traverse((o) => {
@@ -4294,6 +4305,7 @@ const chromeRO = new ResizeObserver(() => syncChrome());
 chromeRO.observe(noteEl);
 chromeRO.observe(legend);
 chromeRO.observe(tourEl);
+chromeRO.observe(gameEl);
 syncChrome();
 let reframe = null;
 window.addEventListener('resize', () => {

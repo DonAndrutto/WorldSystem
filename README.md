@@ -120,12 +120,12 @@ into the stūpa, is a rite and settles nothing.
 Read as a section, the board is already a cosmology, and that is what makes it
 sit on this model at all. Its row is height above or below the golden ground;
 its two columns of paths separate the tantric route from the route of the
-sūtras. Twenty-three squares name something this drawing already builds — the
+sūtras. Twenty-one squares name something this drawing already builds — the
 hot and cold hells, the four continents, the six heavens of sense desire, the
 Formless Realm, Akaniṣṭha — and their markers float above the existing
 geometry rather than duplicating it.
 
-The other eighty-one have no coordinate here, and could not have one. They are
+The other eighty-three have no coordinate here, and could not have one. They are
 paths, stages of training, wisdom-holder attainments, sacred lands and Buddha
 fields, and the sources are explicit that Buddha fields lie outside the Meru
 world system. **These are the destinations that exist only in game mode.** They
@@ -253,6 +253,7 @@ harness needs Node and two development dependencies:
 ```sh
 npm install --no-save --package-lock=false three@0.184.0 jsdom@26
 node tests/mandala-regression.mjs
+node tests/rebirth-regression.mjs
 node tests/viewport-gestures.mjs
 node tests/world-surfaces.mjs
 ```
@@ -265,6 +266,13 @@ A passing result does not establish actual WebGL appearance or device usability.
 
 The surface checks cover closed geometry seams, range separation, height and
 wave limits, and the shared ripple texture. They do not render the GPU scene.
+
+The board checks run on the data and the rules alone, with no DOM: the 104
+squares, all 624 square/face combinations, the two counter traps, victory, and
+the routes the Rules of Play claim. Game mode itself — the mode switch, the
+board laid out over the geometry and put away again, the twenty-one anchored
+squares standing on what the model draws for them, and a game played through
+the panel — is checked in the mandala suite, which builds the real scene.
 
 To rebuild the icon assets, install Sharp as an additional development dependency
 (`npm install --no-save --package-lock=false three@0.184.0 jsdom@26 sharp`) and run
