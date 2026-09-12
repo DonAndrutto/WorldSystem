@@ -6,6 +6,10 @@
 // while a result is still needed. Completing the checklist leaves for 9 and 52.
 // Victory is declared on arrival at 104; the stupa throw that follows is a
 // ceremony and cannot change the winner.
+//
+// Each player keeps the whole arc they travelled, which is the one thing the
+// board records that a position cannot: the fall to a hell and the climb out of
+// it are the same square twice, and only the trail tells them apart.
 
 import { MOVES, SPECIAL, START, VICTORY, TRAP_QUOTA, FACES } from './rebirth-board.js';
 
@@ -14,13 +18,22 @@ export function createGame(options = {}) {
   return {
     quotas: options.quotas || TRAP_QUOTA,
     turn: 0,
+    // Whose trail is on show. Reading another player's arc must never hand them
+    // the die, so this is kept apart from turn and never written by a throw.
+    viewing: 0,
     over: false,
     winner: null,
     stupa: null,
     players: Array.from({ length: count }, (_, i) => ({
-      i, pos: START, trap: null
+      i, pos: START, trap: null, history: []
     }))
   };
+}
+
+// Look at a player without giving them the turn.
+export function view(game, i) {
+  if (i >= 0 && i < game.players.length) game.viewing = i;
+  return game.viewing;
 }
 
 export const emptyTally = () => ({ one: 0, two: 0, three: 0, four: 0, five: 0, six: 0 });
@@ -66,6 +79,7 @@ export function throwDie(game, face) {
     const from = player.pos;
     player.trap = null;
     player.pos = exit;
+    record(player, key, from, exit);
     pass(game);
     return { kind: 'trap-complete', player: player.i, face: key, from, to: exit };
   }
@@ -79,6 +93,7 @@ export function throwDie(game, face) {
 
   const from = player.pos;
   player.pos = to;
+  record(player, key, from, to);
 
   if (to === VICTORY) {
     game.over = true;
@@ -97,6 +112,11 @@ export function throwDie(game, face) {
 
 function pass(game) {
   game.turn = (game.turn + 1) % game.players.length;
+  game.viewing = game.turn;
+}
+
+function record(player, face, from, to) {
+  player.history.push({ face, from, to });
 }
 
 // Follow one face from a square for n throws, ignoring traps and other players.
