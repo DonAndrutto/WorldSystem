@@ -402,6 +402,19 @@
 
   body.mandala-view .masthead { display: none; }
 
+  /* the selected square, named where it stands in the world */
+  .rb-label {
+    position: absolute; transform: translate(-50%, -50%); pointer-events: none;
+    z-index: 3; padding: 6px 13px 7px; background: var(--surface);
+    border: 1px solid var(--rule-2); border-radius: 3px; box-shadow: var(--shadow);
+    font-size: 15px; line-height: 1.15; color: var(--ink); white-space: nowrap;
+    max-width: 34ch; overflow: hidden; text-overflow: ellipsis;
+  }
+  .rb-label[hidden] { display: none; }
+  .rb-label .n { font-family: "IBM Plex Mono", monospace; font-size: 12px; color: var(--ink-3); }
+  .rb-label .n::after { content: " · "; }
+  @media (max-width: 700px) { .rb-label { font-size: 13px; padding: 4px 9px 5px; max-width: 22ch; } }
+
   /* mandala marks */
   .marks { position: absolute; inset: 0; pointer-events: none; }
   .marks[hidden] { display: none; }
@@ -748,6 +761,9 @@
   .bv-sq[data-victory] { background: var(--hi-2); }
   .bv-sq[aria-selected="true"] { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
   .bv-sq.lit { background: var(--hi-2); }
+  /* the squares the selected one's faces lead to */
+  .bv-sq.reached { box-shadow: inset 0 0 0 1px var(--rule-2); }
+  .bv-sq.reached .n { color: var(--accent); }
   .bv-toks { display: flex; flex-wrap: wrap; gap: 2px; margin-top: auto; }
   .bv-tok { width: 11px; height: 11px; border-radius: 50%; box-shadow: 0 0 0 1px var(--paper); flex: none; }
   .bv-tok.turn { outline: 1px solid var(--ink); outline-offset: 1px; }
@@ -846,6 +862,35 @@
   .bv-chip.last { border-color: var(--accent); background: var(--hi-2); }
   .bv-chip.last .t { color: var(--ink); }
 
+  .bv-new { flex: none; align-self: flex-start; }
+  /* Asking before a game is thrown away, and somewhere to put the names. */
+  .bv-ask {
+    position: absolute; inset: 0; z-index: 8; display: grid; place-items: center;
+    background: color-mix(in srgb, var(--paper) 62%, transparent);
+  }
+  .bv-ask[hidden] { display: none !important; }
+  .bv-ask-in {
+    width: min(92%, 34ch); padding: 20px 22px 18px;
+    display: flex; flex-direction: column; gap: 12px;
+    animation: card-in .26s cubic-bezier(.2,.9,.3,1.2) both;
+  }
+  .bv-ask-in h2 { margin: 0; font-size: 19px; font-weight: 500; }
+  .bv-ask-warn {
+    margin: 0; font-size: 13px; color: var(--ink-2);
+    border-left: 2px solid var(--accent); padding-left: 9px;
+  }
+  .bv-ask-warn[hidden] { display: none; }
+  .bv-names { display: flex; flex-direction: column; gap: 7px; }
+  .bv-names label { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--ink-2); }
+  .bv-names .pip-dot { width: 11px; height: 11px; border-radius: 50%; flex: none; }
+  .bv-names input {
+    flex: 1; min-width: 0; font: inherit; font-size: 14px; color: var(--ink);
+    background: var(--field); border: 1px solid var(--rule-2); border-radius: 5px; padding: 5px 8px;
+  }
+  .bv-names input:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .bv-ask-act { display: flex; gap: 8px; justify-content: flex-end; margin-top: 2px; }
+  .bv-ask-act .go { min-width: 96px; }
+
   .bv-more { position: relative; flex: none; }
   .bv-more > summary { display: inline-flex; list-style: none; cursor: pointer; }
   .bv-more > summary::-webkit-details-marker { display: none; }
@@ -870,7 +915,7 @@
   .board-view .feed li { font-size: 12px; color: var(--ink-2); padding: 4px 0; border-top: 1px solid var(--rule); }
   .board-view .feed li .mono { color: var(--ink); }
   /* the board and the world trade places only where they cannot sit side by side */
-  .bv-swap { display: none; flex: none; align-self: stretch; }
+  .bv-swap { display: none; flex: none; align-self: flex-start; }
 
   body.game-view .compass { display: none; }
   body.game-view .legend { display: none; }
@@ -968,6 +1013,7 @@
   </div>
 
   <div class="marks" id="offering-marks" hidden=""></div>
+  <div class="rb-label" hidden=""><span class="n"></span><span class="t"></span></div>
 
   <section class="board-view" aria-label="The board of rebirth" hidden>
     <div class="bv-grid" role="grid" aria-label="The hundred and four squares"></div>
@@ -988,21 +1034,33 @@
         <div class="bv-tally" hidden></div>
         <div class="bv-trail" aria-label="The karmic trail"></div>
       </div>
+      <button class="btn bv-new" type="button" data-game="ask-new" title="Start a new game — asks first">New game</button>
       <details class="bv-more">
         <summary class="btn" title="Game options and the move log">⋯</summary>
         <div class="bv-more-body card">
-          <div class="bv-setup">
-            <label for="g-players">Players</label>
-            <select id="g-players"><option>1</option><option selected>2</option><option>3</option><option>4</option></select>
-            <button class="btn" type="button" data-game="reset">New game</button>
-          </div>
-          <label class="sw"><input type="checkbox" id="g-note64"> Note 64 trap quotas <span class="mono">[1,2,6,3,5,4]</span></label>
           <label class="sw"><input type="checkbox" id="g-sound"> Sound</label>
           <h3>Move log</h3>
           <ul class="feed"></ul>
         </div>
       </details>
       <button class="btn bv-swap" type="button" data-game="swap" title="Show the world — w">Show the world</button>
+    </div>
+
+    <div class="bv-ask" role="dialog" aria-modal="true" aria-labelledby="bv-ask-title" hidden>
+      <form class="bv-ask-in card" method="dialog">
+        <h2 id="bv-ask-title">A new game</h2>
+        <p class="bv-ask-warn" hidden>The game in play will be lost.</p>
+        <div class="bv-setup">
+          <label for="g-players">Players</label>
+          <select id="g-players"><option>1</option><option selected>2</option><option>3</option><option>4</option></select>
+        </div>
+        <div class="bv-names"></div>
+        <label class="sw"><input type="checkbox" id="g-note64"> Note 64 trap quotas <span class="mono">[1,2,6,3,5,4]</span></label>
+        <div class="bv-ask-act">
+          <button class="btn" type="button" data-game="cancel-new">Keep playing</button>
+          <button class="btn go" type="submit" data-game="start-new">Start</button>
+        </div>
+      </form>
     </div>
   </section>
 
@@ -3502,7 +3560,7 @@ const drawLoop = () => {
   orientOfferingCards();
   gl.render(stage._scene, cam);
   if (mandala) placeMarks();
-  if (mode === 'game') rbArt.face(cam);
+  if (mode === 'game') { rbArt.face(cam); rbPlaceLabel(); }
   if (!mandala || touring) placeCompass();
 };
 stage._loop = drawLoop;
@@ -3747,6 +3805,9 @@ const MARKS = HEAPS.map(([n, id]) => {
 
 let mandala = false;
 let mode = 'explore';            // 'explore' | 'mandala' | 'game'
+/* the board's rectangle, measured when the chrome changes and read by the
+   floating label every frame rather than measured there */
+let rbLabelClip = null;
 let minPlay = false, framePut = null;
 /* One active panel occupies the shared dock. Its footprint is also used
    to frame the model in the remaining canvas area. */
@@ -3764,6 +3825,9 @@ function syncChrome() {
   document.body.classList.toggle('min-menus', minPlay);
   document.body.classList.toggle('tour-view', touring);
   document.body.classList.toggle('game-view', mode === 'game');
+  // measured here rather than per frame; the label reads it every frame
+  rbLabelClip = (mode === 'game' && !boardEl.hidden && !document.body.classList.contains('world-only'))
+    ? boardEl.getBoundingClientRect() : null;
   document.documentElement.style.setProperty('--bl', '0px');
   stage.toggleAttribute('no-toolbar', !dock.hidden);
 }
@@ -4357,6 +4421,8 @@ const rbTally = boardEl.querySelector('.bv-tally');
 const rbWho = boardEl.querySelector('.bv-who');
 const rbTrail = boardEl.querySelector('.bv-trail');
 const rbGrid = boardEl.querySelector('.bv-grid');
+const rbLabel = document.querySelector('.rb-label');
+let rbSelected = null;
 const rbThrowBtn = boardEl.querySelector('[data-game="throw"]');
 const RB_PIPS = { 1: [4], 2: [0, 8], 3: [0, 4, 8], 4: [0, 2, 6, 8], 5: [0, 2, 4, 6, 8], 6: [0, 2, 3, 5, 6, 8] };
 const rbNamed = (n) => n + ' ' + RB_BY_N.get(n).name;
@@ -4456,8 +4522,35 @@ function rbPlaceToken() {
 /* One selection, shared: the lit cell, the open entry and the tinted marker in
    the world are the same square. */
 function rbSelect(n, moveCamera) {
+  rbSelected = n;
   rbCells.forEach((cell, sq) => cell.setAttribute('aria-selected', String(sq === n)));
+  // the squares this one's faces lead to, drawn and lit on the board
+  const reached = new Set(rbBoard.showLinks(n));
+  rbCells.forEach((cell, sq) => cell.classList.toggle('reached', reached.has(sq)));
+  rbLabel.querySelector('.n').textContent = String(n);
+  rbLabel.querySelector('.t').textContent = RB_BY_N.get(n).name;
   if (moveCamera && mode === 'game') focus('rebirth_sq_' + n, null, RB_SQUARE_PAD);
+  invalidate(2);
+}
+/* The label rides the selected square, projected each frame like the maṇḍala's
+   own marks. Hidden when the square is behind the camera or off the mode. */
+function rbPlaceLabel() {
+  const at = rbSelected === null ? null : rbBoard.positionOf(rbSelected);
+  if (!at) { rbLabel.hidden = true; return; }
+  NDC.copy(at).project(cam);
+  if (NDC.z >= 1) { rbLabel.hidden = true; return; }
+  const w = stage.clientWidth, h = stage.clientHeight;
+  const x = (NDC.x * 0.5 + 0.5) * w, y = (-NDC.y * 0.5 + 0.5) * h - 26;
+  // a square standing behind the board is named on the board already
+  if (rbLabelClip && x > rbLabelClip.left - 8 && x < rbLabelClip.right + 8
+      && y > rbLabelClip.top - 8 && y < rbLabelClip.bottom + 8) {
+    rbLabel.hidden = true;
+    return;
+  }
+  rbLabel.hidden = false;
+  const half = rbLabel.offsetWidth / 2 + 6;
+  rbLabel.style.left = Math.round(Math.min(Math.max(x, half), w - half)) + 'px';
+  rbLabel.style.top = Math.round(Math.min(Math.max(y, 22), h - 22)) + 'px';
 }
 function rbFlash(n) {
   const cell = rbCells.get(n);
@@ -4482,7 +4575,7 @@ function rbSyncTokens() {
       dot.className = 'bv-tok' + (p.i === rbGame.turn && !rbGame.over ? ' turn' : '');
       dot.dataset.p = String(p.i);
       dot.style.background = RB_COLOURS[p.i];
-      dot.title = 'Player ' + (p.i + 1);
+      dot.title = p.name;
       box.appendChild(dot);
     });
   });
@@ -4495,10 +4588,10 @@ function rbSyncWho() {
     tab.className = 'bv-pt';
     tab.dataset.player = String(p.i);
     tab.setAttribute('aria-current', String(p.i === rbGame.viewing));
-    tab.title = 'Player ' + (p.i + 1) + ' on ' + rbNamed(p.pos);
+    tab.title = p.name + ' on ' + rbNamed(p.pos);
     tab.innerHTML = '<span class="pip-dot"></span><span class="short"></span><span class="full"></span>';
     tab.querySelector('.pip-dot').style.background = RB_COLOURS[p.i];
-    tab.querySelector('.short').textContent = 'P' + (p.i + 1) + ' · ' + p.pos;
+    tab.querySelector('.short').textContent = p.name + ' · ' + p.pos;
     tab.querySelector('.full').textContent = RB_BY_N.get(p.pos).name;
     rbWho.appendChild(tab);
   });
@@ -4542,7 +4635,7 @@ function rbSync() {
   } else rbTally.hidden = true;
   rbThrowBtn.textContent = rbRolling ? 'Throwing…'
     : rbGame.over ? (rbGame.stupa === null ? 'Stupa throw' : 'Game over')
-    : (player.trap ? 'Throw (trapped)' : 'Throw for P' + (player.i + 1));
+    : (player.trap ? 'Throw (trapped)' : 'Throw for ' + player.name);
   rbThrowBtn.disabled = rbRolling || (rbGame.over && rbGame.stupa !== null);
   rbSyncWho();
   rbSyncTokens();
@@ -4607,7 +4700,7 @@ function rbThrow() {
   rbTumble(face, () => { rbRolling = false; rbResolve(face); });
 }
 function rbResolve(face) {
-  const who = 'P' + (rbGame.turn + 1);
+  const who = rbGame.players[rbGame.turn].name;
   const ev = throwDie(rbGame, face);
   if (ev.kind === 'stupa') {
     rbSay.innerHTML = ev.placed ? '<b>The relics pass into the stupa.</b> A rite after the fact; it settles nothing.'
@@ -4642,10 +4735,10 @@ function rbResolve(face) {
     rbFlash(ev.to);
     rbSelect(ev.to, true);
   } else if (ev.kind === 'victory') {
-    rbSay.innerHTML = '<b>Player ' + (ev.player + 1) + ' reaches Nirvana.</b> Victory is declared on arrival. A further 1 or 2 passes the relics into the stupa.';
+    rbSay.innerHTML = '<b>' + rbGame.players[ev.player].name + ' reaches Nirvana.</b> Victory is declared on arrival. A further 1 or 2 passes the relics into the stupa.';
     rbLog('<span class="mono">' + face + '</span> ' + who + ' wins at 104');
     RB_SOUND.victory();
-    rbShowCard(face, 'Player ' + (ev.player + 1) + ' wins', ev.to, 'Victory is declared on arrival.');
+    rbShowCard(face, rbGame.players[ev.player].name + ' wins', ev.to, 'Victory is declared on arrival.');
     rbFlash(ev.to);
     rbSelect(ev.to, true);
   } else {
@@ -4658,13 +4751,58 @@ function rbResolve(face) {
   }
   rbSync();
 }
+/* ── beginning again ────────────────────────────────────────────────────
+   A game can be abandoned at any moment, and abandoning one by accident is
+   worse than not being able to. So the control opens a dialog rather than
+   acting: it says what will be lost, and it is also where the players are
+   named, since that is the other thing wanted at the start. */
+const rbAsk = boardEl.querySelector('.bv-ask');
+const rbNames = boardEl.querySelector('.bv-names');
+const rbPlayerCount = boardEl.querySelector('#g-players');
+const rbInPlay = () => rbGame.players.some((p) => p.history.length) || rbGame.over;
+
+// A name the player never gave is not a name to carry forward.
+const rbGivenName = (p, i) => (p && p.name !== 'Player ' + (i + 1) ? p.name : '');
+
+function rbNameFields(prefill) {
+  const wanted = Number(rbPlayerCount.value);
+  rbNames.textContent = '';
+  for (let i = 0; i < wanted; i += 1) {
+    const row = document.createElement('label');
+    const dot = document.createElement('span');
+    dot.className = 'pip-dot';
+    dot.style.background = RB_COLOURS[i];
+    const field = document.createElement('input');
+    field.type = 'text';
+    field.maxLength = 24;
+    field.dataset.player = String(i);
+    field.placeholder = 'Player ' + (i + 1);
+    field.value = prefill[i] || '';
+    row.append(dot, field);
+    rbNames.appendChild(row);
+  }
+}
+function rbAskNew() {
+  rbAsk.querySelector('.bv-ask-warn').hidden = !rbInPlay();
+  rbPlayerCount.value = String(rbGame.players.length);
+  // whoever is playing now, so the usual case is New game then Start
+  rbNameFields(rbGame.players.map(rbGivenName));
+  rbAsk.hidden = false;
+  const first = rbNames.querySelector('input');
+  if (first) first.focus();
+}
+function rbCloseAsk() {
+  rbAsk.hidden = true;
+  rbThrowBtn.focus();
+}
 function rbReset() {
   clearTimeout(rbTumbleTimer);
   rbDie.classList.remove('tumbling');
   rbRolling = false;
   rbHideCard();
   rbGame = createGame({
-    players: Number(boardEl.querySelector('#g-players').value),
+    players: Number(rbPlayerCount.value),
+    names: [...rbNames.querySelectorAll('input')].map((i) => i.value),
     quotas: boardEl.querySelector('#g-note64').checked ? TRAP_QUOTA_NOTE64 : TRAP_QUOTA
   });
   rbSetDie(1);
@@ -4677,17 +4815,31 @@ boardEl.addEventListener('click', (ev) => {
   const b = ev.target.closest('[data-game]');
   if (!b) return;
   if (b.dataset.game === 'throw') rbThrow();
-  if (b.dataset.game === 'reset') rbReset();
+  if (b.dataset.game === 'ask-new') rbAskNew();
+  if (b.dataset.game === 'cancel-new') rbCloseAsk();
   if (b.dataset.game === 'swap') rbSwap();
 });
-boardEl.querySelector('#g-players').addEventListener('change', rbReset);
-boardEl.querySelector('#g-note64').addEventListener('change', rbReset);
+rbAsk.querySelector('form').addEventListener('submit', (ev) => {
+  ev.preventDefault();
+  rbReset();
+  rbCloseAsk();
+});
+rbAsk.addEventListener('click', (ev) => { if (ev.target === rbAsk) rbCloseAsk(); });
+// changing the count keeps whatever has already been typed
+rbPlayerCount.addEventListener('change', () => {
+  rbNameFields([...rbNames.querySelectorAll('input')].map((i) => i.value));
+});
 
-/* Where the board and the world cannot sit side by side, they take turns. */
+/* Where the board and the world cannot sit side by side, they take turns.
+   Where they can, there is nothing to hand over and the control is not shown,
+   so the key that works it does nothing either. */
+const rbCanSwap = () => window.matchMedia('(max-width: 1080px)').matches;
 function rbSwap(to) {
+  if (!rbCanSwap()) return;
   const worldOnly = to === undefined ? !document.body.classList.contains('world-only') : to;
   document.body.classList.toggle('world-only', worldOnly);
   boardEl.querySelector('[data-game="swap"]').textContent = worldOnly ? 'Show the board' : 'Show the world';
+  syncChrome();
   framePut = null;
   invalidate(4);
   requestAnimationFrame(() => { if (mode === 'game') reframeGame(); });
@@ -4719,6 +4871,8 @@ function enterGame() {
 }
 function leaveGame() {
   rbBoard.group.visible = false;
+  rbLabel.hidden = true;
+  rbBoard.showLinks(null);
   // stand the players down too, so the world is left exactly as it was found
   rbBoard.tokens.forEach((t) => { t.visible = false; t.userData.halo.visible = false; });
   document.body.classList.remove('world-only');
@@ -4916,7 +5070,8 @@ window.addEventListener('keydown', (e) => {
     e.preventDefault(); visitHeap(tourIndex + (e.key === 'ArrowRight' ? 1 : -1)); return;
   }
   if (e.key === 'Escape') {
-    if (document.body.classList.contains('index-open')) setOpen(false);
+    if (mode === 'game' && !rbAsk.hidden) rbCloseAsk();
+    else if (document.body.classList.contains('index-open')) setOpen(false);
     else if (!sheet.hidden) close();
     else if (touring) endTour();
     else if (mode !== 'explore') setMode('explore');

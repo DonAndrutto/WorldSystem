@@ -142,12 +142,20 @@ geometry rather than duplicating it.
 The other eighty-three have no coordinate here, and could not have one. They are
 paths, stages of training, wisdom-holder attainments, sacred lands and Buddha
 fields, and the sources are explicit that Buddha fields lie outside the Meru
-world system. **These are the destinations that exist only in game mode.** They
-stand on an armature that keeps the board's own logic: the sūtra route rising
-on one side, tantra on the other, the three sacred lands out beyond the rim,
-the Buddha fields clear of it and higher, and the bodies and acts of a Buddha
-on the axis above the summit. Every square has an index entry giving its place
+world system. **These are the destinations that exist only in game mode.**
+
+They stand on one rising spiral, read in the board's own order: square 1 below
+the golden ground at the widest turn, square 104 on the axis above the summit,
+and the hundred and two between them winding up and inward over three and a
+quarter turns. Nothing in the Meru system has that shape — it is the board's
+shape, not the world's, which is why it is drawn as a path through the world
+rather than as part of it. How far each square stands off the spiral still says
+which route it belongs to, so the two ascents remain separable by eye. Every
+square stands on a plinth, and every square has an index entry giving its place
 on the board and all six of its die results.
+
+Select a square and the squares its faces reach are lit on the board and drawn
+as thin lines in the world, with the square named where it stands.
 
 The move graph was reconstructed from three independent witnesses in the 1977
 edition — the printed chart, the individual square entries and the reverse
@@ -172,6 +180,14 @@ and shows nothing of the result until it stops; then the square arrived at is
 named in the middle of the board, large enough to read from across a room, and
 the card clears itself. Sound is off until asked for, under the `⋯` control
 beside the throw. `prefers-reduced-motion` gets the same game without the wait.
+
+### Beginning again
+
+The **New game** control sits beside the throw and is reachable at any moment,
+but it never acts on its own: it opens a dialog that says what will be lost,
+and that is also where the players are named. The names carry through the
+players bar, the log, the status line and the card that announces each throw.
+Cancelling changes nothing.
 
 ### Where the players are
 

@@ -25,9 +25,15 @@ export function createGame(options = {}) {
     winner: null,
     stupa: null,
     players: Array.from({ length: count }, (_, i) => ({
-      i, pos: START, trap: null, history: []
+      i, name: playerName(options.names, i), pos: START, trap: null, history: []
     }))
   };
+}
+
+// A player answers to whatever they were called, or to their number.
+function playerName(names, i) {
+  const given = names && names[i] ? String(names[i]).trim() : '';
+  return given || 'Player ' + (i + 1);
 }
 
 // Look at a player without giving them the turn.

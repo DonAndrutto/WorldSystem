@@ -210,16 +210,37 @@ check('reading a player does not hand them the die', () => {
   assert.equal(g.viewing, g.turn, 'the next throw brings the trail back to whoever holds the die');
 });
 
-check('seam positions are finite and distinct', () => {
+check('the spiral rises in the board\'s order and closes on the axis', () => {
   const ctx = { RIM: 1.5, FLOOR: -0.2, SUMMIT: 0.68 };
+  const at = SQUARES.map(s => ({ n: s.n, band: s.band, ...board.seamPosition(s, ctx) }));
+  const radius = (p) => Math.hypot(p.x, p.z);
   const seen = new Set();
-  for (const s of SQUARES.filter(x => !x.anchor)) {
-    const p = board.seamPosition(s, ctx);
-    for (const v of [p.x, p.y, p.z]) assert.ok(Number.isFinite(v), 'finite for ' + s.n);
+  for (const p of at) {
+    for (const v of [p.x, p.y, p.z]) assert.ok(Number.isFinite(v), 'finite for ' + p.n);
     const key = [p.x.toFixed(4), p.y.toFixed(4), p.z.toFixed(4)].join();
-    assert.ok(!seen.has(key), 'square ' + s.n + ' overlaps another');
+    assert.ok(!seen.has(key), 'square ' + p.n + ' overlaps another');
     seen.add(key);
   }
+  // one continuous rise from below the golden ground to above the summit
+  for (let i = 1; i < at.length; i += 1) {
+    assert.ok(at[i].y > at[i - 1].y, 'square ' + at[i].n + ' stands above ' + at[i - 1].n);
+  }
+  assert.ok(at[0].y < 0, 'the first square is below the ground');
+  assert.ok(at[103].y > ctx.SUMMIT * 2, 'and the last is well above the summit');
+  // and one that winds, and closes in as it goes
+  let wound = 0, previous = Math.atan2(at[0].z, at[0].x);
+  for (const p of at.slice(1)) {
+    const a = Math.atan2(p.z, p.x);
+    let step = a - previous;
+    if (step < -Math.PI) step += 2 * Math.PI;
+    if (step > Math.PI) step -= 2 * Math.PI;
+    wound += step;
+    previous = a;
+  }
+  assert.ok(Math.abs(wound / (2 * Math.PI) - board.SPIRAL.turns) < 0.05,
+    'it makes the turns it says it makes');
+  assert.ok(radius(at[0]) > ctx.RIM, 'the widest turn is outside the rim');
+  assert.ok(radius(at[103]) < radius(at[0]) * 0.3, 'and the last square is near the axis');
 });
 
 console.log('\n' + checks + ' checks passed.');
