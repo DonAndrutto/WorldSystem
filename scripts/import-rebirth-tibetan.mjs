@@ -1,0 +1,10 @@
+import {readFileSync,writeFileSync} from 'node:fs';
+import {createHash} from 'node:crypto';
+import {fileURLToPath} from 'node:url';
+const source=readFileSync(process.argv[2]||new URL('../data/rebirth-tibetan-align.json',import.meta.url));
+const rows=JSON.parse(source);
+if(!Array.isArray(rows)||rows.length!==104||new Set(rows.map(r=>r.n)).size!==104||rows.some(r=>!Number.isInteger(r.n)||r.n<1||r.n>104||typeof r.tib!=='string'||!r.tib.trim()))throw new Error('Expected one Tibetan title for every position 1–104.');
+const titles=Object.fromEntries(rows.sort((a,b)=>a.n-b.n).map(r=>[r.n,r.tib]));
+const output=`// Generated from user-supplied rebirth-tibetan-align.json. Preserve supplied spellings.\nexport const TIBETAN_SOURCE_SHA256 = '${createHash('sha256').update(source).digest('hex')}';\nexport const REBIRTH_TIBETAN = Object.freeze(${JSON.stringify(titles,null,2)});\n`;
+writeFileSync(fileURLToPath(new URL('../rebirth-tibetan.js',import.meta.url)),output);
+console.log('Imported all 104 supplied Tibetan titles.');

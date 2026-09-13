@@ -2,9 +2,11 @@ import { REBIRTH_SQUARES, getRebirthSquare, getRebirthOutcome } from './rebirth-
 import { REBIRTH_WORLD_MAP } from './rebirth-world-map.js';
 import { createGame, rollGame, nextPlayer, chooseStarter, rollDie, restoreGame, rollCeremony } from './rebirth-engine.js';
 import { REBIRTH_PROSE } from './rebirth-prose.js';
-import { REBIRTH_ICONOGRAPHY, PLAYER_COLOURS } from './rebirth-iconography.js';
-import { createRebirthPresentation } from './rebirth-presentation.js';
-import { createRebirthBoard } from './rebirth-board.js';
+import { REBIRTH_ICONOGRAPHY, REBIRTH_END_ART, PLAYER_COLOURS } from './rebirth-iconography.js?v=art-20260913';
+import { createRebirthPresentation } from './rebirth-presentation.js?v=art-20260913';
+import {nameText,writeName,normaliseNameMode,createNameSelect} from './rebirth-names.js?v=art-20260913';
+import {REBIRTH_TIBETAN} from './rebirth-tibetan.js?v=art-20260913';
+import { createRebirthBoard } from './rebirth-board.js?v=art-20260913';
 
 const SAVE_KEY='ws-rebirth-v1';
 const LETTERS=['SA','A','GA','DA','RA','YA'], FACES=['⚀','⚁','⚂','⚃','⚄','⚅'];
@@ -15,10 +17,12 @@ export function createRebirthUI({panel,marker,scene,onFocus,onOverview,onChange,
   const el=(tag,text,cls)=>{const n=doc.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n;};
   const button=(text,fn,cls='btn')=>{const b=el('button',text,cls);b.type='button';b.addEventListener('click',fn);return b;};
   let state=null, selected=24, active=false, resetting=false, notice='',storageFailed=false;
+  let nameMode='english';
+  const name=n=>nameText(n,nameMode);
   let busy=false,fullBoard=false,diagram=false,sound=true,draftNames='Traveller',pendingNames=null;
   try {const saved=storage.getItem(SAVE_KEY);if(saved){state=restoreGame(saved);if(!state)notice='The saved journey could not be read. Start a new journey below.';}} catch {storageFailed=true;}
   if(state)selected=state.players[state.active].square;
-  try {sound=storage.getItem('ws-rebirth-sound')!=='0';}catch{}
+  try {sound=storage.getItem('ws-rebirth-sound')!=='0';nameMode=normaliseNameMode(storage.getItem('ws-rebirth-name-mode'));}catch{}
   const pins=el('div',undefined,'rb-player-markers');pins.hidden=true;marker.parentElement.append(pins);
   const leaders=doc.createElementNS('http://www.w3.org/2000/svg','svg');leaders.classList.add('rb-player-leaders');pins.append(leaders);
   const pinButtons=[];
@@ -35,14 +39,14 @@ export function createRebirthUI({panel,marker,scene,onFocus,onOverview,onChange,
   resetDialog.querySelector('[data-reset="cancel"]').addEventListener('click',closeReset);
   resetDialog.querySelector('[data-reset="confirm"]').addEventListener('click',()=>{const names=pendingNames;closeReset();safe(()=>start(names));});
   resetDialog.addEventListener('cancel',e=>{e.preventDefault();closeReset();});resetDialog.addEventListener('keydown',e=>e.stopPropagation());
-  const presentation=createRebirthPresentation({document:doc,soundEnabled:()=>sound,
+  const presentation=createRebirthPresentation({document:doc,soundEnabled:()=>sound,nameMode:()=>nameMode,onNameMode:setNameMode,
     onReveal:()=>{selected=state.players[state.active].square;render();if(active&&!fullBoard&&!diagram)onFocus(selected);},
     onReset:()=>requestReset(),onFinish:()=>{busy=false;render();},onDismiss:()=>{if(active)play.querySelector('[data-rb-action="advance"]')?.focus({preventScroll:true});}});
   const board=createRebirthBoard({document:doc,onInspect:n=>{inspect(n,false);presentation.showPlace({square:n,title:`${n} · ${getRebirthSquare(n).name}`,copy:getRebirthSquare(n).summary,passage:REBIRTH_PROSE[n].text});}});
   marker.parentElement.append(board.element);
   const tools=el('nav',undefined,'rb-tools card');tools.setAttribute('aria-label','Game controls');tools.hidden=true;
   const diagramButton=button('2D board',()=>setDiagram(!diagram)),resetButton=button('Reset game',()=>requestReset());
-  diagramButton.dataset.rbDiagram='';resetButton.dataset.rbReset='';tools.append(diagramButton,resetButton);marker.parentElement.append(tools);
+  diagramButton.dataset.rbDiagram='';resetButton.dataset.rbReset='';const namesControl=createNameSelect(doc,nameMode,setNameMode);tools.append(diagramButton,namesControl,resetButton);marker.parentElement.append(tools);
   panel.innerHTML=`<header class="rb-heading"><span class="rb-kicker">Mipham’s game of liberation</span><h2>Rebirth</h2><p>One world. Many lives. A path to freedom.</p></header>
     <div class="rb-status" role="status" aria-live="polite" aria-atomic="true"></div>
     <div class="rb-play"></div>
@@ -51,11 +55,12 @@ export function createRebirthUI({panel,marker,scene,onFocus,onOverview,onChange,
     <details class="rb-rules"><summary>How to play &amp; sources</summary><p>Begin on 24, the Heavenly Highway. Roll once and follow the destination for that face. The first traveller to reach 104 wins. A face with no move keeps you where you are.</p><p>At Vajra Hell (1) and Cessation (48), collect one 1, two 2s, three 3s, four 4s, five 5s and six 6s. A needed roll lets you roll again; an already completed face ends your turn. Your counts remain between turns. Completing every count releases you to 9 or 52.</p><p>Arrival at a trap ends that turn. Counting starts on your next turn; leaving the trap ends that turn. A new visit starts with empty counts. Players take turns in the order their names were entered, beginning with the lowest preliminary roll. Tied lowest players roll again.</p><p>After victory, the winner may roll a 1 or 2 to enter the stupa. This ceremony does not change who won.</p><p>Based on Tatz &amp; Kent, <em>Rebirth: The Tibetan Game of Liberation</em> (1977). This edition follows the researched English reference: 23 / 6 goes to 4, and 76 / 3 goes to 73. Painted-board alternatives remain under review. The trap timing above is an explicit play convention.</p><p>New lotus waystations represent paths and places absent from the original WorldSystem. Their arrangement is schematic; it does not assert geographical positions or distances. The book’s religious classifications reflect its historical perspective.</p><a href="docs/rebirth.md" target="_blank" rel="noopener">Read the implementation and source notes ↗</a></details>`;
   const status=panel.querySelector('.rb-status'),play=panel.querySelector('.rb-play'),place=panel.querySelector('.rb-place');
   const search=panel.querySelector('#rb-search'),select=panel.querySelector('#rb-destination');
+  function setNameMode(value) {nameMode=normaliseNameMode(value);try{storage.setItem('ws-rebirth-name-mode',nameMode);}catch{}namesControl.querySelector('select').value=nameMode;options();render();presentation.refreshNames();}
   function options() {
     const term=search.value.trim().toLocaleLowerCase();select.replaceChildren();
-    const matches=REBIRTH_SQUARES.filter(s=>`${s.number} ${s.name} ${REBIRTH_WORLD_MAP[s.number-1].family}`.toLocaleLowerCase().includes(term));
-    for(const s of matches){const option=el('option',`${s.number} · ${s.name}`);option.value=String(s.number);select.append(option);}
-    select.disabled=!matches.length;
+    const matches=REBIRTH_SQUARES.filter(s=>`${s.number} ${s.name} ${REBIRTH_TIBETAN[s.number]} ${REBIRTH_WORLD_MAP[s.number-1].family}`.toLocaleLowerCase().includes(term));
+    for(const s of matches){const option=el('option',`${s.number} · ${name(s.number)}`);option.value=String(s.number);select.append(option);}
+    select.disabled=!matches.length;select.classList.toggle('rb-tibetan-select',nameMode!=='english');
     if(matches.some(s=>s.number===selected))select.value=String(selected);
     panel.querySelector('.rb-count').textContent=`${matches.length} destinations${term?' found':''}. Looking does not move your traveller.`;
   }
@@ -89,7 +94,7 @@ export function createRebirthUI({panel,marker,scene,onFocus,onOverview,onChange,
       if(ceremony){title=state.ceremony.inStupa?'The stupa is entered':'The stupa awaits';copy=state.ceremony.inStupa?'The journey and its final ceremony are complete.':'Roll a 1 or 2 to complete the ceremony.';}
       // Commit once before the suspense; closing, mode changes and reloads retain this result.
       play.querySelector('[data-rb-action="advance"]').disabled=true;
-      presentation.play({player:player.name,die:result,title,copy,ceremony,square:destination,passage:REBIRTH_PROSE[destination].text});
+      presentation.play({player:player.name,die:result,title,copy,ceremony,square:destination,passage:REBIRTH_PROSE[destination].text,ending:state.phase==='won'});
     });
   }
   function renderPlay() {
@@ -106,7 +111,8 @@ export function createRebirthUI({panel,marker,scene,onFocus,onOverview,onChange,
     }
     const player=state.players[state.active];
     const turn=el('div',undefined,'rb-turn');turn.append(el('span',state.phase==='won'?'Journey complete':`Turn ${state.turn}`,'rb-kicker'),el('h3',state.phase==='won'?`${player.name} reaches Nirvana`:player.name));play.append(turn);
-    const where=button(`${player.square} · ${getRebirthSquare(player.square).name}`,()=>inspect(player.square),'rb-current');play.append(where);
+    const where=button('',()=>inspect(player.square),'rb-current');writeName(where,player.square,nameMode,`${player.square} · `);play.append(where);
+    if(state.phase==='won'){const ending=el('figure',undefined,'rb-ending');const image=el('img');image.src=REBIRTH_END_ART.src;image.alt=REBIRTH_END_ART.alt;image.addEventListener('error',()=>{image.hidden=true;});ending.append(image,el('figcaption','Amitabha · Stupa · Guru'));play.append(ending);}
     const dice=el('div',undefined,'rb-dice-row');const face=el('span',state.last?FACES[state.last.die-1]:'◇','rb-die');face.setAttribute('aria-hidden','true');
     const action=button(state.phase==='won'?(state.ceremony?.inStupa?'The stupa is entered':'Roll for the stupa'):state.phase==='turn_complete'?(state.players.length===1?'Continue journey':'Next traveller'):'Roll the die',advance,'btn rb-primary');
     action.dataset.rbAction='advance';action.disabled=busy||!!state.ceremony?.inStupa;
@@ -138,9 +144,9 @@ export function createRebirthUI({panel,marker,scene,onFocus,onOverview,onChange,
     renderPlay();
     if(restoreActionFocus)play.querySelector('[data-rb-action="advance"]')?.focus({preventScroll:true});
     const s=getRebirthSquare(selected),map=REBIRTH_WORLD_MAP[selected-1];place.replaceChildren();
-    place.append(el('span',`${map.family} · ${String(selected).padStart(3,'0')}`,'rb-kicker'),el('h3',s.name),el('p',s.summary));
+    place.append(el('span',`${map.family} · ${String(selected).padStart(3,'0')}`,'rb-kicker'),writeName(el('h3'),selected,nameMode),el('p',s.summary));
     const art=REBIRTH_ICONOGRAPHY[selected];
-    if(art.src){const figure=el('figure',undefined,'rb-iconography'),image=el('img');image.src=art.src;image.alt=art.alt;image.loading='lazy';image.addEventListener('error',()=>{figure.hidden=true;});figure.append(image,el('figcaption',art.credit));place.append(figure);}
+    if(art.src){const figure=el('figure',undefined,'rb-iconography'),image=el('img');image.src=art.src;image.alt=art.alt;image.loading='lazy';image.addEventListener('error',()=>{figure.hidden=true;});const link=el('a',undefined,'rb-art-link');link.href=art.src;link.target='_blank';link.rel='noopener';link.setAttribute('aria-label','Open full artwork');link.append(image,el('span','View artwork ↗'));figure.append(link,el('figcaption',art.credit));place.append(figure);}
     const passage=el('details',undefined,'rb-full-passage');passage.append(el('summary','Read the full passage'));
     const text=el('div',undefined,'rb-prose');
     for(const paragraph of REBIRTH_PROSE[selected].text.split(/\n\n+/))text.append(el('p',paragraph));
@@ -150,7 +156,7 @@ export function createRebirthUI({panel,marker,scene,onFocus,onOverview,onChange,
     else if(selected===1||selected===48)place.append(el('p',`Complete all six counts to reach ${outcomes[0].to} · ${getRebirthSquare(outcomes[0].to).name}.`,'rb-small'));
     else {
       const grid=el('div',undefined,'rb-outcomes');grid.setAttribute('aria-label','Destinations for each die face');
-      outcomes.forEach(o=>{const b=button('',()=>inspect(o.to),'rb-outcome');b.append(el('span',`${o.die} · ${LETTERS[o.die-1]}`),el('span',o.to===selected?'Remain here':`${o.to} · ${getRebirthSquare(o.to).name}`));grid.append(b);});place.append(grid);
+      outcomes.forEach(o=>{const b=button('',()=>inspect(o.to),'rb-outcome');b.append(el('span',`${o.die} · ${LETTERS[o.die-1]}`),o.to===selected?el('span','Remain here'):writeName(el('span'),o.to,nameMode,`${o.to} · `));grid.append(b);});place.append(grid);
     }
     place.append(el('p',`${map.kind==='game-only'?'Game-only waystation':map.kind==='grouped'?'Grouped realms in this world':'Existing place in this world'} · Book ${s.citation.printedPages.length>1?'pages':'page'} ${s.citation.printedPages.join(', ')}`,'rb-source'));
     let message=notice;
@@ -159,9 +165,9 @@ export function createRebirthUI({panel,marker,scene,onFocus,onOverview,onChange,
     if(storageFailed)message+=' Saving is unavailable. Keep this tab open to retain your journey.';
     if(status.textContent!==message)status.textContent=message;
     status.hidden=!message;
-    marker.textContent=`${selected} · ${s.name}`;marker.title=s.name;
+    writeName(marker,selected,nameMode,`${selected} · `);marker.title=name(selected);
     scene.update(state,selected,selected===104||selected===1||selected===48?[]:outcomes.map(o=>o.to));
-    board.update(state,selected);
+    board.update(state,selected,nameMode);
     while(pinButtons.length<(state?.players.length||0)) {
       const i=pinButtons.length,b=button('',()=>inspect(state.players[i].square),'rb-player-pin');b.style.setProperty('--player-colour',PLAYER_COLOURS[i]);
       const line=doc.createElementNS('http://www.w3.org/2000/svg','line');line.setAttribute('stroke',PLAYER_COLOURS[i]);leaders.append(line);
@@ -171,14 +177,14 @@ export function createRebirthUI({panel,marker,scene,onFocus,onOverview,onChange,
       const player=state?.players[i];b.hidden=!player;line.style.display=player?'':'none';if(!player)return;
       b.replaceChildren(el('strong',`P${i+1}`),el('span',player.name),el('small',String(player.square)));
       b.classList.toggle('is-current',i===state.active);
-      b.setAttribute('aria-label',`Player ${i+1}, ${player.name}, at ${player.square}, ${getRebirthSquare(player.square).name}${i===state.active?', current turn':''}`);
+      b.setAttribute('aria-label',`Player ${i+1}, ${player.name}, at ${player.square}, ${name(player.square)}${i===state.active?', current turn':''}`);
     });
     if([...select.options].some(o=>Number(o.value)===selected))select.value=String(selected);
     onChange();
   }
   marker.addEventListener('click',()=>{panel.hidden=false;place.scrollIntoView({block:'nearest',behavior:'auto'});});
   options();render();
-  return {inspect,advance,start,setBoardView,setDiagram,requestReset,resetDialog,board,get state(){return state;},get selected(){return selected;},get fullBoard(){return fullBoard;},get diagram(){return diagram;},presentation,
+  return {inspect,advance,start,setNameMode,get nameMode(){return nameMode;},setBoardView,setDiagram,requestReset,resetDialog,board,get state(){return state;},get selected(){return selected;},get fullBoard(){return fullBoard;},get diagram(){return diagram;},presentation,
     setActive(on){active=on;if(!on){presentation.cancel();closeReset();}marker.hidden=!on;pins.hidden=!on;tools.hidden=!on;syncDiagram();scene.setActive(on);if(on)render();},
     hideMarkers(){marker.hidden=true;pins.hidden=true;},
     project(camera,width,height){

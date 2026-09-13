@@ -3,22 +3,88 @@ import * as THREE from 'three';
 import {createRebirthScene} from '../rebirth-scene.js';
 const world=new THREE.Group(),counterpart=new THREE.Mesh(new THREE.BoxGeometry(.1,.1,.1),new THREE.MeshBasicMaterial());world.add(counterpart);
 const requests=[];const Three={...THREE,TextureLoader:class {load(src,loaded,progress,failed){requests.push({src,loaded,failed});}}};
-let renders=0;
-const scene=createRebirthScene(Three,{world,meshesFor:()=>[counterpart],radius:1,invalidate:()=>renders++,iconography:{
-  76:{square:76,src:'assets/rebirth/076.webp',alt:'Test artwork',width:.15,height:.20},
+let renders=0,alphaReads=0;
+const createCanvas=()=>({getContext(){return {drawImage(){},getImageData(x,y,width,height){
+  alphaReads++;const data=new Uint8ClampedArray(width*height*4).fill(255);data[3]=0;return {data};
+}};}});
+const scene=createRebirthScene(Three,{world,meshesFor:()=>[counterpart],radius:1,invalidate:()=>renders++,createCanvas,iconography:{
+  76:{square:76,src:'assets/rebirth/full/076.webp',thumbSrc:'assets/rebirth/076.webp',alt:'Test artwork',credit:'User artwork',width:.15,height:.20},
+  77:{square:77,src:'assets/rebirth/full/077.webp',thumbSrc:'assets/rebirth/unused-thumb.webp',textureSrc:'assets/rebirth/076.webp',alt:'Shared artwork',width:.15,height:.20},
   17:{square:17,src:'assets/rebirth/017.webp',alt:'Existing-world artwork',width:.12,height:.16}
 }});
+const state={phase:'playing',players:[{square:76}],active:0};
 assert.equal(requests.length,0,'No iconography downloads in Explorer');
-scene.setActive(true);assert.equal(requests.length,2);
-requests.find(r=>r.src.endsWith('076.webp')).loaded(new THREE.Texture());assert.equal(scene.illustrations.size,1);assert.equal(renders,1);
-const sprite=scene.illustrations.get(76);assert.equal(sprite.userData.rebirthSquare,76);assert.equal(sprite.parent.parent,scene.layer);
-assert.deepEqual(sprite.scale.toArray(),[.15,.20,1]);
-requests.find(r=>r.src.endsWith('017.webp')).failed();assert.equal(scene.points.has(17),true);assert.equal(scene.additions.get(76).visible,true,'Art does not remove the fallback geometry');
+scene.update(state,76,[17]);assert.equal(requests.length,0,'An inactive scene stays lazy when updated');
+scene.setActive(true);assert.equal(requests.length,2,'Shared sources request just one texture');
+assert.deepEqual(requests.map(r=>r.src),['assets/rebirth/017.webp','assets/rebirth/076.webp'],'3D prefers explicit textures, then small thumbnails, then full images');
+const texture=new THREE.Texture({width:100,height:200});
+requests.find(r=>r.src.endsWith('076.webp')).loaded(texture);
+assert.equal(scene.illustrations.size,2);assert.equal(renders,2);
+const sprite=scene.illustrations.get(76),shared=scene.illustrations.get(77);
+assert.equal(sprite.userData.rebirthSquare,76);assert.equal(sprite.parent.parent,scene.layer);
+assert.equal(sprite.userData.artAlt,'Test artwork');assert.equal(sprite.userData.artCredit,'User artwork');
+assert.ok(Math.abs(sprite.scale.x-.16)<1e-10);assert.ok(Math.abs(sprite.scale.y-.32)<1e-10);
+assert.equal(sprite.scale.x/sprite.scale.y,.5,'Natural image proportions survive manifest fitting and focus enlargement');
+assert.deepEqual(shared.scale.toArray(),[.1,.2,1]);assert.equal(sprite.material.map,shared.material.map);
+assert.equal(texture.colorSpace,THREE.SRGBColorSpace);assert.equal(sprite.material.toneMapped,false);
+assert.equal(sprite.material.depthTest,false,'Terrain cannot obscure an illustration');
+assert.equal(sprite.material.depthWrite,false);assert.ok(sprite.renderOrder>shared.renderOrder,'Selected artwork is drawn above nearby cards');
+assert.ok(sprite.position.y>scene.tokenPoint(0).y,'Artwork bottom leaves the token below it');
+let token,route;scene.layer.traverse(o=>{if(o.geometry?.type==='OctahedronGeometry'&&o.renderOrder===21)token=o;if(o.isLine)route=o;});
+assert.ok(token.renderOrder>sprite.renderOrder);assert.ok(route.renderOrder>sprite.renderOrder);assert.equal(route.material.depthTest,false);
+const focused=scene.focusBounds(76);assert.ok(focused.containsPoint(sprite.position));assert.ok(focused.containsPoint(sprite.position.clone().add(new THREE.Vector3(0,sprite.scale.y,0))));
+assert.ok(scene.getBounds().containsBox(focused),'Overview bounds include focused artwork');
+requests.find(r=>r.src.endsWith('017.webp')).failed();assert.equal(scene.points.has(17),true);assert.equal(scene.additions.get(76).visible,true,'Art does not remove fallback geometry');
+scene.update(state,77);assert.deepEqual(sprite.scale.toArray(),[.1,.2,1]);
 scene.setActive(false);assert.equal(sprite.parent.parent.visible,false,'Artwork disappears outside Rebirth');
-scene.setActive(true);assert.equal(requests.length,2,'Art is loaded only once');
-console.log('PASS: future iconography loads lazily, inherits game-only visibility, uses configured proportions, retains fallback geometry, and never changes destinations.');
+scene.setActive(true);assert.equal(requests.length,2,'Neither successful nor failed art is requested again');
+scene.update({...state,phase:'won'},104);assert.equal(requests.length,2,'Custom iconography does not implicitly request default end art');
+assert.equal(scene.endIllustration,null);
+console.log('PASS: artwork loads lazily, shares textures, preserves proportions, frames inspection, and keeps tokens/routes clear with graceful failures.');
 const nirvana=scene.additions.get(104);
 assert.equal(nirvana.name,'rebirth_nirvana_beyond');
 assert.ok(scene.points.get(104).y>Math.max(...[...scene.points].filter(([n])=>n!==104).map(([,p])=>p.y))+.4);
 assert.ok(nirvana.children.every(o=>o.geometry.type!=='ConeGeometry'),'Nirvana has no ordinary palace roof');
+assert.ok(nirvana.children.some(o=>o.geometry.type==='TorusGeometry'),'Nirvana retains its luminous halo');
 console.log('PASS: Nirvana is an independent luminous form above every other mapped position.');
+
+const endScene=createRebirthScene(Three,{world,meshesFor:()=>[counterpart],radius:1,iconography:{},endArt:{src:'assets/rebirth/end.webp',alt:'Amitabha Stupa Guru',width:1400,height:700}});
+const baseline=requests.length;
+endScene.setActive(true);endScene.update({...state,players:[{square:104}]},104);
+assert.equal(requests.length,baseline,'A square alone never displays the end art before a win');
+endScene.setActive(false);endScene.update({...state,phase:'won'},104);
+assert.equal(requests.length,baseline,'A win while inactive stays lazy until Rebirth opens');
+endScene.setActive(true);assert.equal(requests.length,baseline+1);
+const endRequest=requests.at(-1);
+endScene.update(state,76);endRequest.loaded(new THREE.Texture({width:1400,height:700}));
+const end=endScene.endIllustration;
+assert.ok(end);assert.ok(Math.abs(end.scale.x-.42)<1e-10);assert.ok(Math.abs(end.scale.y-.21)<1e-10,'Source pixel metadata is normalized to a bounded 3D tableau');assert.equal(end.parent.visible,false,'A late image response cannot display an old win after a reset');
+assert.equal(endScene.squareFor(end),undefined,'The end tableau is never a destination');
+assert.equal(endScene.illustrations.size,0,'End artwork stays separate from numbered illustrations');assert.equal(endScene.points.size,104);assert.equal(endScene.points.has(105),false);
+endScene.update({...state,phase:'won'},104);assert.equal(end.parent.visible,true);
+assert.ok(end.position.y>endScene.points.get(104).y);assert.ok(endScene.focusBounds(104).containsPoint(end.position.clone().add(new THREE.Vector3(0,end.scale.y,0))));
+endScene.setActive(false);assert.equal(end.parent.parent.visible,false);
+endScene.setActive(true);endScene.update({...state,phase:'won'},104);assert.equal(requests.length,baseline+1);
+endScene.update({...state,phase:'playing'},104);assert.equal(end.parent.visible,false);
+const failedEndScene=createRebirthScene(Three,{world,meshesFor:()=>[counterpart],radius:1,iconography:{},endArt:{src:'missing-end.webp'}});
+failedEndScene.update({...state,phase:'won'},104);failedEndScene.setActive(true);requests.at(-1).failed();
+assert.equal(failedEndScene.endIllustration,null);assert.equal(failedEndScene.additions.get(104).visible,true);
+console.log('PASS: Amitabha Stupa Guru is lazy, win-only, separately framed, reset-safe, and never a 105th destination.');
+
+scene.update(state,77);
+const geometry=new THREE.Mesh(new THREE.BoxGeometry(.1,.1,.1),new THREE.MeshBasicMaterial());geometry.userData.rebirthSquare=17;
+const opaque=object=>({object,distance:10,uv:new THREE.Vector2(.5,.5)});
+const transparent=object=>({object,distance:10,uv:new THREE.Vector2(.001,.999)});
+const geometryHit={object:geometry,distance:.1};
+assert.equal(scene.pickSquare([geometryHit,opaque(shared)]),77,'Visible artwork wins over closer terrain behind its overlay');
+assert.equal(scene.pickSquare([opaque(sprite),opaque(shared)]),77,'Selected artwork wins over another illustration');
+assert.equal(scene.pickSquare([opaque(shared),{object:token,distance:20}]),76,'The visible token is picked above illustrations');
+assert.equal(scene.pickSquare([geometryHit,opaque(sprite),transparent(shared)]),76,'A transparent selected-image pixel passes through to another visible illustration');
+assert.equal(scene.pickSquare([geometryHit,transparent(shared)]),17,'Transparent image padding passes through to fallback geometry');
+assert.equal(scene.pickSquare([transparent(shared)]),undefined,'Transparent padding alone selects nothing');
+assert.equal(scene.pickSquare([{object:shared,distance:10,uv:new THREE.Vector2(.001,.001)}]),77,'Texture flipY maps canvas pixels to the correct image edge');
+assert.equal(alphaReads,1,'Repeated picks and shared textures reuse one compact alpha map');
+shared.visible=false;assert.equal(scene.pickSquare([geometryHit,opaque(shared)]),17);shared.visible=true;
+scene.setActive(false);assert.equal(scene.pickSquare([geometryHit,opaque(shared)]),undefined,'Hidden Rebirth cannot claim world clicks');scene.setActive(true);
+endScene.update({...state,phase:'won'},104);assert.equal(endScene.pickSquare([{object:end,distance:0}]),undefined,'The unnumbered end illustration is never picked as a destination');
+console.log('PASS: 3D uses small texture sources; picking follows visible token/art priority and passes through cached transparent pixels.');

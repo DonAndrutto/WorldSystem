@@ -674,7 +674,8 @@
   }
 
 </style>
-<link rel="stylesheet" href="rebirth.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+Tibetan:wght@400;600&display=swap">
+<link rel="stylesheet" href="rebirth.css?v=art-20260913">
 </head>
 <body>
 
@@ -833,8 +834,8 @@ import { TOUR_NOTES } from './mandala-tour.js';
 import { installViewportGestures } from './viewport-gestures.js';
 import { createGoldenRangeGeometry, createWaterNormalMap, createWaterMaterial, createWaterGeometry } from './world-surfaces.js';
 import { DAY_SKY, paintClouds } from './sky-clouds.js';
-import { createRebirthScene } from './rebirth-scene.js';
-import { createRebirthUI } from './rebirth-ui.js';
+import { createRebirthScene } from './rebirth-scene.js?v=art-20260913';
+import { createRebirthUI } from './rebirth-ui.js?v=art-20260913';
 let appMode = 'explorer', rebirth = null, rebirthScene = null;
 const rebirthPanel = document.querySelector('.rebirth-panel');
 const stage = document.querySelector('three-d-stage');
@@ -4087,12 +4088,12 @@ canvas.addEventListener('pointerup', (e) => {
   const hits = ray.intersectObjects(world.children, true);
   // Match the illustration overlay's visual priority when numbers are hidden.
   if (mandala) hits.sort((a, b) => Number(!!b.object.userData.artwork) - Number(!!a.object.userData.artwork) || a.distance - b.distance);
+  if (appMode === 'rebirth') {
+    const square = rebirthScene.pickSquare(hits);
+    if (square) { setOpen(false, false); close(); rebirth.inspect(square); return; }
+  }
   for (const hit of hits) {
     if (!visibleInScene(hit.object)) continue;
-    if (appMode === 'rebirth') {
-      const square = rebirthScene.squareFor(hit.object);
-      if (square) { setOpen(false, false); close(); rebirth.inspect(square); return; }
-    }
     const e2 = entryFor(hit.object.name);
     if (e2) {
       if (touring && HEAP_NUMBERS.has(e2.id)) visitHeap(HEAP_NUMBERS.get(e2.id) - 1);
@@ -4142,11 +4143,11 @@ function syncModeButtons() {
 }
 function frameRebirth(number = null) {
   const fr = freeRect(), w = stage.clientWidth, h = stage.clientHeight;
-  const bounds = new THREE.Box3().setFromPoints([...rebirthScene.points.values()]);
-  bounds.expandByPoint(new THREE.Vector3(-RIM,0,-RIM));bounds.expandByPoint(new THREE.Vector3(RIM,0,RIM));
+  const bounds = number ? rebirthScene.focusBounds(number) : rebirthScene.getBounds();
+  if (!number) { bounds.expandByPoint(new THREE.Vector3(-RIM,0,-RIM));bounds.expandByPoint(new THREE.Vector3(RIM,0,RIM)); }
   const board = bounds.getBoundingSphere(new THREE.Sphere());
-  const center = number ? rebirthScene.points.get(number).clone() : board.center;
-  const radius = number ? .29 : board.radius;
+  const center = board.center;
+  const radius = number ? Math.max(.29, board.radius) : board.radius;
   const half = Math.tan(cam.fov * Math.PI / 360);
   const distance = radius * 1.2 / half * h / Math.min(fr.w, fr.h);
   const direction = new THREE.Vector3(1, number && center.y < 0 ? -.12 : .68,1.25).normalize();

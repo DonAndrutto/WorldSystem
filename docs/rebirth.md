@@ -30,19 +30,19 @@ Twenty board identities reuse existing geometry, sometimes grouping several rela
 
 `rebirth-world-map.js` records each square’s family and existing mesh IDs. Animals, Asuras, and the Buddha’s awakening seat have prose entries in the original explorer but no corresponding named meshes, so their game waystations are additional geometry.
 
-`rebirth-iconography.js` contains permanent slots for every square, 1–104. Add an approved local asset and attribution in its `ART` object, for example:
+All 104 numbered illustrations from the supplied **Game of Liberation English titles** folder are now bundled. Each permanent square number maps to a 768-pixel WebP image for the 3D world and reading cards, and a 256-pixel thumbnail for the 2D board. Full compositions and transparency are preserved; the supplied PNGs remain untouched. `assets/rebirth/manifest.json` records source filenames, dimensions, byte sizes and SHA-256 fingerprints. The optimized image package is about 5.5 MB.
 
-```js
-76: {
-  src: 'assets/rebirth/076.webp',
-  alt: 'Ratnasambhava in the Realm of Jeweled Peaks',
-  credit: 'Artist / collection, source and permission',
-  width: .15,
-  height: .20
-}
-```
+`rebirth-iconography.js` connects the same artwork to the board, selected destination, and arrival pop-up. The 3D scene uses the lightweight thumbnails; full images remain available in reading cards. Selected illustrations enlarge, camera framing includes their bounds, and traveller tokens and routes remain above the pictures. Clicking a picture follows its visible shape, passing through transparent padding. Artwork stays confined to Rebirth. A failed image leaves the world geometry and text usable. **View artwork** opens the full image from a reading card or pop-up.
 
-The same entry automatically supplies the destination card and a camera-facing image in the 3D world. Width and height use the existing scene’s units; preserve the artwork’s aspect ratio. Images load on first entry to Rebirth and remain confined to its layer. A failed image keeps the lotus waypoint and text available. No changes to move data, saved games, or the engine are required. No placeholder artwork has been substituted for historical iconography.
+The separate **Amitabha Stupa Guru** image is displayed once Nirvana is reached, in the winning destination reveal, game panel, board banner, and a tableau beyond Nirvana in 3D. It is not a 105th destination and does not alter the optional stupa ceremony. Reset hides it; other world modes also hide it. Its texture is requested only after victory.
+
+The artwork import is reproducible with `node scripts/import-rebirth-artwork.mjs`, using the source folder above by default. See `assets/rebirth/README.md` for the local encoding dependencies and manifest details.
+
+## Tibetan names
+
+**Names → English / Tibetan / Both** is available in the game toolbar and the destination pop-up. The controls stay synchronized and the preference is remembered independently of the journey. It covers board labels, selected destination headings, current destination, possible routes, the destination selector, and the 3D selection label. Both English and Tibetan can be searched. On narrow phone boards, numbers and artwork remain visible; opening a tile shows the chosen names in full.
+
+The 104 Tibetan titles are copied exactly from the supplied `rebirth-tibetan-align.json`, retained in `data/rebirth-tibetan-align.json`. `rebirth-tibetan.js` is generated with `node scripts/import-rebirth-tibetan.mjs`; the importer validates unique positions 1–104 and records a SHA-256 fingerprint. The supplied spellings, including possible transcription errors, are not silently corrected. Empty Wylie fields are not filled with invented readings. Tibetan spans carry `lang="bo"` and use Noto Serif Tibetan, with system Tibetan font fallbacks. The language switch changes names only; the full book passages remain in English.
 
 ## Rules and source profile
 
@@ -73,12 +73,13 @@ npm install --no-save --package-lock=false three@0.184.0 jsdom@26
 node tests/rebirth-engine.mjs
 node tests/rebirth-presentation.mjs
 node tests/rebirth-iconography.mjs
+node tests/rebirth-localization.mjs
 node tests/mandala-regression.mjs
 node tests/world-surfaces.mjs
 node tests/viewport-gestures.mjs
 ```
 
-Tests cover ordinary outcomes, both traps, preliminary ties, save validation, a legal winning journey, the optional ceremony, one committed result per animated roll, interruption safety, sound scheduling/muting, reduced motion, complete prose rendering in both reading surfaces, distinct 2D/3D presentations, reset confirmation and cancellation (including during a roll), original 2D board order and distinct 3D Nirvana, named markers, world mapping, exclusive panels, all mode transitions, and the original 37 offerings. DOM/geometry tests do not replace actual WebGL, audio listening, or physical-device testing. Browser checks also exercised desktop and 390-pixel phone layouts, saved-game reload, multiplayer handoff, night mode, and returning from the offering tour. A pre-existing Three.js soft-shadow deprecation warning may appear.
+Tests also verify all artwork hashes and mappings, exact Tibetan import, all three name modes, preference restoration, preserved expanded reading, and victory/reset artwork. Tests cover ordinary outcomes, both traps, preliminary ties, save validation, a legal winning journey, the optional ceremony, one committed result per animated roll, interruption safety, sound scheduling/muting, reduced motion, complete prose rendering in both reading surfaces, distinct 2D/3D presentations, reset confirmation and cancellation (including during a roll), original 2D board order and distinct 3D Nirvana, named markers, world mapping, exclusive panels, all mode transitions, and the original 37 offerings. DOM/geometry tests do not replace actual WebGL, audio listening, or physical-device testing. Browser checks also exercised desktop and 390-pixel phone layouts, saved-game reload, multiplayer handoff, night mode, and returning from the offering tour. A pre-existing Three.js soft-shadow deprecation warning may appear.
 
 Regenerate only the full prose after an intentional catalogue update:
 

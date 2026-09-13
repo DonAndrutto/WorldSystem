@@ -31,7 +31,7 @@
 .rb-outcomes { display:grid; grid-template-columns:1fr 1fr; gap:5px; margin:15px 0; }
 .rb-outcome { border:1px solid var(--rule); background:var(--hi); color:var(--ink); text-align:left; font:inherit; font-size:14px; padding:9px; min-height:65px; cursor:pointer; }
 .rb-outcome:hover { background:var(--hi-2); }
-.rb-outcome span:first-child { display:block; color:var(--accent); font-family:'IBM Plex Mono',monospace; font-size:10px; margin-bottom:5px; }
+.rb-outcome > span:first-child { display:block; color:var(--accent); font-family:'IBM Plex Mono',monospace; font-size:10px; margin-bottom:5px; }
 .rb-counters { display:grid; grid-template-columns:repeat(6,1fr); gap:4px; margin:12px 0; }
 .rb-counters div { border:1px solid var(--rule); padding:8px 2px; text-align:center; }
 .rb-counters span,.rb-counters strong { display:block; font:10px 'IBM Plex Mono',monospace; }
@@ -184,3 +184,52 @@ body.rebirth-board .rb-marker,body.rebirth-board .rb-player-markers,body.rebirth
   .rb-reveal-copy { font-size:17px; margin:12px 0; }
   .rb-reveal-footer { bottom:-16px; }
 }
+
+/* Supplied iconography and language controls share the existing paper and gold palette. */
+.rb-tibetan,.rb-tibetan-select { font-family:'Noto Serif Tibetan','Kailasa','Kokonor',serif; line-height:1.65; letter-spacing:0; text-transform:none; }
+.rb-name-secondary { display:block; font-size:.88em; margin-top:3px; }
+.rb-name-control { display:flex; align-items:center; gap:5px; padding:0 7px; color:var(--ink-2); font:10px 'IBM Plex Mono',monospace; }
+.rb-name-control select { min-height:36px; max-width:100px; border:0; background:transparent; color:var(--ink); font:12px 'EB Garamond',serif; cursor:pointer; }
+.rb-name-control option { color:var(--ink); background:var(--paper); }
+.rb-popup-names { justify-content:center; margin:-8px auto 4px; }
+.rb-board-cell { text-align:left; }
+.rb-board-art { position:absolute; left:3px; top:3px; width:30%; height:calc(100% - 6px); object-fit:contain; pointer-events:none; }
+.rb-board-label { display:block; margin-left:32%; }
+.rb-board-cell.art-unavailable .rb-board-label { margin-left:0; }
+.rb-board-cell strong { font-size:9px; }
+.rb-board-name .rb-tibetan { font-size:.95em; line-height:1.55; }
+.rb-board-cell:has(.rb-board-players:not(:empty)) .rb-board-label { padding-bottom:16px; }
+.rb-board-players { position:absolute; right:4px; bottom:3px; max-width:calc(100% - 8px); }
+.rb-board-ending { flex:none; margin:0 0 10px; text-align:center; }
+.rb-board-ending[hidden] { display:none; }
+.rb-board-ending img { max-width:100%; max-height:150px; object-fit:contain; }
+.rb-board-ending figcaption,.rb-ending figcaption,.rb-reveal-art figcaption { font:13px 'EB Garamond',serif; color:var(--ink-2); margin-top:5px; }
+.rb-ending { margin:10px 0; }
+.rb-ending img { width:100%; max-height:220px; object-fit:contain; }
+.rb-reveal-art { margin:12px 0; }
+.rb-reveal-art[hidden] { display:none; }
+.rb-reveal-art img { display:block; width:100%; height:min(26dvh,240px); object-fit:contain; }
+.rb-reveal:has(.rb-reveal-passage[open]) .rb-reveal-art { display:none; }
+.rb-reveal.is-arrival .rb-reveal-die { font-size:32px; margin:0 auto; }
+.rb-reveal.is-arrival .rb-reveal-copy { margin:10px 0; }
+.rb-reveal-passage { margin:10px 0; }
+.rb-reveal h2 .rb-tibetan { line-height:1.55; }
+.rb-reveal h2 .rb-name-secondary { font-size:.65em; }
+.rb-marker:has(.rb-tibetan) { white-space:normal; max-width:280px; line-height:1.55; }
+@media(max-width:980px) {
+  .rb-tools { gap:1px; }
+  .rb-tools .btn { padding:6px 8px; font-size:9px; }
+  .rb-name-control { gap:2px; padding:0 4px; }
+  .rb-name-control select { max-width:72px; }
+  .rb-board-art { left:15px; width:calc(100% - 18px); }
+  .rb-board-label { margin-left:0; }
+  .rb-board-cell strong { position:absolute; top:2px; left:3px; font-size:10px; }
+  .rb-board-name { display:none; }
+  .rb-board-players { right:2px; bottom:2px; }
+  .rb-board-ending img { max-height:90px; }
+}
+
+.rb-board[data-name-mode="both"] .rb-board-name > [lang="en"] { display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.rb-board[data-name-mode="both"] .rb-name-secondary { margin-top:1px; }
+.rb-art-link { display:block; color:var(--accent); font:13px 'EB Garamond',serif; }
+.rb-art-link span { display:block; margin:5px 0; }

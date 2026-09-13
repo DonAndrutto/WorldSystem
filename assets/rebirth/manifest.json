@@ -1,0 +1,2643 @@
+{
+  "schemaVersion": 1,
+  "importedAt": "2026-09-13T20:33:55.283Z",
+  "sourceDirectory": "Game of Liberation English titles",
+  "policy": "Technical resize and WebP compression only; full composition and alpha preserved; source originals unchanged.",
+  "presets": {
+    "full": {
+      "width": 768,
+      "height": 768,
+      "quality": 84,
+      "alphaQuality": 100
+    },
+    "thumbnail": {
+      "width": 256,
+      "height": 256,
+      "quality": 80,
+      "alphaQuality": 100
+    },
+    "end": {
+      "width": 1400,
+      "height": 700,
+      "quality": 86
+    }
+  },
+  "assets": [
+    {
+      "number": 1,
+      "title": "Vajra Hell",
+      "source": {
+        "filename": "1 - Vajra Hell.png",
+        "sha256": "8c0734e21da5e92eec8bdbe2155a47d891ae7a5a40593a99ade26f3bfc8de995",
+        "bytes": 335205,
+        "width": 1200,
+        "height": 1200
+      },
+      "full": {
+        "path": "full/001.webp",
+        "sha256": "fb508bd590898f225d63091eef7bf0373c5dd2efa982439c36c80c116e097715",
+        "bytes": 83844,
+        "width": 768,
+        "height": 768
+      },
+      "thumbnail": {
+        "path": "thumb/001.webp",
+        "sha256": "adc829f9199929c649290dc108a9629eaddf16856cc5e6defd9e27b49ba8b6dc",
+        "bytes": 13102,
+        "width": 256,
+        "height": 256
+      }
+    },
+    {
+      "number": 2,
+      "title": "Interminable Hell",
+      "source": {
+        "filename": "2 - Interminable Hell.png",
+        "sha256": "ee5823fa2a5a8651779c7fce55d38a3b5483fcf1935c21c1fef8072ae3769e42",
+        "bytes": 255175,
+        "width": 1200,
+        "height": 1200
+      },
+      "full": {
+        "path": "full/002.webp",
+        "sha256": "60e2d8e1705a794d80b08325ab718706e7c0e060a55af0c1f5d8b9070e0f22ee",
+        "bytes": 50838,
+        "width": 768,
+        "height": 768
+      },
+      "thumbnail": {
+        "path": "thumb/002.webp",
+        "sha256": "e9d323fd499010462a868d09f5376e507d5be6866d64410453d5c9595edfeab9",
+        "bytes": 8850,
+        "width": 256,
+        "height": 256
+      }
+    },
+    {
+      "number": 3,
+      "title": "The Hot and Very Hot Hells",
+      "source": {
+        "filename": "3 - The Hot and Very Hot Hells.png",
+        "sha256": "ed291b7841e17228afa58dafa75260fcad769bf7608fd5a58033f2a292d61971",
+        "bytes": 273658,
+        "width": 1200,
+        "height": 1200
+      },
+      "full": {
+        "path": "full/003.webp",
+        "sha256": "dc51f7fbe92b45c82d180dea499e93c08955d955de78a6ed723468378b615922",
+        "bytes": 52020,
+        "width": 768,
+        "height": 768
+      },
+      "thumbnail": {
+        "path": "thumb/003.webp",
+        "sha256": "4436245e9c9fc78a0885770d3c0ae13aadfc30393aced59474b6cea0d50c82bd",
+        "bytes": 8994,
+        "width": 256,
+        "height": 256
+      }
+    },
+    {
+      "number": 4,
+      "title": "The Howling and Great Howling Hells",
+      "source": {
+        "filename": "4 - The Howling and Great Howling Hells.png",
+        "sha256": "370367732878bdb7ab012ea5aaa5b3c5eb02faea93ce999a068c5b87376d0678",
+        "bytes": 254855,
+        "width": 1200,
+        "height": 1200
+      },
+      "full": {
+        "path": "full/004.webp",
+        "sha256": "bc4ae770184d3f30c37cd9138c942574b09023d0e51293a0988f8c95fbcd2564",
+        "bytes": 50198,
+        "width": 768,
+        "height": 768
+      },
+      "thumbnail": {
+        "path": "thumb/004.webp",
+        "sha256": "f71b8501accc66d04108543c1d1ec0920f86cb8eedefd33c0e0d0dd044f77fde",
+        "bytes": 8832,
+        "width": 256,
+        "height": 256
+      }
+    },
+    {
+      "number": 5,
+      "title": "The Black Rope and Crushing Hells",
+      "source": {
+        "filename": "5 - The Black Rope and Crushing Hells.png",
+        "sha256": "36dddec19aecb6290b23b32cae9b5b109823e595174748d5ec9570016fb64e81",
+        "bytes": 255913,
+        "width": 1200,
+        "height": 1200
+      },
+      "full": {
+        "path": "full/005.webp",
+        "sha256": "b6a637c71c0dbfe9b8699d8fe941986ebb9d5dea706d1556beb5c84227b9ef8c",
+        "bytes": 50080,
+        "width": 768,
+        "height": 768
+      },
+      "thumbnail": {
+        "path": "thumb/005.webp",
+        "sha256": "2d0bcd85f9dfde05f2dcd26e8e885c786b5613d5d4d9a0139279f90d56415f90",
+        "bytes": 8754,
+        "width": 256,
+        "height": 256
+      }
+    },
+    {
+      "number": 6,
+      "title": "Reviving Hell",
+      "source": {
+        "filename": "6 - Reviving Hell.png",
+        "sha256": "6797d9bd3bfd704ec7ccd92fe9868d1e3d3470b35fbaa8dd6974582c15a64a5c",
+        "bytes": 273831,
+        "width": 1200,
+        "height": 1200
+      },
+      "full": {
+        "path": "full/006.webp",
+        "sha256": "cd700599608965badbfbbdae1ab5603c5766c280e8a2d6fdfe3362e27751795e",
+        "bytes": 52134,
+        "width": 768,
+        "height": 768
+      },
+      "thumbnail": {
+        "path": "thumb/006.webp",
+        "sha256": "c2902a88d3a6018081c548f8b5b1756ec2a99aacc5c2291fd7d335213cded41f",
+        "bytes": 8946,
+        "width": 256,
+        "height": 256
+      }
+    },
+    {
+      "number": 7,
+      "title": "The Cold Hells",
+      "source": {
+        "filename": "7 - The Cold Hells.png",
+        "sha256": "7195360f45584a30b81955333465d2e76f0204fb32e164824b3f32d3f9e6c365",
+        "bytes": 255913,
+        "width": 1200,
+        "height": 1200
+      },
+      "full": {
+        "path": "full/007.webp",
+        "sha256": "b6a637c71c0dbfe9b8699d8fe941986ebb9d5dea706d1556beb5c84227b9ef8c",
+        "bytes": 50080,
+        "width": 768,
+        "height": 768
+      },
+      "thumbnail": {
+        "path": "thumb/007.webp",
+        "sha256": "2d0bcd85f9dfde05f2dcd26e8e885c786b5613d5d4d9a0139279f90d56415f90",
+        "bytes": 8754,
+        "width": 256,
+        "height": 256
+      }
+    },
+    {
+      "number": 8,
+      "title": "The Temporary Hells, or Hell for a Day",
+      "source": {
+        "filename": "8 - The Temporary Hells, or Hell for a Day.png",
+        "sha256": "fab96c2e96a97b4735bcc92d6835288546ddf1f7e6e1d278ca8bd1fe0c6254eb",
+        "bytes": 272060,
+        "width": 1200,
+        "height": 1200
+      },
+      "full": {
+        "path": "full/008.webp",
+        "sha256": "563f680adf55178d6015cd7d0e7b14fbdc39119842f0e8d693cc8359c629c71f",
+        "bytes": 50930,
+        "width": 768,
+        "height": 768
+      },
+      "thumbnail": {
+        "path": "thumb/008.webp",
+        "sha256": "dcd652cda70f208fbdd2a166f9ffa7729063b53b5784f38dbd9235805847fca2",
+        "bytes": 9036,
+        "width": 256,
+        "height": 256
+      }
+    },
+    {
+      "number": 9,
+      "title": "Lord of the Dead (Yama)",
+      "source": {
+        "filename": "9 - Lord of the Dead (Yama).png",
+        "sha256": "5d3df4c028f96da3b23423435826f9e1826bf2946c3b8ba99d3e71a635bc1692",
+        "bytes": 297118,
+        "width": 1200,
+        "height": 1200
+      },
+      "full": {
+        "path": "full/009.webp",
+        "sha256": "b47aaf15c707740debbe8fe91ba59d02be07cb16b3f4070797adcce61e3f5b5e",
+        "bytes": 70578,
+        "width": 768,
+        "height": 768
+      },
+      "thumbnail": {
+        "path": "thumb/009.webp",
+        "sha256": "62fce166c4887b072ce18af9bce86fc39095e5f93397484ccc3da26c13d37e36",
+        "bytes": 12688,
+        "width": 256,
+        "height": 256
+      }
+    },
+    {
+      "number": 10,
+      "title": "Hungry Ghosts (Preta)",
+      "source": {
+        "filename": "10 - Hungry Ghosts (Preta).png",
+        "sha256": "ad23b1e9d2547c4b73bb9e50fc48e718fb7a4647288681b747f11a5e2b78cd60",
+        "bytes": 272061,
+        "width": 1200,
+        "height": 1200
+      },
+      "full": {
+        "path": "full/010.webp",
+        "sha256": "563f680adf55178d6015cd7d0e7b14fbdc39119842f0e8d693cc8359c629c71f",
+        "bytes": 50930,
+        "width": 768,
+        "height": 768
+      },
+      "thumbnail": {
+        "path": "thumb/010.webp",
+        "sha256": "dcd652cda70f208fbdd2a166f9ffa7729063b53b5784f38dbd9235805847fca2",
+        "bytes": 9036,
+        "width": 256,
+        "height": 256
+      }
+    },
+    {
+      "number": 11,
+      "title": "Animals",
+      "source": {
+        "filename": "11 - Animals.png",
+        "sha256": "6e80321fbf8c70d3eaf6199b0890d33f7892c114058b780bcb1252baa576e1c2",
+        "bytes": 296618,
+        "width": 1200,
+        "height": 1200
+      },
+      "full": {
+        "path": "full/011.webp",
+        "sha256": "4ea26cafb64a68bcb68dc90e2c70d23d4b2d0887707ca745775e6656a13272c2",
+        "bytes": 55308,
+        "width": 768,
+        "height": 768
+      },
+      "thumbnail": {
+        "path": "thumb/011.webp",
+        "sha256": "2b61d46a0dd95c2a1452759c9ec6697d8253fe155ffd8c44f43bae074b3937fa",
+        "bytes": 10242,
+        "width": 256,
+        "height": 256
+      }
+    },
+    {
+      "number": 12,
+      "title": "Divine Animals",
+      "source": {
+        "filename": "12 - Divine Animals.png",
+        "sha256": "ac666853b17126c41fbff96e266cb5e992a6c1264d47d9d3749a3a37b3c5b7ab",
+        "bytes": 297810,
+        "width": 1200,
+        "height": 1200
+      },
+      "full": {
+        "path": "full/012.webp",
+        "sha256": "c2556616a05f8286bfeb43734458b5ae3867edb200c80adf10da0211f738a62f",
+        "bytes": 54108,
+        "width": 768,
+        "height": 768
+      },
+      "thumbnail": {
+        "path": "thumb/012.webp",
+        "sha256": "bdb1a3d37c85c804568650631240c6c7d91a97a81a9c15b7fb037b5398aba985",
+        "bytes": 10102,
+        "width": 256,
+        "height": 256
+      }
+    },
+    {
+      "number": 13,
+      "title": "World of the Nagas",
+      "source": {
+        "filename": "13 - World of the Nagas.png",
+        "sha256": "13df1422cbfeefdfb6776fa42184ba21c78603a9c6b7033fe1a22257acf0c765",
+        "bytes": 246386,
+        "width": 1200,
+        "height": 1200
+      },
+      "full": {
+        "path": "full/013.webp",
+        "sha256": "586c4ad58de0d912685399b3578ac7f6e2212c132858ebf9b8efd89e5885ec6c",
+        "bytes": 55690,
+        "width": 768,
+        "height": 768
+      },
+      "thumbnail": {
+        "path": "thumb/013.webp",
+        "sha256": "178f07b7dcb0e9dc8d2011a562535f0315bcfb52d5b516dc323143cb389041cf",
+        "bytes": 9342,
+        "width": 256,
+        "height": 256
+      }
+    },
+    {
+      "number": 14,
+      "title": "Demon Island",
+      "source": {
+        "filename": "14 - Demon Island.png",
+        "sha256": "e71ccc01c90ceb175c88747c29e948ad05544d7877b3e50c6cf6f06aee459eb0",
+        "bytes": 368059,
+        "width": 1200,
+        "height": 1200
+      },
+      "full": {
+        "path": "full/014.webp",
+        "sha256": "bd5183c0037a284e3ad53343535842b24598ca583a50000c0a2fc261a8f9cf01",
+        "bytes": 109670,
+        "width": 768,
+        "height": 768
+      },
+      "thumbnail": {
+        "path": "thumb/014.webp",
+        "sha256": "a5790792202156dc49ab4ea3624181ef117fec8e6f426e6d7be9766a1a23951f",
+        "bytes": 18004,
+        "width": 256,
+        "height": 256
+      }
+    },
+    {
+      "number": 15,
+      "title": "Asuras",
+      "source": {
+        "filename": "15 - Asuras.png",
+        "sha256": "bbfca854f8977acc4631a479e65fd84baa94034c8ca4c401b1efe2132a626592",
+        "bytes": 99888,
+        "width": 1200,
+        "height": 1200
+      },
+      "full": {
+        "path": "full/015.webp",
+        "sha256": "9115a346165776726162869d472c93093c90e2e17adcda3dcd345e9bf6ae3cb8",
+        "bytes": 22946,
+        "width": 768,
+        "height": 768
+      },
+      "thumbnail": {
+        "path": "thumb/015.webp",
+        "sha256": "17fd16176bdc5cf7d54e411d8e4e1ef4e1d0da2e9d0671ee9da0857f65b0d25d",
+        "bytes": 3680,
+        "width": 256,
+        "height": 256
+      }
+    },
+    {
+      "number": 16,
+      "title": "Rudra Black Freedom",
+      "source": {
+        "filename": "16 - Rudra Black Freedom.png",
+        "sha256": "e40f91e3c3810cb5ff12d4b6f150299d7af8d1f7699e57bdc0e3ce77373f68d2",
+        "bytes": 212642,
+        "width": 1200,
+        "height": 1200
+      },
+      "full": {
+        "path": "full/016.webp",
+        "sha256": "5320f87eeaade936ce4a55b955d188834b3b4c30e6c830ad6bddefa8336a45bd",
+        "bytes": 43724,
+        "width": 768,
+        "height": 768
+      },
+      "thumbnail": {
+        "path": "thumb/016.webp",
+        "sha256": "8f8ec39d3e2dc13c51a66d3e34f1b57895b8bddb28a576684b9ec3f3cf3c2c46",
+        "bytes": 6786,
+        "width": 256,
+        "height": 256
+      }
+    },
+    {
+      "number": 17,
+      "title": "Jambu Island",
+      "source": {
+        "filename": "17 - Jambu Island.png",
+        "sha256": "8bc1920a8d9a6bd12eaefd77d50e79597bd1b77e33d9bbf1b0b29680a4efe352",
+        "bytes": 199400,
+        "width": 1200,
+        "height": 1200
+      },
+      "full": {
+        "path": "full/017.webp",
+        "sha256": "508ed50f44585ebc89eb153bddf7adf9ecef4ea6b54f0ddd4fb7fa7119908179",
+        "bytes": 32594,
+        "width": 768,
+        "height": 768
+      },
+      "thumbnail": {
+        "path": "thumb/017.webp",
+        "sha256": "c7e07f7f6277d787b6781fb23886135890306708bf38e2285a3d4e7183b3890e",
+        "bytes": 5332,
+        "width": 256,
+        "height": 256
+      }
+    },
+    {
+      "number": 18,
+      "title": "The Western Continent—Enjoyment of Cattle (Apara-Godaniya)",
+      "source": {
+        "filename": "18 - The Western Continent—Enjoyment of Cattle (Apara-Godaniya).png",
+        "sha256": "794578d9bacc9af223d5f83c2bbd734b8f44ad83dbfdd0c5ff4a894a3893cf59",
+        "bytes": 205622,
+        "width": 1200,
+        "height": 1200
+      },
+      "full": {
+        "path": "full/018.webp",
+        "sha256": "eff53cf76cde69d335c843ab88415a6e8a9d45dc825b8167026e96b1a37bfbe6",
+        "bytes": 26878,
+        "width": 768,
+        "height": 768
+      },
+      "thumbnail": {
+        "path": "thumb/018.webp",
+        "sha256": "9c3c92892ae287ffecb3f66fa5fde368c819becfb5c7181e4e29c8d9d329800c",
+        "bytes": 3960,
+        "width": 256,
+        "height": 256
+      }
+    },
+    {
+      "number": 19,
+      "title": "The Eastern Continent—Noble Body (Purva-Videha)",
+      "source": {
+        "filename": "19 - The Eastern Continent—Noble Body (Purva-Videha).png",
+        "sha256": "b872ddde28f00cad2ece9fd45d956942196a46fe70b50bac58d0e29379c2d800",
+        "bytes": 294679,
+        "width": 1200,
+        "height": 1200
+      },
+      "full": {
+        "path": "full/019.webp",
+        "sha256": "00462b8da486ad977b72b064d2e14cabe52eed98ae2c6d4a965648d77da2cb64",
+        "bytes": 21746,
+        "width": 768,
+        "height": 768
+      },
+      "thumbnail": {
+        "path": "thumb/019.webp",
+        "sha256": "009766bde1283b83360485986363456f593a59ba90f3968319b92c1a340d988b",
+        "bytes": 3742,
+        "width": 256,
+        "height": 256
+      }
+    },
+    {
+      "number": 20,
+      "title": "The Northern Continent—Kuru",
+      "source": {
+        "filename": "20 - The Northern Continent—Kuru.png",
+        "sha256": "0b8587316cd24c7f60352ce3a79a1c786697c06c53f3876b7b9e2fc7e4e38652",
+        "bytes": 278760,
+        "width": 1200,
+        "height": 1200
+      },
+      "full": {
+        "path": "full/020.webp",
+        "sha256": "852790b30da60a4026acb01421dc8d21e4022d4d45c4947d818c932f7916e422",
+        "bytes": 38580,
+        "width": 768,
+        "height": 768
+      },
+      "thumbnail": {
+        "path": "thumb/020.webp",
+        "sha256": "88f47035f29fd6ef47c6523cd58788930c4a650ee2a434152ba30a34a5dc858c",
+        "bytes": 5162,
+        "width": 256,
+        "height": 256
+      }
+    },
+    {
+      "number": 21,
+      "title": "Barbarism",
+      "source": {
+        "filename": "21 - Barbarism.png",
+        "sha256": "86be3006035590ea72e38c54acfd4e053062d4aa6ced4cc56210c46c1832ddd7",
+        "bytes": 219951,
+        "width": 1200,
+        "height": 1200
+      },
+      "full": {
+        "path": "full/021.webp",
+        "sha256": "bd0499b4640882425e64a373c3710f92a4b0d40af6cd45f2efbb8e4554d7f77a",
+        "bytes": 58064,
+        "width": 768,
+        "height": 768
+      },
+      "thumbnail": {
+        "path": "thumb/021.webp",
+        "sha256": "a7a4f194d6b129b51e764fda7f69ff9517123987e4b890fa432236329ec18848",
+        "bytes": 7948,
+        "width": 256,
+        "height": 256
+      }
+    },
+    {
+      "number": 22,
+      "title": "Hinduism",
+      "source": {
+        "filename": "22 - Hinduism.png",
+        "sha256": "604b9fb528771b1f45a34fbdd47a007f26c2f0dd3aa5483e901a9f344f078700",
+        "bytes": 273089,
+        "width": 1200,
+        "height": 1200
+      },
+      "full": {
+        "path": "full/022.webp",
+        "sha256": "587cf06cbb426ce5b8f27afcbe8b5920ff0c1c83948997fc523dc86439971ef4",
+        "bytes": 69146,
+        "width": 768,
+        "height": 768
+      },
+      "thumbnail": {
+        "path": "thumb/022.webp",
+        "sha256": "db282524f6499f7922139162eda5b98fe1d6d3c619fc2522687c0cc9311281a0",
+        "bytes": 9508,
+        "width": 256,
+        "height": 256
+      }
+    },
+    {
+      "number": 23,
+      "title": "Bon",
+      "source": {
+        "filename": "23 - Bon.png",
+        "sha256": "bbae03eda0637eee4291ec3bb2f39bba7f8a90b3e1ce89cbb6bca5e9fbeebe29",
+        "bytes": 339393,
+        "width": 1200,
+        "height": 1200
+      },
+      "full": {
+        "path": "full/023.webp",
+        "sha256": "c3e98ba464ec41fcebe4a99ceefa883f58c5979ee65a48bbcc66e3a64461ec4e",
+        "bytes": 59014,
+        "width": 768,
+        "height": 768
+      },
+      "thumbnail": {
+        "path": "thumb/023.webp",
+        "sha256": "2a215fbb8926fe07997fb38056e2f56487d1553da43d4af115bb96384991b60e",
+        "bytes": 7584,
+        "width": 256,
+        "height": 256
+      }
+    },
+    {
+      "number": 24,
+      "title": "The Heavenly Highway",
+      "source": {
+        "filename": "24 - The Heavenly Highway.png",
+        "sha256": "4e00f78812b1138977671f9be1b90e7966543ef06204f889a0acc54567b3bad0",
+        "bytes": 168341,
+        "width": 1200,
+        "height": 1200
+      },
+      "full": {
+        "path": "full/024.webp",
+        "sha256": "d6ba483ff6682aaf6e30426d20d3cdc6c0fa08aa4ac06b18801b390b61aeb446",
+        "bytes": 38898,
+        "width": 768,
+        "height": 768
+      },
+      "thumbnail": {
+        "path": "thumb/024.webp",
+        "sha256": "234ced406c74ad5cd851e8852621eaea36072323319b2b40b027bccb44b69111",
+        "bytes": 6198,
+        "width": 256,
+        "height": 256
+      }
+    },
+    {
+      "number": 25,
+      "title": "Beginning the Tantra",
+      "source": {
+        "filename": "25 - Beginning the Tantra.png",
+        "sha256": "0659fa2ad758b8e163a5f15058c69a737052e70bbfd714a87c29cd6b53d99eef",
+        "bytes": 273314,
+        "width": 1200,
+        "height": 1200
+      },
+      "full": {
+        "path": "full/025.webp",
+        "sha256": "e1bd10e46f736563096c5ca9ceb615fdf57c7b8c3597db53f81f0f598853ffba",
+        "bytes": 51940,
+        "width": 768,
+        "height": 768
+      },
+      "thumbnail": {
+        "path": "thumb/025.webp",
+        "sha256": "7e14f555f97a7f57d8e95034964a145821fbc3dac94b236cf81b9dfac8d8afe7",
+        "bytes": 8954,
+        "width": 256,
+        "height": 256
+      }
+    },
+    {
+      "number": 26,
+      "title": "Wheel-Turning King (Cakravartin)",
+      "source": {
+        "filename": "26 - Wheel-Turning King (Cakravartin).png",
+        "sha256": "48072394396a7e99fa95372635314667e9d140b3156565d61088f5bf06aab01a",
+        "bytes": 323719,
+        "width": 1200,
+        "height": 1200
+      },
+      "full": {
+        "path": "full/026.webp",
+        "sha256": "e2cae92162448a0fb545b456de230cd486913d3796d93ff9a9e7bc063f160698",
+        "bytes": 46502,
+        "width": 768,
+        "height": 768
+      },
+      "thumbnail": {
+        "path": "thumb/026.webp",
+        "sha256": "cb26d4810d64cdb2cbf34c604fb970c7c2185beedccfa72c5ff8f8787ea00843",
+        "bytes": 9312,
+        "width": 256,
+        "height": 256
+      }
+    },
+    {
+      "number": 27,
+      "title": "Heaven of the Four Great Kings",
+      "source": {
+        "filename": "27 - Heaven of the Four Great Kings.png",
+        "sha256": "f682821cf5fc765fd58ce0df10bebb36b7e0e1403da28c00ee03f2c108126308",
+        "bytes": 243450,
+        "width": 1200,
+        "height": 1200
+      },
+      "full": {
+        "path": "full/027.webp",
+        "sha256": "5a4e7ff1a9aa65f7062b857c43dd0d1b2f840afabcb25dae15d0783b258a67c4",
+        "bytes": 29616,
+        "width": 768,
+        "height": 768
+      },
+      "thumbnail": {
+        "path": "thumb/027.webp",
+        "sha256": "9356a1c5ec884da43edb2c7056b08f36ffcb7f1e3d22644d714ae737c4725eb7",
+        "bytes": 3210,
+        "width": 256,
+        "height": 256
+      }
+    },
+    {
+      "number": 28,
+      "title": "Heaven of the Thirty-three (Trayatrimsa)",
+      "source": {
+        "filename": "28 - Heaven of the Thirty-three (Trayatrimsa).png",
+        "sha256": "ef1a7bda8bb02bd05fba87ec753c27d5ed0aa7b98f1a7f65ffd145cdb2c7776c",
+        "bytes": 173330,
+        "width": 1200,
+        "height": 1200
+      },
+      "full": {
+        "path": "full/028.webp",
+        "sha256": "2ce0067505680229ff436e95fde8ea86b6c38cc888adabad00026914bd0ef567",
+        "bytes": 38640,
+        "width": 768,
+        "height": 768
+      },
+      "thumbnail": {
+        "path": "thumb/028.webp",
+        "sha256": "575d2b71e5f271dd7110b6c45bac0f3da7348ae48b5269b1fae7fd4f37816f0a",
+        "bytes": 6886,
+        "width": 256,
+        "height": 256
+      }
+    },
+    {
+      "number": 29,
+      "title": "Heaven Without Fighting (Yama)",
+      "source": {
+        "filename": "29 - Heaven Without Fighting (Yama).png",
+        "sha256": "4d62f3da9f42ca6d900dfef77880c029439d664c7bae7709e7e44678bfa307df",
+        "bytes": 241808,
+        "width": 1200,
+        "height": 1200
+      },
+      "full": {
+        "path": "full/029.webp",
+        "sha256": "9fe44e67eb15f26f9d5406e18db73e98a8684aa11c87eda6e2aa15a798d0fc17",
+        "bytes": 47048,
+        "width": 768,
+        "height": 768
+      },
+      "thumbnail": {
+        "path": "thumb/029.webp",
+        "sha256": "088f710f2a56a8c3ebd3e7fbe6d83c91f0340c6f72ed936ceb9bc2f83eb1360b",
+        "bytes": 6938,
+        "width": 256,
+        "height": 256
+      }
+    },
+    {
+      "number": 30,
+      "title": "The Joyful (Tusita) Heaven",
+      "source": {
+        "filename": "30 - The Joyful (Tusita) Heaven.png",
+        "sha256": "356166461e42b0af9ae8947a1d36b7063f99de374e98f4d584273e86aea89a21",
+        "bytes": 239826,
+        "width": 1200,
+        "height": 1200
+      },
+      "full": {
+        "path": "full/030.webp",
+        "sha256": "fb1c7626e186f5dc982ceb1a99194658a419573d725465b631f397eddf77f0c5",
+        "bytes": 42924,
+        "width": 768,
+        "height": 768
+      },
+      "thumbnail": {
+        "path": "thumb/030.webp",
+        "sha256": "e300fbeb520e908c12843a6cb4052aa9c58cdbf4560001941e39554f83770be1",
+        "bytes": 6644,
+        "width": 256,
+        "height": 256
+      }
+    },
+    {
+      "number": 31,
+      "title": "Delighting in Emanations (Nirmana-rati)",
+      "source": {
+        "filename": "31 - Delighting in Emanations (Nirmana-rati).png",
+        "sha256": "96b4eba4a5174d14bc882aae3858d8628fefc07a0abdaf72f3307877497e5738",
+        "bytes": 197411,
+        "width": 1200,
+        "height": 1200
+      },
+      "full": {
+        "path": "full/031.webp",
+        "sha256": "399ceeb9c53a81f18b58f2b47a7193d8c8c292c110a46497031d596cf2ad2503",
+        "bytes": 36436,
+        "width": 768,
+        "height": 768
+      },
+      "thumbnail": {
+        "path": "thumb/031.webp",
+        "sha256": "8012e6e35c4fbb081124a8ed2633c1e2652da83bf4f99524e3d830749606ee81",
+        "bytes": 6088,
+        "width": 256,
+        "height": 256
+      }
+    },
+    {
+      "number": 32,
+      "title": "Ruling the Emanations of Others (Paranirmita-Vasavartin)",
+      "source": {
+        "filename": "32 - Ruling the Emanations of Others (Paranirmita-Vasavartin).png",
+        "sha256": "6ab2670507201d566b2c35a876dab0ea4af3252d266e1635cf2ad183f7fb1d0c",
+        "bytes": 188141,
+        "width": 1200,
+        "height": 1200
+      },
+      "full": {
+        "path": "full/032.webp",
+        "sha256": "0eb61204c71d50248f47c24dd65e7ef8b875c3ba19c58aeaabc5a8a46d26bd00",
+        "bytes": 41618,
+        "width": 768,
+        "height": 768
+      },
+      "thumbnail": {
+        "path": "thumb/032.webp",
+        "sha256": "b05eee9c802a6194e2315fcd0b7c11543922669a3b116a57a057b6fbec961484",
+        "bytes": 6298,
+        "width": 256,
+        "height": 256
+      }
+    },
+    {
+      "number": 33,
+      "title": "Tantra, Lesser Path of Accumulation",
+      "source": {
+        "filename": "33 - Tantra, Lesser Path of Accumulation.png",
+        "sha256": "f1fc8bd0da04c4f53ad4ca9993049ab0e5c63fd219c439de89a6bda58fac0b69",
+        "bytes": 274617,
+        "width": 1200,
+        "height": 1200
+      },
+      "full": {
+        "path": "full/033.webp",
+        "sha256": "91e99c585f0362ebd7904db14f45e32ac492ac88df58be53ed500527a5b048b2",
+        "bytes": 49236,
+        "width": 768,
+        "height": 768
+      },
+      "thumbnail": {
+        "path": "thumb/033.webp",
+        "sha256": "709870b748fd40ed0b6aa4689d0146ac894db048417722b1fe97b2ad44561273",
+        "bytes": 8758,
+        "width": 256,
+        "height": 256
+      }
+    },
+    {
+      "number": 34,
+      "title": "Mahakala",
+      "source": {
+        "filename": "34 - Mahakala.png",
+        "sha256": "d5c16ab1dbbe672e27ecce044aa63f3276cbbfe2d1794fac97b56bdd93e56ce8",
+        "bytes": 332180,
+        "width": 1200,
+        "height": 1200
+      },
+      "full": {
+        "path": "full/034.webp",
+        "sha256": "3277311538ebae2b8e62ece1ac4151c8c750fb089614d69cb345b5ceb839a093",
+        "bytes": 85210,
+        "width": 768,
+        "height": 768
+      },
+      "thumbnail": {
+        "path": "thumb/034.webp",
+        "sha256": "64108ea19dd1a671ce441db6d6a8b8a9a2975dce8f6ff197493e88feeae0d1ef",
+        "bytes": 11888,
+        "width": 256,
+        "height": 256
+      }
+    },
+    {
+      "number": 35,
+      "title": "The Realm of Form (Rupa-Dhatu)",
+      "source": {
+        "filename": "35 - The Realm of Form (Rupa-Dhatu).png",
+        "sha256": "5f18fe8066c165d95097f7131d61926293ee948c247743379911a191a4f0dfbd",
+        "bytes": 281275,
+        "width": 1200,
+        "height": 1200
+      },
+      "full": {
+        "path": "full/035.webp",
+        "sha256": "d5c60cfa4c2eb5e293f8e7861c279c58d11c9f213ac51846173b1641dfce8f8f",
+        "bytes": 61074,
+        "width": 768,
+        "height": 768
+      },
+      "thumbnail": {
+        "path": "thumb/035.webp",
+        "sha256": "85d3d2ff2d753dfecfdf679399b6ef3073ba83580d7300697a6797ba3cd471ab",
+        "bytes": 9424,
+        "width": 256,
+        "height": 256
+      }
+    },
+    {
+      "number": 36,
+      "title": "The Formless Realm (Arupa-Dhatu)",
+      "source": {
+        "filename": "36 - The Formless Realm (Arupa-Dhatu).png",
+        "sha256": "ea8332d07085a18a62464e6f6a2916edbcd93d2c8457d141dda48b95d36f68ac",
+        "bytes": 218163,
+        "width": 1200,
+        "height": 1200
+      },
+      "full": {
+        "path": "full/036.webp",
+        "sha256": "0afd43e9f5fc3b4a6042219fa4029e0e1b951cddccbcddfd015fa758d2aaef51",
+        "bytes": 46420,
+        "width": 768,
+        "height": 768
+      },
+      "thumbnail": {
+        "path": "thumb/036.webp",
+        "sha256": "afaeedc581e05b397eca1f00f98cc7db5b81bf6678ce886c94cbd3513d61843f",
+        "bytes": 7006,
+        "width": 256,
+        "height": 256
+      }
+    },
+    {
+      "number": 37,
+      "title": "Pure Abodes (Suddhavasa)",
+      "source": {
+        "filename": "37 - Pure Abodes (Suddhavasa).png",
+        "sha256": "d423ed2e0e6817f1b93ee2e7a38f91beeddc3ac56ba7656fbae55096911bd310",
+        "bytes": 229324,
+        "width": 1200,
+        "height": 1200
+      },
+      "full": {
+        "path": "full/037.webp",
+        "sha256": "385c76695b3eb0a36b7007484f410dff0839c9c9bca3e5f1cfb550d87379cb82",
+        "bytes": 61758,
+        "width": 768,
+        "height": 768
+      },
+      "thumbnail": {
+        "path": "thumb/037.webp",
+        "sha256": "67777e4a9a84ac1cf5d82741021141249be43932922ee6da39246a36b4ed3b39",
+        "bytes": 9692,
+        "width": 256,
+        "height": 256
+      }
+    },
+    {
+      "number": 38,
+      "title": "Disciples (Sravaka), Path of Accumulation (Sambhara-Marga)",
+      "source": {
+        "filename": "38 - Disciples (Sravaka), Path of Accumulation (Sambhara-Marga).png",
+        "sha256": "9517882c6b4fad97ed61ad6d7c94b99a8a4e0309410b176df15b7526649cacdd",
+        "bytes": 227689,
+        "width": 1200,
+        "height": 1200
+      },
+      "full": {
+        "path": "full/038.webp",
+        "sha256": "73ff8db89ab19c5455a332d1472b6c8c8853376c1260f77e6edc4ad7ded0b1bd",
+        "bytes": 34416,
+        "width": 768,
+        "height": 768
+      },
+      "thumbnail": {
+        "path": "thumb/038.webp",
+        "sha256": "cdaaec5c1bf97581777fc85d5fa97d5920117618889c798400bcf76426c93bb1",
+        "bytes": 4628,
+        "width": 256,
+        "height": 256
+      }
+    },
+    {
+      "number": 39,
+      "title": "Disciples, Path of Application (Prayoga-Marga)",
+      "source": {
+        "filename": "39 - Disciples, Path of Application (Prayoga-Marga).png",
+        "sha256": "96db2e3240c604c92a7f3cc1c3f8913d7893b96c1ff52313a7307b7ee1f550a5",
+        "bytes": 227689,
+        "width": 1200,
+        "height": 1200
+      },
+      "full": {
+        "path": "full/039.webp",
+        "sha256": "73ff8db89ab19c5455a332d1472b6c8c8853376c1260f77e6edc4ad7ded0b1bd",
+        "bytes": 34416,
+        "width": 768,
+        "height": 768
+      },
+      "thumbnail": {
+        "path": "thumb/039.webp",
+        "sha256": "cdaaec5c1bf97581777fc85d5fa97d5920117618889c798400bcf76426c93bb1",
+        "bytes": 4628,
+        "width": 256,
+        "height": 256
+      }
+    },
+    {
+      "number": 40,
+      "title": "Disciples, Paths of Vision and Cultivation",
+      "source": {
+        "filename": "40 - Disciples, Paths of Vision and Cultivation.png",
+        "sha256": "5846159653d748a14aa8db7ba14d44645a13c26f1c6e2b845416b007dac5f82f",
+        "bytes": 227689,
+        "width": 1200,
+        "height": 1200
+      },
+      "full": {
+        "path": "full/040.webp",
+        "sha256": "73ff8db89ab19c5455a332d1472b6c8c8853376c1260f77e6edc4ad7ded0b1bd",
+        "bytes": 34416,
+        "width": 768,
+        "height": 768
+      },
+      "thumbnail": {
+        "path": "thumb/040.webp",
+        "sha256": "cdaaec5c1bf97581777fc85d5fa97d5920117618889c798400bcf76426c93bb1",
+        "bytes": 4628,
+        "width": 256,
+        "height": 256
+      }
+    },
+    {
+      "number": 41,
+      "title": "Tantra, Middle Path of Accumulation",
+      "source": {
+        "filename": "41 - Tantra, Middle Path of Accumulation.png",
+        "sha256": "db223458ec152c34f1d95789de7c18cd7e026df1e32b97034734d9ef5aa33be8",
+        "bytes": 346150,
+        "width": 1200,
+        "height": 1200
+      },
+      "full": {
+        "path": "full/041.webp",
+        "sha256": "7a9cf7ee53319a40a124ab2211e493d6c1fe028ea4828001dd32134223bd256a",
+        "bytes": 51926,
+        "width": 768,
+        "height": 768
+      },
+      "thumbnail": {
+        "path": "thumb/041.webp",
+        "sha256": "7f7495647ea7d621f1ade6d039a8012f61b2077335583fabd39e1b16668f9fab",
+        "bytes": 6222,
+        "width": 256,
+        "height": 256
+      }
+    },
+    {
+      "number": 42,
+      "title": "Tantra, Greater Path of Accumulation",
+      "source": {
+        "filename": "42 - Tantra, Greater Path of Accumulation.png",
+        "sha256": "9049ecce3120d73af0b71ff62a141661ebb7f65a2247191d4cf783fea18e02dc",
+        "bytes": 346150,
+        "width": 1200,
+        "height": 1200
+      },
+      "full": {
+        "path": "full/042.webp",
+        "sha256": "7a9cf7ee53319a40a124ab2211e493d6c1fe028ea4828001dd32134223bd256a",
+        "bytes": 51926,
+        "width": 768,
+        "height": 768
+      },
+      "thumbnail": {
+        "path": "thumb/042.webp",
+        "sha256": "7f7495647ea7d621f1ade6d039a8012f61b2077335583fabd39e1b16668f9fab",
+        "bytes": 6222,
+        "width": 256,
+        "height": 256
+      }
+    },
+    {
+      "number": 43,
+      "title": "Independent Buddha (Pratyeka-Buddha), Path of Accumulation",
+      "source": {
+        "filename": "43 - Independent Buddha (Pratyeka-Buddha), Path of Accumulation.png",
+        "sha256": "e8841d392ab812a415286d6411173b1af266080147a26271b4d3de31b30b6521",
+        "bytes": 227689,
+        "width": 1200,
+        "height": 1200
+      },
+      "full": {
+        "path": "full/043.webp",
+        "sha256": "73ff8db89ab19c5455a332d1472b6c8c8853376c1260f77e6edc4ad7ded0b1bd",
+        "bytes": 34416,
+        "width": 768,
+        "height": 768
+      },
+      "thumbnail": {
+        "path": "thumb/043.webp",
+        "sha256": "cdaaec5c1bf97581777fc85d5fa97d5920117618889c798400bcf76426c93bb1",
+        "bytes": 4628,
+        "width": 256,
+        "height": 256
+      }
+    },
+    {
+      "number": 44,
+      "title": "Independent Buddha, Path of Application",
+      "source": {
+        "filename": "44 - Independent Buddha, Path of Application.png",
+        "sha256": "d000b7acf518732a0f5f5f3c9b1a85239534c80817a76299768601105ca2b03f",
+        "bytes": 227689,
+        "width": 1200,
+        "height": 1200
+      },
+      "full": {
+        "path": "full/044.webp",
+        "sha256": "73ff8db89ab19c5455a332d1472b6c8c8853376c1260f77e6edc4ad7ded0b1bd",
+        "bytes": 34416,
+        "width": 768,
+        "height": 768
+      },
+      "thumbnail": {
+        "path": "thumb/044.webp",
+        "sha256": "cdaaec5c1bf97581777fc85d5fa97d5920117618889c798400bcf76426c93bb1",
+        "bytes": 4628,
+        "width": 256,
+        "height": 256
+      }
+    },
+    {
+      "number": 45,
+      "title": "Independent Buddha, Path of Vision",
+      "source": {
+        "filename": "45 - Independent Buddha, Path of Vision.png",
+        "sha256": "e66097670b4755f50656e4194f03bddde3d6e1017f3c285340c0cf4786b3988d",
+        "bytes": 227689,
+        "width": 1200,
+        "height": 1200
+      },
+      "full": {
+        "path": "full/045.webp",
+        "sha256": "73ff8db89ab19c5455a332d1472b6c8c8853376c1260f77e6edc4ad7ded0b1bd",
+        "bytes": 34416,
+        "width": 768,
+        "height": 768
+      },
+      "thumbnail": {
+        "path": "thumb/045.webp",
+        "sha256": "cdaaec5c1bf97581777fc85d5fa97d5920117618889c798400bcf76426c93bb1",
+        "bytes": 4628,
+        "width": 256,
+        "height": 256
+      }
+    },
+    {
+      "number": 46,
+      "title": "Independent Buddha, Path of Cultivation",
+      "source": {
+        "filename": "46 - Independent Buddha, Path of Cultivation.png",
+        "sha256": "7d10b57359ba32a417a16bb0502d2926ef64bb94afea7fb2a083ed86fe4b5043",
+        "bytes": 227689,
+        "width": 1200,
+        "height": 1200
+      },
+      "full": {
+        "path": "full/046.webp",
+        "sha256": "73ff8db89ab19c5455a332d1472b6c8c8853376c1260f77e6edc4ad7ded0b1bd",
+        "bytes": 34416,
+        "width": 768,
+        "height": 768
+      },
+      "thumbnail": {
+        "path": "thumb/046.webp",
+        "sha256": "cdaaec5c1bf97581777fc85d5fa97d5920117618889c798400bcf76426c93bb1",
+        "bytes": 4628,
+        "width": 256,
+        "height": 256
+      }
+    },
+    {
+      "number": 47,
+      "title": "Independent Buddha, Arhatship",
+      "source": {
+        "filename": "47 - Independent Buddha, Arhatship.png",
+        "sha256": "83a51196c421e9949075cd199de652552cbcaad9275c091b1435b5201a9625fb",
+        "bytes": 227689,
+        "width": 1200,
+        "height": 1200
+      },
+      "full": {
+        "path": "full/047.webp",
+        "sha256": "73ff8db89ab19c5455a332d1472b6c8c8853376c1260f77e6edc4ad7ded0b1bd",
+        "bytes": 34416,
+        "width": 768,
+        "height": 768
+      },
+      "thumbnail": {
+        "path": "thumb/047.webp",
+        "sha256": "cdaaec5c1bf97581777fc85d5fa97d5920117618889c798400bcf76426c93bb1",
+        "bytes": 4628,
+        "width": 256,
+        "height": 256
+      }
+    },
+    {
+      "number": 48,
+      "title": "Cessation (Nirodha)",
+      "source": {
+        "filename": "48 - Cessation (Nirodha).png",
+        "sha256": "e18a12f0f2d90ed276ad4985ec08a926d0140baf88461696ffd18d44c6644b71",
+        "bytes": 227689,
+        "width": 1200,
+        "height": 1200
+      },
+      "full": {
+        "path": "full/048.webp",
+        "sha256": "73ff8db89ab19c5455a332d1472b6c8c8853376c1260f77e6edc4ad7ded0b1bd",
+        "bytes": 34416,
+        "width": 768,
+        "height": 768
+      },
+      "thumbnail": {
+        "path": "thumb/048.webp",
+        "sha256": "cdaaec5c1bf97581777fc85d5fa97d5920117618889c798400bcf76426c93bb1",
+        "bytes": 4628,
+        "width": 256,
+        "height": 256
+      }
+    },
+    {
+      "number": 49,
+      "title": "Tantra, Path of Application - Heat",
+      "source": {
+        "filename": "49 - Tantra, Path of Application - Heat.png",
+        "sha256": "1baf8e43259f34922a41be3846a44921387ae5119fcddab010dcf7b749079ce7",
+        "bytes": 346150,
+        "width": 1200,
+        "height": 1200
+      },
+      "full": {
+        "path": "full/049.webp",
+        "sha256": "7a9cf7ee53319a40a124ab2211e493d6c1fe028ea4828001dd32134223bd256a",
+        "bytes": 51926,
+        "width": 768,
+        "height": 768
+      },
+      "thumbnail": {
+        "path": "thumb/049.webp",
+        "sha256": "7f7495647ea7d621f1ade6d039a8012f61b2077335583fabd39e1b16668f9fab",
+        "bytes": 6222,
+        "width": 256,
+        "height": 256
+      }
+    },
+    {
+      "number": 50,
+      "title": "Tantra, Path of Application - Climax",
+      "source": {
+        "filename": "50 - Tantra, Path of Application - Climax.png",
+        "sha256": "2ef009e2b9976afef9896ecaea5abebb3b18e8dab6a32d5cef95d18ced3955a1",
+        "bytes": 363936,
+        "width": 1200,
+        "height": 1200
+      },
+      "full": {
+        "path": "full/050.webp",
+        "sha256": "577cde355be00cea2b2da2a625858e447772d0452ef22c9f4d0ae8c986eec0e2",
+        "bytes": 51566,
+        "width": 768,
+        "height": 768
+      },
+      "thumbnail": {
+        "path": "thumb/050.webp",
+        "sha256": "d12e46f7381ff0efdf5c114a87b7c2ab75b33d2655748e174e246e3640ec2bf8",
+        "bytes": 6222,
+        "width": 256,
+        "height": 256
+      }
+    },
+    {
+      "number": 51,
+      "title": "Disciples, Arhatship",
+      "source": {
+        "filename": "51 - Disciples, Arhatship.png",
+        "sha256": "f0b83817c8e948f1889018e16d1c6d300cc95fa0584de1f30537db07fc07265c",
+        "bytes": 227689,
+        "width": 1200,
+        "height": 1200
+      },
+      "full": {
+        "path": "full/051.webp",
+        "sha256": "73ff8db89ab19c5455a332d1472b6c8c8853376c1260f77e6edc4ad7ded0b1bd",
+        "bytes": 34416,
+        "width": 768,
+        "height": 768
+      },
+      "thumbnail": {
+        "path": "thumb/051.webp",
+        "sha256": "cdaaec5c1bf97581777fc85d5fa97d5920117618889c798400bcf76426c93bb1",
+        "bytes": 4628,
+        "width": 256,
+        "height": 256
+      }
+    },
+    {
+      "number": 52,
+      "title": "Mahayana, Lesser Path of Accumulation",
+      "source": {
+        "filename": "52 - Mahayana, Lesser Path of Accumulation.png",
+        "sha256": "c4f245e952832caa7cc57fd6c44fc80e897064f36629c7cee447e73179dc0d6c",
+        "bytes": 204367,
+        "width": 1200,
+        "height": 1200
+      },
+      "full": {
+        "path": "full/052.webp",
+        "sha256": "af4ce41aa56e7d636e55863125f1d70f39ee3b3475d6d445af84f9603081f81b",
+        "bytes": 40624,
+        "width": 768,
+        "height": 768
+      },
+      "thumbnail": {
+        "path": "thumb/052.webp",
+        "sha256": "e40248d3ee2fafa46bf4acfa854e9a89c9be8e2aea02e27101b7e917bd302864",
+        "bytes": 5796,
+        "width": 256,
+        "height": 256
+      }
+    },
+    {
+      "number": 53,
+      "title": "Mahayana, Middle Path of Accumulation",
+      "source": {
+        "filename": "53 - Mahayana, Middle Path of Accumulation.png",
+        "sha256": "524a7a611cc754badc8cc30246edff80618f77880a402dc8157b2143e6fbf6f7",
+        "bytes": 204367,
+        "width": 1200,
+        "height": 1200
+      },
+      "full": {
+        "path": "full/053.webp",
+        "sha256": "af4ce41aa56e7d636e55863125f1d70f39ee3b3475d6d445af84f9603081f81b",
+        "bytes": 40624,
+        "width": 768,
+        "height": 768
+      },
+      "thumbnail": {
+        "path": "thumb/053.webp",
+        "sha256": "e40248d3ee2fafa46bf4acfa854e9a89c9be8e2aea02e27101b7e917bd302864",
+        "bytes": 5796,
+        "width": 256,
+        "height": 256
+      }
+    },
+    {
+      "number": 54,
+      "title": "Mahayana, Greater Path of Accumulation",
+      "source": {
+        "filename": "54 - Mahayana, Greater Path of Accumulation.png",
+        "sha256": "bb8e30d602f28739026fb0fe3e23aa6b085c6b92e56a7d48ec079c5287c32a31",
+        "bytes": 204367,
+        "width": 1200,
+        "height": 1200
+      },
+      "full": {
+        "path": "full/054.webp",
+        "sha256": "af4ce41aa56e7d636e55863125f1d70f39ee3b3475d6d445af84f9603081f81b",
+        "bytes": 40624,
+        "width": 768,
+        "height": 768
+      },
+      "thumbnail": {
+        "path": "thumb/054.webp",
+        "sha256": "e40248d3ee2fafa46bf4acfa854e9a89c9be8e2aea02e27101b7e917bd302864",
+        "bytes": 5796,
+        "width": 256,
+        "height": 256
+      }
+    },
+    {
+      "number": 55,
+      "title": "Mahayana, Path of Application - Heat (Usman)",
+      "source": {
+        "filename": "55 - Mahayana, Path of Application - Heat (Usman).png",
+        "sha256": "d815c6c3f28a44b17fb5b082ff562239c0fa7b13a00fe174aca2df4f704ba8cc",
+        "bytes": 204367,
+        "width": 1200,
+        "height": 1200
+      },
+      "full": {
+        "path": "full/055.webp",
+        "sha256": "af4ce41aa56e7d636e55863125f1d70f39ee3b3475d6d445af84f9603081f81b",
+        "bytes": 40624,
+        "width": 768,
+        "height": 768
+      },
+      "thumbnail": {
+        "path": "thumb/055.webp",
+        "sha256": "e40248d3ee2fafa46bf4acfa854e9a89c9be8e2aea02e27101b7e917bd302864",
+        "bytes": 5796,
+        "width": 256,
+        "height": 256
+      }
+    },
+    {
+      "number": 56,
+      "title": "Mahayana, Path of Application - Climax (Murdhan)",
+      "source": {
+        "filename": "56 - Mahayana, Path of Application - Climax (Murdhan).png",
+        "sha256": "ded9ee325f73e149ae5f748cdfa6efab842285c2ecbb96c25421b8bac47f1d58",
+        "bytes": 204367,
+        "width": 1200,
+        "height": 1200
+      },
+      "full": {
+        "path": "full/056.webp",
+        "sha256": "af4ce41aa56e7d636e55863125f1d70f39ee3b3475d6d445af84f9603081f81b",
+        "bytes": 40624,
+        "width": 768,
+        "height": 768
+      },
+      "thumbnail": {
+        "path": "thumb/056.webp",
+        "sha256": "e40248d3ee2fafa46bf4acfa854e9a89c9be8e2aea02e27101b7e917bd302864",
+        "bytes": 5796,
+        "width": 256,
+        "height": 256
+      }
+    },
+    {
+      "number": 57,
+      "title": "Tantra, Path of Application - Receptivity",
+      "source": {
+        "filename": "57 - Tantra, Path of Application - Receptivity.png",
+        "sha256": "5819e01e8e8a7a9cd9e15764a3ae7b43e1c9e4fe497eaae5d25032a74a745b21",
+        "bytes": 346150,
+        "width": 1200,
+        "height": 1200
+      },
+      "full": {
+        "path": "full/057.webp",
+        "sha256": "7a9cf7ee53319a40a124ab2211e493d6c1fe028ea4828001dd32134223bd256a",
+        "bytes": 51926,
+        "width": 768,
+        "height": 768
+      },
+      "thumbnail": {
+        "path": "thumb/057.webp",
+        "sha256": "7f7495647ea7d621f1ade6d039a8012f61b2077335583fabd39e1b16668f9fab",
+        "bytes": 6222,
+        "width": 256,
+        "height": 256
+      }
+    },
+    {
+      "number": 58,
+      "title": "Tantra, Path of Application - Highest Teachings",
+      "source": {
+        "filename": "58 - Tantra, Path of Application - Highest Teachings.png",
+        "sha256": "4c89d86f06f342ba43cf6ebda6bd984bcd385348388f6bb6a3c0890cd50ccd89",
+        "bytes": 329441,
+        "width": 1200,
+        "height": 1200
+      },
+      "full": {
+        "path": "full/058.webp",
+        "sha256": "5937e6136d0796336a5c372867a5b8406f179543a28a08a000839111165594c8",
+        "bytes": 34660,
+        "width": 768,
+        "height": 768
+      },
+      "thumbnail": {
+        "path": "thumb/058.webp",
+        "sha256": "2e1451533c281660e843c31cebd2c3c54d5b94950aa0e6a77c57ac94677c4bb9",
+        "bytes": 5908,
+        "width": 256,
+        "height": 256
+      }
+    },
+    {
+      "number": 59,
+      "title": "Shambhala",
+      "source": {
+        "filename": "59 - Shambhala.png",
+        "sha256": "95286ab36b1e199ba6802cf09d82565d8ecbfc7793c77c9aad5f3c39e4246f7d",
+        "bytes": 248936,
+        "width": 1200,
+        "height": 1200
+      },
+      "full": {
+        "path": "full/059.webp",
+        "sha256": "52aff1b99820846aa498f7e25209710ad7fbe31572b095ac1f0be53f7adc4f59",
+        "bytes": 56066,
+        "width": 768,
+        "height": 768
+      },
+      "thumbnail": {
+        "path": "thumb/059.webp",
+        "sha256": "c4fe2d81edea25e6d1cdb41e3a9f3321272478b7d832cab1420f5eab90bdb304",
+        "bytes": 7598,
+        "width": 256,
+        "height": 256
+      }
+    },
+    {
+      "number": 60,
+      "title": "Potala",
+      "source": {
+        "filename": "60 - Potala.png",
+        "sha256": "02e254003ca48d19a7701f0a8ecc7607f2480d390e4756b935ba24c44605c9f7",
+        "bytes": 253567,
+        "width": 1200,
+        "height": 1200
+      },
+      "full": {
+        "path": "full/060.webp",
+        "sha256": "4200552b3d1543c0c25e5ed21f822aa7977e3a0539577338e637e7f6ae724d06",
+        "bytes": 52652,
+        "width": 768,
+        "height": 768
+      },
+      "thumbnail": {
+        "path": "thumb/060.webp",
+        "sha256": "3f0e10316a9d6730ced58d73dce7e842ee0018355837a55069a984c32409e41f",
+        "bytes": 7620,
+        "width": 256,
+        "height": 256
+      }
+    },
+    {
+      "number": 61,
+      "title": "Urgyan (Uddiyana)",
+      "source": {
+        "filename": "61 - Urgyan (Uddiyana).png",
+        "sha256": "383a1cdec01adc48c686ea3312bac09dd96149b198609bc77f750b93f20ea505",
+        "bytes": 192674,
+        "width": 1200,
+        "height": 1200
+      },
+      "full": {
+        "path": "full/061.webp",
+        "sha256": "e2501dadb83cc87807772ba298bc5b75ed5404aeffb26a34132304f2bdda832d",
+        "bytes": 50978,
+        "width": 768,
+        "height": 768
+      },
+      "thumbnail": {
+        "path": "thumb/061.webp",
+        "sha256": "475627609593510ebf8e7574ed68daf19c302df34af12c59ed6b10f99c32a45c",
+        "bytes": 6764,
+        "width": 256,
+        "height": 256
+      }
+    },
+    {
+      "number": 62,
+      "title": "Hindu Wisdom-Holder (Vidyadhara)",
+      "source": {
+        "filename": "62 - Hindu Wisdom-Holder (Vidyadhara).png",
+        "sha256": "d1e8503652c309152e2ef7cdd90944fbfb40af96cf27d5ddc9eb3a14d44ca82c",
+        "bytes": 289194,
+        "width": 1200,
+        "height": 1200
+      },
+      "full": {
+        "path": "full/062.webp",
+        "sha256": "27165999cd94c499ef1af11bc13c93bb53b373c620e77c84164586f348e44162",
+        "bytes": 63384,
+        "width": 768,
+        "height": 768
+      },
+      "thumbnail": {
+        "path": "thumb/062.webp",
+        "sha256": "468324ee73ce0eb1a4e36e2b48062f383ce51c0956c1bc376e48fb6349e0dacf",
+        "bytes": 8880,
+        "width": 256,
+        "height": 256
+      }
+    },
+    {
+      "number": 63,
+      "title": "Mahayana, Path of Application - Receptivity (Ksanti)",
+      "source": {
+        "filename": "63 - Mahayana, Path of Application - Receptivity (Ksanti).png",
+        "sha256": "c6bb874f755ce1686191bf1538a78327192c8285aae7bd4fc2ef786f633dfb5e",
+        "bytes": 204367,
+        "width": 1200,
+        "height": 1200
+      },
+      "full": {
+        "path": "full/063.webp",
+        "sha256": "af4ce41aa56e7d636e55863125f1d70f39ee3b3475d6d445af84f9603081f81b",
+        "bytes": 40624,
+        "width": 768,
+        "height": 768
+      },
+      "thumbnail": {
+        "path": "thumb/063.webp",
+        "sha256": "e40248d3ee2fafa46bf4acfa854e9a89c9be8e2aea02e27101b7e917bd302864",
+        "bytes": 5796,
+        "width": 256,
+        "height": 256
+      }
+    },
+    {
+      "number": 64,
+      "title": "Mahayana, Path of Application - Highest Teachings",
+      "source": {
+        "filename": "64 - Mahayana, Path of Application - Highest Teachings.png",
+        "sha256": "44db1d3dcdd7945f9931161e4f302477f36b839a2cc5811008dafa8b88987d86",
+        "bytes": 204367,
+        "width": 1200,
+        "height": 1200
+      },
+      "full": {
+        "path": "full/064.webp",
+        "sha256": "af4ce41aa56e7d636e55863125f1d70f39ee3b3475d6d445af84f9603081f81b",
+        "bytes": 40624,
+        "width": 768,
+        "height": 768
+      },
+      "thumbnail": {
+        "path": "thumb/064.webp",
+        "sha256": "e40248d3ee2fafa46bf4acfa854e9a89c9be8e2aea02e27101b7e917bd302864",
+        "bytes": 5796,
+        "width": 256,
+        "height": 256
+      }
+    },
+    {
+      "number": 65,
+      "title": "Wisdom-Holder of the Bon Tradition",
+      "source": {
+        "filename": "65 - Wisdom-Holder of the Bon Tradition.png",
+        "sha256": "d19f27f56c6295856ac61d3bc182134090c8a2163d4f8554175f42ca9b279276",
+        "bytes": 279906,
+        "width": 1200,
+        "height": 1200
+      },
+      "full": {
+        "path": "full/065.webp",
+        "sha256": "fa6419935d7e3cab53f7bccde9761dba59cceff4c1a37b7146a34da2becd8f82",
+        "bytes": 53342,
+        "width": 768,
+        "height": 768
+      },
+      "thumbnail": {
+        "path": "thumb/065.webp",
+        "sha256": "e9d260ec57de946bf3f45d34778fa4f6c8fc9dbb16be48fcd26519d365299392",
+        "bytes": 8382,
+        "width": 256,
+        "height": 256
+      }
+    },
+    {
+      "number": 66,
+      "title": "First Tantra Stage",
+      "source": {
+        "filename": "66 - First Tantra Stage.png",
+        "sha256": "730ce4aa6a8139ac93591f72f5d0bae5fdab2d81bd238df33257ee7ff7b79f2b",
+        "bytes": 329441,
+        "width": 1200,
+        "height": 1200
+      },
+      "full": {
+        "path": "full/066.webp",
+        "sha256": "5937e6136d0796336a5c372867a5b8406f179543a28a08a000839111165594c8",
+        "bytes": 34660,
+        "width": 768,
+        "height": 768
+      },
+      "thumbnail": {
+        "path": "thumb/066.webp",
+        "sha256": "2e1451533c281660e843c31cebd2c3c54d5b94950aa0e6a77c57ac94677c4bb9",
+        "bytes": 5908,
+        "width": 256,
+        "height": 256
+      }
+    },
+    {
+      "number": 67,
+      "title": "Wisdom-Holder Among the Gods of Sense Desire",
+      "source": {
+        "filename": "67 - Wisdom-Holder Among the Gods of Sense Desire.png",
+        "sha256": "e7896f3a1c95bab6b14cad775d60bf784e71d374f59a1b2c52b0271fd6751b07",
+        "bytes": 300692,
+        "width": 1200,
+        "height": 1200
+      },
+      "full": {
+        "path": "full/067.webp",
+        "sha256": "8adef9df45c9b025d67a9efff2918349c7657de9a0895fab47b1588a8d69b9c5",
+        "bytes": 66536,
+        "width": 768,
+        "height": 768
+      },
+      "thumbnail": {
+        "path": "thumb/067.webp",
+        "sha256": "0cb54e49b8d31f6f889f29aadaf7dc0b5bef90fbb36e560e498d4889fe1da1f1",
+        "bytes": 11278,
+        "width": 256,
+        "height": 256
+      }
+    },
+    {
+      "number": 68,
+      "title": "Wisdom-Holder of the Realm of Form",
+      "source": {
+        "filename": "68 - Wisdom-Holder of the Realm of Form.png",
+        "sha256": "beebcd17c3e11d36699011f81d27cac92f4fd9361db748cb661f9f350e800a27",
+        "bytes": 231952,
+        "width": 1200,
+        "height": 1200
+      },
+      "full": {
+        "path": "full/068.webp",
+        "sha256": "131284131f43c1088a01f212d5069241d2b18d3d96221fd343f2d4e8369ca7fe",
+        "bytes": 61736,
+        "width": 768,
+        "height": 768
+      },
+      "thumbnail": {
+        "path": "thumb/068.webp",
+        "sha256": "c586fc82238021ef6a367c689023e9e768ff0a30cb44c02687e186231a3fcbad",
+        "bytes": 9668,
+        "width": 256,
+        "height": 256
+      }
+    },
+    {
+      "number": 69,
+      "title": "Tantric Wheel-Turning King",
+      "source": {
+        "filename": "69 - Tantric Wheel-Turning King.png",
+        "sha256": "189d54bfbfd105984942d487133f3e16b9ad3744e535dc1bf561a828f3e1534d",
+        "bytes": 236604,
+        "width": 1200,
+        "height": 1200
+      },
+      "full": {
+        "path": "full/069.webp",
+        "sha256": "31347a9922e8e2b3532a3f1f31f094c4ca51313be3f9402cfe0810b424ae5848",
+        "bytes": 56718,
+        "width": 768,
+        "height": 768
+      },
+      "thumbnail": {
+        "path": "thumb/069.webp",
+        "sha256": "1e41f64bb5fb6bd4e26c122e5449a5ad43cda0c9f074c54ef9c9021637ae206e",
+        "bytes": 8950,
+        "width": 256,
+        "height": 256
+      }
+    },
+    {
+      "number": 70,
+      "title": "Realm of Action-Completion",
+      "source": {
+        "filename": "70 - Realm of Action-Completion.png",
+        "sha256": "830723137b0c5da7a96f43c384b1e5026a1cb8bea57c3d3c85395607606a5a99",
+        "bytes": 203248,
+        "width": 1200,
+        "height": 1200
+      },
+      "full": {
+        "path": "full/070.webp",
+        "sha256": "a0df0c4dcc528db88f2769b3f473b39de8de5018f33e3fe007e0ea3e6b3b0f4e",
+        "bytes": 44320,
+        "width": 768,
+        "height": 768
+      },
+      "thumbnail": {
+        "path": "thumb/070.webp",
+        "sha256": "cd908bd0d7f4aa886e5d8e30545a3900cd4c18227754dcdb584bde807cc46bce",
+        "bytes": 7280,
+        "width": 256,
+        "height": 256
+      }
+    },
+    {
+      "number": 71,
+      "title": "First Sutra Stage (Bhumi)",
+      "source": {
+        "filename": "71 - First Sutra Stage (Bhumi).png",
+        "sha256": "4b2d06246d183326e68d6db36b637e270ded105d9f6c528042360fd411059b30",
+        "bytes": 209407,
+        "width": 1200,
+        "height": 1200
+      },
+      "full": {
+        "path": "full/071.webp",
+        "sha256": "d6c2418ab9fe2dd4b220ca1899f8e1c500ae28af78b6501d0125dc67ce28f307",
+        "bytes": 26390,
+        "width": 768,
+        "height": 768
+      },
+      "thumbnail": {
+        "path": "thumb/071.webp",
+        "sha256": "626ad80960c4cf2ca87752f0590ad86ff9507e6083bfa72fd3060d76b2875e5d",
+        "bytes": 4532,
+        "width": 256,
+        "height": 256
+      }
+    },
+    {
+      "number": 72,
+      "title": "Wisdom-Holder of the Eight Siddhis",
+      "source": {
+        "filename": "72 - Wisdom-Holder of the Eight Siddhis.png",
+        "sha256": "651fd066c51b18e6a7278abfc280d2eff7259b5c0a9f076f50105dffd258aa96",
+        "bytes": 341209,
+        "width": 1200,
+        "height": 1200
+      },
+      "full": {
+        "path": "full/072.webp",
+        "sha256": "004b63e16883ddb35afccea5feab81e21b8956d718d7674f4939447dbec660a2",
+        "bytes": 56034,
+        "width": 768,
+        "height": 768
+      },
+      "thumbnail": {
+        "path": "thumb/072.webp",
+        "sha256": "f24140e74fea526e1425b8001cef440a41a1d5207428e0a8fad991fbd1924bc3",
+        "bytes": 8490,
+        "width": 256,
+        "height": 256
+      }
+    },
+    {
+      "number": 73,
+      "title": "Second Tantra Stage",
+      "source": {
+        "filename": "73 - Second Tantra Stage.png",
+        "sha256": "21b4357057b85aa0715a0735c9ef4ea48cee248f73e05aae98ada4238b73abe9",
+        "bytes": 329441,
+        "width": 1200,
+        "height": 1200
+      },
+      "full": {
+        "path": "full/073.webp",
+        "sha256": "5937e6136d0796336a5c372867a5b8406f179543a28a08a000839111165594c8",
+        "bytes": 34660,
+        "width": 768,
+        "height": 768
+      },
+      "thumbnail": {
+        "path": "thumb/073.webp",
+        "sha256": "2e1451533c281660e843c31cebd2c3c54d5b94950aa0e6a77c57ac94677c4bb9",
+        "bytes": 5908,
+        "width": 256,
+        "height": 256
+      }
+    },
+    {
+      "number": 74,
+      "title": "Third Tantra Stage",
+      "source": {
+        "filename": "74 - Third Tantra Stage.png",
+        "sha256": "172aacdc956569697ccaedbf1e61ecc2fcf41e279ce2752b45914be427607fb1",
+        "bytes": 329441,
+        "width": 1200,
+        "height": 1200
+      },
+      "full": {
+        "path": "full/074.webp",
+        "sha256": "5937e6136d0796336a5c372867a5b8406f179543a28a08a000839111165594c8",
+        "bytes": 34660,
+        "width": 768,
+        "height": 768
+      },
+      "thumbnail": {
+        "path": "thumb/074.webp",
+        "sha256": "2e1451533c281660e843c31cebd2c3c54d5b94950aa0e6a77c57ac94677c4bb9",
+        "bytes": 5908,
+        "width": 256,
+        "height": 256
+      }
+    },
+    {
+      "number": 75,
+      "title": "Fourth Tantra Stage",
+      "source": {
+        "filename": "75 - Fourth Tantra Stage.png",
+        "sha256": "0617d899ab31adc50738251481d3846f4bfdcc1c436f4ad727132e1e56c2a79e",
+        "bytes": 329441,
+        "width": 1200,
+        "height": 1200
+      },
+      "full": {
+        "path": "full/075.webp",
+        "sha256": "5937e6136d0796336a5c372867a5b8406f179543a28a08a000839111165594c8",
+        "bytes": 34660,
+        "width": 768,
+        "height": 768
+      },
+      "thumbnail": {
+        "path": "thumb/075.webp",
+        "sha256": "2e1451533c281660e843c31cebd2c3c54d5b94950aa0e6a77c57ac94677c4bb9",
+        "bytes": 5908,
+        "width": 256,
+        "height": 256
+      }
+    },
+    {
+      "number": 76,
+      "title": "Realm of Jeweled Peaks (Ratna-Kuta)",
+      "source": {
+        "filename": "76 - Realm of Jeweled Peaks (Ratna-Kuta).png",
+        "sha256": "6b776963e5455b28577381e44f61c7aaee12fe186ec540e0af9ecf3f6767af85",
+        "bytes": 200800,
+        "width": 1200,
+        "height": 1200
+      },
+      "full": {
+        "path": "full/076.webp",
+        "sha256": "65004783359240b70d57e36ca1d9417a46964360b1d493782acc1e3a666b78cd",
+        "bytes": 48930,
+        "width": 768,
+        "height": 768
+      },
+      "thumbnail": {
+        "path": "thumb/076.webp",
+        "sha256": "ab61613647b361c63e93af1a0766e70fedc9e7261d392fa7f2ccdfad68f75c34",
+        "bytes": 7360,
+        "width": 256,
+        "height": 256
+      }
+    },
+    {
+      "number": 77,
+      "title": "Land of Bliss (Sukhavati)",
+      "source": {
+        "filename": "77 - Land of Bliss (Sukhavati).png",
+        "sha256": "517548c6ece49f20983ea72e788f2a47576a2a3c031465ee2c73f59ac21a09e9",
+        "bytes": 182374,
+        "width": 1200,
+        "height": 1200
+      },
+      "full": {
+        "path": "full/077.webp",
+        "sha256": "68cfd27bd74fcef20d5b99b44f97daa05004f91211d56e0f88c9c14a5b17187b",
+        "bytes": 41144,
+        "width": 768,
+        "height": 768
+      },
+      "thumbnail": {
+        "path": "thumb/077.webp",
+        "sha256": "601b979a03a66a02deb67a8c7730737c328b5b1015b0eddce0b07126c5544b7d",
+        "bytes": 5496,
+        "width": 256,
+        "height": 256
+      }
+    },
+    {
+      "number": 78,
+      "title": "Fourth Sutra Stage",
+      "source": {
+        "filename": "78 - Fourth Sutra Stage.png",
+        "sha256": "198422a73a76998d5388e5f9ea158f46b2ed6a1e6534f07ba1dc306b79a913c2",
+        "bytes": 209407,
+        "width": 1200,
+        "height": 1200
+      },
+      "full": {
+        "path": "full/078.webp",
+        "sha256": "d6c2418ab9fe2dd4b220ca1899f8e1c500ae28af78b6501d0125dc67ce28f307",
+        "bytes": 26390,
+        "width": 768,
+        "height": 768
+      },
+      "thumbnail": {
+        "path": "thumb/078.webp",
+        "sha256": "626ad80960c4cf2ca87752f0590ad86ff9507e6083bfa72fd3060d76b2875e5d",
+        "bytes": 4532,
+        "width": 256,
+        "height": 256
+      }
+    },
+    {
+      "number": 79,
+      "title": "Third Sutra Stage",
+      "source": {
+        "filename": "79 - Third Sutra Stage.png",
+        "sha256": "4be9102da5a270124c7a8ba0f1c2f4e1681d80bbc061529f784aa3d5242bd8bb",
+        "bytes": 209407,
+        "width": 1200,
+        "height": 1200
+      },
+      "full": {
+        "path": "full/079.webp",
+        "sha256": "d6c2418ab9fe2dd4b220ca1899f8e1c500ae28af78b6501d0125dc67ce28f307",
+        "bytes": 26390,
+        "width": 768,
+        "height": 768
+      },
+      "thumbnail": {
+        "path": "thumb/079.webp",
+        "sha256": "626ad80960c4cf2ca87752f0590ad86ff9507e6083bfa72fd3060d76b2875e5d",
+        "bytes": 4532,
+        "width": 256,
+        "height": 256
+      }
+    },
+    {
+      "number": 80,
+      "title": "Second Sutra Stage",
+      "source": {
+        "filename": "80 - Second Sutra Stage.png",
+        "sha256": "f40a637baeb733b9524b87270379ff8546b75fcf495fe575cd3858d9eeb238c1",
+        "bytes": 209407,
+        "width": 1200,
+        "height": 1200
+      },
+      "full": {
+        "path": "full/080.webp",
+        "sha256": "d6c2418ab9fe2dd4b220ca1899f8e1c500ae28af78b6501d0125dc67ce28f307",
+        "bytes": 26390,
+        "width": 768,
+        "height": 768
+      },
+      "thumbnail": {
+        "path": "thumb/080.webp",
+        "sha256": "626ad80960c4cf2ca87752f0590ad86ff9507e6083bfa72fd3060d76b2875e5d",
+        "bytes": 4532,
+        "width": 256,
+        "height": 256
+      }
+    },
+    {
+      "number": 81,
+      "title": "Fifth Tantra Stage",
+      "source": {
+        "filename": "81 - Fifth Tantra Stage.png",
+        "sha256": "4f945e905b1e2f002b9d85feac68405d35660a726e4f9687320cede394963ca8",
+        "bytes": 329441,
+        "width": 1200,
+        "height": 1200
+      },
+      "full": {
+        "path": "full/081.webp",
+        "sha256": "5937e6136d0796336a5c372867a5b8406f179543a28a08a000839111165594c8",
+        "bytes": 34660,
+        "width": 768,
+        "height": 768
+      },
+      "thumbnail": {
+        "path": "thumb/081.webp",
+        "sha256": "2e1451533c281660e843c31cebd2c3c54d5b94950aa0e6a77c57ac94677c4bb9",
+        "bytes": 5908,
+        "width": 256,
+        "height": 256
+      }
+    },
+    {
+      "number": 82,
+      "title": "Sixth Tantra Stage",
+      "source": {
+        "filename": "82 - Sixth Tantra Stage.png",
+        "sha256": "5fcc01653d8a9d8d2ec9e0507c6e0b2aebcdf4ead3eb2574ce7f5e6e7df705b5",
+        "bytes": 329441,
+        "width": 1200,
+        "height": 1200
+      },
+      "full": {
+        "path": "full/082.webp",
+        "sha256": "5937e6136d0796336a5c372867a5b8406f179543a28a08a000839111165594c8",
+        "bytes": 34660,
+        "width": 768,
+        "height": 768
+      },
+      "thumbnail": {
+        "path": "thumb/082.webp",
+        "sha256": "2e1451533c281660e843c31cebd2c3c54d5b94950aa0e6a77c57ac94677c4bb9",
+        "bytes": 5908,
+        "width": 256,
+        "height": 256
+      }
+    },
+    {
+      "number": 83,
+      "title": "Seventh Tantra Stage",
+      "source": {
+        "filename": "83 - Seventh Tantra Stage.png",
+        "sha256": "a65f3e030486930852c2af3457c1471acc176d0ccadfc5ba2492ecf9e92c8f62",
+        "bytes": 329441,
+        "width": 1200,
+        "height": 1200
+      },
+      "full": {
+        "path": "full/083.webp",
+        "sha256": "5937e6136d0796336a5c372867a5b8406f179543a28a08a000839111165594c8",
+        "bytes": 34660,
+        "width": 768,
+        "height": 768
+      },
+      "thumbnail": {
+        "path": "thumb/083.webp",
+        "sha256": "2e1451533c281660e843c31cebd2c3c54d5b94950aa0e6a77c57ac94677c4bb9",
+        "bytes": 5908,
+        "width": 256,
+        "height": 256
+      }
+    },
+    {
+      "number": 84,
+      "title": "Supreme Heaven (Akanistha)",
+      "source": {
+        "filename": "84 - Supreme Heaven (Akanistha).png",
+        "sha256": "6680f3c221d2b3e5f9d5c791e09d4d4f52b432801e0d1edc2dedc35805eece80",
+        "bytes": 181840,
+        "width": 1200,
+        "height": 1200
+      },
+      "full": {
+        "path": "full/084.webp",
+        "sha256": "927bb5642c50186a063415223ea70df18ed9e39ba0a0ab40b98d0f1ebfd03a93",
+        "bytes": 40428,
+        "width": 768,
+        "height": 768
+      },
+      "thumbnail": {
+        "path": "thumb/084.webp",
+        "sha256": "52fc948046550877ba9812cf7a69231a5679ed4786c00399a0f7fae60538b36c",
+        "bytes": 5496,
+        "width": 256,
+        "height": 256
+      }
+    },
+    {
+      "number": 85,
+      "title": "Realm of Superjoy (Abhirati)",
+      "source": {
+        "filename": "85 - Realm of Superjoy (Abhirati).png",
+        "sha256": "706919cdea8c732ae3ef4f4b19959f9fe060a4069dfafc8627b7b626930c6c38",
+        "bytes": 164490,
+        "width": 1200,
+        "height": 1200
+      },
+      "full": {
+        "path": "full/085.webp",
+        "sha256": "f8480f64806b136e507796bf26171357a81ae473d48ff20a23da85412c05787e",
+        "bytes": 39860,
+        "width": 768,
+        "height": 768
+      },
+      "thumbnail": {
+        "path": "thumb/085.webp",
+        "sha256": "4c48e4c95c04f75c84d4d2cc51ec6ace98c87943ebf380d2f4d76af5718c6a93",
+        "bytes": 6074,
+        "width": 256,
+        "height": 256
+      }
+    },
+    {
+      "number": 86,
+      "title": "Seventh Sutra Stage",
+      "source": {
+        "filename": "86 - Seventh Sutra Stage.png",
+        "sha256": "a70da949cc93900c997ee321bbeb90218784685109a5c41253c171cf165f5f39",
+        "bytes": 209407,
+        "width": 1200,
+        "height": 1200
+      },
+      "full": {
+        "path": "full/086.webp",
+        "sha256": "d6c2418ab9fe2dd4b220ca1899f8e1c500ae28af78b6501d0125dc67ce28f307",
+        "bytes": 26390,
+        "width": 768,
+        "height": 768
+      },
+      "thumbnail": {
+        "path": "thumb/086.webp",
+        "sha256": "626ad80960c4cf2ca87752f0590ad86ff9507e6083bfa72fd3060d76b2875e5d",
+        "bytes": 4532,
+        "width": 256,
+        "height": 256
+      }
+    },
+    {
+      "number": 87,
+      "title": "Sixth Sutra Stage",
+      "source": {
+        "filename": "87 - Sixth Sutra Stage.png",
+        "sha256": "91b904948edacca255a891d521a3b44fc5fe20d07f2475bade391aacabac9881",
+        "bytes": 209407,
+        "width": 1200,
+        "height": 1200
+      },
+      "full": {
+        "path": "full/087.webp",
+        "sha256": "d6c2418ab9fe2dd4b220ca1899f8e1c500ae28af78b6501d0125dc67ce28f307",
+        "bytes": 26390,
+        "width": 768,
+        "height": 768
+      },
+      "thumbnail": {
+        "path": "thumb/087.webp",
+        "sha256": "626ad80960c4cf2ca87752f0590ad86ff9507e6083bfa72fd3060d76b2875e5d",
+        "bytes": 4532,
+        "width": 256,
+        "height": 256
+      }
+    },
+    {
+      "number": 88,
+      "title": "Fifth Sutra Stage",
+      "source": {
+        "filename": "88 - Fifth Sutra Stage.png",
+        "sha256": "45a862c00e511735de6097f67f6cdec2af8c7d562b3c5eb583bc0c9cc79c29d6",
+        "bytes": 209407,
+        "width": 1200,
+        "height": 1200
+      },
+      "full": {
+        "path": "full/088.webp",
+        "sha256": "d6c2418ab9fe2dd4b220ca1899f8e1c500ae28af78b6501d0125dc67ce28f307",
+        "bytes": 26390,
+        "width": 768,
+        "height": 768
+      },
+      "thumbnail": {
+        "path": "thumb/088.webp",
+        "sha256": "626ad80960c4cf2ca87752f0590ad86ff9507e6083bfa72fd3060d76b2875e5d",
+        "bytes": 4532,
+        "width": 256,
+        "height": 256
+      }
+    },
+    {
+      "number": 89,
+      "title": "Eighth Tantra Stage",
+      "source": {
+        "filename": "89 - Eighth Tantra Stage.png",
+        "sha256": "e30317e304c5514297d70ba36f9a4fece41eb2a9ada40c3e042dff8a20484ddc",
+        "bytes": 329441,
+        "width": 1200,
+        "height": 1200
+      },
+      "full": {
+        "path": "full/089.webp",
+        "sha256": "5937e6136d0796336a5c372867a5b8406f179543a28a08a000839111165594c8",
+        "bytes": 34660,
+        "width": 768,
+        "height": 768
+      },
+      "thumbnail": {
+        "path": "thumb/089.webp",
+        "sha256": "2e1451533c281660e843c31cebd2c3c54d5b94950aa0e6a77c57ac94677c4bb9",
+        "bytes": 5908,
+        "width": 256,
+        "height": 256
+      }
+    },
+    {
+      "number": 90,
+      "title": "Ninth Tantra Stage",
+      "source": {
+        "filename": "90 - Ninth Tantra Stage.png",
+        "sha256": "dbe424439ec31a90bd51a3d1929efc5488a684ca4e9fbb2eee73b1c595365271",
+        "bytes": 329441,
+        "width": 1200,
+        "height": 1200
+      },
+      "full": {
+        "path": "full/090.webp",
+        "sha256": "5937e6136d0796336a5c372867a5b8406f179543a28a08a000839111165594c8",
+        "bytes": 34660,
+        "width": 768,
+        "height": 768
+      },
+      "thumbnail": {
+        "path": "thumb/090.webp",
+        "sha256": "2e1451533c281660e843c31cebd2c3c54d5b94950aa0e6a77c57ac94677c4bb9",
+        "bytes": 5908,
+        "width": 256,
+        "height": 256
+      }
+    },
+    {
+      "number": 91,
+      "title": "Tenth Tantra Stage",
+      "source": {
+        "filename": "91 - Tenth Tantra Stage.png",
+        "sha256": "b70a1bf5b9a0f9198ad238aa18785d96d080b7a938c76e69f6d010c44ec05a2b",
+        "bytes": 329441,
+        "width": 1200,
+        "height": 1200
+      },
+      "full": {
+        "path": "full/091.webp",
+        "sha256": "5937e6136d0796336a5c372867a5b8406f179543a28a08a000839111165594c8",
+        "bytes": 34660,
+        "width": 768,
+        "height": 768
+      },
+      "thumbnail": {
+        "path": "thumb/091.webp",
+        "sha256": "2e1451533c281660e843c31cebd2c3c54d5b94950aa0e6a77c57ac94677c4bb9",
+        "bytes": 5908,
+        "width": 256,
+        "height": 256
+      }
+    },
+    {
+      "number": 92,
+      "title": "Great Enjoyment Body (Sambhoga-Kaya)",
+      "source": {
+        "filename": "92 - Great Enjoyment Body (Sambhoga-Kaya).png",
+        "sha256": "9d5362f531983ec3fb3ebe3d22a4b0c71ece81b7730c5d20e9a91ae68d90036f",
+        "bytes": 221552,
+        "width": 1200,
+        "height": 1200
+      },
+      "full": {
+        "path": "full/092.webp",
+        "sha256": "c9152f966c1f072f817c92f8cfe9efdfe040a6d81b33e883333a14c06170a9fc",
+        "bytes": 51738,
+        "width": 768,
+        "height": 768
+      },
+      "thumbnail": {
+        "path": "thumb/092.webp",
+        "sha256": "7d8cc4f715d2c642fc618c29337bbe6376b64f2bb68a356f87a3cc6706d9cb97",
+        "bytes": 8110,
+        "width": 256,
+        "height": 256
+      }
+    },
+    {
+      "number": 93,
+      "title": "Great Dharma Body (Dharma-Kaya)",
+      "source": {
+        "filename": "93 - Great Dharma Body (Dharma-Kaya).png",
+        "sha256": "55cdf4b1d208c8dc9af0340452eecf2852a9cd2bfd29d351309d92576ab8837e",
+        "bytes": 198872,
+        "width": 1200,
+        "height": 1200
+      },
+      "full": {
+        "path": "full/093.webp",
+        "sha256": "819a425f7c16d91ba5a39c4ed766703087912a8ba69e4d59a33c5d1dd2f27a55",
+        "bytes": 49456,
+        "width": 768,
+        "height": 768
+      },
+      "thumbnail": {
+        "path": "thumb/093.webp",
+        "sha256": "fdebc3a93f428c9fcd11c10499c5b760f9db48d1e17d018851ab0cad24e0960e",
+        "bytes": 7958,
+        "width": 256,
+        "height": 256
+      }
+    },
+    {
+      "number": 94,
+      "title": "Tenth Sutra Stage",
+      "source": {
+        "filename": "94 - Tenth Sutra Stage.png",
+        "sha256": "484da8035a0f8df65ef02788b97ef9aabf55be5e7068bceac704c7445b635801",
+        "bytes": 209407,
+        "width": 1200,
+        "height": 1200
+      },
+      "full": {
+        "path": "full/094.webp",
+        "sha256": "d6c2418ab9fe2dd4b220ca1899f8e1c500ae28af78b6501d0125dc67ce28f307",
+        "bytes": 26390,
+        "width": 768,
+        "height": 768
+      },
+      "thumbnail": {
+        "path": "thumb/094.webp",
+        "sha256": "626ad80960c4cf2ca87752f0590ad86ff9507e6083bfa72fd3060d76b2875e5d",
+        "bytes": 4532,
+        "width": 256,
+        "height": 256
+      }
+    },
+    {
+      "number": 95,
+      "title": "Ninth Sutra Stage",
+      "source": {
+        "filename": "95 - Ninth Sutra Stage.png",
+        "sha256": "cd0f890b46522f5970bc201614d37ca44e770ac3677c4282649016f7bfcc3099",
+        "bytes": 209407,
+        "width": 1200,
+        "height": 1200
+      },
+      "full": {
+        "path": "full/095.webp",
+        "sha256": "d6c2418ab9fe2dd4b220ca1899f8e1c500ae28af78b6501d0125dc67ce28f307",
+        "bytes": 26390,
+        "width": 768,
+        "height": 768
+      },
+      "thumbnail": {
+        "path": "thumb/095.webp",
+        "sha256": "626ad80960c4cf2ca87752f0590ad86ff9507e6083bfa72fd3060d76b2875e5d",
+        "bytes": 4532,
+        "width": 256,
+        "height": 256
+      }
+    },
+    {
+      "number": 96,
+      "title": "Eighth Sutra Stage",
+      "source": {
+        "filename": "96 - Eighth Sutra Stage.png",
+        "sha256": "52b0571a3fed2eab2c95dab4354098d64812d0268d8469f4a31bf859f6197ffe",
+        "bytes": 209407,
+        "width": 1200,
+        "height": 1200
+      },
+      "full": {
+        "path": "full/096.webp",
+        "sha256": "d6c2418ab9fe2dd4b220ca1899f8e1c500ae28af78b6501d0125dc67ce28f307",
+        "bytes": 26390,
+        "width": 768,
+        "height": 768
+      },
+      "thumbnail": {
+        "path": "thumb/096.webp",
+        "sha256": "626ad80960c4cf2ca87752f0590ad86ff9507e6083bfa72fd3060d76b2875e5d",
+        "bytes": 4532,
+        "width": 256,
+        "height": 256
+      }
+    },
+    {
+      "number": 97,
+      "title": "Adopting a Physical Form",
+      "source": {
+        "filename": "97 - Adopting a Physical Form.png",
+        "sha256": "3645709b18f267f07523c04001d101e76932b60da0726952b887c4889a429c97",
+        "bytes": 230983,
+        "width": 1200,
+        "height": 1200
+      },
+      "full": {
+        "path": "full/097.webp",
+        "sha256": "9f7e61e78c0a79b9ba6822bdf4a09fe949658faefae3fbe236c11f230f226dab",
+        "bytes": 31088,
+        "width": 768,
+        "height": 768
+      },
+      "thumbnail": {
+        "path": "thumb/097.webp",
+        "sha256": "f544913e4f4919edf33cc2ed6fba68756b0ab62ccd24246bfcbf88d5d2fa9a83",
+        "bytes": 5078,
+        "width": 256,
+        "height": 256
+      }
+    },
+    {
+      "number": 98,
+      "title": "The Setting Forth (Pravrajita)",
+      "source": {
+        "filename": "98 - The Setting Forth (Pravrajita).png",
+        "sha256": "69bc4ee37337e32ae2d2a8d803760977393af9ec650da4a0cff47d3e5823f58a",
+        "bytes": 230727,
+        "width": 1200,
+        "height": 1200
+      },
+      "full": {
+        "path": "full/098.webp",
+        "sha256": "31c586542c59863e481f2b225c53a720b9043720be7f789bc8dc0d1a7f8f91af",
+        "bytes": 32710,
+        "width": 768,
+        "height": 768
+      },
+      "thumbnail": {
+        "path": "thumb/098.webp",
+        "sha256": "1e6ccec3768990407d108dfdd70163cf9837a597268ecb1c022bb5e006bf1960",
+        "bytes": 5050,
+        "width": 256,
+        "height": 256
+      }
+    },
+    {
+      "number": 99,
+      "title": "Ascetic Practices (Tapas)",
+      "source": {
+        "filename": "99 - Ascetic Practices (Tapas).png",
+        "sha256": "793c65cd98a8b000c3321774f17e37ff9ecad2d6d2434e69cc050d08ab353fa6",
+        "bytes": 231026,
+        "width": 1200,
+        "height": 1200
+      },
+      "full": {
+        "path": "full/099.webp",
+        "sha256": "9f7e61e78c0a79b9ba6822bdf4a09fe949658faefae3fbe236c11f230f226dab",
+        "bytes": 31088,
+        "width": 768,
+        "height": 768
+      },
+      "thumbnail": {
+        "path": "thumb/099.webp",
+        "sha256": "f544913e4f4919edf33cc2ed6fba68756b0ab62ccd24246bfcbf88d5d2fa9a83",
+        "bytes": 5078,
+        "width": 256,
+        "height": 256
+      }
+    },
+    {
+      "number": 100,
+      "title": "Conquest of Mara",
+      "source": {
+        "filename": "100 - Conquest of Mara.png",
+        "sha256": "a9db28bf072a64f0f07a5eb92073b79ab6522e2370b50b0a03988d5babb08e88",
+        "bytes": 230643,
+        "width": 1200,
+        "height": 1200
+      },
+      "full": {
+        "path": "full/100.webp",
+        "sha256": "31c586542c59863e481f2b225c53a720b9043720be7f789bc8dc0d1a7f8f91af",
+        "bytes": 32710,
+        "width": 768,
+        "height": 768
+      },
+      "thumbnail": {
+        "path": "thumb/100.webp",
+        "sha256": "1e6ccec3768990407d108dfdd70163cf9837a597268ecb1c022bb5e006bf1960",
+        "bytes": 5050,
+        "width": 256,
+        "height": 256
+      }
+    },
+    {
+      "number": 101,
+      "title": "Buddhahood",
+      "source": {
+        "filename": "101 - Buddhahood.png",
+        "sha256": "c774e290fef56c61d5a88ddb835b0670e0c940bc8fd49c371bd5dc369ef13748",
+        "bytes": 230984,
+        "width": 1200,
+        "height": 1200
+      },
+      "full": {
+        "path": "full/101.webp",
+        "sha256": "9f7e61e78c0a79b9ba6822bdf4a09fe949658faefae3fbe236c11f230f226dab",
+        "bytes": 31088,
+        "width": 768,
+        "height": 768
+      },
+      "thumbnail": {
+        "path": "thumb/101.webp",
+        "sha256": "f544913e4f4919edf33cc2ed6fba68756b0ab62ccd24246bfcbf88d5d2fa9a83",
+        "bytes": 5078,
+        "width": 256,
+        "height": 256
+      }
+    },
+    {
+      "number": 102,
+      "title": "Turning the Wheel of Dharma",
+      "source": {
+        "filename": "102 - Turning the Wheel of Dharma.png",
+        "sha256": "665bc199f702f9d62a03bf30b71cfab6320500e0f23c284a43aa196bdc544b72",
+        "bytes": 230728,
+        "width": 1200,
+        "height": 1200
+      },
+      "full": {
+        "path": "full/102.webp",
+        "sha256": "31c586542c59863e481f2b225c53a720b9043720be7f789bc8dc0d1a7f8f91af",
+        "bytes": 32710,
+        "width": 768,
+        "height": 768
+      },
+      "thumbnail": {
+        "path": "thumb/102.webp",
+        "sha256": "1e6ccec3768990407d108dfdd70163cf9837a597268ecb1c022bb5e006bf1960",
+        "bytes": 5050,
+        "width": 256,
+        "height": 256
+      }
+    },
+    {
+      "number": 103,
+      "title": "Demonstration of Miracles",
+      "source": {
+        "filename": "103 - Demonstration of Miracles.png",
+        "sha256": "62ecabfb27b38ea100afae31696e627a1e45555a8071a002e42a3cfe764d4255",
+        "bytes": 230984,
+        "width": 1200,
+        "height": 1200
+      },
+      "full": {
+        "path": "full/103.webp",
+        "sha256": "9f7e61e78c0a79b9ba6822bdf4a09fe949658faefae3fbe236c11f230f226dab",
+        "bytes": 31088,
+        "width": 768,
+        "height": 768
+      },
+      "thumbnail": {
+        "path": "thumb/103.webp",
+        "sha256": "f544913e4f4919edf33cc2ed6fba68756b0ab62ccd24246bfcbf88d5d2fa9a83",
+        "bytes": 5078,
+        "width": 256,
+        "height": 256
+      }
+    },
+    {
+      "number": 104,
+      "title": "Nirvana",
+      "source": {
+        "filename": "104 - Nirvana.png",
+        "sha256": "b7fb5a15fdb139bc47e30177118b06734fd24c47c7348c56b3bfda67d3111e69",
+        "bytes": 269213,
+        "width": 1200,
+        "height": 1200
+      },
+      "full": {
+        "path": "full/104.webp",
+        "sha256": "b187cdb2a212b7db46b5755197636de1d8b96594319a869682ad28ff66bc1a06",
+        "bytes": 60392,
+        "width": 768,
+        "height": 768
+      },
+      "thumbnail": {
+        "path": "thumb/104.webp",
+        "sha256": "e7f30798f01b71ab5c3754ad62ff8348e374ff0860002be982e3f4d3450f5c29",
+        "bytes": 8948,
+        "width": 256,
+        "height": 256
+      }
+    }
+  ],
+  "end": {
+    "source": {
+      "filename": "Amitabha Stupa Guru.png",
+      "sha256": "f0f5e9b0dcd1648fa56d9d9c63ffb30eb46d9d1f733ca7e736d7361d59677a9a",
+      "bytes": 2727468,
+      "width": 1774,
+      "height": 887
+    },
+    "output": {
+      "path": "rebirth-end.webp",
+      "sha256": "2ceb58efd610091794ea30be640d332178e0b130d6c9a9497304770dea8f98f8",
+      "bytes": 217944,
+      "width": 1400,
+      "height": 700
+    }
+  }
+}
