@@ -82,8 +82,13 @@ lapis, with crossing swells and a shared 128-pixel ripple normal map. This
 surface detail is static; it catches the existing moving light without adding
 a continuous water animation.
 
-The heavens use schematic spacing inspired by the doubling of textual heights,
-with gaps between groups and a narrowing tower. The sun and moon are enlarged
+Each heaven above Meru's summit is drawn the way the painted cosmologies draw
+it: a palace with a gilt roof, standing on a bank of cloud up to Anabhraka —
+*sprin med*, "the cloudless" — and on an open ledge from there to Akaniṣṭha.
+Each level is wider than the one below, as the texts have it, though the
+widening is illustrative rather than measured. Their spacing is schematic,
+inspired by the doubling of textual heights, with gaps between the groups. The
+sun and moon are enlarged
 spheres with painted glows; the lighting follows their direction around Meru
 from a higher angle for visibility. Offering marks use separate rings around
 the world. *The scale of this drawing* describes these and other principal
@@ -255,7 +260,11 @@ temporarily; releasing resumes it while Motion remains enabled.
 
 The **Numbers** switch in either offering menu hides or shows the heap labels.
 Numbers start visible and keep their setting while switching between offering
-views. The offering selector and tour progress remain available with numbers off.
+views. A heap that stands clear of its neighbours on screen also carries its
+name; in a cluster the number holds the place alone, and hovering or selecting
+a heap always names it. Which heaps have that room is measured from where the
+marks actually land, so zooming in opens the names out ring by ring. The
+offering selector and tour progress remain available with numbers off.
 
 **Tour the 37 heaps** opens a separate, untimed study route. Each stop shows the
 current heap and hides surrounding geometry so it
