@@ -3,12 +3,11 @@ import {REBIRTH_WORLD_MAP,FAMILY_COLOURS} from './rebirth-world-map.js';
 import {PLAYER_COLOURS} from './rebirth-iconography.js';
 
 /** Position diagram: descending rows of eight, as in the supplied reference.
- * Nirvana is deliberately detached above the grid, while keeping identity 104.
+ * All 104 positions retain their original places in the 2D board.
  */
 export function createRebirthBoard({document:doc,onInspect}) {
   const board=doc.createElement('section');board.className='rb-board';board.hidden=true;board.setAttribute('aria-label','Two-dimensional Rebirth board');
-  const beyond=doc.createElement('div');beyond.className='rb-board-beyond';
-  const grid=doc.createElement('div');grid.className='rb-board-grid';grid.setAttribute('aria-label','Positions 103 to 1');
+  const grid=doc.createElement('div');grid.className='rb-board-grid';grid.setAttribute('aria-label','Positions 104 to 1');
   const slots=new Map();
   function tile(number) {
     const square=REBIRTH_SQUARES[number-1],b=doc.createElement('button');b.type='button';b.className='rb-board-cell';b.dataset.square=String(number);
@@ -18,12 +17,9 @@ export function createRebirthBoard({document:doc,onInspect}) {
     const players=doc.createElement('span');players.className='rb-board-players';b.append(num,name,players);
     b.title=`${number} · ${square.name}`;b.addEventListener('click',()=>onInspect(number));slots.set(number,{button:b,players});return b;
   }
-  const nirvana=tile(104);nirvana.classList.add('rb-board-nirvana');
-  const caption=doc.createElement('small');caption.textContent='Beyond the round of rebirth';nirvana.append(caption);beyond.append(nirvana);
-  const gap=doc.createElement('span');gap.className='rb-board-gap';gap.setAttribute('aria-hidden','true');grid.append(gap);
-  for(let n=103;n>=1;n--)grid.append(tile(n));
+  for(let n=104;n>=1;n--)grid.append(tile(n));
   const hint=doc.createElement('p');hint.className='rb-board-hint';hint.textContent='Choose any position to read its passage. Outlined positions show possible next destinations.';
-  board.append(beyond,grid,hint);
+  board.append(grid,hint);
   return {element:board,slots,
     setActive(on){board.hidden=!on;},
     update(state,selected) {

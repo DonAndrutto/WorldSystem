@@ -54,8 +54,9 @@ console.log('PASS: 2.5-second reveal, one committed result per roll, interruptio
 const beforeDiagram=JSON.stringify(ui.state);
 ui.setDiagram(true);assert.equal(doc.body.classList.contains('rebirth-board'),true);
 assert.equal(ui.board.element.hidden,false);assert.equal(ui.board.slots.size,104);
-assert.equal(ui.board.element.querySelectorAll('.rb-board-grid [data-square]').length,103);
-assert.equal(ui.board.slots.get(104).button.parentElement.className,'rb-board-beyond');
+assert.equal(ui.board.element.querySelectorAll('.rb-board-grid [data-square]').length,104);
+assert.equal(ui.board.element.querySelector('.rb-board-grid').firstElementChild,ui.board.slots.get(104).button);
+assert.deepEqual([...ui.board.element.querySelectorAll('[data-square]')].map(b=>Number(b.dataset.square)),Array.from({length:104},(_,i)=>104-i));
 ui.board.slots.get(104).button.click();assert.equal(ui.presentation.dialog.open,true);
 assert.match(ui.presentation.dialog.querySelector('.rb-popup-prose').textContent,/parinirvana/);
 assert.equal(ui.presentation.dialog.querySelector('.rb-reveal-passage').hidden,false);
@@ -70,7 +71,7 @@ assert.equal(ui.resetDialog.open,false);assert.equal(ui.diagram,true);
 ui.setActive(false);assert.equal(ui.board.element.hidden,true);assert.equal(doc.body.classList.contains('rebirth-board'),false);
 ui.setActive(true);assert.equal(ui.board.element.hidden,false);ui.setDiagram(false);
 assert.equal(doc.body.classList.contains('rebirth-board'),false);assert.equal(ui.board.element.hidden,true);
-console.log('PASS: distinct 2D/3D presentations, 104-position diagram, detached Nirvana, full popup prose, reset cancellation and confirmed reset.');
+console.log('PASS: distinct 2D/3D presentations, 104-position diagram in original order, full popup prose, reset cancellation and confirmed reset.');
 
 // Reset is available during suspense, but cancellation retains the committed roll.
 reduced=false;ui.advance();const duringRoll=JSON.stringify(ui.state);

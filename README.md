@@ -37,7 +37,7 @@ is deliberately merged or deployed.
 | `rebirth-data.js`, `rebirth-engine.js` | Referenced 104-square / 624-outcome data and deterministic game rules. |
 | `rebirth-world-map.js`, `rebirth-scene.js` | Existing-world mappings, game-only locations, route lines, and traveller tokens. |
 | `rebirth-ui.js`, `rebirth.css`, `rebirth-presentation.js` | Game controls, full passages, named markers, dice animation, optional sound, and destination reveal. |
-| `rebirth-board.js` | Descending 2D position diagram, traveller badges, and Nirvana beyond the grid. |
+| `rebirth-board.js` | Descending 2D position diagram, traveller badges, and all 104 positions in their original order. |
 | `rebirth-prose.js` | All 104 full passages from the user-supplied Destiny Path Catalogue, with source fingerprint. |
 | `rebirth-iconography.js`, `assets/rebirth/` | Shared artwork slots for future images in the scene and reading cards. |
 | `tests/rebirth-engine.mjs`, `tests/rebirth-presentation.mjs` | Rules, persistence, animation, sound, prose, and board-toggle checks. |

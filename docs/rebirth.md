@@ -14,7 +14,7 @@ Use **Next traveller** (or **Continue journey** for solo play) after an ordinary
 
 The first arrival at **104, Nirvana**, wins immediately. The winner can then perform an optional stupa ceremony by rolling 1 or 2. It never changes the winner.
 
-**2D board / Return to 3D** switches between the complete position diagram and the 3D world, preserving the journey. The diagram follows descending rows of eight, with Nirvana (104) detached above the ordinary grid. Each position opens a reading pop-up; P1–P12 badges identify its travellers. Narrow screens emphasize numbers and player badges; tapping any position reveals its full name and passage.
+**2D board / Return to 3D** switches between the complete position diagram and the 3D world, preserving the journey. The diagram follows descending rows of eight, with Nirvana (104) in its original top-left position. Desktop tiles prioritize larger, wrapping world names with small inline numbers. Each position opens a reading pop-up; P1–P12 badges identify its travellers. Narrow screens emphasize numbers and player badges; tapping any position reveals its full name and passage.
 
 In 3D, **3D overview** frames the whole game world. While enabled it keeps the overview through rolls and destination inspection. **Find my traveller** returns to the active traveller and switches the overview off. Named P1–P12 markers show every traveller’s current square; the active traveller has a larger jewel and outlined nameplate. Offscreen positions retain nameplates at the view’s edge. Inspecting a waypoint, a possible route, a player marker, or a catalogue entry never moves a traveller.
 
@@ -78,7 +78,7 @@ node tests/world-surfaces.mjs
 node tests/viewport-gestures.mjs
 ```
 
-Tests cover ordinary outcomes, both traps, preliminary ties, save validation, a legal winning journey, the optional ceremony, one committed result per animated roll, interruption safety, sound scheduling/muting, reduced motion, complete prose rendering in both reading surfaces, distinct 2D/3D presentations, reset confirmation and cancellation (including during a roll), detached Nirvana, named markers, world mapping, exclusive panels, all mode transitions, and the original 37 offerings. DOM/geometry tests do not replace actual WebGL, audio listening, or physical-device testing. Browser checks also exercised desktop and 390-pixel phone layouts, saved-game reload, multiplayer handoff, night mode, and returning from the offering tour. A pre-existing Three.js soft-shadow deprecation warning may appear.
+Tests cover ordinary outcomes, both traps, preliminary ties, save validation, a legal winning journey, the optional ceremony, one committed result per animated roll, interruption safety, sound scheduling/muting, reduced motion, complete prose rendering in both reading surfaces, distinct 2D/3D presentations, reset confirmation and cancellation (including during a roll), original 2D board order and distinct 3D Nirvana, named markers, world mapping, exclusive panels, all mode transitions, and the original 37 offerings. DOM/geometry tests do not replace actual WebGL, audio listening, or physical-device testing. Browser checks also exercised desktop and 390-pixel phone layouts, saved-game reload, multiplayer handoff, night mode, and returning from the offering tour. A pre-existing Three.js soft-shadow deprecation warning may appear.
 
 Regenerate only the full prose after an intentional catalogue update:
 
