@@ -15,6 +15,7 @@ const rbBoard = await import(pathToFileURL(repo + '/rebirth-board.js'));
 const rbGame = await import(pathToFileURL(repo + '/rebirth-game.js'));
 const {SQUARE_NOTES, SQUARE_FULL} = await import(pathToFileURL(repo + '/rebirth-notes.js'));
 const rbIcons = await import(pathToFileURL(repo + '/rebirth-icons.js'));
+const rbSound = await import(pathToFileURL(repo + '/rebirth-sound.js'));
 // Every square is painted: the field it is drawn as on the board, served as
 // four atlas sheets that the module lays out from the square numbers alone.
 assert.equal(rbIcons.SQUARE_ART.size, 104, 'every square has its field');
@@ -53,6 +54,7 @@ Object.assign(window, {createOfferingModels, OFFERING_ART, TOUR_NOTES, installVi
   RB_COLOURS: rbBoard.PLAYER_COLOURS, SQUARE_ART: rbIcons.SQUARE_ART,
   cellBackground: rbIcons.cellBackground, createSquareArt: rbIcons.createSquareArt,
   LIBERATION_ART: rbIcons.LIBERATION_ART, rbTibetan: rbBoard.tibetanOf,
+  createSoundKit: rbSound.createSoundKit, rbVoice: rbSound.voiceFor,
   createGame: rbGame.createGame, throwDie: rbGame.throwDie,
   rbView: rbGame.view, rbDestination: rbGame.destination
 });
@@ -101,10 +103,9 @@ const q = s => document.querySelector(s);
 q('.panel-dock').getBoundingClientRect = () => viewport.w<=700
   ? rect(9,viewport.h*.46-66,viewport.w-18,viewport.h*.54)
   : rect(viewport.w-428,82,406,viewport.h-166);
+// Three controls, wherever they are docked: a short bar, not a strip of eight.
 q('.controls').getBoundingClientRect = () => viewport.w<=700
-  ? rect(9,viewport.h-53,viewport.w-18,44) : rect(viewport.w-430,22,408,40);
-q('.masthead').getBoundingClientRect = () => document.body.classList.contains('mandala-view')
-  ? rect(0,0,0,0) : rect(22,22,270,50);
+  ? rect(9,viewport.h-53,viewport.w-18,44) : rect(viewport.w-252,22,230,40);
 // The board holds the left of the screen; below 1080px it holds the width.
 q('.board-view').getBoundingClientRect = () => q('.board-view').hidden ? rect(0,0,0,0)
   : viewport.w<=1080 ? rect(14,82,viewport.w-28,viewport.h-166)
@@ -112,6 +113,7 @@ q('.board-view').getBoundingClientRect = () => q('.board-view').hidden ? rect(0,
 const app = await window.eval(`(async()=>{${source}\nreturn {
  world, cam, ctr, E, HEAPS, MARKS, HEAP_MEMBERS, OFFERING_MODELS, ORIGINAL_VISIBILITY,
  STEPS, LUMINARIES, RIM, OFFERING_SIZE, freeRect, tourImageRect, meshesFor, visibleInScene,
+ stageGround:()=>stage._ground,
  setMandala, setMode, show, close, setOpen, startTour, visitHeap, endTour, orientOfferingCards,
  applyStep, playToggle, stepBy, pausePlay, resetPlay, applyTheme, setMotion,
  rbBoard, rbArt, rbGame:()=>rbGame,
@@ -433,11 +435,23 @@ assert.deepEqual(app.rbArt.states(),['ready','ready','ready','ready']);
 for (const n of [1, 104]) {
   const plane = app.rbArt.planes.get(n);
   assert.ok(plane.material.map,'the painting reaches the billboard');
-  assert.equal(plane.material.opacity,1);
 }
 // Billboards face the camera, like the offering illustrations do.
 app.rbArt.face(app.cam);
 assert.ok(app.rbArt.planes.get(17).quaternion.angleTo(app.cam.quaternion)<1e-6);
+
+/* A hundred and four solid markers over the world is a fog. Only the squares
+   that matter now stand forward: the one in hand, and every square somebody is
+   standing on. The rest — mark, plinth and field alike — fall back. */
+const bandMesh = n => { let m=null; app.rbBoard.nodes.get(n).traverse(o=>{ if(o.isMesh&&o.userData.band) m=o; }); return m; };
+const start = rbBoard.START;
+assert.equal(app.rbArt.planes.get(start).material.opacity,1,'the square in hand is at full weight');
+assert.ok(app.rbArt.planes.get(59).material.opacity<0.5,'and one nobody is on stands back');
+assert.equal(bandMesh(59).material.transparent,true,'its marker too');
+assert.equal(bandMesh(start).material.transparent,false);
+app.rbBoard.nodes.get(59).traverse(o=>{
+  if (o.name==='rebirth_plinth_59') assert.equal(o.material.opacity<1,true,'and the plinth under it');
+});
 
 /* Every square carries its Tibetan name as well, and one switch puts those
    names in place of the English ones wherever a square is named in passing.
@@ -776,6 +790,62 @@ key('e'); advance(1200); panel(null); assert.equal(app.state().mode,'explore');
 app.ORIGINAL_VISIBILITY.forEach((visible,obj)=>assert.equal(obj.visible,visible,'Original world restored after the game'));
 worldVisibility.forEach((visible,obj)=>assert.equal(obj.visible,visible,'All world context restored after the game'));
 
+/* ── the chrome ─────────────────────────────────────────────────────────
+   Three controls stand on the model and no more. The view you are in and the
+   settings that belong to no view open downward into menus; the title lives at
+   the head of the index; and the four-continent legend and the stage's export
+   buttons are gone, with nothing left behind to lay out around. */
+assert.equal(app.stageGround().visible,false,
+  'the world casts no shadow on the space around it');
+assert.equal(q('.legend'),null,'the continents legend is gone');
+assert.equal(q('.masthead'),null,'and the title is not standing on the model');
+assert.ok(q('.index .head .title'),'it heads the index instead');
+assert.match(html,/<title>/,'the document still has one');
+assert.equal(/Download OBJ|Download GLB/.test(fs.readFileSync(repo+'/three-d-stage.js','utf8')),false,
+  'the stage exports nothing');
+assert.equal(/exporters\//.test(html),false,'and the page no longer pins the exporters');
+const strip = [...q('.controls').children];
+assert.equal(strip.length,3,'index, view, options');
+assert.deepEqual(strip.map(el=>el.tagName),['BUTTON','DETAILS','DETAILS']);
+for (const act of ['motion','night','full','home'])
+  assert.ok(q('[data-menu="options"] [data-act="'+act+'"]'),act+' is under Options');
+for (const m of ['explore','mandala','game'])
+  assert.ok(q('[data-menu="mode"] [data-mode="'+m+'"]'),m+' is under the view menu');
+// the closed view menu says which view you are in
+const modeFace = q('[data-menu="mode"] > .btn');
+app.setMode('mandala'); advance(1200);
+assert.equal(modeFace.querySelector('.t').textContent,'Mandala');
+app.setMode('explore'); advance(1200);
+assert.equal(modeFace.querySelector('.t').textContent,'Explorer');
+
+/* ── what the board sounds like ─────────────────────────────────────────
+   Every square answers in the voice of the company it keeps, and a few answer
+   for themselves. The mapping is pure; the synthesis needs a real audio clock
+   and is not exercised here. */
+for (const sq of rbBoard.SQUARES) {
+  const voice = rbSound.voiceFor(sq);
+  assert.ok(rbSound.VOICES.includes(voice),'square '+sq.n+' has a voice');
+}
+assert.equal(rbSound.voiceFor(rbBoard.BY_N.get(104)),'nirvana','Nirvana answers for itself');
+assert.equal(rbSound.voiceFor(rbBoard.BY_N.get(34)),'roar','Mahākāla roars');
+assert.equal(rbSound.voiceFor(rbBoard.BY_N.get(16)),'roar','and Black Freedom with him');
+for (const [n, want] of [[1,'hell'],[10,'preta'],[11,'animal'],[17,'human'],[22,'other'],
+                         [30,'desire'],[35,'form'],[36,'formless'],[52,'sutra'],[25,'mantra'],
+                         [77,'pure'],[101,'deeds']])
+  assert.equal(rbSound.voiceFor(rbBoard.BY_N.get(n)),want,'square '+n);
+assert.equal(rbSound.voiceFor(rbBoard.BY_N.get(23)),rbSound.voiceFor(rbBoard.BY_N.get(21)),
+  'Bön and barbarism share one');
+assert.equal(rbSound.voiceFor(rbBoard.BY_N.get(22)),rbSound.voiceFor(rbBoard.BY_N.get(21)),
+  'and Hinduism with them');
+assert.equal(rbSound.voiceFor(rbBoard.BY_N.get(97)),rbSound.voiceFor(rbBoard.BY_N.get(102)),
+  'the acts of a buddha share one');
+// a kit with no audio context to open makes no sound and does not throw
+const silent = rbSound.createSoundKit(null);
+silent.dice(0); silent.land(); silent.arrive('hell',-1); silent.dead(); silent.count(3);
+assert.equal(silent.ready(),false,'and never opens one it was not given');
+assert.deepEqual(Object.keys(silent.voices).sort(),rbSound.VOICES.slice().sort(),
+  'a recipe for every voice');
+
 console.log(JSON.stringify({result:'PASS',heaps:37,illustrations:24,triangles,atlasRequests:3,
  squares:app.rbBoard.nodes.size,anchoredSquares:anchoredSquares.length,boardCells:cells.length,
  squareNotes:Object.keys(SQUARE_NOTES).length, fullEntries:Object.keys(SQUARE_FULL).length,
@@ -787,7 +857,12 @@ console.log(JSON.stringify({result:'PASS',heaps:37,illustrations:24,triangles,at
    + 'square, the world framed clear of the board, all 21 anchored squares over the geometry drawn for them, the printed '
    + 'first move, the karmic trail, selection shared between cell, entry and marker, reading a player without taking their '
    + 'turn, the counter trap end to end, victory and its rite, the board/world swap, silence until asked, pointer events on '
-   + 'every overlay panel, and the Escape cascade. The throw: a die that keeps its answer until it stops, cannot be '
+   + 'every overlay panel, and the Escape cascade. Three controls on the model and no more, the view menu naming the '
+   + 'view, every option under Options, the title at the head of the index, and no legend or export buttons left to '
+   + 'lay out around. A voice for all 104 squares — the hells, the pretas, the animals, the human world, the other '
+   + 'traditions, the three orders of gods, the sutra gong, the mantra damaru, the roar Mahakala shares with Black '
+   + 'Freedom, the buddha fields, the acts of a buddha, and Nirvana on its own — and a kit given no audio that stays '
+   + 'silent rather than throwing. The throw: a die that keeps its answer until it stops, cannot be '
    + 'thrown twice at once, announces where it landed, and resolves at once under reduced motion. A standing marker '
    + 'for every player, ringed for whoever holds the die, fanned apart when they share a square, and named where they '
    + 'stand in their own colour. All 104 fields: the painting as the cell\'s own ground and as a billboard in the world, '

@@ -209,11 +209,21 @@ export function createBoardLayer(THREE, ctx) {
   group.name = 'rebirth_board';
   group.visible = false;
 
-  const mats = {};
+  /* Two materials for every band: one for a square that matters right now —
+     someone is standing on it, or it is the one in hand — and a faint one for
+     all the rest. A hundred and four solid markers over the world is a fog;
+     the same hundred and four at a quarter weight is a map with a few lit
+     places on it. */
+  const mats = {}, faint = {};
   for (const [band, color] of Object.entries(BAND_COLOUR)) {
     mats[band] = new THREE.MeshStandardMaterial({
       color, roughness: 0.36, metalness: 0.55,
       emissive: new THREE.Color(color).multiplyScalar(0.10)
+    });
+    faint[band] = new THREE.MeshStandardMaterial({
+      color, roughness: 0.36, metalness: 0.55,
+      emissive: new THREE.Color(color).multiplyScalar(0.10),
+      transparent: true, opacity: 0.34, depthWrite: false
     });
   }
   const pick = new THREE.MeshBasicMaterial({ visible: false });
@@ -222,6 +232,10 @@ export function createBoardLayer(THREE, ctx) {
   // a plinth under each mark, so a square reads as somewhere to stand
   const plinthGeo = new THREE.CylinderGeometry(ctx.SUMMIT * 0.036, ctx.SUMMIT * 0.040, ctx.SUMMIT * 0.008, 12);
   const plinthMat = new THREE.MeshStandardMaterial({ color: 0xb08d3f, roughness: 0.5, metalness: 0.55 });
+  const faintPlinthMat = new THREE.MeshStandardMaterial({
+    color: 0xb08d3f, roughness: 0.5, metalness: 0.55,
+    transparent: true, opacity: 0.30, depthWrite: false
+  });
 
   /* Nirvana is not another square higher up the spiral. It is outside the
      round of birth the rest of the board draws, so it is drawn outside the
@@ -238,8 +252,9 @@ export function createBoardLayer(THREE, ctx) {
     const beyond = s.n === VICTORY;
     const holder = new THREE.Group();
     holder.name = 'rebirth_node_' + s.n;
-    const mark = new THREE.Mesh(markGeo, beyond ? beyondMat : mats[s.band]);
+    const mark = new THREE.Mesh(markGeo, beyond ? beyondMat : faint[s.band]);
     mark.name = 'rebirth_square_' + s.n;
+    mark.userData.band = s.band;
     mark.userData.square = s.n;
     mark.castShadow = false;
     mark.receiveShadow = false;
@@ -248,7 +263,7 @@ export function createBoardLayer(THREE, ctx) {
     holder.add(mark);
     const plinth = beyond
       ? new THREE.Mesh(new THREE.RingGeometry(ctx.SUMMIT * 0.24, ctx.SUMMIT * 0.285, 64), beyondMat)
-      : new THREE.Mesh(plinthGeo, plinthMat);
+      : new THREE.Mesh(plinthGeo, faintPlinthMat);
     plinth.name = 'rebirth_plinth_' + s.n;
     if (beyond) plinth.rotation.x = -Math.PI / 2;
     plinth.castShadow = false;
@@ -412,7 +427,25 @@ export function createBoardLayer(THREE, ctx) {
     return h ? h.position : null;
   }
 
-  return { group, nodes, tokens, links, showLinks, placeTokens, placeAnchored, positionOf, materials: mats };
+  /* Which squares are standing forward: the one in hand, and every square a
+     player is on. Everything else falls back to the faint materials. The field
+     each one carries is faded to match by createSquareArt, which owns those. */
+  function showActive(active) {
+    const lit = new Set(active);
+    nodes.forEach((holder, n) => {
+      const on = lit.has(n) || n === VICTORY;
+      if (holder.userData.lit === on) return;
+      holder.userData.lit = on;
+      holder.traverse((o) => {
+        if (!o.isMesh || o.userData.pickOnly) return;
+        if (o.name.startsWith('rebirth_plinth_')) o.material = on ? plinthMat : faintPlinthMat;
+        else if (o.userData.band) o.material = on ? mats[o.userData.band] : faint[o.userData.band];
+      });
+    });
+  }
+
+  return { group, nodes, tokens, links, showLinks, showActive, placeTokens,
+           placeAnchored, positionOf, materials: mats };
 }
 
 function vec(THREE, p) { return new THREE.Vector3(p.x, p.y, p.z); }

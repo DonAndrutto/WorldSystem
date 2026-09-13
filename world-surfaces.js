@@ -116,7 +116,10 @@ export function createWaterMaterial(THREE, { name, normalMap, salt = false }) {
   return Object.assign(new THREE.MeshPhysicalMaterial({
     color: 0xffffff, vertexColors: true, metalness: 0, roughness: salt ? 0.26 : 0.20,
     transparent: true, opacity: salt ? 0.94 : 0.88,
-    depthWrite: false, side: THREE.DoubleSide, forceSinglePass: true,
+    // Water writes depth. Without it the seas hide nothing: every marker and
+    // slab hanging under the disc draws straight through the surface, since a
+    // transparent pass that leaves no depth behind cannot occlude what follows.
+    depthWrite: true, side: THREE.DoubleSide, forceSinglePass: true,
     normalMap, normalScale: new THREE.Vector2(salt ? 0.48 : 0.3, salt ? 0.48 : 0.3),
     ior: 1.333, clearcoat: 0.35, clearcoatRoughness: 0.22, specularIntensity: 0.85
   }), { name });

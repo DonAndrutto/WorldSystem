@@ -102,6 +102,9 @@ export function createSquareArt(THREE, ctx, onStatus = () => {}) {
     ? new THREE.PlaneGeometry(ctx.SUMMIT * 0.145, ctx.SUMMIT * 0.145)
     : null;
 
+  /* A square nobody is on and nobody has asked about stands back: its field is
+     drawn at a fraction of its weight, so the few that matter carry the eye. */
+  const FAINT = 0.34;
   function attach(holder, square) {
     const art = SQUARE_ART.get(square);
     if (!art) return null;
@@ -118,10 +121,24 @@ export function createSquareArt(THREE, ctx, onStatus = () => {}) {
       attribute.setXY(i, uv.u + attribute.getX(i) * uv.w, uv.v + attribute.getY(i) * uv.h);
     }
     attribute.needsUpdate = true;
+    plane.userData.lit = false;
     sheet.materials.push(material);
     holder.add(plane);
     planes.set(square, plane);
     return plane;
+  }
+
+  /* The same reckoning the board layer makes, for the pictures. Kept here
+     because the sheet's loader owns these materials and has to agree with it:
+     a field that has not arrived yet stays at nothing whatever its square. */
+  function showActive(active) {
+    const lit = new Set(active);
+    planes.forEach((plane, square) => {
+      const on = lit.has(square);
+      if (plane.userData.lit === on) return;
+      plane.userData.lit = on;
+      if (plane.material.map) plane.material.opacity = on ? 1 : FAINT;
+    });
   }
 
   function load() {
@@ -134,8 +151,10 @@ export function createSquareArt(THREE, ctx, onStatus = () => {}) {
         texture.anisotropy = 4;
         sheet.materials.forEach((material) => {
           material.map = texture;
-          material.opacity = 1;
           material.needsUpdate = true;
+        });
+        planes.forEach((plane) => {
+          if (plane.material.map) plane.material.opacity = plane.userData.lit ? 1 : FAINT;
         });
         sheet.state = 'ready';
         report();
@@ -148,5 +167,5 @@ export function createSquareArt(THREE, ctx, onStatus = () => {}) {
     planes.forEach((plane) => plane.quaternion.copy(camera.quaternion));
   }
 
-  return { attach, load, face, planes, sheets, states: () => [...sheets.values()].map((s) => s.state) };
+  return { attach, load, face, showActive, planes, sheets, states: () => [...sheets.values()].map((s) => s.state) };
 }

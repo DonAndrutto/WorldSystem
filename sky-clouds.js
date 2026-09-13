@@ -88,7 +88,7 @@ export function paintClouds(ctx, width, height, dark, makeCanvas = () => documen
       const x = ((i + 0.5 + row * 0.37 + (random() - 0.5) * 0.16) / count) * width;
       const y = (v + (random() - 0.5) * 0.050) * height;
       const size = scale * height;
-      const variation = 0.62 + random() * 0.48;
+      const variation = 0.44 + random() * 1.06;
       const pigment = (i + row * 3) % 5 === 0 ? 2 + (i + row) % 3 : (i + row) % 2;
       const kind = (i + row) % 3, key = pigment * 3 + kind;
       if (!motifs.has(key)) motifs.set(key, cloudCanvas(makeCanvas, palettes[pigment], kind));
@@ -96,7 +96,8 @@ export function paintClouds(ctx, width, height, dark, makeCanvas = () => documen
       const naturalWidth = size * 400 / 96 / Math.max(0.72, Math.sin(v * Math.PI));
       const fit = Math.min(1, width / count * 0.80 / naturalWidth);
       const w = naturalWidth * fit * variation, h = size * 220 / 96 * fit * variation;
-      ctx.globalAlpha = opacity * (dark ? 0.68 : 1);
+      // thinner than the world under them, and no two the same weight
+      ctx.globalAlpha = opacity * (dark ? 0.42 : 0.62) * (0.72 + random() * 0.5);
       // Draw each copy once: no overlapping wrap passes at the seam.
       for (const offset of [-width, 0, width]) {
         ctx.save(); ctx.translate(x + offset, y); ctx.scale(flip, 1);

@@ -26,16 +26,12 @@
 {
   "imports": {
     "three": "https://unpkg.com/three@0.184.0/build/three.module.js",
-    "three/addons/controls/OrbitControls.js": "https://unpkg.com/three@0.184.0/examples/jsm/controls/OrbitControls.js",
-    "three/addons/exporters/OBJExporter.js": "https://unpkg.com/three@0.184.0/examples/jsm/exporters/OBJExporter.js",
-    "three/addons/exporters/GLTFExporter.js": "https://unpkg.com/three@0.184.0/examples/jsm/exporters/GLTFExporter.js"
+    "three/addons/controls/OrbitControls.js": "https://unpkg.com/three@0.184.0/examples/jsm/controls/OrbitControls.js"
   },
   "integrity": {
     "https://unpkg.com/three@0.184.0/build/three.module.js": "sha384-8FCZ1eVO6it4+pbec2aDtnTrwjWXZLJRC+MAGCIPDgsYnUrl/E0A2YlF8ioMKI/J",
     "https://unpkg.com/three@0.184.0/build/three.core.js": "sha384-dw2ooPewaEIrAgl6oFDBmmBWCE9oW9LxRGcfwZ0hLvEprzo202wXl7vCYHRlSnOT",
-    "https://unpkg.com/three@0.184.0/examples/jsm/controls/OrbitControls.js": "sha384-4rziNxOBZKQ69i+w+f89KJ55TCYquwchVbByQwmaOeIOXdOU2PLDn3kOfXHwIJC9",
-    "https://unpkg.com/three@0.184.0/examples/jsm/exporters/OBJExporter.js": "sha384-nbwtoZENJD3Vq+ACK0CuGQdPMuDWHkamC2KJD70EV5nfg6jQjfppKOea07YJN+N3",
-    "https://unpkg.com/three@0.184.0/examples/jsm/exporters/GLTFExporter.js": "sha384-VofkvpG6HERhFCYbsUOHeNXBCqID2nfqkQqnVzE1jc/oPcz+qJ13ADdXH08hE+cQ"
+    "https://unpkg.com/three@0.184.0/examples/jsm/controls/OrbitControls.js": "sha384-4rziNxOBZKQ69i+w+f89KJ55TCYquwchVbByQwmaOeIOXdOU2PLDn3kOfXHwIJC9"
   }
 }
 </script>
@@ -62,6 +58,8 @@
     --shadow: 0 1px 2px rgba(35,32,26,.08), 0 12px 36px rgba(35,32,26,.13);
     /* the maṇḍala's numbered heaps: their own paper, so a mark still reads
        where it stands on the plate rather than over the page */
+    /* a menu standing over another panel has to be read, not seen through */
+    --menu: rgba(247, 243, 234, .98);
     --mark: rgba(252, 249, 242, .97);
     --mark-lift: 0 1px 3px rgba(35, 32, 26, .26);
     --panel: 342px;
@@ -86,6 +84,7 @@
     --hi-2: rgba(228, 189, 112, .28);
     --field: rgba(255, 255, 255, .085);
     --shadow: 0 1px 2px rgba(0,0,0,.5), 0 16px 44px rgba(0,0,0,.6);
+    --menu: rgba(22, 25, 32, .98);
     --mark: rgba(26, 30, 39, .97);
     --mark-lift: 0 0 0 1px rgba(0, 0, 0, .55), 0 2px 7px rgba(0, 0, 0, .62);
   }
@@ -128,17 +127,12 @@
   .btn[aria-pressed="true"] { color: var(--ink); background: var(--hi-2); }
   .btn:disabled { opacity: .35; pointer-events: none; }
 
-  /* masthead — a title, and a way into the prose. Nothing else stands on
-     the model permanently; the standfirst appears only where there is room
-     to spare for it. */
-  .masthead {
-    position: absolute; top: 22px; left: 22px; max-width: 35ch;
-    padding: 0; pointer-events: auto;
-  }
-  .masthead h1 { margin: 0; font-weight: 400; font-size: 27px; line-height: 1.06; }
+  /* The title lives at the head of the index, which is the way into the prose
+     anyway, so nothing but the three controls stands on the model. */
+  .index .head h1 { margin: 0; font-weight: 400; font-size: 23px; line-height: 1.06; }
   .title {
-    display: flex; align-items: center; gap: 9px; width: 100%;
-    padding: 11px 15px 12px; border: 0; background: none; cursor: pointer;
+    display: flex; align-items: center; gap: 9px;
+    padding: 0; border: 0; background: none; cursor: pointer;
     font: inherit; color: var(--ink); text-align: left;
   }
   .title .i {
@@ -164,45 +158,49 @@
   .firsthint.gone { opacity: 0; }
   @media (min-width: 701px) { .firsthint { bottom: 26px; } }
 
-  /* control strip */
+  /* ── the control strip ────────────────────────────────────────────────
+     Three controls, never more: the index, the view you are in, and the
+     settings that belong to no view. The last two open downward into menus,
+     so what is standing on the model at rest is one short bar. */
   .controls {
     position: absolute; top: 22px; right: 22px; display: flex; padding: 0;
-    pointer-events: auto; transition: right .34s cubic-bezier(.4,0,.2,1),
+    pointer-events: auto; z-index: 6;
+    transition: right .34s cubic-bezier(.4,0,.2,1),
       background-color .55s ease, border-color .55s ease;
   }
-  .controls .btn { border: 0; border-left: 1px solid var(--rule); }
-  .controls .btn:first-child { border-left: 0; }
+  .controls > .btn, .controls .menu > .btn { border: 0; border-left: 1px solid var(--rule); }
+  .controls > :first-child .btn, .controls > .btn:first-child { border-left: 0; }
   .controls .btn .g { font-size: 12px; letter-spacing: 0; margin-right: 6px; }
-  .controls { z-index: 4; }
+  .controls .btn .chev { font-size: 9px; margin-left: 6px; opacity: .7; }
   body.index-open .controls { right: calc(var(--panel) + 22px); }
   /* Full screen is hidden where the platform has no such thing to give —
      iOS Safari, and any window already running as an installed app. */
   body.no-full [data-act="full"] { display: none; }
 
-  /* legend */
-  .legend {
-    position: absolute; left: 22px; bottom: 22px; width: 35ch; padding: 0;
-    pointer-events: auto;
+  .menu { position: relative; }
+  .menu > summary { display: flex; list-style: none; cursor: pointer; align-items: center; }
+  .menu > summary::-webkit-details-marker { display: none; }
+  .menu[open] > summary { background: var(--hi-2); color: var(--ink); }
+  .menu[open] > summary .chev { transform: rotate(180deg); }
+  .menu-body {
+    position: absolute; right: 0; top: calc(100% + 6px); z-index: 7;
+    min-width: max(100%, 170px); padding: 4px; border-radius: 4px;
+    background: var(--menu);
+    display: flex; flex-direction: column; align-items: stretch;
   }
-  .legend[hidden] { display: none; }
-  .legend-head {
-    display: flex; width: 100%; justify-content: space-between; align-items: center;
-    gap: 10px; padding: 9px 14px 8px; border: 0; border-bottom: 1px solid var(--rule);
-    background: none; cursor: pointer; color: var(--ink-3);
-    font-family: "IBM Plex Mono", monospace; font-size: 10px; letter-spacing: .12em;
-    text-transform: uppercase;
+  .menu-body .btn {
+    border: 0; text-align: left; justify-content: flex-start;
+    display: flex; align-items: center; padding: 9px 11px 8px;
   }
-  .legend-head:hover { color: var(--ink); }
-  .legend-head .chev { font-size: 9px; }
-  .legend-body { padding: 10px 14px 11px; }
-  .legend.closed .legend-body { display: none; }
-  .legend.closed .legend-head { border-bottom: 0; }
+  .menu-body .btn .g { width: 1.2em; text-align: center; }
+  .menu-body .btn:hover { background: var(--hi); }
+  .menu-body .btn[aria-pressed="true"] { background: var(--hi-2); color: var(--ink); }
 
   /* compass — a small rose that turns with the view, so that north can be
-     found without turning the world to look for it. It stands out of the
-     way above the export buttons, and gives way to the drawer. */
+     found without turning the world to look for it. It takes the corner the
+     export buttons used to stand in, and gives way to the drawer. */
   .compass {
-    position: absolute; right: 22px; bottom: 66px; width: 46px; height: 46px;
+    position: absolute; right: 22px; bottom: 22px; width: 46px; height: 46px;
     border-radius: 50%; border: 1px solid var(--rule); background: var(--surface);
     pointer-events: none; z-index: 3; opacity: .9;
     transition: right .34s cubic-bezier(.4,0,.2,1), background-color .55s ease,
@@ -236,20 +234,6 @@
   }
   .cp b { font-weight: 500; }
   .cp i { font-style: normal; font-family: "EB Garamond", Georgia, serif; font-size: 14px; line-height: 1.5; letter-spacing: 0; opacity: .85; }
-  .continents { display: grid; gap: 6px; }
-  .continents .row {
-    display: grid; grid-template-columns: 12px 7.5ch minmax(0,1fr);
-    align-items: baseline; gap: 10px; font-size: 14.5px; line-height: 1.3;
-  }
-  .continents .row i {
-    width: 11px; height: 11px; border: 1px solid var(--rule-2);
-    transform: translateY(2px);
-  }
-  .continents .row .dir {
-    font-family: "IBM Plex Mono", monospace; font-size: 10px;
-    letter-spacing: .09em; text-transform: uppercase; color: var(--ink-3);
-  }
-  .continents .row em { font-style: italic; color: var(--ink-2); }
   .note {
     margin: 12px 0 0; font-size: 10.5px; line-height: 1.7; color: var(--ink-3);
     border-top: 1px solid var(--rule); padding-top: 10px;
@@ -412,7 +396,6 @@
     color: var(--ink-3);
   }
 
-  body.mandala-view .masthead { display: none; }
 
   /* the selected square, named where it stands in the world */
   .rb-label {
@@ -513,7 +496,6 @@
     padding-top: 0; padding-bottom: 0; border-top-width: 0;
   }
   body.min-menus .off-full { display: none; }
-  body.min-menus .legend { display: none; }
   .off-player { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; margin: 0 0 9px; }
   .pb {
     display: flex; align-items: center; justify-content: center; gap: 6px;
@@ -587,8 +569,6 @@
   }
 
   /* full screen / immersive */
-  body.immersive .masthead, body.immersive .legend { display: none; }
-  body.mandala-view .legend { display: none; }
 
   /* ── night: what the variables alone cannot carry ───────────────────
      A translucent card over paper is a card; over a lit model at night it
@@ -596,29 +576,23 @@
   body.night .card, body.night .compass { -webkit-backdrop-filter: blur(16px) saturate(112%); backdrop-filter: blur(16px) saturate(112%); }
   body.night .compass { opacity: 1; box-shadow: var(--shadow); }
   body.night .index { box-shadow: var(--shadow); }
-  body.night .controls .btn { border-left-color: var(--rule-2); }
-  body.night .controls .btn:first-child { border-left: 0; }
+  body.night .controls > .btn, body.night .controls .menu > .btn { border-left-color: var(--rule-2); }
+  body.night .controls > :first-child .btn, body.night .controls > .btn:first-child { border-left: 0; }
   body.night .btn:disabled { opacity: .45; }
   body.night .firsthint { color: var(--ink-2); }
-  body.night .masthead h1 { text-shadow: 0 1px 2px rgba(0, 0, 0, .5); }
 
-  @media (max-width: 1320px) {
-    /* the drawer squeezes the strip into the masthead: drop to glyphs */
-    body.index-open .controls .btn .t { display: none; }
-    body.index-open .controls .btn .g { margin-right: 0; font-size: 15px; }
-    body.index-open .controls .btn { padding: 9px 13px 8px; font-size: 10px; }
-  }
   @media (max-width: 980px) {
-    .masthead { max-width: 31ch; }
-    .legend { display: none; }
     .mandala-note { width: min(38ch, calc(100vw - 44px)); }
     .off-intro { display: none; }
   }
-  /* icon-only control strip once the labels stop fitting */
-  @media (max-width: 1080px) {
-    .controls .btn .t { display: none; }
-    .controls .btn .g { margin-right: 0; font-size: 15px; }
-    .controls .btn, body.index-open .controls .btn { padding: 9px 13px 8px; font-size: 10px; }
+  /* Three controls fit almost anywhere; below this the two menus keep their
+     glyph and drop their word, and the menu itself still says everything. */
+  @media (max-width: 720px) {
+    .controls > .btn .t, .controls .menu > .btn .t { display: none; }
+    .controls > .btn .g, .controls .menu > .btn .g { margin-right: 0; font-size: 15px; }
+    .controls > .btn, .controls .menu > .btn { padding: 9px 12px 8px; font-size: 10px; }
+    .menu-body .btn .t { display: inline; }
+    .menu-body .btn .g { margin-right: 8px; font-size: 13px; }
   }
   @media (max-width: 780px) {
     :root { --panel: 300px; }
@@ -627,25 +601,24 @@
      item card and offering panel as bottom sheets above them */
   @media (max-width: 700px) {
     :root { --panel: min(342px, 88vw); }
-    .masthead {
-      top: calc(9px + var(--sa-t)); left: 9px; right: auto; width: auto; max-width: 74vw;
-      padding: 0;
-    }
-    .masthead h1 { font-size: 17px; }
-    .title { padding: 8px 12px 9px; gap: 8px; }
+    .index .head h1 { font-size: 19px; }
     .title .i { width: 16px; height: 16px; font-size: 9.5px; }
+    /* On a phone the strip holds the bottom edge, three thumb-sized shares of
+       it, and the menus open upward into the screen rather than off it. */
     .controls {
       top: auto; bottom: calc(9px + var(--sa-b)); left: 9px; right: 9px; z-index: 6;
     }
     body.index-open .controls { right: 9px; }
-    .controls .btn { flex: 1; padding: 12px 0 11px; }
-    /* the mode switch is three buttons in one shell: it takes three shares of
-       the bar so the strip stays evenly divided */
-    .controls .seg { flex: 3; }
+    .controls > .btn, .controls > .menu { flex: 1; }
+    .controls > .btn, .controls .menu > .btn { padding: 13px 0 12px; justify-content: center; }
+    .controls > .btn .t, .controls .menu > .btn .t { display: inline; }
+    .controls > .btn .g, .controls .menu > .btn .g { margin-right: 6px; font-size: 12px; }
+    .menu-body {
+      top: auto; bottom: calc(100% + 7px); right: 0; left: 0;
+      min-width: 0; width: max(100%, 46vw);
+    }
+    .menu-body .btn { padding: 12px 13px 11px; font-size: 11px; }
     .index { padding-bottom: calc(66px + var(--sa-b)); }
-    /* eight controls at thumb size need the whole width; Full screen is
-       already gone on iOS, so seven is what actually lands here */
-    .controls .btn { padding: 13px 0 12px; }
     .sheet {
       left: 9px; right: 9px; width: auto; top: auto;
       bottom: calc(58px + var(--sa-b) + var(--bl));
@@ -659,7 +632,6 @@
       max-height: 60dvh; overflow-y: auto; overscroll-behavior: contain;
     }
     .off-full { max-height: 24dvh; }
-    body.mandala-view .masthead { display: none; }
   }
   /* touch: bigger targets */
   @media (pointer: coarse) {
@@ -706,7 +678,6 @@
   .sheet-foot .stepper { margin-left: auto; }
   .controls, body.index-open .controls { right: 22px; top: 22px; left: auto; bottom: auto; max-width: calc(100vw - 44px); }
   .controls .btn { min-height: 40px; }
-  body.panel-open .legend { display: none; }
   .mode-tabs { display: flex; gap: 5px; margin-bottom: 18px; }
   .mode-tabs .btn { flex: 1; white-space: normal; font-size: 11px; letter-spacing: .03em; min-height: 42px; }
   .tour-panel { display: flex; flex-direction: column; padding: 13px; }
@@ -1024,6 +995,7 @@
   .bv-more > summary::-webkit-details-marker { display: none; }
   .bv-more-body {
     position: absolute; right: 0; bottom: calc(100% + 7px); width: 268px;
+    background: var(--menu);
     display: flex; flex-direction: column; gap: 8px; padding: 10px; z-index: 6;
   }
   .bv-more-body h3 {
@@ -1043,10 +1015,11 @@
   .board-view .feed li { font-size: 12px; color: var(--ink-2); padding: 4px 0; border-top: 1px solid var(--rule); }
   .board-view .feed li .mono { color: var(--ink); }
   /* the board and the world trade places only where they cannot sit side by side */
-  .bv-swap { display: none; flex: none; align-self: flex-start; }
+  /* The three-way switch in the rail says all this and more, at every width;
+     the swap control it replaced is kept only for the w key it was named for. */
+  .bv-swap { display: none !important; }
 
   body.game-view .compass { display: none; }
-  body.game-view .legend { display: none; }
   /* An open drawer wants the same screen. Where there is room for both, the
      board yields width to it so the world keeps a strip worth looking at
      rather than a slot; where there is not, they take turns instead. */
@@ -1084,7 +1057,6 @@
   @media (max-width: 1080px) {
     .board-view { left: 14px; right: 14px; width: auto; }
     body.index-open .board-view { width: auto; right: calc(var(--panel) + 30px); }
-    .bv-swap { display: inline-flex; }
     body.world-only .die-face { display: none; }
     .bv-sq .nm { -webkit-line-clamp: 3; }
   }
@@ -1103,10 +1075,14 @@
      the sheet cannot cover them and the grid keeps its full height. */
   @media (max-width: 700px) {
     .board-view, body.index-open .board-view {
-      left: 9px; right: 9px; width: auto; top: calc(54px + var(--sa-t));
+      left: 9px; right: 9px; width: auto; top: calc(9px + var(--sa-t));
       bottom: calc(66px + var(--sa-b)); flex-direction: column-reverse;
     }
-    .bv-rail { padding: 7px 9px; gap: 7px; }
+    /* the rail is a strip, not a stack: the grid wants every row it can get */
+    .bv-rail { padding: 6px 8px; gap: 6px; align-items: center; }
+    .bv-rail .go { align-self: stretch; }
+    .bv-say { font-size: 11.5px; -webkit-line-clamp: 2; }
+    .bv-new, .bv-more { align-self: center; }
     .bv-rail .go { min-width: 78px; }
     .die-face { width: 40px; height: 40px; padding: 5px; }
     .die-face i { width: 6px; height: 6px; }
@@ -1122,36 +1098,28 @@
 <three-d-stage name="buddhist-world-system" background="#efe8da"></three-d-stage>
 
 <div class="overlay">
-  <header class="masthead card">
-    <h1><button class="title" type="button" title="About this drawing — a">The World System<span class="i" aria-hidden="true">i</span></button></h1>
-  </header>
-
+  <!-- Three controls, and every one of them opens onto the rest. The index,
+       the view you are in, and the settings that belong to no view. -->
   <div class="controls card">
     <button class="btn" data-act="index" type="button" aria-pressed="false" title="Index — i"><span class="g">☰</span><span class="t">Index</span></button>
-    <div class="seg" role="group" aria-label="Mode">
-      <button class="btn" data-mode="explore" type="button" aria-pressed="true" title="Explorer — e"><span class="g">✦</span><span class="t">Explorer</span></button>
-      <button class="btn" data-mode="mandala" type="button" aria-pressed="false" title="Mandala — m"><span class="g">◎</span><span class="t">Mandala</span></button>
-      <button class="btn" data-mode="game" type="button" aria-pressed="false" title="Game of rebirth — g"><span class="g">⚄</span><span class="t">Game</span></button>
-    </div>
-    <button class="btn" data-act="motion" type="button" aria-pressed="false" title="Set it turning — r"><span class="g">▶</span><span class="t">Motion</span></button>
-    <button class="btn" data-act="night" type="button" aria-pressed="false" title="Night — n"><span class="g">☾</span><span class="t">Night</span></button>
-    <button class="btn" data-act="full" type="button" aria-pressed="false" title="Full screen — f"><span class="g">⛶</span><span class="t">Full screen</span></button>
-    <button class="btn" data-act="home" type="button" title="Reset view — Esc"><span class="g">⟲</span><span class="t">Reset view</span></button>
-  </div>
-
-  <aside class="legend card">
-    <button class="legend-head" type="button">
-      <span>The four continents</span><span class="chev">▼</span>
-    </button>
-    <div class="legend-body">
-      <div class="continents">
-        <div class="row"><i style="background:#dfe3e6"></i><span class="dir">East</span><span>Pūrvavideha — <em>semicircular, crystal white</em></span></div>
-        <div class="row"><i style="background:#35558c"></i><span class="dir">South</span><span>Jambudvīpa — <em>trapezoidal, lapis blue</em></span></div>
-        <div class="row"><i style="background:#9e3f43"></i><span class="dir">West</span><span>Aparagodānīya — <em>round, ruby red</em></span></div>
-        <div class="row"><i style="background:#3d7a5c"></i><span class="dir">North</span><span>Uttarakuru — <em>square, emerald green</em></span></div>
+    <details class="menu" data-menu="mode">
+      <summary class="btn" title="Explorer e · Mandala m · Game g"><span class="g">✦</span><span class="t">Explorer</span><span class="chev">▾</span></summary>
+      <div class="menu-body card" role="group" aria-label="View">
+        <button class="btn" data-mode="explore" type="button" aria-pressed="true" title="Explorer — e"><span class="g">✦</span><span class="t">Explorer</span></button>
+        <button class="btn" data-mode="mandala" type="button" aria-pressed="false" title="Mandala — m"><span class="g">◎</span><span class="t">Mandala</span></button>
+        <button class="btn" data-mode="game" type="button" aria-pressed="false" title="Game of rebirth — g"><span class="g">⚄</span><span class="t">Game</span></button>
       </div>
-    </div>
-  </aside>
+    </details>
+    <details class="menu" data-menu="options">
+      <summary class="btn" title="Motion, night, full screen, reset"><span class="g">⚙</span><span class="t">Options</span><span class="chev">▾</span></summary>
+      <div class="menu-body card" role="group" aria-label="Options">
+        <button class="btn" data-act="motion" type="button" aria-pressed="false" title="Set it turning — r"><span class="g">▶</span><span class="t">Motion</span></button>
+        <button class="btn" data-act="night" type="button" aria-pressed="false" title="Night — n"><span class="g">☾</span><span class="t">Night</span></button>
+        <button class="btn" data-act="full" type="button" aria-pressed="false" title="Full screen — f"><span class="g">⛶</span><span class="t">Full screen</span></button>
+        <button class="btn" data-act="home" type="button" title="Reset view — Esc"><span class="g">⟲</span><span class="t">Reset view</span></button>
+      </div>
+    </details>
+  </div>
 
   <p class="firsthint" hidden=""></p>
 
@@ -1313,7 +1281,7 @@
   <nav class="index card scroll" hidden>
     <div class="head">
       <div class="line">
-        <h2>Index of the world system</h2>
+        <h1><button class="title" type="button" title="About this drawing — a">The World System<span class="i" aria-hidden="true">i</span></button></h1>
         <button class="x" type="button" data-act="close-index" title="Close the index" aria-label="Close the index">×</button>
       </div>
       <input type="search" placeholder="Filter by name or meaning" aria-label="Filter the index">
@@ -1339,6 +1307,7 @@ import { SQUARES as RB_SQUARES, SPECIAL as RB_SPECIAL, START as RB_START, VICTOR
 import { createGame, throwDie, view as rbView, destination as rbDestination } from './rebirth-game.js';
 import { SQUARE_NOTES, SQUARE_FULL } from './rebirth-notes.js';
 import { SQUARE_ART, cellBackground, createSquareArt, LIBERATION_ART } from './rebirth-icons.js';
+import { createSoundKit, voiceFor as rbVoice } from './rebirth-sound.js';
 const stage = document.querySelector('three-d-stage');
 const { THREE } = await stage.ready;
 stage.shadowRoot.querySelector('.note')?.remove();   // the page carries its own hint
@@ -2224,8 +2193,13 @@ world.add(jambu);
    starting angle, the radius and height of the circuit, and the three objects
    (sphere, painted glow, click target) that have to travel together. */
 const LUMINARIES = [];
+/* The moon does not stand opposite the sun. Directly behind Meru it would sit
+   in the mountain's own shadow and never be lit at all; the sources have it
+   run its own course, so it is set a little under a half-turn away, far enough
+   round to be night here and still catch the light. */
+const MOON_LAG = Math.PI * 0.72;
 [['sun', M.sun, M.sunGlow, 4.6, Math.PI * 0.5, 7.2],
- ['moon', M.moonDisc, M.moonGlow, 4.3, -Math.PI * 0.5, 8.4]].forEach(
+ ['moon', M.moonDisc, M.moonGlow, 4.3, Math.PI * 0.5 - MOON_LAG, 8.4]].forEach(
   ([name, material, glow, r, a, gr]) => {
     const rad = y(7000) * r;
     const p = new THREE.Vector3(Math.sin(a) * RIM * 0.88, yv(40000), Math.cos(a) * RIM * 0.88);
@@ -2391,6 +2365,11 @@ world.traverse((o) => {
       o.material === M.sun || o.material === M.moonDisc || o.material === M.cloud ||
       o.material === M.sea || o.material === M.ocean) o.castShadow = false;
 });
+/* The stage stands its object on a shadow-catching floor. A world system has
+   no floor: it hangs in space on its own wind, and a shadow lying on nothing
+   beside it reads as a mistake. The world shadows itself — Meru across the
+   continents, the ranges across the seas — and nothing outside it. */
+stage._ground.visible = false;
 
 /* ── The backdrop ─────────────────────────────────────────────────────
    A cloud band on the inside of a large sphere, so the world stands in
@@ -3525,7 +3504,6 @@ function clearPick() {
 
 /* ── the item sheet ──────────────────────────────────────────────────── */
 const sheet = document.querySelector('.sheet');
-const legend = document.querySelector('.legend');
 const sEyebrow = sheet.querySelector('.eyebrow');
 const sTitle = sheet.querySelector('h2');
 const sSub = sheet.querySelector('.sub');
@@ -3557,7 +3535,6 @@ function close() {
   clearPick();
   current = null;
   sheet.hidden = true;
-  legend.hidden = document.body.classList.contains('mandala-view');
   document.querySelectorAll('.index .row[aria-current]').forEach((r) => r.removeAttribute('aria-current'));
   syncChrome();
 }
@@ -3619,7 +3596,6 @@ function show(id, reveal) {
   sSrc.hidden = !e.src;
   zoomBtn.disabled = !ms.length;
   sheet.hidden = false;
-  if (window.matchMedia('(max-width: 980px)').matches) legend.hidden = true;
   sScroll.scrollTop = 0;
   const art = OFFERING_ART.get(id);
   const square = /^rebirth_sq_(\d+)$/.exec(id);
@@ -3846,6 +3822,8 @@ function home() {
   cam.clearViewOffset();
   cam.near = HOME.near;
   cam.updateProjectionMatrix();
+  // a phone with a panel up has no room for the opening view; frame what is left
+  if (tightScreen() && !dock.hidden) { reframeExplore(900); return; }
   fly(HOME.p.clone(), HOME.t.clone(), 900);
 }
 
@@ -4063,7 +4041,7 @@ function syncChrome() {
   dock.hidden = sheet.hidden && noteEl.hidden && tourEl.hidden && !indexOpen;
   /* the board yields width to an open panel, so the world it leaves changes
      shape as well as size: frame it again whenever the dock comes or goes */
-  if (dock.hidden !== dockWas && mode === 'game') reframeAfterPanels();
+  if (dock.hidden !== dockWas && (mode === 'game' || tightScreen())) reframeAfterPanels();
   artStatus.hidden = !mandala || !imageStates.some(s => s === 'loading' || s === 'failed');
   document.body.classList.toggle('panel-open', !dock.hidden);
   document.body.classList.toggle('min-menus', minPlay);
@@ -4077,7 +4055,6 @@ function syncChrome() {
   // the players are named over the model, so they go where the model goes
   rbPlayersEl.hidden = mode !== 'game' || document.body.classList.contains('board-only');
   document.documentElement.style.setProperty('--bl', '0px');
-  stage.toggleAttribute('no-toolbar', !dock.hidden);
 }
 /* ── framing ────────────────────────────────────────────────────────────
    the rectangle of canvas no panel is standing on. Each visible panel is
@@ -4090,7 +4067,7 @@ function freeRect() {
      width to a corner panel than height */
   const square = (i) => Math.min(w - i.l - i.r, h - i.t - i.b);
   const eat = (el) => {
-    if (!el || el.hidden || (el === legend && !dock.hidden)) return;
+    if (!el || el.hidden) return;
     const q = el.getBoundingClientRect();
     if (q.width < 6 || q.height < 6) return;
     /* The candidates are sorted by what each costs, cheapest first, and a
@@ -4108,8 +4085,7 @@ function freeRect() {
     });
     ins[best.k] = Math.max(ins[best.k], best.v);
   };
-  [document.querySelector('.controls'), document.querySelector('.masthead'),
-   legend, dock, boardEl].forEach(eat);
+  [document.querySelector('.controls'), dock, boardEl].forEach(eat);
   const pad = 14;
   /* a dock panel may claim two fifths of the width; the board claims most of it */
   const side = mode === 'game' ? 0.76 : 0.4;
@@ -4264,7 +4240,6 @@ function setMandala(on) {
   world.traverse((o) => {
     if (o.isMesh && OVERHEAD.some((p) => o.name.startsWith(p))) o.visible = !on;
   });
-  stage._ground.visible = !on;          // a diagram casts no shadow on the page
   reshadow();
   marksEl.hidden = !on;
   noteEl.hidden = !on;
@@ -4272,7 +4247,6 @@ function setMandala(on) {
   setOpen(false, false);
   if (on) OFFERING_MODELS.load();
   orientOfferingCards();
-  legend.hidden = on;
   syncChrome();
   if (on) {
     cam.near = HOME.near;
@@ -4770,37 +4744,23 @@ rbGrid.addEventListener('click', (ev) => {
 });
 
 /* — sound: off until asked for, like motion —————————————————————— */
-let rbAudio = null;
+const rbKit = createSoundKit(window.AudioContext || window.webkitAudioContext);
 const rbSoundOn = () => boardEl.querySelector('#g-sound').checked;
-function rbTone(freq, dur, type, vol, delay = 0) {
-  if (!rbSoundOn()) return;
-  if (!rbAudio) {
-    const AC = window.AudioContext || window.webkitAudioContext;
-    if (!AC) return;
-    try { rbAudio = new AC(); } catch (err) { return; }
-  }
-  if (rbAudio.state === 'suspended') rbAudio.resume();
-  const at = rbAudio.currentTime + delay;
-  const osc = rbAudio.createOscillator(), gain = rbAudio.createGain();
-  osc.type = type;
-  osc.frequency.setValueAtTime(freq, at);
-  gain.gain.setValueAtTime(0, at);
-  gain.gain.linearRampToValueAtTime(vol, at + 0.01);
-  gain.gain.exponentialRampToValueAtTime(0.0001, at + dur);
-  osc.connect(gain).connect(rbAudio.destination);
-  osc.start(at);
-  osc.stop(at + dur + 0.05);
-}
+/* Where a throw ends has a character, and which way it went has another. The
+   voice comes from the square's own company on the board — the hells are not
+   the heavens, the sūtra route is not the mantra route — and under it a short
+   rise or fall, read off the row the token left and the row it reached. */
 const RB_SOUND = {
-  // A throw is meant to be a small suspense, so the ticks slow and drop as the
-  // die runs down, and the landing is one soft note rather than a report.
-  tick: (progress) => rbTone(720 - 250 * progress, 0.035, 'triangle', 0.045),
-  land: () => { rbTone(330, 0.16, 'sine', 0.10); rbTone(494, 0.22, 'sine', 0.055, 0.03); },
-  move: () => rbTone(500, 0.10, 'triangle', 0.08),
-  trap: () => { rbTone(180, 0.40, 'sawtooth', 0.12); rbTone(160, 0.50, 'sawtooth', 0.10, 0.10); },
-  escape: () => { rbTone(400, 0.15, 'sine', 0.11); rbTone(600, 0.15, 'sine', 0.11, 0.10); rbTone(800, 0.30, 'sine', 0.11, 0.20); },
-  dead: () => rbTone(220, 0.18, 'sine', 0.07),
-  victory: () => [523, 659, 784, 1047].forEach((f, i) => rbTone(f, i === 3 ? 0.6 : 0.3, 'sine', 0.13, i * 0.15))
+  dice: (progress) => { if (rbSoundOn()) rbKit.dice(progress); },
+  land: () => { if (rbSoundOn()) rbKit.land(); },
+  arrive: (to, from) => {
+    if (!rbSoundOn()) return;
+    const square = RB_BY_N.get(to);
+    const rise = from == null ? 0 : Math.sign(square.row - RB_BY_N.get(from).row);
+    rbKit.arrive(rbVoice(square), rise);
+  },
+  dead: () => { if (rbSoundOn()) rbKit.dead(); },
+  count: (done) => { if (rbSoundOn()) rbKit.count(done); }
 };
 
 const reducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -4821,6 +4781,14 @@ function rbPlaceToken() {
 }
 /* One selection, shared: the lit cell, the open entry and the tinted marker in
    the world are the same square. */
+/* Which squares stand forward in the world: the one in hand, and every square
+   someone is standing on. */
+function rbLight() {
+  const active = rbGame.players.map((p) => p.pos);
+  if (rbSelected !== null) active.push(rbSelected);
+  rbBoard.showActive(active);
+  rbArt.showActive(active);
+}
 function rbSelect(n, moveCamera) {
   rbSelected = n;
   rbCells.forEach((cell, sq) => cell.setAttribute('aria-selected', String(sq === n)));
@@ -4828,6 +4796,7 @@ function rbSelect(n, moveCamera) {
   const reached = new Set(rbBoard.showLinks(n));
   rbCells.forEach((cell, sq) => cell.classList.toggle('reached', reached.has(sq)));
   rbNameLabel(n);
+  rbLight();
   if (moveCamera && mode === 'game') reframeGame(700, rbBoard.positionOf(n));
   invalidate(2);
 }
@@ -5009,6 +4978,7 @@ function rbSync() {
   rbSyncTrail();
   rbSyncChips();
   rbPlaceToken();
+  rbLight();
 }
 /* ── the throw ──────────────────────────────────────────────────────────
    A die that resolves the instant it is clicked tells you the answer before
@@ -5086,7 +5056,7 @@ function rbTumble(final, done) {
       return;
     }
     rbSetDie(others[i % others.length]);
-    RB_SOUND.tick(i / RB_TUMBLE_TICKS);
+    RB_SOUND.dice(i / RB_TUMBLE_TICKS);
     rbTumbleTimer = setTimeout(step, at(i + 1) - at(i));
   };
   rbTumbleTimer = setTimeout(step, at(1));
@@ -5116,6 +5086,7 @@ function rbResolve(face) {
   } else if (ev.kind === 'trap-progress') {
     rbSay.innerHTML = '<b>Needed.</b> ' + ev.left + ' throws still outstanding. Throw again.';
     rbLog('<span class="mono">' + face + '</span> ' + who + ' counts it — ' + ev.left + ' left');
+    RB_SOUND.count(21 - ev.left);
     rbShowCard(face, 'Counted', rbGame.players[ev.player].pos, ev.left + ' throws still outstanding.');
   } else if (ev.kind === 'trap-blocked') {
     rbSay.innerHTML = '<b>Not needed.</b> The counts are kept; the die passes.';
@@ -5124,21 +5095,21 @@ function rbResolve(face) {
   } else if (ev.kind === 'trap-complete') {
     rbSay.innerHTML = '<b>The checklist is complete.</b> Out to ' + rbNamed(ev.to) + '.';
     rbLog('<span class="mono">' + face + '</span> ' + who + ' leaves ' + ev.from + ' → ' + ev.to);
-    RB_SOUND.escape();
+    RB_SOUND.arrive(ev.to, ev.from);
     rbShowCard(face, 'Out of the trap', ev.to, 'The checklist is complete.');
     rbFlash(ev.to);
     rbSelect(ev.to, true);
   } else if (ev.kind === 'trapped') {
     rbSay.innerHTML = '<b>' + RB_BY_N.get(ev.to).name + '.</b> A trap. Counting begins next turn.';
     rbLog('<span class="mono">' + face + '</span> ' + who + ' ' + ev.from + ' → ' + ev.to);
-    RB_SOUND.trap();
+    RB_SOUND.arrive(ev.to, ev.from);
     rbShowCard(face, 'Trapped', ev.to, 'Counting begins next turn.');
     rbFlash(ev.to);
     rbSelect(ev.to, true);
   } else if (ev.kind === 'victory') {
     rbSay.innerHTML = '<b>' + rbGame.players[ev.player].name + ' reaches Nirvana.</b> Victory is declared on arrival. A further 1 or 2 passes the relics into the stupa.';
     rbLog('<span class="mono">' + face + '</span> ' + who + ' wins at 104');
-    RB_SOUND.victory();
+    RB_SOUND.arrive(ev.to, ev.from);
     rbShowCard(face, rbGame.players[ev.player].name + ' wins', ev.to,
       'Nirvana. Beyond the round the rest of the board draws.', true);
     rbFlash(ev.to);
@@ -5146,7 +5117,7 @@ function rbResolve(face) {
   } else {
     rbSay.innerHTML = '<b>' + RB_BY_N.get(ev.to).name + '</b> — square ' + ev.to + '.';
     rbLog('<span class="mono">' + face + '</span> ' + who + ' ' + ev.from + ' → ' + ev.to);
-    RB_SOUND.move();
+    RB_SOUND.arrive(ev.to, ev.from);
     rbShowCard(face, who + ' threw a ' + face, ev.to, null);
     rbFlash(ev.to);
     rbSelect(ev.to, true);
@@ -5332,13 +5303,23 @@ function reframeGame(dur = 700, at = null) {
   const dist = gameRadius(at) * 1.20 / half * h / Math.min(fr.w, fr.h);
   aimAt(HOME.t, dist, fr, HOME_DIR, dur);
 }
+/* On a phone a panel is half the screen, and the model behind it is a model
+   nobody can see. Where the panels take that much, the explorer is framed in
+   what they leave too — not only the maṇḍala and the game. */
+const tightScreen = () => window.matchMedia('(max-width: 700px)').matches;
+function reframeExplore(dur = 420) {
+  const fr = freeRect();
+  const h = Math.max(stage.clientHeight, 1);
+  const half = Math.tan(cam.fov * Math.PI / 360);
+  aimAt(HOME.t, WORLD_R * 1.20 / half * h / Math.min(fr.w, fr.h), fr, HOME_DIR, dur);
+}
 /* Panels open, fold and resize under all three views; the model is framed in
    whatever they leave, so the same answer is asked of whichever one is up. */
 function reframeCurrent(dur = 420) {
   if (mandala) reframeOffering();
   else if (mode === 'game') {
     reframeGame(dur, rbSelected === null ? null : rbBoard.positionOf(rbSelected));
-  }
+  } else if (tightScreen() && !dock.hidden) reframeExplore(dur);
 }
 function enterGame() {
   rbBoard.group.visible = true;
@@ -5364,9 +5345,18 @@ function leaveGame() {
   reshadow();
   invalidate(4);
 }
+const controlsEl = document.querySelector('.controls');
+const MENUS = [...controlsEl.querySelectorAll('.menu')];
+const closeMenus = (except) => MENUS.forEach((m) => { if (m !== except) m.open = false; });
+const MODE_FACE = { explore: ['\u2726', 'Explorer'], mandala: ['\u25ce', 'Mandala'], game: ['\u2684', 'Game'] };
 function syncModeButtons() {
   document.querySelectorAll('[data-mode]').forEach(b =>
     b.setAttribute('aria-pressed', String(b.dataset.mode === mode)));
+  // the closed menu shows the view you are in, not the word "Mode"
+  const face = controlsEl.querySelector('[data-menu="mode"] > .btn');
+  const [glyph, label] = MODE_FACE[mode] || MODE_FACE.explore;
+  face.querySelector('.g').textContent = glyph;
+  face.querySelector('.t').textContent = label;
 }
 function setMode(next) {
   if (next === mode) return;
@@ -5384,9 +5374,19 @@ function setMode(next) {
   invalidate(4);
 }
 
-document.querySelector('.controls').addEventListener('click', (ev) => {
+/* ── the two menus ──────────────────────────────────────────────────────
+   <details> opens and closes them; what is left is closing the one you are
+   not in, closing both when the choice is made or the pointer goes elsewhere,
+   and keeping the mode button showing the view you are actually in. */
+MENUS.forEach((m) => m.addEventListener('toggle', () => { if (m.open) closeMenus(m); }));
+document.addEventListener('pointerdown', (ev) => {
+  if (!ev.target.closest('.controls .menu')) closeMenus();
+}, true);
+
+controlsEl.addEventListener('click', (ev) => {
   const act = ev.target.closest('[data-act],[data-mode]');
-  if (!act) return;
+  if (!act || act.tagName === 'SUMMARY') return;
+  closeMenus();
   if (act.dataset.act === 'index') setOpen(!document.body.classList.contains('index-open'));
   if (act.dataset.mode) setMode(act.dataset.mode);
   if (act.dataset.act === 'motion') setMotion(!motion);
@@ -5484,7 +5484,6 @@ document.addEventListener('webkitfullscreenchange', syncFull);
 /* keep the framing honest as panels open, fold and resize */
 const chromeRO = new ResizeObserver(() => syncChrome());
 chromeRO.observe(noteEl);
-chromeRO.observe(legend);
 chromeRO.observe(tourEl);
 chromeRO.observe(boardEl);
 syncChrome();
@@ -5496,10 +5495,6 @@ window.addEventListener('resize', () => {
   reframe = setTimeout(reframeCurrent, 180);
 });
 document.querySelector('[data-act="close-index"]').addEventListener('click', () => setOpen(false));
-legend.querySelector('.legend-head').addEventListener('click', () => {
-  legend.classList.toggle('closed');
-  legend.querySelector('.chev').innerHTML = legend.classList.contains('closed') ? '&#9650;' : '&#9660;';
-});
 
 let saved = null;
 try { saved = localStorage.getItem('ws-index'); } catch (err) {}
@@ -5563,6 +5558,7 @@ window.addEventListener('keydown', (e) => {
     e.preventDefault(); visitHeap(tourIndex + (e.key === 'ArrowRight' ? 1 : -1)); return;
   }
   if (e.key === 'Escape') {
+    if (MENUS.some((m) => m.open)) { closeMenus(); return; }
     if (mode === 'game' && !rbAsk.hidden) rbCloseAsk();
     else if (document.body.classList.contains('index-open')) setOpen(false);
     else if (!sheet.hidden) close();

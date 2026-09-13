@@ -27,6 +27,7 @@ Click any part to open its entry; drag to orbit, scroll to zoom.
 | `rebirth-game.js` | The rules on their own: dead faces, the two counter traps, victory at 104, and each player's trail. No DOM, no WebGL. |
 | `rebirth-notes.js` | Two entries per square, written for this drawing: the short note and the full one it expands to. The 1977 commentary is not reproduced. |
 | `rebirth-icons.js` | Where each square's field sits on the atlas sheets, and the billboards that carry it in the world. |
+| `rebirth-sound.js` | The voice every square answers in, and the small synthesiser that plays it. |
 | `tests/rebirth-regression.mjs` | Board and rules checks, including the routes the Rules of Play claim. |
 | `three-d-stage.js` | The `<three-d-stage>` custom element it imports: WebGL renderer, studio lighting with a soft ground shadow, orbit controls, an auto-framed camera, and OBJ + MTL / GLB export. |
 | `assets/app-icon/world-system-master.webp` | Gold-and-lapis Meru app-icon artwork; a symbolic emblem. See its source brief in `assets/app-icon/README.md`. |
@@ -82,6 +83,13 @@ separate. Water grades from pale turquoise near the ranges to deeper teal or
 lapis, with crossing swells and a shared 128-pixel ripple normal map. This
 surface detail is static; it catches the existing moving light without adding
 a continuous water animation.
+
+The world casts no shadow on the space around it. It hangs on its own wind with
+nothing under it, so the shadow-catching floor the 3D stage supplies is kept
+down: Meru shadows the continents and the ranges shadow the seas, and nothing
+falls outside the disc. The seas write depth, so the hells and the board's own
+markers hanging beneath the golden ground stay beneath it rather than showing
+through the water.
 
 Each heaven above Meru's summit is drawn the way the painted cosmologies draw
 it: a palace with a gilt roof, standing on a bank of cloud up to Anabhraka —
@@ -221,6 +229,24 @@ card clears itself, but not while it is being read — hovering or tabbing into 
 holds it open. Victory and the stupa throw that follows carry a painting of
 their own: Amitābha, the stupa and the Guru.
 
+### What the board sounds like
+
+Off until asked for, under the board's options, and built from oscillators and
+filtered noise at the moment it sounds — the page still loads no audio and works
+offline. The die clatters as it runs down and settles with the table under it.
+Where a throw ends has a voice, taken from the company the square keeps on the
+board: a drone under the hells, a thin reed for the pretas, a hollow knock for
+the animals, an open fifth for the human world, small bells for the heavens of
+sense desire and a wider, slower one for the realm of form, a held partial that
+only swells for the formless, a gong for the sūtra route and a ḍamaru for the
+mantra route, one horn-call shared by Bön, barbarism and Hinduism, a distant
+roar shared by Mahākāla and the one square that reaches him, an open chord for
+the sacred lands and buddha fields, a measured triple stroke for the acts of a
+buddha's body, and for Nirvāṇa alone everything falling away. Under each of them
+a short rise or fall, read off the row the token left and the row it reached.
+The mapping lives in `rebirth-sound.js` and is covered by the test suite; the
+synthesis needs a real audio clock and is not.
+
 ### Where the players are
 
 Every player stands in the world as well as on the board: a marker in their own
@@ -253,23 +279,30 @@ everything else this project serves.
 
 ## Controls
 
-Every one of them does something:
+Three of them stand on the model, and no more: the index, the view you are in,
+and the settings that belong to no view. The last two open downward into menus,
+so at rest the whole of the page's chrome is one short bar in the corner. The
+title has gone into the head of the index, which was always the way into the
+prose; the four-continent legend has gone with it, since every word of it is in
+the entries the legend sat beside.
 
 | | |
 | --- | --- |
-| **Index** `i` | The drawer of explanatory entries, with a filter. |
-| **Mode** `e` `m` `g` | Explorer, Maṇḍala, Game. Explorer is the model and its index; Maṇḍala is the thirty-seven heaps, in the order the offering names them; Game sets the board of rebirth beside the world. |
+| **Index** `i` | The drawer of explanatory entries, with a filter, headed by the title and the way into *About this drawing*. |
+| **View** `e` `m` `g` | Explorer, Maṇḍala, Game. Explorer is the model and its index; Maṇḍala is the thirty-seven heaps, in the order the offering names them; Game sets the board of rebirth beside the world. |
 | **Board, both or world** `b` | In game mode, what is on the screen: the board alone as a diagram of positions, the board beside the world, or the world alone. Kept between visits. |
 | **Tibetan names** `t` | In game mode, names the squares in Tibetan instead of English wherever they are named in passing. The entry always gives both. |
 | **Board or world** `w` | In game mode on a narrow window, hands the screen from the board to the world and back. Where both fit, they are both already there. |
-| **Motion** `r` | Sets the sun and moon on their circuit around Meru — forty seconds to the day — and lets the view turn slowly with them. The sun is what lights the world, so Meru's shadow walks round the continents with it. Off until asked for, so the model holds still while it is being read. |
+| **Options** | Motion, night, full screen and reset view, under one control. |
+| **Motion** `r` | Sets the sun and moon on their circuit around Meru — forty seconds to the day — and lets the view turn slowly with them. The sun is what lights the world, so Meru's shadow walks round the continents with it. The moon does not stand opposite it — directly behind Meru it would sit in the mountain's own shadow and never be lit at all — so it runs a little under a half-turn away. Off until asked for, so the model holds still while it is being read. |
 | **Night** `n` | Paper or dark. At night the moon takes over the lighting, and the clouds stand against a faint field of stars. |
+| **Sound** | In game mode, under the board's own options. Off until asked for, like motion. |
 | **Full screen** `f` | Hidden where the platform has none to give: iOS Safari, and any window already running as an installed app. |
 | **Reset view** `Esc` | Disabled when there is nothing to undo. |
 
-The title opens **About this drawing** (`a`) — what this is, how to read it, and
-what the colours mean. That, and every other word of prose, lives in the sheet
-with the entries rather than standing on the model.
+The title at the head of the index opens **About this drawing** (`a`) — what this
+is, how to read it, and what the colours mean. That, and every other word of
+prose, lives in the sheet with the entries rather than standing on the model.
 
 The one thing that does stand on it is a small compass rose, bottom right, which
 turns with the view so that north can be found without turning the world to look
