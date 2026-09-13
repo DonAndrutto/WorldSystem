@@ -88,6 +88,36 @@ brief, simplified ring count, and export details are recorded in
 [the app-icon notes](assets/app-icon/README.md). The interactive model retains
 all seven golden ranges. The emblem is used for home-screen and browser icons.
 
+## The fields of the board of liberation
+
+Each of the 104 squares of the board of rebirth carries the field it is drawn
+as on the printed board — a coloured ring, a cartouche, a continent's own
+outline, a mountain, a temple, a ribbon — together with one closing painting,
+*Amitābha, the stupa and the Guru*, for the end of the game. They were supplied
+for this project as 105 source PNGs with transparent grounds, and they live in
+the repository at `assets/Game of Liberation English titles/`.
+
+`node scripts/build-square-art.cjs` turns them into what the page serves. Each
+painting is cropped to the pixels it actually draws — the sources carry wide and
+uneven transparent margins — then set in the middle of a 320-pixel square cell
+with an even border, so every square's field reads at the same size wherever it
+is shown. The cells are laid out four across and at most seven down in square
+order, which gives four WebP sheets of about 1.4 MB in total: three of 4 × 7 and
+one of 4 × 5. The closing painting keeps its own file and its own proportions.
+Nothing is fetched until game mode is first opened, and a sheet that fails can
+be retried on its own.
+
+A field is shown four ways: as the cell's own ground on the 2D board, with the
+square's name set inside it; on a billboard at the square's marker in the world,
+turning to face the camera; in the entry in the drawer; and on the card that
+announces a throw. The closing painting appears only on the card that declares
+victory and on the stupa throw that follows it.
+
+The Tibetan name of every square was supplied with the artwork and is recorded
+in `rebirth-board.js` beside the English titles, keyed by square number. The two
+sets of names are independent: the app shows one or the other in passing, and
+both in the entry.
+
 ## Cloud and sky treatment
 
 The cloud renderer was revised using the two reference images supplied by the

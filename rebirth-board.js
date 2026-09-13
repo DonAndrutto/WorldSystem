@@ -30,6 +30,118 @@ export const FACES = ['one', 'two', 'three', 'four', 'five', 'six'];
 
 export const BY_N = new Map(SQUARES.map(s => [s.n, s]));
 
+/* The name each square carries on the printed board, in Tibetan. Supplied
+   with the board's own artwork and keyed by square number, so the English
+   titles above and these stay independent of one another. Shown wherever a
+   square is named once the Tibetan names are switched on. */
+export const TIBETAN = {
+  1: 'རྡོ་རྗེ་དམྱལ་བ།',
+  2: 'མནར་མེད་དམྱལ་བ།',
+  3: 'ཚ་དང་རབ་དུ་ཚ་བ།',
+  4: 'དུ་འབོད་ཆེ་ཆུང་།',
+  5: 'ཐིག་བསྡུས།',
+  6: 'ཡང་སོས།',
+  7: 'གྲང་དམྱལ།',
+  8: 'ཉི་ཚེ་དམྱལ་བ།',
+  9: 'ཤི་རྗེ།',
+  10: 'ཡི་དྭག',
+  11: 'བདུད་འགྲོ་ཕལ་པ།',
+  12: 'ལྷའི་དུད་འགྲོ།',
+  13: 'ཀླུའི་འཇིག་རྟེན།',
+  14: 'སྲིན་པོའི་གླིང་།',
+  15: 'ལྷ་མ་ཡིན།',
+  16: 'རུ་དྲ་ཐར་པ་ནག་པོ།',
+  17: 'འཛམ་བུ་གླིང་།',
+  18: 'བ་ལང་སྤྱོད།',
+  19: 'ལུས་འཕགས་པོ།',
+  20: 'སྒྲ་མི་སྙན།',
+  21: 'ཀླ་ཀློ།',
+  22: 'མུ་རྟེགས།',
+  23: 'བོན་པོ།',
+  24: 'ལྷའི་ལམ་ཆེན།',
+  25: 'སྔགས་ལ་བཞུགས་རྩ་མ།',
+  26: 'འཁོར་ལོའི་གྱུར་རྒྱལ་ཕལ་པ།',
+  27: 'རྒྱལ་ཆེན་བཞིའི་ལྷ།',
+  28: 'བསུམ་བཅུ་རྩ་གསུམ།',
+  29: 'ཐབ་བྲལ།',
+  30: 'དགའ་ལྡན།',
+  31: 'འཕྲུལ་དགའ།',
+  32: 'གཞན་འཕྲུལ་དབང་བྱེད།',
+  33: 'སྔགས་ཚོགས་ལམ་ཆུང་བ།',
+  34: 'མ་ཧཱ་ཀ་ལ།',
+  35: 'གཟུགས་ཁམས།',
+  36: 'གཟུགས་མེད་ཁམས།',
+  37: 'གནད་གཙང་མ།',
+  38: 'ཉན་ཐོས་ཚོགས་ལམ།',
+  39: 'ཉན་ཐོས་སྦྱོར་ལམ།',
+  40: 'ཉན་ཐོས་མཐོང་སྒོམ།',
+  41: 'སྔགས་ཚོགས་ལམ་འབྲིང་པོ།',
+  42: 'སྔགས་ཚོགས་ལམ་ཆེན་པོ།',
+  43: 'རང་རྒྱལ་ཚོགས་ལམ།',
+  44: 'རང་རྒྱལ་སྦྱོར་ལམ།',
+  45: 'རང་རྒྱལ་མཐོང་ལམ།',
+  46: 'རང་རྒྱལ་སྒོམ་ལམ།',
+  47: 'རང་རྒྱལ་དགྲ་བཅོམ།',
+  48: 'ཉན་ཐོས་འགོག་པ།',
+  49: 'སྔགས་སྦྱོར་ལམ་གྲོད།',
+  50: 'སྔགས་སྦྱོར་ལམ་རྩེ་མོ།',
+  51: 'ཉན་ཐོས་དགྲ་བཅོམ།',
+  52: 'ཐེག་ཆེན་ཚོགས་ལམ་ཆུང་བ།',
+  53: 'ཐེག་ཆེན་ཚོགས་ལམ་འབྲིང་པོ།',
+  54: 'ཐེག་ཆེན་ཚོགས་ལམ་ཆེན་པོ།',
+  55: 'ཐེག་ཆེན་སྦྱོར་ལམ་གྲོད།',
+  56: 'ཐེག་ཆེན་སྦྱོར་ལམ་རྩེ་མོ།',
+  57: 'སྔགས་སྦྱོར་ལམ་བཟོད་པ།',
+  58: 'སྔགས་སྦྱོར་ལམ་ཆོས་མཆོག།',
+  59: 'ཤམ་བྷ་ལ།',
+  60: 'པོ་ཊ་ལ།',
+  61: 'ཨུ་རྒྱན།',
+  62: 'མུ་རྟེག་རིག་འཛིན།',
+  63: 'ཐེག་ཆེན་སྦྱོར་ལམ་བཟོད་པ།',
+  64: 'ཐེག་ཆེན་སྦྱོར་ལམ་ཆོས་མཆོག',
+  65: 'བོན་ཀྱི་རིག་འཛིན།',
+  66: 'ཐེག་ས་དང་པོ།',
+  67: 'འདོད་ལྷའི་རིག་འཛིན།',
+  68: 'གཟུགས་ཀྱི་རིག་འཛིན།',
+  69: 'སྔགས་ཀྱི་འཁོར་ལོ་གྱུར་རྒྱལ།',
+  70: 'ལས་རབ་རྫོགས།',
+  71: 'མདོ་ས་དང་པོ།',
+  72: 'སྒྲུབ་བརྒྱད་རིག་འཛིན།',
+  73: 'སྔགས་ས་གཉིས་པ།',
+  74: 'སྔགས་ས་གསུམ་པ།',
+  75: 'སྔགས་ས་བཞི་པ།',
+  76: 'རིན་ཆེན་རྩེགས་པ།',
+  77: 'བདེ་བ་ཆེན།',
+  78: 'མདོ་ས་བཞི་པ།',
+  79: 'མདོ་ས་གསུམ་པ།',
+  80: 'མདོ་ས་གཉིས་པ།',
+  81: 'སྔགས་ས་ལྔ་པ།',
+  82: 'སྔགས་ས་དྲུག་པ།',
+  83: 'སྔགས་ས་བདུན་པ།',
+  84: 'འོག་མིན་ཆུང་ངུ་།',
+  85: 'མངོན་པར་དགའ་བ།',
+  86: 'མདོ་ས་བདུན་པ།',
+  87: 'མདོ་ས་དྲུག་པ།',
+  88: 'མདོ་ས་ལྔ་པ།',
+  89: 'སྔགས་ས་བརྒྱད་པ།',
+  90: 'སྔགས་ས་དགུ་པ།',
+  91: 'སྔགས་ས་དཅུ་པ།',
+  92: 'ལོངས་སྐུ་ཆེན་པོ།',
+  93: 'ཆོས་སྐུ་ཆེན་པོ།',
+  94: 'མདོ་ས་བཅུ་པ།',
+  95: 'མདོ་ས་དགུ་པ།',
+  96: 'མདོ་ས་བརྒྱད་པ།',
+  97: 'སྐུ་སྟམས་པ།',
+  98: 'རབ་ཏུ་བྱུང་བ།',
+  99: 'དཀའ་ཐུབ་མཛོད་པ།',
+  100: 'བདུད་བརྟུལ་བ།',
+  101: 'སངས་རྒྱས་པ།',
+  102: 'ཆོས་འཁོར་བསྐོར་བ།',
+  103: 'ཆོ་འཕྲུལ་རྟན་པ།',
+  104: 'མྱ་ངན་ལས་འདས་པ།'
+};
+export const tibetanOf = (n) => TIBETAN[n] || '';
+
 export const ZONES = [
   ['lower', 'The lower realms'], ['human', 'The human world'], ['heaven', 'The heavens'],
   ['shravaka', 'Disciples and Independent Buddhas'], ['sutra', 'The Mahayana sutra path'],
@@ -111,26 +223,59 @@ export function createBoardLayer(THREE, ctx) {
   const plinthGeo = new THREE.CylinderGeometry(ctx.SUMMIT * 0.036, ctx.SUMMIT * 0.040, ctx.SUMMIT * 0.008, 12);
   const plinthMat = new THREE.MeshStandardMaterial({ color: 0xb08d3f, roughness: 0.5, metalness: 0.55 });
 
+  /* Nirvana is not another square higher up the spiral. It is outside the
+     round of birth the rest of the board draws, so it is drawn outside the
+     model: on the axis, clear above the formless absorptions, with nothing
+     between it and the top of the frame. Its plinth is an open ring rather
+     than a floor, because there is nothing there to stand on. */
+  const beyondMat = new THREE.MeshBasicMaterial({
+    color: 0xf1e3bb, transparent: true, opacity: 0.92, side: THREE.DoubleSide, depthWrite: false
+  });
+  const BEYOND_Y = ctx.SUMMIT * 4.3;    // clear of the formless absorptions
+
   const nodes = new Map();
   for (const s of SQUARES) {
+    const beyond = s.n === VICTORY;
     const holder = new THREE.Group();
     holder.name = 'rebirth_node_' + s.n;
-    const mark = new THREE.Mesh(markGeo, mats[s.band]);
+    const mark = new THREE.Mesh(markGeo, beyond ? beyondMat : mats[s.band]);
     mark.name = 'rebirth_square_' + s.n;
     mark.userData.square = s.n;
     mark.castShadow = false;
     mark.receiveShadow = false;
     mark.position.y = ctx.SUMMIT * 0.030;
+    if (beyond) mark.scale.setScalar(3.2);
     holder.add(mark);
-    const plinth = new THREE.Mesh(plinthGeo, plinthMat);
+    const plinth = beyond
+      ? new THREE.Mesh(new THREE.RingGeometry(ctx.SUMMIT * 0.24, ctx.SUMMIT * 0.285, 64), beyondMat)
+      : new THREE.Mesh(plinthGeo, plinthMat);
     plinth.name = 'rebirth_plinth_' + s.n;
+    if (beyond) plinth.rotation.x = -Math.PI / 2;
+    plinth.castShadow = false;
     holder.add(plinth);
+    if (beyond) {
+      // a second, wider ring, so that the place reads as open rather than empty
+      for (const [inner, outer, opacity] of [[0.46, 0.49, 0.5], [0.72, 0.735, 0.3]]) {
+        const aura = new THREE.Mesh(
+          new THREE.RingGeometry(ctx.SUMMIT * inner, ctx.SUMMIT * outer, 72),
+          new THREE.MeshBasicMaterial({ color: 0xf1e3bb, transparent: true, opacity,
+            side: THREE.DoubleSide, depthWrite: false })
+        );
+        aura.name = 'rebirth_square_' + s.n;
+        aura.userData.square = s.n;
+        aura.rotation.x = -Math.PI / 2;
+        aura.castShadow = false;
+        holder.add(aura);
+      }
+    }
     const hit = new THREE.Mesh(pickGeo, pick);
     hit.name = 'rebirth_square_' + s.n;
     hit.userData.square = s.n;
     hit.userData.pickOnly = true;
+    if (beyond) hit.scale.setScalar(2.4);
     holder.add(hit);
-    if (!s.anchor) {
+    if (beyond) holder.position.set(0, BEYOND_Y, 0);
+    else if (!s.anchor) {
       const p = seamPosition(s, ctx);
       holder.position.set(p.x, p.y, p.z);
     }
@@ -152,33 +297,45 @@ export function createBoardLayer(THREE, ctx) {
       color: colour, roughness: 0.3, metalness: 0.45,
       emissive: colour.clone().multiplyScalar(0.45)
     });
-    const stemH = ctx.SUMMIT * 0.16;
-    const stem = new THREE.Mesh(new THREE.CylinderGeometry(ctx.SUMMIT * 0.006, ctx.SUMMIT * 0.008, stemH, 6), skin);
+    const stemH = ctx.SUMMIT * 0.30;
+    const stem = new THREE.Mesh(new THREE.CylinderGeometry(ctx.SUMMIT * 0.009, ctx.SUMMIT * 0.013, stemH, 8), skin);
     stem.position.y = stemH / 2;
-    const head = new THREE.Mesh(new THREE.SphereGeometry(ctx.SUMMIT * 0.038, 16, 12), skin);
-    head.position.y = stemH + ctx.SUMMIT * 0.030;
+    const head = new THREE.Mesh(new THREE.SphereGeometry(ctx.SUMMIT * 0.062, 20, 14), skin);
+    head.position.y = stemH + ctx.SUMMIT * 0.048;
     // a flag off the head, so the marker reads as a marker from any angle
-    const flag = new THREE.Mesh(new THREE.ConeGeometry(ctx.SUMMIT * 0.030, ctx.SUMMIT * 0.072, 4), skin);
-    flag.position.set(ctx.SUMMIT * 0.030, stemH + ctx.SUMMIT * 0.030, 0);
+    const flag = new THREE.Mesh(new THREE.ConeGeometry(ctx.SUMMIT * 0.050, ctx.SUMMIT * 0.118, 4), skin);
+    flag.position.set(ctx.SUMMIT * 0.050, stemH + ctx.SUMMIT * 0.048, 0);
     flag.rotation.z = -Math.PI / 2;
+    /* A column of the player's own colour standing over the square. Against a
+       model this busy nothing smaller can be found at a glance, and finding
+       where everyone stands is most of what the board is for. */
+    const beam = new THREE.Mesh(
+      new THREE.CylinderGeometry(ctx.SUMMIT * 0.020, ctx.SUMMIT * 0.020, ctx.SUMMIT * 2.4, 10, 1, true),
+      new THREE.MeshBasicMaterial({ color: colour, transparent: true, opacity: 0.17,
+        side: THREE.DoubleSide, depthWrite: false })
+    );
+    beam.position.y = ctx.SUMMIT * 1.2;
+    beam.renderOrder = 8;
     const ring = new THREE.Mesh(
-      new THREE.RingGeometry(ctx.SUMMIT * 0.052, ctx.SUMMIT * 0.076, 24),
-      new THREE.MeshBasicMaterial({ color: colour, transparent: true, opacity: 0.62, side: THREE.DoubleSide,
-        depthWrite: false })
+      new THREE.RingGeometry(ctx.SUMMIT * 0.075, ctx.SUMMIT * 0.115, 32),
+      new THREE.MeshBasicMaterial({ color: colour, transparent: true, opacity: 0.75, side: THREE.DoubleSide,
+        depthWrite: false, depthTest: false })
     );
     ring.rotation.x = -Math.PI / 2;
     ring.position.y = ctx.SUMMIT * 0.002;
+    ring.renderOrder = 9;
     // the player whose turn it is carries a second, wider ring
     const halo = new THREE.Mesh(
-      new THREE.RingGeometry(ctx.SUMMIT * 0.090, ctx.SUMMIT * 0.108, 28),
-      new THREE.MeshBasicMaterial({ color: colour, transparent: true, opacity: 0.5, side: THREE.DoubleSide,
-        depthWrite: false })
+      new THREE.RingGeometry(ctx.SUMMIT * 0.140, ctx.SUMMIT * 0.172, 40),
+      new THREE.MeshBasicMaterial({ color: colour, transparent: true, opacity: 0.6, side: THREE.DoubleSide,
+        depthWrite: false, depthTest: false })
     );
     halo.rotation.x = -Math.PI / 2;
     halo.position.y = ctx.SUMMIT * 0.002;
+    halo.renderOrder = 9;
     halo.visible = false;
-    holder.add(stem, head, flag, ring, halo);
-    holder.userData = { player: i, halo, head, skin };
+    holder.add(stem, head, flag, beam, ring, halo);
+    holder.userData = { player: i, halo, head, beam, skin };
     group.add(holder);
     return holder;
   });
@@ -198,7 +355,7 @@ export function createBoardLayer(THREE, ctx) {
       const n = seen.get(player.pos) || 0;
       seen.set(player.pos, n + 1);
       const total = crowd.get(player.pos) || 1;
-      const spread = total > 1 ? ctx.SUMMIT * 0.075 : 0;
+      const spread = total > 1 ? ctx.SUMMIT * 0.13 : 0;
       const angle = (n / Math.max(1, total)) * Math.PI * 2;
       holder.position.set(at.x + Math.cos(angle) * spread, at.y, at.z + Math.sin(angle) * spread);
       holder.userData.halo.visible = player.i === turn;
@@ -241,7 +398,7 @@ export function createBoardLayer(THREE, ctx) {
   // Anchored squares need the live scene to tell them where their subject is.
   function placeAnchored(positionOfEntry) {
     for (const s of SQUARES) {
-      if (!s.anchor) continue;
+      if (!s.anchor || s.n === VICTORY) continue;
       const p = positionOfEntry(s.anchor);
       const holder = nodes.get(s.n);
       if (p) holder.position.set(p.x, p.y + ctx.SUMMIT * 0.055, p.z);

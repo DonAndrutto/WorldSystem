@@ -15,13 +15,28 @@ const rbBoard = await import(pathToFileURL(repo + '/rebirth-board.js'));
 const rbGame = await import(pathToFileURL(repo + '/rebirth-game.js'));
 const {SQUARE_NOTES, SQUARE_FULL} = await import(pathToFileURL(repo + '/rebirth-notes.js'));
 const rbIcons = await import(pathToFileURL(repo + '/rebirth-icons.js'));
-// No square is painted yet. Register two stubs before the page is built, so
-// the slot that the artwork will one day use is exercised rather than assumed.
-assert.equal(rbIcons.SQUARE_ART.size, 0, 'the project ships with no square artwork');
-rbIcons.registerSquareArt([
-  [17, 'assets/test-squares.webp', 0, 'a stub, for the test only'],
-  [20, 'assets/test-squares.webp', 5, 'a second stub on the same sheet']
-]);
+// Every square is painted: the field it is drawn as on the board, served as
+// four atlas sheets that the module lays out from the square numbers alone.
+assert.equal(rbIcons.SQUARE_ART.size, 104, 'every square has its field');
+assert.equal(rbIcons.artSheets().length, 4, 'in four sheets');
+for (const n of [1, 28, 29, 84, 85, 104]) {
+  const art = rbIcons.SQUARE_ART.get(n);
+  assert.equal(art.sheet, 'assets/rebirth/squares-'
+    + (Math.floor((n - 1) / rbIcons.SQUARES_PER_SHEET) + 1) + '.webp', 'square ' + n + ' on its sheet');
+  assert.equal(art.cell, (n - 1) % rbIcons.SQUARES_PER_SHEET, 'and in its cell');
+  assert.ok(fs.existsSync(repo + '/' + art.sheet), art.sheet + ' is served');
+}
+assert.ok(fs.existsSync(repo + '/' + rbIcons.LIBERATION_ART.url), 'and the closing painting with it');
+// A percentage background position aligns the same fraction of the sheet with
+// that fraction of the box, so a cell's share is its index over one less than
+// the count. The last sheet is not full and has to answer to that.
+assert.equal(rbIcons.sheetRows(rbIcons.SQUARE_ART.get(1)), 7);
+assert.equal(rbIcons.sheetRows(rbIcons.SQUARE_ART.get(104)), 5);
+assert.equal(rbIcons.cellBackground(rbIcons.SQUARE_ART.get(1)).position, '0% 0%');
+assert.equal(rbIcons.cellBackground(rbIcons.SQUARE_ART.get(28)).position, '100% 100%');
+assert.equal(rbIcons.cellBackground(rbIcons.SQUARE_ART.get(104)).position, '100% 100%');
+assert.equal(rbIcons.cellBackground(rbIcons.SQUARE_ART.get(5)).position,
+  '0% ' + (1 / 6 * 100) + '%', 'the second row of seven is a sixth of the way down');
 const html = fs.readFileSync(repo + '/index.html', 'utf8');
 const source = html.match(/<script type="module">([\s\S]*?)<\/script>/)[1].replace(/^import .*;\n/gm, '');
 const dom = new JSDOM(html, {url:'https://example.org/WorldSystem/', runScripts:'outside-only', pretendToBeVisual:true});
@@ -37,6 +52,7 @@ Object.assign(window, {createOfferingModels, OFFERING_ART, TOUR_NOTES, installVi
   RB_VARIANTS: rbBoard.VARIANTS, rbZoneOf: rbBoard.zoneOf, SQUARE_NOTES, SQUARE_FULL,
   RB_COLOURS: rbBoard.PLAYER_COLOURS, SQUARE_ART: rbIcons.SQUARE_ART,
   cellBackground: rbIcons.cellBackground, createSquareArt: rbIcons.createSquareArt,
+  LIBERATION_ART: rbIcons.LIBERATION_ART, rbTibetan: rbBoard.tibetanOf,
   createGame: rbGame.createGame, throwDie: rbGame.throwDie,
   rbView: rbGame.view, rbDestination: rbGame.destination
 });
@@ -383,42 +399,77 @@ for (const el of [boardEl, ...q('.panel-dock').children]) {
     cls + ' is on the overlay but never gets pointer events back');
 }
 
-/* The iconography slot. No square is painted yet; two stubs were registered
-   before the page was built, and what has to be true of them is what will have
-   to be true of the artwork when it exists. */
-for (const n of [17, 20]) {
+/* The fields. Every square is drawn as the field it carries on the printed
+   board: its own ground in the cell, and a billboard on its marker in the
+   world. The sheets are fetched when game mode is first opened and not
+   before, and each can fail and be retried on its own. */
+for (const n of [1, 17, 59, 84, 104]) {
   const icon = cellOf(n).querySelector('.bv-icon');
-  assert.ok(icon,'square '+n+' has somewhere to put a picture');
-  assert.equal(icon.hidden,false,'and shows the one it has');
-  assert.match(icon.style.backgroundImage,/test-squares\.webp/);
-  assert.ok(icon.style.backgroundPosition,'positioned on its sheet');
-  assert.match(cellOf(n).title,/stub/,'the attribution rides with it');
+  assert.ok(icon,'square '+n+' has somewhere to put its field');
+  assert.equal(icon.hidden,false,'and shows it');
+  assert.equal(icon.style.backgroundImage,'url("'+rbIcons.SQUARE_ART.get(n).sheet+'")');
+  assert.equal(icon.style.backgroundPosition,
+    rbIcons.cellBackground(rbIcons.SQUARE_ART.get(n)).position,'where the sheet says');
+  assert.match(cellOf(n).title,/field/,'the attribution rides with it');
   const plane = app.rbArt.planes.get(n);
   assert.ok(plane,'and a billboard in the world');
   assert.equal(plane.parent,app.rbBoard.nodes.get(n),'on that square\'s marker');
 }
-assert.equal(cellOf(17).querySelector('.bv-icon').style.backgroundPosition,
-             rbIcons.cellBackground(rbIcons.SQUARE_ART.get(17)).position,'cell 0 sits where the sheet says');
-assert.notEqual(cellOf(20).querySelector('.bv-icon').style.backgroundPosition,
-                cellOf(17).querySelector('.bv-icon').style.backgroundPosition,'and cell 5 elsewhere');
-for (const n of [18, 59]) {
-  assert.equal(cellOf(n).querySelector('.bv-icon').hidden,true,'an unpainted square shows nothing');
-  assert.equal(app.rbArt.planes.get(n),undefined,'and carries no billboard');
-}
-// One sheet, fetched once, when game mode is first opened.
-assert.deepEqual(app.rbArt.states(),['loading'],'the sheet is requested, not sooner');
-const artRequest = textureRequests.at(-1);
-assert.match(artRequest.url,/test-squares\.webp/);
-artRequest.success(new THREE.Texture());
-assert.deepEqual(app.rbArt.states(),['ready']);
-for (const n of [17, 20]) {
+assert.equal([...boardEl.querySelectorAll('.bv-icon:not([hidden])')].length,104,'all 104 fields');
+assert.equal(app.rbArt.planes.size,104,'and 104 billboards');
+assert.notEqual(cellOf(1).querySelector('.bv-icon').style.backgroundPosition,
+                cellOf(5).querySelector('.bv-icon').style.backgroundPosition,'no two cells share a place');
+// Four sheets, fetched once, when game mode is first opened.
+assert.deepEqual(app.rbArt.states(),['loading','loading','loading','loading'],'requested, not sooner');
+const artRequests = textureRequests.slice(-4);
+assert.deepEqual(artRequests.map(r=>r.url).sort(),rbIcons.artSheets().slice().sort());
+artRequests[0].failure();
+assert.deepEqual(app.rbArt.states(),['failed','loading','loading','loading']);
+app.rbArt.load();
+assert.equal(textureRequests.length-4-artRequests.length+4,textureRequests.length-4,'only the failed sheet again');
+textureRequests.at(-1).success(new THREE.Texture());
+artRequests.slice(1).forEach(r=>r.success(new THREE.Texture()));
+assert.deepEqual(app.rbArt.states(),['ready','ready','ready','ready']);
+for (const n of [1, 104]) {
   const plane = app.rbArt.planes.get(n);
-  assert.ok(plane.material.map,'the picture reaches the billboard');
+  assert.ok(plane.material.map,'the painting reaches the billboard');
   assert.equal(plane.material.opacity,1);
 }
 // Billboards face the camera, like the offering illustrations do.
 app.rbArt.face(app.cam);
 assert.ok(app.rbArt.planes.get(17).quaternion.angleTo(app.cam.quaternion)<1e-6);
+
+/* Every square carries its Tibetan name as well, and one switch puts those
+   names in place of the English ones wherever a square is named in passing.
+   The entry in the drawer gives both, always. */
+assert.equal(Object.keys(rbBoard.TIBETAN).length,104,'a Tibetan name for every square');
+for (const sq of rbBoard.SQUARES) {
+  assert.ok(rbBoard.tibetanOf(sq.n).length>1,'square '+sq.n+' is named in Tibetan');
+  assert.equal(cellOf(sq.n).querySelector('.tb').textContent,rbBoard.tibetanOf(sq.n));
+  assert.equal(app.E['rebirth_sq_'+sq.n].tib,rbBoard.tibetanOf(sq.n),'and in its entry');
+}
+assert.ok(!document.body.classList.contains('tibetan-names'),'English to begin with');
+key('t'); advance(200);
+assert.ok(document.body.classList.contains('tibetan-names'),'t turns the Tibetan names on');
+assert.equal(q('[data-game="tibetan"]').getAttribute('aria-pressed'),'true');
+key('t'); advance(200);
+assert.ok(!document.body.classList.contains('tibetan-names'));
+
+/* Three arrangements of the same game: the board beside the world, the world
+   alone, and the board alone — the 2D reading, with no model behind it. */
+const layoutOf = () => document.body.classList.contains('board-only') ? 'board'
+  : document.body.classList.contains('world-only') ? 'world' : 'both';
+assert.equal(layoutOf(),'both','both to begin with');
+assert.equal(q('[data-layout="both"]').getAttribute('aria-pressed'),'true');
+q('[data-layout="board"]').click(); advance(600);
+assert.equal(layoutOf(),'board','the board alone, as a diagram of positions');
+assert.equal(q('[data-layout="board"]').getAttribute('aria-pressed'),'true');
+assert.equal(q('.rb-players').hidden,true,'nothing is named over a model that is not shown');
+q('[data-layout="world"]').click(); advance(600);
+assert.equal(layoutOf(),'world','and the world alone, at any width');
+key('b'); advance(600);
+assert.equal(layoutOf(),'both','b cycles round');
+assert.equal(q('.rb-players').hidden,false);
 
 // Every player stands in the world, in their own colour, and the one holding
 // the die is ringed. A single travelling token could not say who was where.
@@ -443,6 +494,46 @@ for (const n of [30, 59, 104]) {
 assert.equal(app.rbGame().players[0].pos,app.rbGame().players[1].pos,'both start on 24');
 assert.ok(app.rbBoard.tokens[0].position.distanceTo(app.rbBoard.tokens[1].position)>0,
   'and do not occupy the same point');
+// and each is named where they stand, in their own colour
+const playerChips = [...q('.rb-players').children];
+assert.equal(playerChips.length,4,'a chip for every possible player');
+assert.equal(playerChips.filter(c=>!c.hidden).length,2,'two players, two chips');
+for (const [i,chip] of playerChips.slice(0,2).entries()) {
+  assert.equal(chip.style.getPropertyValue('--pc'),rbBoard.PLAYER_COLOURS[i],'in their own colour');
+  assert.equal(chip.querySelector('.who').textContent,app.rbGame().players[i].name);
+  assert.equal(chip.querySelector('.sq').textContent,String(app.rbGame().players[i].pos));
+}
+assert.ok(playerChips[0].classList.contains('turn'),'the one holding the die is marked');
+// the entry shows the field too, the way it shows an offering's painting
+app.show('rebirth_sq_17',false); advance(300);
+assert.equal(q('.entry-art').hidden,false,'a square\'s entry shows its field');
+assert.ok(q('.entry-art').classList.contains('field'));
+assert.equal(q('.entry-art > div').style.backgroundImage,'url("'+rbIcons.SQUARE_ART.get(17).sheet+'")');
+assert.equal(q('.entry-art > div').style.backgroundPosition,
+  rbIcons.cellBackground(rbIcons.SQUARE_ART.get(17)).position);
+assert.match(q('.sheet .sub').innerHTML,/འཛམ/,'and names it in Tibetan');
+app.close(); advance(300);
+assert.ok(!playerChips[1].classList.contains('turn'));
+
+/* Nirvana is not the last square of the round but the one outside it: on the
+   axis, clear above everything the model draws, and drawn as open rings
+   rather than something to stand on. */
+const nirvana = app.rbBoard.nodes.get(104);
+assert.ok(Math.hypot(nirvana.position.x,nirvana.position.z)<1e-9,'Nirvana stands on the axis');
+const modelTop = (() => {
+  const box = new THREE.Box3();
+  app.world.traverse(o=>{ if(o.isMesh && !/^rebirth_/.test(o.name)) box.expandByObject(o); });
+  return box.max.y;
+})();
+assert.ok(nirvana.position.y>modelTop,'and above the whole world system');
+for (const n of [103, 93]) {
+  assert.ok(nirvana.position.y>app.rbBoard.nodes.get(n).position.y*1.5,
+    'well clear of square '+n+', which is still inside the round');
+}
+const nirvanaParts = []; nirvana.traverse(o=>{ if(o.isMesh) nirvanaParts.push(o); });
+assert.ok(nirvanaParts.some(m=>m.geometry.type==='RingGeometry'),'an open ring, not a floor');
+assert.ok(!nirvanaParts.some(m=>m.geometry.type==='CylinderGeometry'),'and nothing to stand on');
+assert.ok(cellOf(104).hasAttribute('data-victory'),'and its cell is set apart');
 
 // A loaded die, so the printed moves can be played through the board.
 let face = 1;
@@ -491,12 +582,22 @@ assert.ok(!q('.die-face').classList.contains('tumbling'),'the die has stopped');
 assert.equal(q('.bv-card').hidden,false,'the destination is announced');
 assert.equal(q('.bv-card .num').textContent,'27');
 assert.equal(q('.bv-card .nm').textContent,rbBoard.BY_N.get(27).name,'by name, in full');
+assert.equal(q('.bv-card .tb').textContent,rbBoard.tibetanOf(27),'and in Tibetan under it');
+assert.equal(q('.bv-card-art').hidden,false,'with the field the square is drawn as');
+assert.equal(q('.bv-card-art').style.backgroundImage,'url("'+rbIcons.SQUARE_ART.get(27).sheet+'")');
+assert.equal(q('.bv-card-end').hidden,true,'the closing painting is for the end');
+// The whole passage is one click away, and the card waits while it is read.
+assert.equal(q('.bv-card-more').hidden,false,'the entry is offered from the card');
 advance(3000);
-assert.equal(q('.bv-card').hidden,true,'and the card clears itself');
+assert.equal(q('.bv-card').hidden,false,'a card long enough to read is still up');
+q('.bv-card-more').click(); advance(600);
+assert.equal(app.state().current,'rebirth_sq_27','the card opens the square\'s entry');
+assert.equal(q('.sheet .more').open,true,'with the full passage already unfolded');
+assert.equal(q('.bv-card').hidden,true,'and stands down as it goes');
+app.close(); advance(300);
 assert.equal(cellOf(27).querySelector('.bv-tok')!==null,true,'the token moved with it');
 assert.equal(cellOf(rbBoard.START).querySelector('.bv-tok'),null,'and left the square behind');
 assert.equal(cellOf(27).getAttribute('aria-selected'),'true','the arrival is the selection');
-assert.equal(app.state().current,null,'a throw does not open the drawer');
 
 // The karmic trail is the one thing a position cannot say.
 const chips = () => [...boardEl.querySelectorAll('.bv-chip')];
@@ -583,6 +684,11 @@ assert.deepEqual(app.rbGame().players[0].history.slice(-2),
 app.rbGame().players[0].pos = 103;
 throwFace(1);
 assert.equal(app.rbGame().winner,0);
+// the end of the game has a painting of its own, and no square to sit on
+assert.equal(q('.bv-card .num').textContent,'104');
+assert.equal(q('.bv-card .tb').textContent,rbBoard.tibetanOf(104));
+assert.equal(q('.bv-card-end').hidden,false,'victory carries the closing painting');
+assert.match(q('.bv-card-end').getAttribute('src'),/liberation\.webp$/);
 assert.equal(q('[data-game="throw"]').textContent,'Stupa throw');
 throwFace(5);
 assert.equal(app.rbGame().winner,0,'the rite cannot change the winner');
@@ -683,8 +789,14 @@ console.log(JSON.stringify({result:'PASS',heaps:37,illustrations:24,triangles,at
    + 'turn, the counter trap end to end, victory and its rite, the board/world swap, silence until asked, pointer events on '
    + 'every overlay panel, and the Escape cascade. The throw: a die that keeps its answer until it stops, cannot be '
    + 'thrown twice at once, announces where it landed, and resolves at once under reduced motion. A standing marker '
-   + 'for every player, ringed for whoever holds the die and fanned apart when they share a square. The iconography '
-   + 'slot proved with two stubs: cell, billboard, sheet fetched once and only in game mode. One rising spiral in the '
+   + 'for every player, ringed for whoever holds the die, fanned apart when they share a square, and named where they '
+   + 'stand in their own colour. All 104 fields: the painting as the cell\'s own ground and as a billboard in the world, '
+   + 'four sheets fetched once and only in game mode, one failing and retried alone, and the cell arithmetic that a '
+   + 'sheet of seven rows and a sheet of five both have to answer to. A Tibetan name on every square — in the cell, the '
+   + 'card and the entry — and the switch that puts them in place of the English. Three arrangements of the game: board '
+   + 'and world, the world alone, and the board alone as a diagram of positions. A card that carries the field, both '
+   + 'names and the way into the whole passage, and waits while it is read. Nirvana on the axis above the whole world '
+   + 'system, drawn as open rings rather than as somewhere to stand. One rising spiral in the '
    + 'board\'s own order, each square on a plinth; the squares a selected one reaches lit on the board and drawn as '
    + 'lines in the world, named where they stand; and a new game that asks first, takes the players\' names, and '
    + 'changes nothing when cancelled.',
