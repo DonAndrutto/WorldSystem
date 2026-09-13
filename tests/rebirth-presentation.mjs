@@ -50,3 +50,36 @@ ui.presentation.cancel();ui.advance();reduced=true;ui.advance();
 assert.equal(ui.presentation.dialog.querySelector('button').disabled,false,'Reduced-motion mode reveals immediately');
 assert.equal(timers.size,0);ui.presentation.cancel();
 console.log('PASS: 2.5-second reveal, one committed result per roll, interruption safety, opt-out sound, reduced motion, all 104 expandable passages, player labels, full-board toggle and 104 iconography slots.');
+// Refinement flow: true 2D presentation, direct reading, and explicit reset.
+const beforeDiagram=JSON.stringify(ui.state);
+ui.setDiagram(true);assert.equal(doc.body.classList.contains('rebirth-board'),true);
+assert.equal(ui.board.element.hidden,false);assert.equal(ui.board.slots.size,104);
+assert.equal(ui.board.element.querySelectorAll('.rb-board-grid [data-square]').length,103);
+assert.equal(ui.board.slots.get(104).button.parentElement.className,'rb-board-beyond');
+ui.board.slots.get(104).button.click();assert.equal(ui.presentation.dialog.open,true);
+assert.match(ui.presentation.dialog.querySelector('.rb-popup-prose').textContent,/parinirvana/);
+assert.equal(ui.presentation.dialog.querySelector('.rb-reveal-passage').hidden,false);
+assert.equal(JSON.stringify(ui.state),beforeDiagram,'Inspecting the 2D board leaves the game unchanged');
+ui.presentation.dialog.querySelector('.rb-popup-reset').click();assert.equal(ui.resetDialog.open,true);
+assert.equal(ui.presentation.dialog.open,false);
+ui.resetDialog.querySelector('[data-reset="cancel"]').click();assert.equal(JSON.stringify(ui.state),beforeDiagram);
+ui.requestReset();assert.equal(JSON.stringify(ui.state),beforeDiagram,'Opening reset confirmation does not reset');
+ui.resetDialog.querySelector('[data-reset="confirm"]').click();
+assert.equal(ui.state.turn,1);assert.equal(ui.state.players[0].square,24);assert.equal(ui.state.history.length,0);
+assert.equal(ui.resetDialog.open,false);assert.equal(ui.diagram,true);
+ui.setActive(false);assert.equal(ui.board.element.hidden,true);assert.equal(doc.body.classList.contains('rebirth-board'),false);
+ui.setActive(true);assert.equal(ui.board.element.hidden,false);ui.setDiagram(false);
+assert.equal(doc.body.classList.contains('rebirth-board'),false);assert.equal(ui.board.element.hidden,true);
+console.log('PASS: distinct 2D/3D presentations, 104-position diagram, detached Nirvana, full popup prose, reset cancellation and confirmed reset.');
+
+// Reset is available during suspense, but cancellation retains the committed roll.
+reduced=false;ui.advance();const duringRoll=JSON.stringify(ui.state);
+assert.equal(ui.presentation.dialog.open,true);
+ui.presentation.dialog.querySelector('.rb-popup-reset').click();
+assert.equal(ui.resetDialog.open,true);assert.equal(ui.presentation.dialog.open,false);
+ui.advance();assert.equal(JSON.stringify(ui.state),duringRoll,'Warning blocks gameplay');
+ui.resetDialog.dispatchEvent(new w.Event('cancel',{cancelable:true}));
+assert.equal(ui.resetDialog.open,false);tick(4000);
+assert.equal(JSON.stringify(ui.state),duringRoll,'Escape from reset retains the single committed result');
+assert.equal(w.localStorage.getItem('ws-rebirth-v1'),duringRoll);
+console.log('PASS: Reset during a roll settles the animation, blocks further moves, and Escape preserves the saved result.');

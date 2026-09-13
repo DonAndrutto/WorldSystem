@@ -4,6 +4,7 @@ import { createGame, rollGame, nextPlayer, chooseStarter, rollDie, restoreGame, 
 import { REBIRTH_PROSE } from './rebirth-prose.js';
 import { REBIRTH_ICONOGRAPHY, PLAYER_COLOURS } from './rebirth-iconography.js';
 import { createRebirthPresentation } from './rebirth-presentation.js';
+import { createRebirthBoard } from './rebirth-board.js';
 
 const SAVE_KEY='ws-rebirth-v1';
 const LETTERS=['SA','A','GA','DA','RA','YA'], FACES=['⚀','⚁','⚂','⚃','⚄','⚅'];
@@ -14,16 +15,34 @@ export function createRebirthUI({panel,marker,scene,onFocus,onOverview,onChange,
   const el=(tag,text,cls)=>{const n=doc.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n;};
   const button=(text,fn,cls='btn')=>{const b=el('button',text,cls);b.type='button';b.addEventListener('click',fn);return b;};
   let state=null, selected=24, active=false, resetting=false, notice='',storageFailed=false;
-  let busy=false,fullBoard=false,sound=true,draftNames='Traveller';
+  let busy=false,fullBoard=false,diagram=false,sound=true,draftNames='Traveller',pendingNames=null;
   try {const saved=storage.getItem(SAVE_KEY);if(saved){state=restoreGame(saved);if(!state)notice='The saved journey could not be read. Start a new journey below.';}} catch {storageFailed=true;}
   if(state)selected=state.players[state.active].square;
   try {sound=storage.getItem('ws-rebirth-sound')!=='0';}catch{}
   const pins=el('div',undefined,'rb-player-markers');pins.hidden=true;marker.parentElement.append(pins);
   const leaders=doc.createElementNS('http://www.w3.org/2000/svg','svg');leaders.classList.add('rb-player-leaders');pins.append(leaders);
   const pinButtons=[];
+  const resetDialog=el('dialog',undefined,'rb-reset-dialog');resetDialog.setAttribute('aria-labelledby','rb-reset-title');resetDialog.setAttribute('aria-describedby','rb-reset-warning');
+  resetDialog.innerHTML='<h2 id="rb-reset-title">Reset this game?</h2><p id="rb-reset-warning">All current positions, trap counts and journey history will be lost. Every traveller will start again on the Heavenly Highway.</p><div><button class="btn" type="button" data-reset="cancel">Keep playing</button><button class="btn rb-primary" type="button" data-reset="confirm">Reset game</button></div>';
+  doc.body.append(resetDialog);
+  function closeReset() {if(resetDialog.open){if(typeof resetDialog.close==='function')resetDialog.close();else resetDialog.removeAttribute('open');}pendingNames=null;}
+  function requestReset(names=state?.players.map(p=>p.name)) {
+    if(!state)return;
+    presentation.cancel();pendingNames=names.map(n=>n.trim()).filter(Boolean);createGame(pendingNames);
+    if(typeof resetDialog.showModal==='function')resetDialog.showModal();else resetDialog.setAttribute('open','');
+    resetDialog.querySelector('[data-reset="cancel"]').focus();
+  }
+  resetDialog.querySelector('[data-reset="cancel"]').addEventListener('click',closeReset);
+  resetDialog.querySelector('[data-reset="confirm"]').addEventListener('click',()=>{const names=pendingNames;closeReset();safe(()=>start(names));});
+  resetDialog.addEventListener('cancel',e=>{e.preventDefault();closeReset();});resetDialog.addEventListener('keydown',e=>e.stopPropagation());
   const presentation=createRebirthPresentation({document:doc,soundEnabled:()=>sound,
-    onReveal:()=>{selected=state.players[state.active].square;render();if(active&&!fullBoard)onFocus(selected);},
-    onFinish:()=>{busy=false;render();},onDismiss:()=>{if(active)play.querySelector('[data-rb-action="advance"]')?.focus({preventScroll:true});}});
+    onReveal:()=>{selected=state.players[state.active].square;render();if(active&&!fullBoard&&!diagram)onFocus(selected);},
+    onReset:()=>requestReset(),onFinish:()=>{busy=false;render();},onDismiss:()=>{if(active)play.querySelector('[data-rb-action="advance"]')?.focus({preventScroll:true});}});
+  const board=createRebirthBoard({document:doc,onInspect:n=>{inspect(n,false);presentation.showPlace({square:n,title:`${n} · ${getRebirthSquare(n).name}`,copy:getRebirthSquare(n).summary,passage:REBIRTH_PROSE[n].text});}});
+  marker.parentElement.append(board.element);
+  const tools=el('nav',undefined,'rb-tools card');tools.setAttribute('aria-label','Game controls');tools.hidden=true;
+  const diagramButton=button('2D board',()=>setDiagram(!diagram)),resetButton=button('Reset game',()=>requestReset());
+  diagramButton.dataset.rbDiagram='';resetButton.dataset.rbReset='';tools.append(diagramButton,resetButton);marker.parentElement.append(tools);
   panel.innerHTML=`<header class="rb-heading"><span class="rb-kicker">Mipham’s game of liberation</span><h2>Rebirth</h2><p>One world. Many lives. A path to freedom.</p></header>
     <div class="rb-status" role="status" aria-live="polite" aria-atomic="true"></div>
     <div class="rb-play"></div>
@@ -42,9 +61,11 @@ export function createRebirthUI({panel,marker,scene,onFocus,onOverview,onChange,
   }
   search.addEventListener('input',options);select.addEventListener('change',()=>inspect(Number(select.value)));
   function save() {try {storage.setItem(SAVE_KEY,JSON.stringify(state));storageFailed=false;}catch {storageFailed=true;}}
-  function inspect(number,focus=true) {selected=number;render();if(active&&focus&&!fullBoard)onFocus(number);}
-  function setBoardView(on) {fullBoard=on;render();if(active){if(fullBoard)onOverview();else onFocus(selected);}}
-  function changed(next) {state=next;selected=state.players[state.active].square;notice='';save();render();if(active&&!fullBoard)onFocus(selected);}
+  function inspect(number,focus=true) {selected=number;render();if(active&&focus&&!fullBoard&&!diagram)onFocus(number);}
+  function setDiagram(on) {diagram=on;syncDiagram();render();if(active&&!on){if(fullBoard)onOverview();else onFocus(selected);}}
+  function syncDiagram() {doc.body.classList.toggle('rebirth-board',active&&diagram);board.setActive(active&&diagram);diagramButton.setAttribute('aria-pressed',String(diagram));diagramButton.textContent=diagram?'Return to 3D':'2D board';}
+  function setBoardView(on) {fullBoard=on;render();if(active&&!diagram){if(fullBoard)onOverview();else onFocus(selected);}}
+  function changed(next) {state=next;selected=state.players[state.active].square;notice='';save();render();if(active&&!fullBoard&&!diagram)onFocus(selected);}
   function safe(fn) {try{fn();}catch(err){notice=err.message;render();}}
   function start(names) {
     const clean=names.map(n=>n.trim()).filter(Boolean);
@@ -52,10 +73,10 @@ export function createRebirthUI({panel,marker,scene,onFocus,onOverview,onChange,
     createGame(clean);const opening=chooseStarter(clean.length,die);
     state=createGame(clean,opening.starter);selected=24;resetting=false;save();
     notice=opening.rounds.length ? `${opening.rounds.map((round,i)=>`Starting roll ${i+1}: ${round.map(r=>`${clean[r.player]} ${r.die}`).join(', ')}.`).join(' ')} ${clean[opening.starter]} begins.` : 'Your journey begins on the Heavenly Highway.';
-    render();if(active&&!fullBoard)onFocus(selected);
+    render();if(active&&!fullBoard&&!diagram)onFocus(selected);
   }
   function advance() {
-    if(!state||resetting||busy||presentation.dialog.open)return;
+    if(!state||resetting||busy||presentation.dialog.open||resetDialog.open)return;
     if(state.phase==='turn_complete'){changed(nextPlayer(state));return;}
     safe(()=>{
       const result=die(),player=state.players[state.active],ceremony=state.phase==='won';
@@ -68,7 +89,7 @@ export function createRebirthUI({panel,marker,scene,onFocus,onOverview,onChange,
       if(ceremony){title=state.ceremony.inStupa?'The stupa is entered':'The stupa awaits';copy=state.ceremony.inStupa?'The journey and its final ceremony are complete.':'Roll a 1 or 2 to complete the ceremony.';}
       // Commit once before the suspense; closing, mode changes and reloads retain this result.
       play.querySelector('[data-rb-action="advance"]').disabled=true;
-      presentation.play({player:player.name,die:result,title,copy,ceremony});
+      presentation.play({player:player.name,die:result,title,copy,ceremony,square:destination,passage:REBIRTH_PROSE[destination].text});
     });
   }
   function renderPlay() {
@@ -79,7 +100,7 @@ export function createRebirthUI({panel,marker,scene,onFocus,onOverview,onChange,
       label.htmlFor='rb-names';names.id='rb-names';names.rows=3;names.maxLength=491;names.value=draftNames;names.required=true;
       names.addEventListener('input',()=>{draftNames=names.value;});
       const submit=el('button','Begin journey','btn rb-primary');submit.type='submit';
-      form.append(label,names,submit);form.addEventListener('submit',e=>{e.preventDefault();safe(()=>start(names.value.split('\n')));});play.append(form);
+      form.append(label,names,submit);form.addEventListener('submit',e=>{e.preventDefault();safe(()=>state?requestReset(names.value.split('\n')):start(names.value.split('\n')));});play.append(form);
       if(resetting)play.append(button('Keep current journey',()=>{resetting=false;render();}));
       return;
     }
@@ -102,9 +123,9 @@ export function createRebirthUI({panel,marker,scene,onFocus,onOverview,onChange,
       state.players.forEach((p,i)=>{const b=button(`${i===state.active?'› ':''}P${i+1} · ${p.name} · ${p.square}`,()=>inspect(p.square),'rb-roster');b.style.borderLeft=`4px solid ${PLAYER_COLOURS[i]}`;roster.append(b);});play.append(roster);
     }
     const links=el('div',undefined,'rb-links');links.append(button('Find my traveller',()=>{fullBoard=false;inspect(player.square);}));
-    const board=button('Full board',()=>setBoardView(!fullBoard));board.setAttribute('aria-pressed',String(fullBoard));board.dataset.rbBoard='';links.append(board);play.append(links);
+    const board=button('3D overview',()=>setBoardView(!fullBoard));board.setAttribute('aria-pressed',String(fullBoard));board.dataset.rbBoard='';board.hidden=diagram;links.append(board);play.append(links);
     const audioButton=button(sound?'Sound on':'Sound off',()=>{sound=!sound;if(!sound)presentation.stopSound();try{storage.setItem('ws-rebirth-sound',sound?'1':'0');}catch{}render();},'btn rb-sound');
-    audioButton.setAttribute('aria-pressed',String(sound));audioButton.setAttribute('aria-label','Gentle dice sounds');play.append(audioButton);
+    audioButton.setAttribute('aria-pressed',String(sound));audioButton.setAttribute('aria-label','Gentle dice sounds');links.append(audioButton);
     const history=el('details');history.append(el('summary','Journey journal'));
     const list=el('ol',undefined,'rb-journal');
     for(const e of state.history.slice(-12).reverse())list.append(el('li',`Turn ${e.turn} · ${state.players[e.player].name} rolled ${e.die}: ${e.from} → ${e.to}${e.kind==='counted'?' (count collected)':e.kind==='unneeded'?' (face already complete)':''}.`));
@@ -112,6 +133,7 @@ export function createRebirthUI({panel,marker,scene,onFocus,onOverview,onChange,
     history.append(button('Begin a new journey…',()=>{draftNames=state.players.map(p=>p.name).join('\n');resetting=true;render();}));play.append(history);
   }
   function render() {
+    panel.classList.toggle('has-game',!!state&&!resetting);resetButton.disabled=!state;
     const restoreActionFocus=doc.activeElement?.dataset.rbAction==='advance';
     renderPlay();
     if(restoreActionFocus)play.querySelector('[data-rb-action="advance"]')?.focus({preventScroll:true});
@@ -139,6 +161,7 @@ export function createRebirthUI({panel,marker,scene,onFocus,onOverview,onChange,
     status.hidden=!message;
     marker.textContent=`${selected} · ${s.name}`;marker.title=s.name;
     scene.update(state,selected,selected===104||selected===1||selected===48?[]:outcomes.map(o=>o.to));
+    board.update(state,selected);
     while(pinButtons.length<(state?.players.length||0)) {
       const i=pinButtons.length,b=button('',()=>inspect(state.players[i].square),'rb-player-pin');b.style.setProperty('--player-colour',PLAYER_COLOURS[i]);
       const line=doc.createElementNS('http://www.w3.org/2000/svg','line');line.setAttribute('stroke',PLAYER_COLOURS[i]);leaders.append(line);
@@ -155,11 +178,11 @@ export function createRebirthUI({panel,marker,scene,onFocus,onOverview,onChange,
   }
   marker.addEventListener('click',()=>{panel.hidden=false;place.scrollIntoView({block:'nearest',behavior:'auto'});});
   options();render();
-  return {inspect,advance,start,setBoardView,get state(){return state;},get selected(){return selected;},get fullBoard(){return fullBoard;},presentation,
-    setActive(on){active=on;if(!on)presentation.cancel();marker.hidden=!on;pins.hidden=!on;scene.setActive(on);if(on)render();},
+  return {inspect,advance,start,setBoardView,setDiagram,requestReset,resetDialog,board,get state(){return state;},get selected(){return selected;},get fullBoard(){return fullBoard;},get diagram(){return diagram;},presentation,
+    setActive(on){active=on;if(!on){presentation.cancel();closeReset();}marker.hidden=!on;pins.hidden=!on;tools.hidden=!on;syncDiagram();scene.setActive(on);if(on)render();},
     hideMarkers(){marker.hidden=true;pins.hidden=true;},
     project(camera,width,height){
-      if(!active)return;pins.hidden=false;
+      if(!active)return;if(diagram){marker.hidden=true;pins.hidden=true;return;}pins.hidden=false;
       const p=scene.points.get(selected).clone().project(camera);
       marker.hidden=state?.players.some(player=>player.square===selected)||p.z>1||p.z<-1||Math.abs(p.x)>1||Math.abs(p.y)>1;
       marker.style.left=`${(p.x+1)*width/2}px`;marker.style.top=`${(1-p.y)*height/2-28}px`;

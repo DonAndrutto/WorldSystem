@@ -3139,6 +3139,7 @@ const drawLoop = () => {
   ctr.update();                        // fires 'change' → invalidate, when moving
   if (frames <= 0) return;
   frames--;
+  if (appMode === 'rebirth' && rebirth?.diagram) return;
   orientOfferingCards();
   gl.render(stage._scene, cam);
   if (mandala) placeMarks();
@@ -3421,7 +3422,7 @@ function freeRect() {
     ins[best.k] = Math.max(ins[best.k], best.v);
   };
   [document.querySelector('.controls'), document.querySelector('.masthead'),
-   document.querySelector('.world-modes'), legend, dock].forEach(eat);
+   document.querySelector('.world-modes'), document.querySelector('.rb-tools'), legend, dock].forEach(eat);
   const pad = 14;
   const l = Math.min(ins.l + pad, w * 0.4), r = Math.min(ins.r + pad, w * 0.4);
   const t = Math.min(ins.t + pad, h * 0.3), b = Math.min(ins.b + pad, h * 0.72);

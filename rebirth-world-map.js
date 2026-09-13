@@ -17,6 +17,7 @@ const EXISTING = {
 };
 
 function family(n) {
+  if(n===104)return 'Beyond rebirth';
   if(n<=9) return 'Hells and judgement';
   if(n<=24 || n===26) return 'Worldly rebirths';
   if((n>=27&&n<=32)||(n>=35&&n<=37)) return 'Divine realms';
@@ -35,6 +36,7 @@ export const REBIRTH_WORLD_MAP = Object.freeze(REBIRTH_SQUARES.map(s => Object.f
 // Placement is a navigation aid, not a claim about cosmological distance.
 // Akaniṣṭha (84), Cessation (48), and Nirvana (104) remain distinct identities.
 export const FAMILY_COLOURS = Object.freeze({
+  'Beyond rebirth':0xd7bc70,
   'Hells and judgement':0x9e3f43, 'Worldly rebirths':0x35558c,
   'Divine realms':0xd7bc70, 'Sacred lands':0x3d7a5c,
   'The deeds of a Buddha':0xe5d5a7, 'Awakened bodies':0xe7d6b0,

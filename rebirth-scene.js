@@ -45,6 +45,18 @@ export function createRebirthScene(THREE, {world, meshesFor, radius, invalidate=
     }
     points.set(m.number,p);
   });
+  // Nirvana is not another palace in the cosmological stack. Its open, luminous
+  // circle stands beyond the highest mapped realm and outside the ordinary path.
+  const beyondHeight=Math.max(...[...points].filter(([n])=>n!==104).map(([,p])=>p.y))+.42;
+  layer.remove(additions.get(104));
+  const nirvana=new THREE.Group();nirvana.name='rebirth_nirvana_beyond';nirvana.position.set(0,beyondHeight,0);
+  const light=new THREE.MeshBasicMaterial({color:0xfff4cf,transparent:true,opacity:.85,depthWrite:false});
+  const veil=new THREE.MeshBasicMaterial({color:0xffedb9,transparent:true,opacity:.12,depthWrite:false});
+  nirvana.add(new THREE.Mesh(new THREE.SphereGeometry(.105,24,16),veil));
+  const ring=new THREE.Mesh(new THREE.TorusGeometry(.15,.004,8,64),light);nirvana.add(ring);
+  const horizon=new THREE.Mesh(new THREE.TorusGeometry(.20,.002,6,64),light);horizon.rotation.x=Math.PI/2;nirvana.add(horizon);
+  nirvana.add(new THREE.Mesh(new THREE.SphereGeometry(.016,12,8),light));
+  nirvana.traverse(o=>{o.userData.rebirthSquare=104;});layer.add(nirvana);additions.set(104,nirvana);points.set(104,nirvana.position.clone());
   const tokenGroup=new THREE.Group(); layer.add(tokenGroup);
   const tokenGeometry=new THREE.OctahedronGeometry(.023);
   const tokenColours=PLAYER_COLOURS;

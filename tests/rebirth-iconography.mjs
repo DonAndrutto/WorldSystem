@@ -17,3 +17,8 @@ requests.find(r=>r.src.endsWith('017.webp')).failed();assert.equal(scene.points.
 scene.setActive(false);assert.equal(sprite.parent.parent.visible,false,'Artwork disappears outside Rebirth');
 scene.setActive(true);assert.equal(requests.length,2,'Art is loaded only once');
 console.log('PASS: future iconography loads lazily, inherits game-only visibility, uses configured proportions, retains fallback geometry, and never changes destinations.');
+const nirvana=scene.additions.get(104);
+assert.equal(nirvana.name,'rebirth_nirvana_beyond');
+assert.ok(scene.points.get(104).y>Math.max(...[...scene.points].filter(([n])=>n!==104).map(([,p])=>p.y))+.4);
+assert.ok(nirvana.children.every(o=>o.geometry.type!=='ConeGeometry'),'Nirvana has no ordinary palace roof');
+console.log('PASS: Nirvana is an independent luminous form above every other mapped position.');

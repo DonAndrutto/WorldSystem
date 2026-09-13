@@ -319,3 +319,19 @@ for(const [number,point] of app.rebirthScene.points){
 }
 app.rebirth.setBoardView(false);assert.equal(app.rebirth.fullBoard,false);
 console.log('PASS: Full board frames all 104 destinations inside the available canvas and toggles back to the selected destination.');
+
+app.rebirth.setDiagram(true);
+const diagramSave=JSON.stringify(app.rebirth.state);
+for(const mode of ['mandala','explorer']) {
+ app.setAppMode(mode);advance(1000);
+ assert.equal(document.body.classList.contains('rebirth-board'),false);
+ assert.equal(q('.rb-board').hidden,true);assert.equal(q('.rb-tools').hidden,true);
+ app.setAppMode('rebirth');advance(1000);
+ assert.equal(document.body.classList.contains('rebirth-board'),true);
+ assert.equal(q('.rb-board').hidden,false);assert.equal(q('.rb-tools').hidden,false);
+ assert.equal(JSON.stringify(app.rebirth.state),diagramSave);
+}
+app.rebirth.setDiagram(false);advance(1000);
+assert.equal(q('.rb-board').hidden,true);
+assert.equal(document.body.classList.contains('rebirth-board'),false);
+console.log('PASS: 2D diagram and game tools remain exclusive to Rebirth through all mode transitions.');

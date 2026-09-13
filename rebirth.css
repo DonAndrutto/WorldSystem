@@ -97,3 +97,118 @@ body.mandala-view .world-modes,body.tour-view .world-modes { top:22px; }
   body.tour-view .compass { top:66px; }
 }
 @media(max-height:480px) and (min-width:701px) { .world-modes { top:78px; } }
+
+/* Compact, translucent game chrome; the original offering views keep their styling. */
+body.rebirth-view { --surface:rgba(246,241,231,.78); --shadow:0 1px 3px rgba(35,32,26,.08),0 8px 24px rgba(35,32,26,.09); }
+body.rebirth-view.night { --surface:rgba(23,26,33,.80); }
+body.rebirth-view .masthead { display:none; }
+body.rebirth-view .world-modes { top:22px; }
+.rb-tools { position:absolute; left:22px; top:74px; z-index:6; display:flex; gap:4px; padding:3px; pointer-events:auto; }
+.rb-tools[hidden] { display:none; }
+.rb-tools .btn { min-height:36px; padding:6px 13px; }
+.rb-tools [aria-pressed="true"] { background:var(--accent); color:var(--paper); }
+body.rebirth-view .panel-dock { width:min(340px,calc(100vw - 44px)); }
+.panel-dock > .rebirth-panel { padding:14px; backdrop-filter:blur(7px); }
+.rebirth-panel.has-game .rb-heading { display:none; }
+.rebirth-panel .rb-status { margin:0 0 9px; font-size:14px; padding:7px 9px; }
+.rebirth-panel .rb-turn { display:flex; align-items:baseline; justify-content:space-between; gap:10px; }
+.rebirth-panel .rb-turn h3 { margin:0; font-size:21px; }
+.rebirth-panel .rb-current { font-size:17px; padding:8px 0; }
+.rebirth-panel .rb-dice-row { gap:10px; }
+.rebirth-panel .rb-die { font-size:44px; width:46px; }
+.rebirth-panel .rb-links { margin:8px 0; gap:4px; }
+.rebirth-panel .rb-links .btn { min-height:36px; font-size:9px; padding:6px 4px; }
+.rebirth-panel .rb-links .rb-sound { width:auto; margin:0; }
+.rebirth-panel details { padding:6px 0; }
+.rebirth-panel .rb-place { padding-top:12px; }
+.rebirth-panel .rb-place h3 { font-size:22px; }
+.rebirth-panel .rb-place > p { font-size:15px; }
+.rb-reveal { padding:22px; backdrop-filter:blur(12px); }
+.rb-reveal[open]:has(.rb-reveal-passage[open]) { width:min(740px,calc(100vw - 28px)); }
+.rb-reveal-passage { margin:16px 0; text-align:left; }
+.rb-reveal-passage[hidden] { display:none; }
+.rb-reveal-passage > summary { padding:12px 14px; border:1px solid var(--accent); background:var(--hi); color:var(--ink); font:600 19px 'EB Garamond',serif; cursor:pointer; }
+.rb-popup-prose { font:18px/1.65 'EB Garamond',serif; }
+.rb-popup-prose p { white-space:pre-line; }
+.rb-reveal-footer { position:sticky; bottom:-22px; background:var(--surface); backdrop-filter:blur(12px); display:flex; align-items:center; gap:8px; padding:10px 0; margin-bottom:-12px; }
+.rb-reveal-footer .rb-primary { flex:1; width:auto; }
+.rb-reveal-footer .rb-popup-reset { min-height:46px; flex:none; }
+.rb-reveal.is-nirvana { border-radius:24px 24px 2px 2px; box-shadow:0 0 50px rgba(223,194,111,.25); }
+.rb-reset-dialog { width:min(460px,calc(100vw - 28px)); padding:24px; color:var(--ink); background:var(--paper); border:2px solid var(--accent); box-shadow:var(--shadow); }
+.rb-reset-dialog::backdrop { background:rgba(14,18,25,.50); }
+.rb-reset-dialog h2 { margin:0 0 14px; font:600 30px 'EB Garamond',serif; }
+.rb-reset-dialog p { font:18px/1.5 'EB Garamond',serif; }
+.rb-reset-dialog > div { display:flex; gap:8px; }
+.rb-reset-dialog .btn { flex:1; white-space:normal; min-height:44px; }
+.rb-reset-dialog .rb-primary { background:var(--accent); color:var(--paper); }
+body.rebirth-board three-d-stage { visibility:hidden; pointer-events:none; }
+body.rebirth-board { background:var(--paper); }
+body.rebirth-board .rb-marker,body.rebirth-board .rb-player-markers,body.rebirth-board .compass { display:none !important; }
+.rb-board { position:absolute; left:22px; right:380px; top:120px; bottom:20px; overflow:auto; padding:0 4px 8px; pointer-events:auto; z-index:1; overscroll-behavior:contain; }
+.rb-board[hidden] { display:none; }
+.rb-board-beyond { display:flex; align-items:center; justify-content:center; min-height:100px; padding:0 0 24px; position:relative; }
+.rb-board-beyond::after { content:''; position:absolute; bottom:0; left:50%; height:23px; border-left:1px dashed var(--accent); opacity:.45; }
+.rb-board-cell { position:relative; display:flex; flex-direction:column; align-items:flex-start; gap:3px; min-width:0; min-height:48px; overflow:hidden; padding:6px; border:1px solid var(--rule); border-left:3px solid var(--square-colour); color:var(--ink); background:var(--surface); text-align:left; font:13px/1.15 'EB Garamond',serif; cursor:pointer; }
+.rb-board-cell strong { font:12px 'IBM Plex Mono',monospace; color:var(--ink-2); }
+.rb-board-name { display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+.rb-board-grid { display:grid; grid-template-columns:repeat(8,minmax(0,1fr)); gap:4px; }
+.rb-board-cell.is-route { border-color:var(--accent); }
+.rb-board-cell.is-selected { outline:2px solid var(--accent); outline-offset:-2px; background:var(--hi-2); }
+.rb-board-nirvana { align-items:center; justify-content:center; min-width:230px; min-height:72px; padding:10px 25px; border:1px solid var(--accent); border-radius:50%; background:radial-gradient(ellipse,rgba(237,216,159,.5),transparent 72%); box-shadow:0 0 30px rgba(211,181,101,.15); }
+.rb-board-nirvana .rb-board-name { font-size:22px; font-weight:500; }
+.rb-board-nirvana small { font-size:12px; font-style:italic; }
+.rb-board-players { display:flex; flex-wrap:wrap; gap:3px; margin-top:auto; }
+.rb-board-players > span { color:#fff; font:10px 'IBM Plex Mono',monospace; padding:2px 4px; border-radius:8px; box-shadow:0 0 0 1px var(--paper); }
+.rb-board-players > .is-current { outline:2px solid var(--accent); outline-offset:1px; }
+.rb-board-hint { font:12px/1.4 'EB Garamond',serif; color:var(--ink-2); margin:7px 0; }
+@media(max-width:980px) {
+  body.rebirth-view .world-modes { top:calc(9px + var(--sa-t)); }
+  .rb-tools { left:9px; top:calc(64px + var(--sa-t)); }
+  .rb-tools .btn { min-height:36px; }
+  body.rebirth-view .panel-dock { width:auto; max-height:34dvh; }
+  body.rebirth-view .panel-dock > .rebirth-panel { padding:10px 12px; }
+  body.rebirth-view .panel-dock:has(.rebirth-panel:not(.has-game)) { max-height:48dvh; }
+  .rb-board { left:9px; right:9px; top:calc(109px + var(--sa-t)); bottom:calc(34dvh + 76px + var(--sa-b)); }
+  body.rebirth-board .rb-board-beyond { min-height:75px; padding-bottom:15px; }
+  .rb-board-nirvana { min-height:58px; padding:6px 15px; }
+  .rb-board-beyond::after { height:14px; }
+}
+@media(max-width:600px) {
+  .rb-board-grid { gap:3px; }
+  .rb-board-cell { padding:4px 2px; min-height:30px; align-items:center; }
+  .rb-board-cell:not(.rb-board-nirvana) .rb-board-name { display:none; }
+  .rb-board-cell strong { font-size:12px; }
+  .rb-board-players { gap:1px; }
+  .rb-board-players > span { font-size:8px; padding:1px 2px; }
+  .rb-board-hint { font-size:11px; }
+  .rb-reveal { padding:16px; }
+  .rb-reveal h2 { font-size:29px; }
+  .rb-reveal-die { font-size:64px; margin:6px auto; }
+  .rb-reveal-copy { font-size:17px; margin:12px 0; }
+  .rb-reveal-footer { bottom:-16px; }
+}
+.rb-board { display:flex; flex-direction:column; }
+.rb-board-grid { flex:1; grid-template-rows:repeat(13,minmax(0,1fr)); min-height:416px; }
+.rb-board-cell { min-height:0; }
+.rb-board-beyond { flex:none; }
+.rb-board-hint { flex:none; }
+.rb-board-nirvana { min-height:72px; }
+@media(max-width:980px) {
+  body.rebirth-board .panel-dock { max-height:28dvh; }
+  body.rebirth-board .rb-board { bottom:calc(28dvh + 76px + var(--sa-b)); }
+}
+@media(max-width:600px) {
+  .rb-board-grid { min-height:286px; }
+  .rb-board-nirvana { min-height:58px; }
+}
+.rb-board-cell { padding:4px; gap:2px; }
+.rb-board-name { -webkit-line-clamp:1; }
+.rb-board-nirvana .rb-board-name { -webkit-line-clamp:2; }
+@media(max-width:980px) {
+  .rb-board-grid { min-height:260px; gap:2px; }
+  .rb-board-cell { padding:2px; }
+  .rb-board-cell:not(.rb-board-nirvana) .rb-board-name { display:none; }
+  .rb-board-cell:not(.rb-board-nirvana) .rb-board-players { position:absolute; right:2px; bottom:2px; flex-wrap:nowrap; }
+  .rb-board-cell:not(.rb-board-nirvana) .rb-board-players > span { font-size:8px; padding:1px 2px; }
+  .rb-board-nirvana { padding:6px 15px; min-height:58px; }
+}

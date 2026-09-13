@@ -1,13 +1,17 @@
 // The die is resolved and saved by the engine before this presentation starts.
 // Animation never draws a second random result and can safely be interrupted.
 export const ROLL_DURATION = 2500;
-export function createRebirthPresentation({document:doc, onReveal, onFinish, onDismiss=()=>{}, soundEnabled=()=>true}) {
+export function createRebirthPresentation({document:doc, onReveal, onFinish, onDismiss=()=>{}, onReset=()=>{}, soundEnabled=()=>true}) {
   const win=doc.defaultView;
   const dialog=doc.createElement('dialog');dialog.className='rb-reveal';
   dialog.setAttribute('aria-labelledby','rb-reveal-title');
-  dialog.innerHTML='<p class="rb-reveal-who"></p><div class="rb-reveal-die" aria-hidden="true">⚀</div><p class="rb-reveal-face"></p><h2 id="rb-reveal-title">The die is cast…</h2><p class="rb-reveal-copy"></p><button class="btn rb-primary" type="button" disabled>Continue</button>';
+  dialog.innerHTML='<p class="rb-reveal-who"></p><div class="rb-reveal-die" aria-hidden="true">⚀</div><p class="rb-reveal-face"></p><h2 id="rb-reveal-title">The die is cast…</h2><p class="rb-reveal-copy"></p><details class="rb-reveal-passage" hidden><summary>Read the full passage</summary><div class="rb-popup-prose"></div></details><footer class="rb-reveal-footer"><button class="btn rb-primary" type="button" disabled>Continue</button><button class="btn rb-popup-reset" type="button">Reset game</button></footer>';
   doc.body.append(dialog);
-  const face=dialog.querySelector('.rb-reveal-die'),title=dialog.querySelector('h2'),copy=dialog.querySelector('.rb-reveal-copy'),close=dialog.querySelector('button');
+  const face=dialog.querySelector('.rb-reveal-die'),title=dialog.querySelector('h2'),copy=dialog.querySelector('.rb-reveal-copy'),close=dialog.querySelector('.rb-primary'),passage=dialog.querySelector('.rb-reveal-passage');
+  function fullText(text) {
+    const body=dialog.querySelector('.rb-popup-prose');body.replaceChildren();passage.open=false;passage.hidden=!text;
+    for(const paragraph of (text||'').split(/\n\n+/)){const p=doc.createElement('p');p.textContent=paragraph;body.append(p);}
+  }
   let timer=null,pulse=null,event=null,revealed=false,finished=false,audio=null,voices=[];
   const glyphs=['⚀','⚁','⚂','⚃','⚄','⚅'];
   function stopSound() {for(const o of voices){try{o.stop();}catch{}}voices=[];}
@@ -40,9 +44,10 @@ export function createRebirthPresentation({document:doc, onReveal, onFinish, onD
     dialog.classList.remove('is-rolling');dialog.classList.add('is-arrival');
     dialog.querySelector('.rb-reveal-face').textContent=`${event.die} · ${['SA','A','GA','DA','RA','YA'][event.die-1]}`;
     title.textContent=event.title;copy.textContent=event.copy;
+    fullText(event.passage);dialog.classList.toggle('is-nirvana',event.square===104);
     onReveal();
   }
-  function finish() {if(finished||!event)return;finished=true;reveal();close.disabled=false;close.focus({preventScroll:true});onFinish();}
+  function finish() {if(finished||!event)return;finished=true;reveal();close.disabled=false;if(!passage.open)close.focus({preventScroll:true});onFinish();}
   function cancel() {
     const hadEvent=!!event;
     win.clearTimeout(timer);win.clearInterval(pulse);timer=null;pulse=null;stopSound();
@@ -51,13 +56,24 @@ export function createRebirthPresentation({document:doc, onReveal, onFinish, onD
     if(hadEvent)onDismiss();
   }
   close.addEventListener('click',cancel);
+  dialog.querySelector('.rb-popup-reset').addEventListener('click',()=>{cancel();onReset();});
   dialog.addEventListener('cancel',e=>{e.preventDefault();cancel();});
   dialog.addEventListener('keydown',e=>e.stopPropagation());
   doc.addEventListener('visibilitychange',()=>{if(doc.hidden)cancel();});
   return {dialog,cancel,stopSound,
+    showPlace(place) {
+      cancel();event=null;revealed=true;finished=true;
+      face.hidden=true;dialog.querySelector('.rb-reveal-face').textContent='';
+      dialog.querySelector('.rb-reveal-who').textContent=place.square===104?'Beyond the round of rebirth':'A place on the journey';
+      title.textContent=place.title;copy.textContent=place.copy;fullText(place.passage);
+      dialog.classList.remove('is-rolling');dialog.classList.add('is-arrival');dialog.classList.toggle('is-nirvana',place.square===104);
+      close.textContent='Close';close.disabled=false;
+      if(typeof dialog.showModal==='function')dialog.showModal();else dialog.setAttribute('open','');
+      passage.querySelector('summary').focus();
+    },
     play(nextEvent) {
       cancel();event=nextEvent;revealed=false;finished=false;
-      title.textContent='The die is cast…';copy.textContent='Where will this life lead?';
+      title.textContent='The die is cast…';copy.textContent='Where will this life lead?';face.hidden=false;passage.hidden=true;passage.open=false;close.textContent='Continue';dialog.classList.remove('is-nirvana');
       dialog.querySelector('.rb-reveal-who').textContent=`${event.player} · ${event.ceremony?'Stupa ceremony':'A new turn of the wheel'}`;
       dialog.querySelector('.rb-reveal-face').textContent='';face.textContent='◇';
       dialog.classList.remove('is-arrival');dialog.classList.add('is-rolling');close.disabled=true;

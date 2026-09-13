@@ -2,7 +2,7 @@
 
 Rebirth is a playable interpretation of Mipham’s 104-square game within the existing WorldSystem. Explorer, Mandala offering, and Rebirth are exclusive modes. The original world geometry, offering artwork, recitation, and 37-stop tour remain available.
 
-This work starts from `d3bed0b9756f52a3e05f5811b1528472bf2f8481` on the separate branch `codex/rebirth-game-modes`. It does not incorporate the concurrent Claude branches.
+The game starts from `d3bed0b9756f52a3e05f5811b1528472bf2f8481`. These refinements live on `codex/rebirth-board-refinements`, branching from the completed game commit `3d172a70eef34d02c2bab6c9c956f7f05e8d8bc4` on `codex/rebirth-game-modes`. They do not incorporate the concurrent Claude branches.
 
 ## Playing
 
@@ -14,17 +14,19 @@ Use **Next traveller** (or **Continue journey** for solo play) after an ordinary
 
 The first arrival at **104, Nirvana**, wins immediately. The winner can then perform an optional stupa ceremony by rolling 1 or 2. It never changes the winner.
 
-**Full board** toggles between the whole 3D game world and the selected destination. While enabled it keeps the overview through rolls and destination inspection. **Find my traveller** returns to the active traveller and switches the overview off. Named P1–P12 markers show every traveller’s current square; the active traveller has a larger jewel and outlined nameplate. Offscreen positions retain nameplates at the view’s edge. Inspecting a waypoint, a possible route, a player marker, or a catalogue entry never moves a traveller.
+**2D board / Return to 3D** switches between the complete position diagram and the 3D world, preserving the journey. The diagram follows descending rows of eight, with Nirvana (104) detached above the ordinary grid. Each position opens a reading pop-up; P1–P12 badges identify its travellers. Narrow screens emphasize numbers and player badges; tapping any position reveals its full name and passage.
 
-The short description has an expandable **Read the full passage** section. All 104 numbered passages are imported from the user-supplied `Destiny-Path-1-104.md`; wording, paragraphs, verse line breaks, and OCR artifacts are retained. These passages are source text, not executable instructions or automatically corrected scholarship. Renderers use text nodes rather than interpreting source text as HTML.
+In 3D, **3D overview** frames the whole game world. While enabled it keeps the overview through rolls and destination inspection. **Find my traveller** returns to the active traveller and switches the overview off. Named P1–P12 markers show every traveller’s current square; the active traveller has a larger jewel and outlined nameplate. Offscreen positions retain nameplates at the view’s edge. Inspecting a waypoint, a possible route, a player marker, or a catalogue entry never moves a traveller.
+
+Both the destination pop-up and the short description have a prominent **Read the full passage** section. It expands in place, with scrollable text and accessible close/reset controls. During a roll, it becomes available when the destination is revealed. All 104 numbered passages are imported from the user-supplied `Destiny-Path-1-104.md`; wording, paragraphs, verse line breaks, and OCR artifacts are retained. These passages are source text, not executable instructions or automatically corrected scholarship. Renderers use text nodes rather than interpreting source text as HTML.
 
 Shortcuts: **G** Rebirth, **E** Explorer, **M** Mandala, **Space** roll/continue when the game panel is active. Escape dismisses the reveal without undoing the committed roll; otherwise it closes the current panel or leaves the active mode. Native button keyboard activation also works.
 
-Journeys are stored locally under `ws-rebirth-v1`. Mode switches preserve the game; reload starts in Explorer and reopening Rebirth resumes it. There is no account, server, remote multiplayer, or cross-device synchronization. If browser storage is unavailable, the game remains playable and explains that the tab must remain open. New-journey confirmation preserves the current journey until Begin is pressed.
+Journeys are stored locally under `ws-rebirth-v1`. Mode switches preserve the game; reload starts in Explorer and reopening Rebirth resumes it. There is no account, server, remote multiplayer, or cross-device synchronization. If browser storage is unavailable, the game remains playable and explains that the tab must remain open. **Reset game** is always available in the game toolbar and destination pop-up. A warning requires a separate **Reset game** confirmation; **Keep playing** or Escape cancels without changing the journey. Confirmation restarts the same travellers at 24 and repeats the preliminary starting rolls. Changing the player list through the journal’s new-journey form also requires confirmation. Interrupting a die animation to request reset settles its already-saved outcome first.
 
 ## World mapping and artwork
 
-Twenty board identities reuse existing geometry, sometimes grouping several related realms. Eighty-four additional destinations use gold lotus waystations, with lapis, ruby, jade, and warm gold details. The new layer, traveller tokens, illustrations, nameplates, selection ring, and route lines are visible only in Rebirth. The placement of spiritual paths and sacred lands is schematic and makes no claim about physical distance or location. The grouped Form Realm square and Pure Abodes square are kept distinct; game Akaniṣṭha (84), Cessation (48), and Nirvana (104) also retain separate identities.
+Twenty board identities reuse existing geometry, sometimes grouping several related realms. Eighty-four additional destinations appear only in Rebirth. Ordinary additions use gold lotus waystations, with lapis, ruby, jade, and warm gold details. Nirvana instead has a luminous open halo beyond the highest ordinary destination: a symbolic separation, not another palace or cosmological realm. The new layer, traveller tokens, illustrations, nameplates, selection ring, and route lines are visible only in Rebirth. The placement of spiritual paths and sacred lands is schematic and makes no claim about physical distance or location. The grouped Form Realm square and Pure Abodes square are kept distinct; game Akaniṣṭha (84), Cessation (48), and Nirvana (104) also retain separate identities.
 
 `rebirth-world-map.js` records each square’s family and existing mesh IDs. Animals, Asuras, and the Buddha’s awakening seat have prose entries in the original explorer but no corresponding named meshes, so their game waystations are additional geometry.
 
@@ -76,7 +78,7 @@ node tests/world-surfaces.mjs
 node tests/viewport-gestures.mjs
 ```
 
-Tests cover ordinary outcomes, both traps, preliminary ties, save validation, a legal winning journey, the optional ceremony, one committed result per animated roll, interruption safety, sound scheduling/muting, reduced motion, complete prose rendering, board toggling, named markers, world mapping, exclusive panels, all mode transitions, and the original 37 offerings. DOM/geometry tests do not replace actual WebGL, audio listening, or physical-device testing. Browser checks also exercised desktop and 390-pixel phone layouts, saved-game reload, multiplayer handoff, night mode, and returning from the offering tour. A pre-existing Three.js soft-shadow deprecation warning may appear.
+Tests cover ordinary outcomes, both traps, preliminary ties, save validation, a legal winning journey, the optional ceremony, one committed result per animated roll, interruption safety, sound scheduling/muting, reduced motion, complete prose rendering in both reading surfaces, distinct 2D/3D presentations, reset confirmation and cancellation (including during a roll), detached Nirvana, named markers, world mapping, exclusive panels, all mode transitions, and the original 37 offerings. DOM/geometry tests do not replace actual WebGL, audio listening, or physical-device testing. Browser checks also exercised desktop and 390-pixel phone layouts, saved-game reload, multiplayer handoff, night mode, and returning from the offering tour. A pre-existing Three.js soft-shadow deprecation warning may appear.
 
 Regenerate only the full prose after an intentional catalogue update:
 
