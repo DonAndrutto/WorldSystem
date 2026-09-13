@@ -97,11 +97,10 @@ outline, a mountain, a temple, a ribbon — together with one closing painting,
 for this project as 105 source PNGs with transparent grounds, and they live in
 the repository at `assets/Game of Liberation English titles/`.
 
-Two of the 104 were repainted for this project rather than supplied: squares 18
-and 19, the western and eastern continents, which are now the plain shapes the
-sources give them — a ruby-red disc and a crystal-white half-disc, washed the
-way the rest of the fields are washed. The paintings they replace are in the
-repository's history.
+Squares 18 and 19, the western and eastern continents, were supplied again
+later as the plain shapes the sources give them — a ruby-red disc and a
+crystal-white half-disc — in place of the cartouches first sent for them. The
+paintings they replace are in the repository's history.
 
 `node scripts/build-square-art.cjs` turns them into what the page serves. Each
 painting is cropped to the pixels it actually draws — the sources carry wide and
