@@ -23,16 +23,17 @@ Click any part to open its entry; drag to orbit, scroll to zoom.
 | `assets/offerings/` | Three locally served artwork sheets, with the generation prompts. |
 | `ARTWORK.md` | Image provenance, source references and iconographic adaptations. |
 | `tests/mandala-regression.mjs` | DOM and geometry regression checks. |
-| `rebirth-board.js` | The 104 squares of the game of rebirth, the die-to-destination graph, and the armature that places the squares the world system has no room for. |
+| `rebirth-board.js` | The 104 squares of the game of rebirth, their Tibetan names, the die-to-destination graph, and the armature that places the squares the world system has no room for. |
 | `rebirth-game.js` | The rules on their own: dead faces, the two counter traps, victory at 104, and each player's trail. No DOM, no WebGL. |
 | `rebirth-notes.js` | Two entries per square, written for this drawing: the short note and the full one it expands to. The 1977 commentary is not reproduced. |
-| `rebirth-icons.js` | The slot for square iconography — empty until the artwork exists, and wired so that adding it is one line per square. |
+| `rebirth-icons.js` | Where each square's field sits on the atlas sheets, and the billboards that carry it in the world. |
 | `tests/rebirth-regression.mjs` | Board and rules checks, including the routes the Rules of Play claim. |
 | `three-d-stage.js` | The `<three-d-stage>` custom element it imports: WebGL renderer, studio lighting with a soft ground shadow, orbit controls, an auto-framed camera, and OBJ + MTL / GLB export. |
 | `assets/app-icon/world-system-master.webp` | Gold-and-lapis Meru app-icon artwork; a symbolic emblem. See its source brief in `assets/app-icon/README.md`. |
 | `apple-touch-icon.png`, `icon-192.png`, `icon-512.png`, `icon-maskable-512.png` | Opaque home-screen icons, including an inset Android maskable version. |
 | `favicon.ico`, `favicon-32.png` | Matching browser-tab icons. |
 | `scripts/build-icons.cjs` | Rebuilds all icon sizes from the single master artwork, using Sharp. |
+| `scripts/build-square-art.cjs` | Rebuilds the board's four field sheets from the 105 source paintings, using Sharp. |
 | `manifest.webmanifest` | Name, colours and icons for installing the page. |
 
 Serve the directory over HTTP and open it (not `file://` — the page uses ES
@@ -124,12 +125,27 @@ counter traps that hold a player until one 1, two 2s and so on through six 6s
 have been thrown. Victory is declared on arrival at 104. The throw that
 follows, which passes the relics into the stūpa, is a rite and settles nothing.
 
-The board holds one side of the screen and the world keeps turning on the
-other, framed in whatever the board leaves. They share one selection: the lit
-square, the open entry and the tinted marker in the model are the same square,
-and the camera goes to each square a token arrives on. Where there is no room
-for both — a narrow window, a phone — one control hands the screen from the
-board to the world and back, and the throw stays reachable from either.
+Every square is drawn as the field it carries on the printed board — a coloured
+ring, a cartouche, a continent's own outline, a mountain, a temple, a ribbon —
+and every square is named in Tibetan as well as English. The field is the cell's
+own ground on the board, a billboard at the square's marker in the world, the
+picture in its entry, and the face of the card that announces a throw. One
+switch in the rail (`t`) puts the Tibetan names in place of the English ones
+wherever a square is named in passing; the entry in the drawer always gives
+both. See [ARTWORK.md](ARTWORK.md) for how the paintings are served.
+
+Three arrangements of the same game, switched from the rail or cycled with `b`:
+
+- **Both** — the board beside the world it is a section through.
+- **World** — the model alone, with only the throw kept, framed to hold the
+  whole round from the hells below the ground to the last act above the summit.
+- **Board** — the game as a plain diagram of positions, with no model behind it:
+  the same board read in two dimensions instead of three.
+
+They share one selection: the lit square, the open entry and the tinted marker
+in the model are the same square. Where there is no room for board and world at
+once — a narrow window, a phone — `w` hands the screen from one to the other,
+and the throw stays reachable from either.
 
 Each player keeps a karmic trail: the whole arc travelled, a chip for every
 throw, which is the one thing a position cannot record. A fall to a hell and
@@ -194,22 +210,45 @@ and that is also where the players are named. The names carry through the
 players bar, the log, the status line and the card that announces each throw.
 Cancelling changes nothing.
 
+### The card that announces a throw
+
+When the die stops, a card says where the token has arrived: the field the
+square is drawn as, its number in large figures, its name in English and in
+Tibetan, and what has happened to the turn. **Read the full entry** opens that
+square's entry in the drawer with the whole passage already unfolded, so the
+card is one click from everything the project has to say about the square. The
+card clears itself, but not while it is being read — hovering or tabbing into it
+holds it open. Victory and the stupa throw that follows carry a painting of
+their own: Amitābha, the stupa and the Guru.
+
 ### Where the players are
 
 Every player stands in the world as well as on the board: a marker in their own
 colour, on a stem that lifts it clear of whatever it is standing on, in a ring
-on the square beneath. Whoever holds the die carries a second, wider ring. Two
-players on one square are fanned apart rather than hidden inside one another.
+on the square beneath and a column of the same colour standing over it. Whoever
+holds the die carries a second, wider ring. Two players on one square are fanned
+apart rather than hidden inside one another. Over the model each one is also
+named where they stand — their colour, their name and the square they are on —
+because four cones of four colours somewhere on a model this busy are not an
+answer to *where am I*.
 
-### Iconography, when there is some
+### Nirvana
 
-No square is painted yet. `rebirth-icons.js` holds the slot: register a square
-with its sheet and its cell and the picture appears in the corner of the board
-cell and on a billboard at its marker in the world, with the sheet fetched only
-when game mode is first opened. The convention — one sheet, four pictures
-across, counting from zero — is the one the offering artwork already uses. The
-path is covered by the test suite with two stubs, so it is known to work before
-any artwork exists. Record provenance in [ARTWORK.md](ARTWORK.md) as for
+Nirvana is not the last square of the round but the one outside it. It is drawn
+outside the model to match: on the axis, clear above the formless absorptions
+and above everything else the world system builds, as open rings rather than
+anything to stand on. Its cell on the board is set apart in gold. The camera
+opens far enough to hold it only when it is the square in hand.
+
+### How the fields are served
+
+`rebirth-icons.js` lays the hundred and four paintings out from the square
+numbers alone: four across, twenty-eight to a sheet, four WebP sheets of about
+1.4 MB in total, fetched only when game mode is first opened and each retried on
+its own if it fails. The convention is the one the offering artwork already
+uses. `node scripts/build-square-art.cjs` rebuilds the sheets from the source
+paintings in `assets/Game of Liberation English titles/`; `SQUARES_PER_SHEET`
+has to agree with it. Record provenance in [ARTWORK.md](ARTWORK.md) as for
 everything else this project serves.
 
 ## Controls
@@ -220,6 +259,8 @@ Every one of them does something:
 | --- | --- |
 | **Index** `i` | The drawer of explanatory entries, with a filter. |
 | **Mode** `e` `m` `g` | Explorer, Maṇḍala, Game. Explorer is the model and its index; Maṇḍala is the thirty-seven heaps, in the order the offering names them; Game sets the board of rebirth beside the world. |
+| **Board, both or world** `b` | In game mode, what is on the screen: the board alone as a diagram of positions, the board beside the world, or the world alone. Kept between visits. |
+| **Tibetan names** `t` | In game mode, names the squares in Tibetan instead of English wherever they are named in passing. The entry always gives both. |
 | **Board or world** `w` | In game mode on a narrow window, hands the screen from the board to the world and back. Where both fit, they are both already there. |
 | **Motion** `r` | Sets the sun and moon on their circuit around Meru — forty seconds to the day — and lets the view turn slowly with them. The sun is what lights the world, so Meru's shadow walks round the continents with it. Off until asked for, so the model holds still while it is being read. |
 | **Night** `n` | Paper or dark. At night the moon takes over the lighting, and the clouds stand against a faint field of stars. |
