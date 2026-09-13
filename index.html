@@ -60,24 +60,34 @@
     --hi-2: rgba(122, 90, 46, .21);
     --field: rgba(255, 255, 255, .5);
     --shadow: 0 1px 2px rgba(35,32,26,.08), 0 12px 36px rgba(35,32,26,.13);
+    /* the maṇḍala's numbered heaps: their own paper, so a mark still reads
+       where it stands on the plate rather than over the page */
+    --mark: rgba(252, 249, 242, .97);
+    --mark-lift: 0 1px 3px rgba(35, 32, 26, .26);
     --panel: 342px;
     --sa-t: env(safe-area-inset-top, 0px);
     --sa-b: env(safe-area-inset-bottom, 0px);
     --bl: 0px;          /* height of whatever sits in the bottom-left corner */
   }
+  /* Night is read over a dark, moving scene rather than over paper: the
+     surfaces are denser and the two quiet inks a step brighter, so that
+     10px monospace, hairline rules and the heap marks survive the model
+     behind them. The gold warms rather than dims. */
   body.night {
-    --paper: #11131a;
-    --surface: rgba(23, 26, 33, .93);
-    --ink: #ece6d7;
-    --ink-2: #a8a18e;
-    --ink-3: #7e7767;
-    --rule: rgba(236, 230, 215, .16);
-    --rule-2: rgba(236, 230, 215, .32);
-    --accent: #d3ac60;
-    --hi: rgba(211, 172, 96, .12);
-    --hi-2: rgba(211, 172, 96, .22);
-    --field: rgba(255, 255, 255, .05);
-    --shadow: 0 1px 2px rgba(0,0,0,.45), 0 16px 44px rgba(0,0,0,.55);
+    --paper: #0f1117;
+    --surface: rgba(20, 23, 30, .965);
+    --ink: #f2ecdd;
+    --ink-2: #c3bca7;
+    --ink-3: #9c9582;
+    --rule: rgba(236, 230, 215, .22);
+    --rule-2: rgba(236, 230, 215, .42);
+    --accent: #e4bd70;
+    --hi: rgba(228, 189, 112, .15);
+    --hi-2: rgba(228, 189, 112, .28);
+    --field: rgba(255, 255, 255, .085);
+    --shadow: 0 1px 2px rgba(0,0,0,.5), 0 16px 44px rgba(0,0,0,.6);
+    --mark: rgba(26, 30, 39, .97);
+    --mark-lift: 0 0 0 1px rgba(0, 0, 0, .55), 0 2px 7px rgba(0, 0, 0, .62);
   }
   html, body { margin: 0; height: 100%; overflow: hidden; touch-action: pan-x pan-y; }
   body {
@@ -423,19 +433,30 @@
     display: grid; justify-items: center; gap: 3px; border: 0; background: none;
     padding: 0; cursor: pointer; font: inherit; color: var(--ink-2);
   }
+  /* A heap mark has to be read where it lands — often over the plate, often
+     with its neighbours touching it. The disc is opaque and carries its own
+     lift, so overlapping marks still separate, and the number is set a size
+     up from the rest of the small type. */
   .mk .n {
     touch-action: none;
-    width: 21px; height: 21px; border-radius: 50%; display: grid; place-items: center;
-    border: 1px solid var(--rule-2); background: var(--surface); pointer-events: auto;
-    cursor: pointer; font-family: "IBM Plex Mono", monospace; font-size: 9.5px; line-height: 1;
+    width: 23px; height: 23px; border-radius: 50%; display: grid; place-items: center;
+    border: 1px solid var(--rule-2); background: var(--mark); pointer-events: auto;
+    box-shadow: var(--mark-lift); color: var(--ink);
+    cursor: pointer; font-family: "IBM Plex Mono", monospace; font-size: 11px;
+    font-weight: 500; line-height: 1;
     transition: background-color .14s, color .14s, border-color .14s, transform .14s;
   }
   .mk .lb {
-    pointer-events: none; font-size: 11.5px; line-height: 1.15; white-space: nowrap; opacity: 0;
-    background: var(--surface); padding: 1px 5px; border: 1px solid var(--rule);
+    pointer-events: none; font-size: 11.5px; line-height: 1.2; white-space: nowrap; opacity: 0;
+    color: var(--ink); background: var(--mark); padding: 1px 6px 2px;
+    border: 1px solid var(--rule-2); box-shadow: var(--mark-lift);
     transition: opacity .14s;
   }
-  .mk:hover { z-index: 3; }
+  /* A heap standing clear of its neighbours names itself; in a cluster the
+     number holds the place alone until it is asked for, so the plate never
+     fills with overlapping type. Measured on screen, so it answers the zoom. */
+  .mk.roomy .lb { opacity: 1; }
+  .mk:hover, .mk[aria-current="true"] { z-index: 3; }
   .mk:hover .n, .mk[aria-current="true"] .n {
     background: var(--accent); color: var(--paper); border-color: var(--accent);
     transform: scale(1.18);
@@ -552,6 +573,18 @@
   body.immersive .masthead, body.immersive .legend { display: none; }
   body.mandala-view .legend { display: none; }
 
+  /* ── night: what the variables alone cannot carry ───────────────────
+     A translucent card over paper is a card; over a lit model at night it
+     is a window. These few panels stand off the scene instead. */
+  body.night .card, body.night .compass { -webkit-backdrop-filter: blur(11px) saturate(108%); backdrop-filter: blur(11px) saturate(108%); }
+  body.night .compass { opacity: 1; box-shadow: var(--shadow); }
+  body.night .index { box-shadow: var(--shadow); }
+  body.night .controls .btn { border-left-color: var(--rule-2); }
+  body.night .controls .btn:first-child { border-left: 0; }
+  body.night .btn:disabled { opacity: .45; }
+  body.night .firsthint { color: var(--ink-2); }
+  body.night .masthead h1 { text-shadow: 0 1px 2px rgba(0, 0, 0, .5); }
+
   @media (max-width: 1320px) {
     /* the drawer squeezes the strip into the masthead: drop to glyphs */
     body.index-open .controls .btn .t { display: none; }
@@ -613,8 +646,8 @@
   }
   /* touch: bigger targets */
   @media (pointer: coarse) {
-    .mk .n { width: 28px; height: 28px; font-size: 10.5px; }
-    .mk .lb { font-size: 12px; }
+    .mk .n { width: 30px; height: 30px; font-size: 12px; }
+    .mk .lb { font-size: 12.5px; }
     .x { width: 34px; height: 34px; font-size: 20px; }
     .index .row { padding: 7px 18px; }
     .rel button { padding: 6px 11px 7px; }
@@ -642,6 +675,13 @@
     max-height: 100%; margin: 0; flex: 0 1 auto; pointer-events: auto;
   }
   .panel-dock > .index { border: 1px solid var(--rule); padding-bottom: 16px; }
+  /* the rose keeps clear of the dock, which is wider than the drawer whose
+     width the offset was written for */
+  @media (min-width: 701px) {
+    body.index-open .compass, body.panel-open .compass {
+      right: calc(min(406px, 100vw - 44px) + 22px);
+    }
+  }
   .panel-dock > .mandala-note { overflow-y: auto; overscroll-behavior: contain; }
   .panel-dock .sheet-scroll { min-height: 0; }
   .panel-dock .grip { cursor: default; touch-action: auto; }
@@ -925,6 +965,13 @@
   @media (min-width: 1081px) {
     body.index-open .board-view { width: min(56vw, calc(100vw - var(--panel) * 2 - 88px)); }
     body.panel-open .board-view { width: min(46vw, calc(100vw - 496px)); }
+  }
+  /* Board, panel and world, all three at once. Once the screen is wide enough
+     to pay for all three, the board takes the width it needs rather than the
+     width it can, so the world is left a strip worth looking at instead of the
+     slot nothing else wanted. It never drops below the grid it needs. */
+  @media (min-width: 1200px) {
+    body.panel-open .board-view { width: clamp(552px, calc(100vw - 800px), 46vw); }
   }
 
   /* Below this width the board and the world cannot share the screen, so they
@@ -1341,6 +1388,7 @@ const M = {
   foliage: mat('wish_tree_foliage', 0x3a6a42, 0.64, 0.02),
   foliageLit: mat('wish_tree_foliage_sunlit', 0x62975b, 0.6, 0.02),
   ember:   mat('ember', 0x8a3a2c, 0.66, 0.06),
+  cloud:   mat('heaven_cloud', 0xeff2f6, 0.92, 0.0),
   formless: Object.assign(
     new THREE.MeshBasicMaterial({ color: 0x8a8578, wireframe: true }),
     { name: 'formless' }
@@ -2086,10 +2134,19 @@ const LUMINARIES = [];
   }
 );
 
-/* ── The axis above the summit ────────────────────────────────────────
-   Regular steps within groups suggest the doubling of textual heights.
-   Gaps separate the groups, and the tower narrows for visibility. This
-   is a schematic arrangement, not a common scale with Meru below.     */
+/* ── The heavens above the summit ─────────────────────────────────────
+   Śakra's palace stands on Meru's peak; above it the twenty-one levels rise
+   one over another, and the painted cosmologies draw each of them the same
+   way — a palace with a gilt roof on a bank of cloud, and each level broader
+   than the one below it, so that the series opens upward from the summit.
+   That widening is the texts' own: the Kośa gives each heaven a greater
+   extent than the last. Cloud gives out at Anabhraka, "the cloudless",
+   which is where the Kośa stops resting them on it; the eight levels of the
+   fourth dhyāna stand on nothing.
+
+   Regular steps within a group suggest the doubling of textual heights, and
+   gaps separate the groups. This is a schematic arrangement, not a common
+   scale with Meru below.                                                */
 const CLUSTERS = [
   [M.gold, ['yama', 'tushita', 'nirmanarati', 'paranirmitavashavartin']],
   [M.crystal, ['brahmaparishadya', 'brahmapurohita', 'mahabrahma']],
@@ -2098,15 +2155,65 @@ const CLUSTERS = [
   [M.crystal, ['anabhraka', 'punyaprasava', 'brihatphala',
                'avriha', 'atapa', 'sudrisha', 'sudarshana', 'akanishtha']]
 ];
-const STEP = 0.045, GAP = 0.022, PLATE_T = 0.007;
+const STEP = 0.058, GAP = 0.030, PLATE_T = 0.005;
 const TOTAL = CLUSTERS.reduce((n, [, l]) => n + l.length, 0);
+const CLOUDLESS = 'anabhraka';        // sprin med: from here up, no cloud
+/* One cloud bank, scalloped the way the painted ones are and squashed to a
+   ledge. Built once and scaled per level, since every heaven wants the same
+   shape at a different size. */
+const CLOUD_GEO = (() => {
+  const g = new THREE.SphereGeometry(1, 30, 10);
+  const p = g.attributes.position, v = new THREE.Vector3();
+  for (let i = 0; i < p.count; i++) {
+    v.fromBufferAttribute(p, i);
+    const a = Math.atan2(v.z, v.x);
+    const lobe = 1 + 0.12 * Math.sin(a * 7) + 0.05 * Math.sin(a * 13 + 1.1);
+    // a bank, not a ball: a puffed crown over an almost flat underside
+    p.setXYZ(i, v.x * lobe, v.y * (v.y < 0 ? 0.26 : 1), v.z * lobe);
+  }
+  p.needsUpdate = true;
+  g.computeVertexNormals();
+  return g;
+})();
 let level = 0, h = SUMMIT + yv(5000) + yv(16800) + yv(9000) + 0.03;
+let onCloud = true;
 CLUSTERS.forEach(([material, names], ci) => {
   names.forEach((name) => {
-    const side = 0.175 - (level / (TOTAL - 1)) * 0.10;
-    const p = new THREE.Mesh(new THREE.BoxGeometry(side, PLATE_T, side), material);
-    p.position.y = h;
-    add(p, `heaven_${name}`);
+    if (name === CLOUDLESS) onCloud = false;
+    /* the level's extent, which grows the higher it stands */
+    const half = 0.100 + (level / (TOTAL - 1)) * 0.110;
+    if (onCloud) {
+      const bank = new THREE.Mesh(CLOUD_GEO, M.cloud);
+      bank.position.y = h - half * 0.055;
+      bank.scale.set(half, half * 0.19, half);
+      add(bank, `heaven_${name}`);
+    } else {
+      // "the cloudless" and the seven above it: an open ledge, nothing under it
+      const ledge = sq(half * 0.80, half * 0.84, PLATE_T, material);
+      ledge.position.y = h - PLATE_T * 0.5;
+      add(ledge, `heaven_${name}`);
+    }
+    /* the palace on it: a plinth, one storey, a gilt pyramid roof, a finial.
+       On cloud it stands on the bank's own crown, not inside it. */
+    const floor = onCloud ? h + half * 0.12 : h;
+    const pw = half * 0.23, storey = STEP * 0.22;
+    const plinth = sq(pw * 1.5, pw * 1.7, PLATE_T, material);
+    plinth.position.y = floor + PLATE_T * 0.5;
+    add(plinth, `heaven_${name}`);
+    const body = sq(pw, pw, storey, material);
+    body.position.y = floor + PLATE_T + storey / 2;
+    add(body, `heaven_${name}`);
+    const roof = new THREE.Mesh(
+      new THREE.ConeGeometry(pw * 1.55 * Math.SQRT2, storey * 0.95, 4), M.gold
+    );
+    roof.rotation.y = Math.PI / 4;
+    roof.position.y = floor + PLATE_T + storey * 1.475;
+    add(roof, `heaven_${name}`);
+    const finial = new THREE.Mesh(
+      new THREE.ConeGeometry(pw * 0.26, storey * 0.60, 8), M.gold
+    );
+    finial.position.y = floor + PLATE_T + storey * 2.25;
+    add(finial, `heaven_${name}`);
     h += STEP;
     level++;
   });
@@ -2167,7 +2274,7 @@ stage.setObject(world);
 world.traverse((o) => {
   if (!o.isMesh) return;
   if (o.material === M.formless || o.userData.pickOnly ||
-      o.material === M.sun || o.material === M.moonDisc ||
+      o.material === M.sun || o.material === M.moonDisc || o.material === M.cloud ||
       o.material === M.sea || o.material === M.ocean) o.castShadow = false;
 });
 
@@ -2231,7 +2338,7 @@ def('about_scale', {
   b: ['The drawing starts from one metre to 400,000 yojanas and makes several deliberate adaptations for legibility. The dimensions in the entries describe the sources; they cannot all be measured from the displayed model. The principal adaptations are:',
       '<b>Meru and the surrounding world.</b> Core heights above the water are multiplied by 3.4. Meru is tapered, with a wider base; the Kośa describes a constant square section. The ranges are drawn as circular ridges. The outer salt ocean is about half its stated width, and the twelve landmasses are enlarged fortyfold. Smaller ranges and their intervening seas are widened to at least 9,000 yojanas; range heights have a minimum of 3,400 before vertical exaggeration. The iron wall and small details are also enlarged for visibility.',
       '<b>Below the ground.</b> The foundation layers are compressed and narrowed. The hot hells and the preta realm are displayed below the disc so they can be seen; the cold hells are offset to one side. These display positions are schematic.',
-      '<b>Above the summit.</b> Regular steps between heavens suggest the doubling of textual heights, with extra gaps between groups and a narrowing tower. This roughly logarithmic arrangement does not share the scale of Meru. The formless absorptions are represented by open meshes as a study aid; they have no physical location or dimensions.',
+      '<b>Above the summit.</b> Each heaven is drawn the way the painted cosmologies draw it — a palace with a gilt roof, standing on a bank of cloud up to Anabhraka, "the cloudless", and on an open ledge from there to Akaniṣṭha. Each level is wider than the one below, following the texts, but the widening is illustrative rather than measured. Regular steps between heavens suggest the doubling of textual heights, with extra gaps between groups; this roughly logarithmic arrangement does not share the scale of Meru. The formless absorptions are represented by open meshes as a study aid; they have no physical location or dimensions.',
       '<b>Sun, moon and light.</b> The textual discs are represented by strongly enlarged spheres with painted glows. The light follows the sun around Meru, or the moon in night mode, from a higher angle chosen to keep the world visible. The changing shadows are illustrative.',
       '<b>The offering diagram.</b> Numbered marks for heaps 18–37 occupy rings outside the iron wall. These are offering positions; the sun and moon also appear within the cosmological model. The diagram\'s spacing and the small treasure emblems are chosen for readability.'],
   src: 'The model'
@@ -3807,12 +3914,20 @@ let mandala = false;
 let mode = 'explore';            // 'explore' | 'mandala' | 'game'
 /* the board's rectangle, measured when the chrome changes and read by the
    floating label every frame rather than measured there */
-let rbLabelClip = null;
+let rbLabelClip = null, rbLabelEdge = Infinity;
 let minPlay = false, framePut = null;
+/* Panels settle a frame after the classes change, so the framing waits for
+   them; one timer, whatever asked for it. */
+let panelReframe = null;
+function reframeAfterPanels(delay = 90) {
+  clearTimeout(panelReframe);
+  panelReframe = setTimeout(reframeCurrent, delay);
+}
 /* One active panel occupies the shared dock. Its footprint is also used
    to frame the model in the remaining canvas area. */
 function syncChrome() {
   const indexOpen = document.body.classList.contains('index-open');
+  const dockWas = dock.hidden;
   indexEl.hidden = !indexOpen;
   indexEl.inert = !indexOpen;
   if (indexOpen) sheet.hidden = true;
@@ -3820,6 +3935,9 @@ function syncChrome() {
   tourEl.hidden = !touring || !sheet.hidden || indexOpen;
   boardEl.hidden = mode !== 'game';
   dock.hidden = sheet.hidden && noteEl.hidden && tourEl.hidden && !indexOpen;
+  /* the board yields width to an open panel, so the world it leaves changes
+     shape as well as size: frame it again whenever the dock comes or goes */
+  if (dock.hidden !== dockWas && mode === 'game') reframeAfterPanels();
   artStatus.hidden = !mandala || !imageStates.some(s => s === 'loading' || s === 'failed');
   document.body.classList.toggle('panel-open', !dock.hidden);
   document.body.classList.toggle('min-menus', minPlay);
@@ -3828,6 +3946,8 @@ function syncChrome() {
   // measured here rather than per frame; the label reads it every frame
   rbLabelClip = (mode === 'game' && !boardEl.hidden && !document.body.classList.contains('world-only'))
     ? boardEl.getBoundingClientRect() : null;
+  // an open panel is drawn over the canvas: the label stops short of it
+  rbLabelEdge = dock.hidden ? Infinity : dock.getBoundingClientRect().left;
   document.documentElement.style.setProperty('--bl', '0px');
   stage.toggleAttribute('no-toolbar', !dock.hidden);
 }
@@ -3845,6 +3965,10 @@ function freeRect() {
     if (!el || el.hidden || (el === legend && !dock.hidden)) return;
     const q = el.getBoundingClientRect();
     if (q.width < 6 || q.height < 6) return;
+    /* The candidates are sorted by what each costs, cheapest first, and a
+       dearer edge has to be clearly better to win — otherwise a wide, shallow
+       strip along the top can be charged to a side instead, surrendering most
+       of the width to buy a square a few pixels larger. */
     const cand = [['t', q.bottom], ['b', h - q.top], ['l', q.right], ['r', w - q.left]]
       .sort((a, b) => a[1] - b[1]);
     let best = null;
@@ -3852,7 +3976,7 @@ function freeRect() {
       const trial = Object.assign({}, ins);
       trial[k] = Math.max(trial[k], v);
       const sc = square(trial);
-      if (!best || sc > best.sc + 0.5) best = { k, v, sc };
+      if (!best || sc > best.sc * 1.08 + 0.5) best = { k, v, sc };
     });
     ins[best.k] = Math.max(ins[best.k], best.v);
   };
@@ -3889,8 +4013,48 @@ function mandalaFly(dur) {
   fly(V3(cx, d, cz + 0.0015), V3(cx, 0, cz), dur);
 }
 const NDC = new THREE.Vector3();
+/* Where a mark's two parts sit around the point it is placed on: the numbered
+   disc above the line, the name just under it. Read from the layout once, since
+   both are the same size for every heap. */
+const MARK_BOX = { nx: 13, nt: -25, nb: 3, lt: 1, lb: 27 };
+const hits = (ax, aw, at, ab, bx, bw, bt, bb) =>
+  Math.abs(ax - bx) < (aw + bw) / 2 && at < bb && bt < ab;
+/* Label widths are read from the layout and kept; anything that can change
+   them — a resize, or the web font arriving — throws the reading away. */
+let roomDirty = true;
+const remeasureMarks = () => {
+  MARKS.forEach((m) => { m.lw = 0; });
+  roomDirty = true;
+  invalidate();
+};
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(remeasureMarks);
+/* Which heaps have the room to name themselves. Measured from where the marks
+   actually land, so zooming in opens the names out ring by ring while the
+   crowded inner heaps keep to their numbers until they are asked for. A name
+   may never cover another heap's number, and no two names may cross. */
+function markRoom() {
+  const live = MARKS.filter((m) => m.was && m.el.style.display !== 'none');
+  live.forEach((m) => { if (!m.lw) m.lw = m.el.offsetWidth || 90; });
+  const named = [];
+  live.forEach((m) => {
+    const clear = live.every((o) => o === m ||
+        !hits(m.x, m.lw, m.y + MARK_BOX.lt, m.y + MARK_BOX.lb,
+              o.x, MARK_BOX.nx * 2, o.y + MARK_BOX.nt, o.y + MARK_BOX.nb))
+      && named.every((o) =>
+        !hits(m.x, m.lw, m.y + MARK_BOX.lt, m.y + MARK_BOX.lb,
+              o.x, o.lw, o.y + MARK_BOX.lt, o.y + MARK_BOX.lb));
+    m.roomy = clear;
+    if (clear) named.push(m);
+  });
+  live.forEach((m) => {
+    if (m.roomy === m.wasRoomy) return;
+    m.el.classList.toggle('roomy', m.roomy);
+    m.wasRoomy = m.roomy;
+  });
+}
 function placeMarks() {
   const w = stage.clientWidth, hgt = stage.clientHeight;
+  let shifted = false;
   MARKS.forEach((m) => {
     const illustration = OFFERING_MODELS.get(m.id);
     if (illustration) {
@@ -3899,7 +4063,7 @@ function placeMarks() {
       NDC.project(cam);
     } else NDC.copy(m.labelP).project(cam);
     const on = NDC.z < 1;
-    if (on !== m.was) { m.el.style.display = on ? '' : 'none'; m.was = on; }
+    if (on !== m.was) { m.el.style.display = on ? '' : 'none'; m.was = on; shifted = true; }
     if (!on) return;
     const x = Math.round((NDC.x * 0.5 + 0.5) * w);
     const y = Math.round((-NDC.y * 0.5 + 0.5) * hgt) + (illustration ? 18 : 0);
@@ -3907,10 +4071,12 @@ function placeMarks() {
       m.el.style.left = x + 'px';
       m.el.style.top = y + 'px';
       m.x = x; m.y = y;
+      shifted = true;
     }
     const cur = String(m.id === current);
     if (cur !== m.cur) { m.el.setAttribute('aria-current', cur); m.cur = cur; }
   });
+  if (shifted || roomDirty) { roomDirty = false; markRoom(); }
   CPTS.forEach((c) => {
     NDC.copy(c.p).project(cam);
     const x = Math.round((NDC.x * 0.5 + 0.5) * w), y = Math.round((-NDC.y * 0.5 + 0.5) * hgt);
@@ -4208,10 +4374,11 @@ noteEl.querySelector('[data-p="overview"]').addEventListener('click', () => {
 });
 resetPlay();
 /* while the mandala is shown, selecting an entry must not fly the camera */
-const RB_SQUARE_PAD = 6.5;
 const goTo = (id) => {
   if (touring && HEAP_NUMBERS.has(id)) visitHeap(HEAP_NUMBERS.get(id) - 1);
-  else if (!mandala) focus(id, null, /^rebirth_sq_/.test(id) ? RB_SQUARE_PAD : 1.3);
+  // a square is framed with the world it stands over, not flown into
+  else if (mode === 'game' && /^rebirth_sq_/.test(id)) reframeGame(700, rbBoard.positionOf(Number(id.slice(11))));
+  else if (!mandala) focus(id, null, 1.3);
 };
 
 /* The study tour has no recitation timer. Each stop corresponds to one heap. */
@@ -4374,7 +4541,7 @@ const setOpen = (open, reframeView = true) => {
   document.body.classList.toggle('index-open', open);
   syncChrome();
   indexBtn.setAttribute('aria-pressed', String(open));
-  if (mandala && reframeView) setTimeout(() => { if (mandala) reframeOffering(); }, 340);
+  if (reframeView) reframeAfterPanels(340);
   try { localStorage.setItem('ws-index', open ? '1' : '0'); } catch (err) {}
 };
 
@@ -4529,7 +4696,7 @@ function rbSelect(n, moveCamera) {
   rbCells.forEach((cell, sq) => cell.classList.toggle('reached', reached.has(sq)));
   rbLabel.querySelector('.n').textContent = String(n);
   rbLabel.querySelector('.t').textContent = RB_BY_N.get(n).name;
-  if (moveCamera && mode === 'game') focus('rebirth_sq_' + n, null, RB_SQUARE_PAD);
+  if (moveCamera && mode === 'game') reframeGame(700, rbBoard.positionOf(n));
   invalidate(2);
 }
 /* The label rides the selected square, projected each frame like the maṇḍala's
@@ -4549,7 +4716,8 @@ function rbPlaceLabel() {
   }
   rbLabel.hidden = false;
   const half = rbLabel.offsetWidth / 2 + 6;
-  rbLabel.style.left = Math.round(Math.min(Math.max(x, half), w - half)) + 'px';
+  const right = Math.min(w, rbLabelEdge) - half;
+  rbLabel.style.left = Math.round(Math.min(Math.max(x, half), Math.max(half, right))) + 'px';
   rbLabel.style.top = Math.round(Math.min(Math.max(y, 22), h - 22)) + 'px';
 }
 function rbFlash(n) {
@@ -4849,12 +5017,30 @@ function rbSwap(to) {
    leaves — on a wide screen a tall strip on the right. WORLD_R is the radius
    the home distance frames, so the two views agree on how big the world is. */
 const WORLD_R = BASE_DIST * Math.tan(cam.fov * Math.PI / 360);
-function reframeGame(dur = 700) {
+/* A square is brought into that same frame rather than flown to: the world
+   stays the subject and keeps its size, and the frame opens only as far as it
+   must to hold a square standing off the model — high on the spiral, or below
+   the golden ground. The label names it where it stands. */
+function gameRadius(at) {
+  if (!at) return WORLD_R;
+  return Math.max(WORLD_R, HOME.t.distanceTo(at) + RIM * 0.10);
+}
+function reframeGame(dur = 700, at = null) {
   const fr = freeRect();
   const h = Math.max(stage.clientHeight, 1);
   const half = Math.tan(cam.fov * Math.PI / 360);
-  const dist = WORLD_R * 1.04 / half * h / Math.min(fr.w, fr.h);
+  /* the world is a wide flat disc seen from a short way off, so its near edge
+     spreads well past its bounding sphere: the fit is paid for in advance */
+  const dist = gameRadius(at) * 1.20 / half * h / Math.min(fr.w, fr.h);
   aimAt(HOME.t, dist, fr, HOME_DIR, dur);
+}
+/* Panels open, fold and resize under all three views; the model is framed in
+   whatever they leave, so the same answer is asked of whichever one is up. */
+function reframeCurrent(dur = 420) {
+  if (mandala) reframeOffering();
+  else if (mode === 'game') {
+    reframeGame(dur, rbSelected === null ? null : rbBoard.positionOf(rbSelected));
+  }
 }
 function enterGame() {
   rbBoard.group.visible = true;
@@ -4978,7 +5164,7 @@ function syncFull() {
   fsBtn.querySelector('.t').textContent = on ? 'Exit full screen' : 'Full screen';
   fsBtn.title = (on ? 'Leave full screen' : 'Full screen') + ' \u2014 f';
   invalidate();
-  setTimeout(() => { if (mandala) reframeOffering(); }, 140);
+  setTimeout(reframeCurrent, 140);
 }
 function toggleFullScreen() {
   if (!canFull) {                       /* iOS Safari: hide the page chrome instead */
@@ -5006,8 +5192,9 @@ syncChrome();
 let reframe = null;
 window.addEventListener('resize', () => {
   syncChrome();
+  remeasureMarks();
   clearTimeout(reframe);
-  reframe = setTimeout(() => { if (mandala) reframeOffering(); }, 180);
+  reframe = setTimeout(reframeCurrent, 180);
 });
 document.querySelector('[data-act="close-index"]').addEventListener('click', () => setOpen(false));
 legend.querySelector('.legend-head').addEventListener('click', () => {
