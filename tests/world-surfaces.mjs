@@ -71,11 +71,13 @@ for (const salt of [false, true]) {
   }
   assert.ok(Math.max(...colours.array) - Math.min(...colours.array) > 0.1, 'Shore and deep-water colour separation');
   const material = createWaterMaterial(THREE, { name: 'test_water', normalMap, salt });
-  assert.equal(material.depthWrite, false, 'Water does not hide transparent offerings in the depth buffer');
+  // The seas have to hide what is under them. The offering illustrations are
+  // exempt by their own depthTest:false, so the water can keep its depth.
+  assert.equal(material.depthWrite, true, 'Water writes depth, so markers below the disc stay below it');
   assert.equal(material.normalMap, normalMap, 'Share the small ripple texture');
   assert.equal(material.forceSinglePass, true, 'No extra back-face pass');
   assert.equal(material.clone().normalMap, normalMap, 'Selection highlights retain surface detail');
   geometry.dispose(); material.dispose();
 }
 normalMap.dispose();
-console.log(`PASS: seven separate ranges, closed seams, bounded heights and waves, shared water detail; ${terrainTriangles} terrain triangles.`);
+console.log(`PASS: seven separate ranges, closed seams, bounded heights and waves, shared water detail, water that writes depth; ${terrainTriangles} terrain triangles.`);
