@@ -91,8 +91,19 @@ export function cellUV(art, rows) {
 /* Billboards on the square markers, loaded on demand and retried on failure:
    a square's field standing where the square stands, turning to face the
    camera so it is legible from anywhere in the orbit. With nothing registered
-   this builds nothing and reports no sheets. */
+   this builds nothing and reports no sheets.
+
+   Not every square wants one. Where the model itself builds the thing the
+   square names — the terrace of the Four Kings, the city on the summit, the
+   palaces above it — the three dimensions are the representation, and a flat
+   painting of the same thing hanging in front of them is the same square
+   said twice. `ctx.modelled` names those squares, and they are skipped here
+   and here only: the cell on the board, the throw card, the menus and the
+   expanded entry all still carry the field, which is where a picture of a
+   thing belongs. */
 export function createSquareArt(THREE, ctx, onStatus = () => {}) {
+  const modelled = ctx.modelled instanceof Set
+    ? ctx.modelled : new Set(ctx.modelled || []);
   const planes = new Map();
   const sheets = new Map();
   for (const url of artSheets()) sheets.set(url, { state: 'idle', materials: [] });
@@ -106,6 +117,7 @@ export function createSquareArt(THREE, ctx, onStatus = () => {}) {
      drawn at a fraction of its weight, so the few that matter carry the eye. */
   const FAINT = 0.34;
   function attach(holder, square) {
+    if (modelled.has(square)) return null;
     const art = SQUARE_ART.get(square);
     if (!art) return null;
     const sheet = sheets.get(art.sheet);
@@ -115,6 +127,9 @@ export function createSquareArt(THREE, ctx, onStatus = () => {}) {
     plane.userData.square = square;
     plane.userData.billboard = true;
     plane.position.y = ctx.SUMMIT * 0.13;
+    /* After the seas, which are drawn late and write depth: a billboard that
+       goes before them is painted over wherever water stands behind it. */
+    plane.renderOrder = 6;
     const uv = cellUV(art);
     const attribute = plane.geometry.attributes.uv;
     for (let i = 0; i < attribute.count; i += 1) {
@@ -167,5 +182,6 @@ export function createSquareArt(THREE, ctx, onStatus = () => {}) {
     planes.forEach((plane) => plane.quaternion.copy(camera.quaternion));
   }
 
-  return { attach, load, face, showActive, planes, sheets, states: () => [...sheets.values()].map((s) => s.state) };
+  return { attach, load, face, showActive, planes, sheets, modelled,
+           states: () => [...sheets.values()].map((s) => s.state) };
 }

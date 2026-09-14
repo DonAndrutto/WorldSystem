@@ -26,7 +26,7 @@ Click any part to open its entry; drag to orbit, scroll to zoom.
 | `rebirth-board.js` | The 104 squares of the game of rebirth, their Tibetan names, the die-to-destination graph, and the armature that places the squares the world system has no room for. |
 | `rebirth-game.js` | The rules on their own: dead faces, the two counter traps, victory at 104, and each player's trail. No DOM, no WebGL. |
 | `rebirth-notes.js` | Two entries per square, written for this drawing: the short note and the full one it expands to. The 1977 commentary is not reproduced. |
-| `rebirth-icons.js` | Where each square's field sits on the atlas sheets, and the billboards that carry it in the world. |
+| `rebirth-icons.js` | Where each square's field sits on the atlas sheets, and the billboards that carry it in the world — for every square the world does not already build in three dimensions. |
 | `rebirth-sound.js` | The voice every square answers in, and the small synthesiser that plays it. |
 | `tests/rebirth-regression.mjs` | Board and rules checks, including the routes the Rules of Play claim. |
 | `three-d-stage.js` | The `<three-d-stage>` custom element it imports: WebGL renderer, studio lighting with a soft ground shadow, orbit controls, an auto-framed camera, and OBJ + MTL / GLB export. |
@@ -94,19 +94,30 @@ through the water.
 Each heaven above Meru's summit is drawn the way the painted cosmologies draw
 it: a palace with a gilt roof, standing on a bank of cloud up to Anabhraka —
 *sprin med*, "the cloudless" — and on an open ledge from there to Akaniṣṭha.
+Four of them are not: Tuṣita, Nirmāṇa-rati, Paranirmita-Vaśavartin and the
+first heaven of form carry the field the board of liberation paints for them
+instead, since the board draws each of those as a thing of its own rather than
+as one more palace. Vaijayanta on the summit follows the same board's field for
+the Heaven of the Thirty-three.
 Each level is wider than the one below, as the texts have it, though the
 widening is illustrative rather than measured. Their spacing is schematic,
 inspired by the doubling of textual heights, with gaps between the groups. The
 sun and moon are enlarged
-spheres with painted glows; the lighting follows their direction around Meru
-from a higher angle for visibility. Offering marks use separate rings around
+spheres, each with a mottled painted face inside a gold rim and a corona of
+fine rays, after the offering cards this project already serves; the lighting
+follows their direction around Meru from a higher angle for visibility. Offering marks use separate rings around
 the world. *The scale of this drawing* describes these and other principal
 adaptations. The dimensions in the entries describe the sources; they cannot
 all be measured from the displayed model.
 
 Each continent takes its colour and shape from the face of Meru it stands opposite —
 crystal white east, lapis blue south, ruby red west, emerald green north — and is
-flanked by two subcontinents of the same shape and half the size.
+flanked by two subcontinents of the same shape and half the size. Jambudvīpa's
+outline follows the field the board of liberation paints for it — a bowed
+northern edge and two long concave flanks — rather than a ruled quadrilateral.
+
+A camera that drops below the water line is under it: the scene takes a sea fog
+and the view a blue cast, and both come off again the moment it surfaces.
 
 ## What is in it
 
@@ -288,20 +299,20 @@ the entries the legend sat beside.
 
 | | |
 | --- | --- |
-| **Index** `i` | The drawer of explanatory entries, with a filter, headed by the title and the way into *About this drawing*. |
+| **Index** `i` | The drawer of explanatory entries, with a filter, headed by the title and the way into *About this model*. |
 | **View** `e` `m` `g` | Explorer, Maṇḍala, Game. Explorer is the model and its index; Maṇḍala is the thirty-seven heaps, in the order the offering names them; Game sets the board of rebirth beside the world. |
 | **Board, both or world** `b` | In game mode, what is on the screen: the board alone as a diagram of positions, the board beside the world, or the world alone. Kept between visits. |
 | **Tibetan names** `t` | In game mode, names the squares in Tibetan instead of English wherever they are named in passing. The entry always gives both. |
 | **Board or world** `w` | In game mode on a narrow window, hands the screen from the board to the world and back. Where both fit, they are both already there. |
-| **Options** | Motion, night, full screen and reset view, under one control. |
+| **Options** | Motion, night, sound, full screen and reset view, under one control. |
 | **Motion** `r` | Sets the sun and moon on their circuit around Meru — forty seconds to the day — and lets the view turn slowly with them. The sun is what lights the world, so Meru's shadow walks round the continents with it. The moon does not stand opposite it — directly behind Meru it would sit in the mountain's own shadow and never be lit at all — so it runs a little under a half-turn away. Off until asked for, so the model holds still while it is being read. |
 | **Night** `n` | Paper or dark. At night the moon takes over the lighting, and the clouds stand against a faint field of stars. |
-| **Sound** | In game mode, under the board's own options. Off until asked for, like motion. |
+| **Sound** | The voice each square answers in, under Options with the rest of the settings that belong to no view. Off until asked for, like motion. |
 | **Full screen** `f` | Hidden where the platform has none to give: iOS Safari, and any window already running as an installed app. |
 | **Reset view** `Esc` | Disabled when there is nothing to undo. |
 
-The title at the head of the index opens **About this drawing** (`a`) — what this
-is, how to read it, and what the colours mean. That, and every other word of
+The title at the head of the index opens **About this model** (`a`) — what this
+is, how to read it, what the colours mean, and who made it. That, and every other word of
 prose, lives in the sheet with the entries rather than standing on the model.
 
 The one thing that does stand on it is a small compass rose, bottom right, which
@@ -394,7 +405,16 @@ Vasubandhu, *Abhidharmakośa* & *bhāṣya* III.45–102 (La Vallée Poussin / P
 Chim Jampaiyang, *Ornament of Abhidharma*; Jamgön Kongtrul, *Myriad Worlds*
 (*Treasury of Knowledge* I); Mipham, *Gateway to Knowledge* II.
 
+The board, its names and its move graph come from Michael Tatz and Judy Kent,
+*Rebirth: The Tibetan Game of Liberation* (1977), reconstructed from the printed
+chart, the square entries and the reverse index and cross-checked cell by cell.
+The commentary of that edition is not reproduced; the entries here are written
+for this model. That note is given once in the app, at the end of *About this
+model*, rather than under each of the hundred and four squares.
+
 Visual references and image provenance are recorded in [ARTWORK.md](ARTWORK.md).
+
+The model is by **Andrzej R. Rybszleger**, built from the sources above.
 
 ## Development checks
 
