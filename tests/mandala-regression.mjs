@@ -483,11 +483,22 @@ for (const sq of rbBoard.SQUARES) {
   assert.equal(app.E['rebirth_sq_'+sq.n].tib,rbBoard.tibetanOf(sq.n),'and in its entry');
 }
 assert.ok(!document.body.classList.contains('tibetan-names'),'English to begin with');
+/* The switch is a selector among the settings that answer to no view, with
+   both languages on it and the one in force held down — not a lone button
+   carrying the name of the language you are not reading. */
+assert.ok(q('.controls [data-menu="options"] [data-lang="bo"]'),'the selector is in Options');
+assert.equal(q('[data-lang="en"]').getAttribute('aria-pressed'),'true','English is held down');
+assert.equal(q('[data-lang="bo"]').getAttribute('aria-pressed'),'false');
 key('t'); advance(200);
 assert.ok(document.body.classList.contains('tibetan-names'),'t turns the Tibetan names on');
-assert.equal(q('[data-game="tibetan"]').getAttribute('aria-pressed'),'true');
-key('t'); advance(200);
-assert.ok(!document.body.classList.contains('tibetan-names'));
+assert.equal(q('[data-lang="bo"]').getAttribute('aria-pressed'),'true','and Tibetan is held down');
+assert.equal(q('[data-lang="en"]').getAttribute('aria-pressed'),'false');
+q('[data-lang="en"]').click(); advance(200);
+assert.ok(!document.body.classList.contains('tibetan-names'),'and the selector switches back');
+// the names themselves are never withheld: a board of unnamed fields is a grid
+for (const sq of [1, 24, 104]) {
+  assert.ok(cellOf(sq).querySelector('.nm').textContent.length,'square '+sq+' is named');
+}
 
 /* Three arrangements of the same game: the board beside the world, the world
    alone, and the board alone — the 2D reading, with no model behind it. */
@@ -503,6 +514,29 @@ q('[data-layout="world"]').click(); advance(600);
 assert.equal(layoutOf(),'world','and the world alone, at any width');
 key('b'); advance(600);
 assert.equal(layoutOf(),'both','b cycles round');
+assert.equal(q('.rb-players').hidden,false);
+
+/* Two of the three dress the whole page — board hides the canvas the world is
+   drawn on, world folds the board away — and neither means anything outside
+   the game. Written onto the body they outlived the game that asked for them:
+   the explorer opened onto an empty sky with the model still there behind a
+   hidden canvas, and a remembered preference for the board alone did the same
+   thing on the next visit, before a game had been asked for at all. */
+q('[data-layout="board"]').click(); advance(600);
+assert.equal(layoutOf(),'board');
+key('e'); advance(600);
+assert.equal(document.body.classList.contains('board-only'),false,
+  'the board alone does not outlive the game');
+assert.equal(document.body.classList.contains('world-only'),false);
+key('g'); advance(600);
+assert.equal(layoutOf(),'board','and the arrangement comes back with the game');
+q('[data-layout="world"]').click(); advance(600);
+key('e'); advance(600);
+assert.equal(document.body.classList.contains('world-only'),false,
+  'nor does the world alone');
+key('g'); advance(600);
+q('[data-layout="both"]').click(); advance(600);
+assert.equal(layoutOf(),'both');
 assert.equal(q('.rb-players').hidden,false);
 
 // Every player stands in the world, in their own colour, and the one holding
@@ -546,6 +580,15 @@ assert.equal(q('.entry-art > div').style.backgroundImage,'url("'+rbIcons.SQUARE_
 assert.equal(q('.entry-art > div').style.backgroundPosition,
   rbIcons.cellBackground(rbIcons.SQUARE_ART.get(17)).position);
 assert.match(q('.sheet .sub').innerHTML,/འཛམ/,'and names it in Tibetan');
+/* And it is read in that order: what it is called, the thing itself, what is
+   said about it, and only then the table of where it stands on the board and
+   what each face of the die does with it. The table used to come second, so
+   twelve rows of coordinates stood between every square and its own story. */
+const entryOrder = [...q('.sheet-scroll').children]
+  .filter(el => ['H2','FIGURE','DL'].includes(el.tagName) || el.classList.contains('bodies'))
+  .map(el => el.tagName === 'DIV' ? 'bodies' : el.tagName);
+assert.deepEqual(entryOrder,['H2','FIGURE','bodies','DL'],
+  'name, then field, then the prose, and the table last');
 app.close(); advance(300);
 assert.ok(!playerChips[1].classList.contains('turn'));
 
@@ -737,6 +780,12 @@ newGame(1);
 assert.equal(app.rbGame().players[0].pos,rbBoard.START);
 assert.equal(app.rbGame().winner,null);
 assert.equal(chips().length,0,'a new game starts with an empty trail');
+/* The one thing the board has to say before a throw is its own rule, and the
+   rule is the second sentence: the die names where you go, it does not count
+   how far. A new game used to drop it. */
+assert.match(q('.bv-say').textContent,/starts on 24/);
+assert.match(q('.bv-say').textContent,/does not count spaces/,
+  'a new game says the whole of it');
 
 // The dialog opens showing whoever is playing, so the usual case is two clicks.
 newGame(2,['Tenzin','Drolma']);
