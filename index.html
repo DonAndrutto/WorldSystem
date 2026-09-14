@@ -101,6 +101,22 @@
   ::selection { background: var(--hi-2); }
 
   .overlay { position: fixed; inset: 0; pointer-events: none; z-index: 2; }
+  /* ── under the water ───────────────────────────────────────────────────
+     A camera that drops below the water line is under it. The scene's own
+     fog carries the distance; this carries the cast over everything near,
+     and the darkening toward the edges that a surface seen from beneath
+     always has. It stands between the canvas and the interface, so the
+     panels over it stay as legible as they are in air. */
+  .underwater {
+    position: fixed; inset: 0; z-index: 1; pointer-events: none; opacity: 0;
+    transition: opacity .5s ease;
+    background:
+      radial-gradient(128% 96% at 50% 14%,
+        rgba(104, 196, 208, .17) 0%, rgba(22, 96, 132, .46) 54%,
+        rgba(7, 40, 66, .74) 100%);
+  }
+  .underwater.on { opacity: 1; }
+  @media (prefers-reduced-motion: reduce) { .underwater { transition: none; } }
   .card {
     background: var(--surface); border: 1px solid var(--rule);
     box-shadow: var(--shadow);
@@ -195,6 +211,11 @@
   .menu-body .btn .g { width: 1.2em; text-align: center; }
   .menu-body .btn:hover { background: var(--hi); }
   .menu-body .btn[aria-pressed="true"] { background: var(--hi-2); color: var(--ink); }
+  /* Sound belongs with the settings that answer to no view rather than to the
+     board, so it is a switch among the buttons and is shaped like one. */
+  .menu-body label.sw { cursor: pointer; }
+  .menu-body label.sw input { margin: 0 0 0 auto; accent-color: var(--accent); }
+  .menu-body label.sw:has(input:checked) { background: var(--hi-2); color: var(--ink); }
 
   /* compass — a small rose that turns with the view, so that north can be
      found without turning the world to look for it. It takes the corner the
@@ -840,7 +861,7 @@
   .bv-tok { width: 10px; height: 10px; border-radius: 50%; box-shadow: 0 0 0 1px var(--paper); flex: none; }
   .bv-tok.turn { outline: 1px solid var(--ink); outline-offset: 1px; }
 
-  .bv-rail { display: flex; gap: 8px; align-items: flex-start; padding: 7px 9px; flex: none; }
+  .bv-rail { display: flex; flex-wrap: wrap; gap: 8px; align-items: flex-start; padding: 7px 9px; flex: none; }
   /* what is on the screen: the board alone, both, or the world alone */
   .bv-views { flex: none; align-self: flex-start; }
   .bv-views .btn { padding: 6px 8px 5px; }
@@ -925,7 +946,9 @@
     .bv-card .nm { font-size: 20px; }
   }
   .bv-rail .go { flex: none; min-width: 116px; align-self: stretch; }
-  .bv-mid { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 5px; }
+  /* The running commentary keeps a width it can be read at; where the board
+     is too narrow to give it one, the controls beside it wrap instead. */
+  .bv-mid { flex: 1 1 210px; min-width: 190px; display: flex; flex-direction: column; gap: 5px; }
   .bv-who {
     display: flex; align-items: center; gap: 7px; flex-wrap: nowrap;
     overflow-x: auto; overscroll-behavior-x: contain;
@@ -997,10 +1020,6 @@
     position: absolute; right: 0; bottom: calc(100% + 7px); width: 268px;
     background: var(--menu);
     display: flex; flex-direction: column; gap: 8px; padding: 10px; z-index: 6;
-  }
-  .bv-more-body h3 {
-    margin: 3px 0 0; font-family: "IBM Plex Mono", monospace; font-size: 9.5px;
-    letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); font-weight: 500;
   }
   .bv-setup { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; font-size: 12.5px; color: var(--ink-2); }
   .board-view select {
@@ -1096,6 +1115,7 @@
 <body>
 
 <three-d-stage name="buddhist-world-system" background="#efe8da"></three-d-stage>
+<div class="underwater" aria-hidden="true"></div>
 
 <div class="overlay">
   <!-- Three controls, and every one of them opens onto the rest. The index,
@@ -1115,6 +1135,7 @@
       <div class="menu-body card" role="group" aria-label="Options">
         <button class="btn" data-act="motion" type="button" aria-pressed="false" title="Set it turning — r"><span class="g">▶</span><span class="t">Motion</span></button>
         <button class="btn" data-act="night" type="button" aria-pressed="false" title="Night — n"><span class="g">☾</span><span class="t">Night</span></button>
+        <label class="btn sw" for="g-sound" title="Sound — the voice each square answers in"><span class="g">♪</span><span class="t">Sound</span><input type="checkbox" id="g-sound"></label>
         <button class="btn" data-act="full" type="button" aria-pressed="false" title="Full screen — f"><span class="g">⛶</span><span class="t">Full screen</span></button>
         <button class="btn" data-act="home" type="button" title="Reset view — Esc"><span class="g">⟲</span><span class="t">Reset view</span></button>
       </div>
@@ -1165,10 +1186,8 @@
       <button class="btn bv-tib" type="button" data-game="tibetan" aria-pressed="false" title="Tibetan names — t" lang="bo">བོད</button>
       <button class="btn bv-new" type="button" data-game="ask-new" title="Start a new game — asks first">New game</button>
       <details class="bv-more">
-        <summary class="btn" title="Game options and the move log">⋯</summary>
+        <summary class="btn" title="Every throw of this game, in order">Move log</summary>
         <div class="bv-more-body card">
-          <label class="sw"><input type="checkbox" id="g-sound"> Sound</label>
-          <h3>Move log</h3>
           <ul class="feed"></ul>
         </div>
       </details>
@@ -1281,7 +1300,7 @@
   <nav class="index card scroll" hidden>
     <div class="head">
       <div class="line">
-        <h1><button class="title" type="button" title="About this drawing — a">The World System<span class="i" aria-hidden="true">i</span></button></h1>
+        <h1><button class="title" type="button" title="About this model — a">The World System<span class="i" aria-hidden="true">i</span></button></h1>
         <button class="x" type="button" data-act="close-index" title="Close the index" aria-label="Close the index">×</button>
       </div>
       <input type="search" placeholder="Filter by name or meaning" aria-label="Filter the index">
@@ -1345,34 +1364,90 @@ const canvasTex = (w, h, draw) => {
   return t;
 };
 
-// a round glow, with rays for the sun and none for the moon
-const glowTex = (rgb, rays) => canvasTex(512, 512, (x, w) => {
-  const c = w / 2;
-  if (rays) {
-    x.translate(c, c);
-    for (let i = 0; i < rays; i++) {
-      const a = (i / rays) * Math.PI * 2;
-      const len = c * (i % 2 ? 0.98 : 0.66), wid = 0.038;
-      const g = x.createLinearGradient(0, 0, Math.cos(a) * len, Math.sin(a) * len);
-      g.addColorStop(0, `rgba(${rgb},0.34)`);
-      g.addColorStop(0.5, `rgba(${rgb},0.12)`);
-      g.addColorStop(1, `rgba(${rgb},0)`);
+/* ── The two luminaries ──────────────────────────────────────────────────
+   The offering cards this project already serves draw the sun and moon the
+   same way: a mottled disc of mineral pigment held inside a thin gold rim,
+   with a corona of many fine rays, each tapering and waving as it goes,
+   long and short by turns. Both halves of that are painted here. The face
+   of the disc goes onto the sphere; the rim and the corona go into the glow
+   standing in front of it, which always faces the camera — a rim modelled
+   as a ring of geometry would only read from one side, and a rim painted at
+   the sphere's own silhouette would fight the sphere for the same depth, so
+   it is drawn just outside the edge where nothing is in its way.        */
+const seeded = (n) => () => (n = (n * 1103515245 + 12345) % 2147483648) / 2147483648;
+
+/* the face of a disc: a ground, then soft blotches of two tones over it */
+const discTex = (ground, high, low, seed) => canvasTex(512, 512, (x, w) => {
+  const rnd = seeded(seed);
+  x.fillStyle = ground;
+  x.fillRect(0, 0, w, w);
+  for (let i = 0; i < 300; i++) {
+    const cx = rnd() * w, cy = rnd() * w, r = w * (0.018 + rnd() * 0.085);
+    const tone = rnd() < 0.5 ? high : low;
+    const a = (0.10 + rnd() * 0.22).toFixed(3);
+    // painted three times over, so the blotches carry across the seam where
+    // the map closes round the sphere instead of stopping at it
+    for (const at of [cx - w, cx, cx + w]) {
+      if (at + r < 0 || at - r > w) continue;
+      const g = x.createRadialGradient(at, cy, 0, at, cy, r);
+      g.addColorStop(0, `rgba(${tone},${a})`);
+      g.addColorStop(1, `rgba(${tone},0)`);
       x.fillStyle = g;
-      x.beginPath(); x.moveTo(0, 0);
-      x.lineTo(Math.cos(a - wid) * len, Math.sin(a - wid) * len);
-      x.lineTo(Math.cos(a + wid) * len, Math.sin(a + wid) * len);
-      x.closePath(); x.fill();
+      x.beginPath(); x.arc(at, cy, r, 0, Math.PI * 2); x.fill();
     }
-    x.setTransform(1, 0, 0, 1, 0, 0);
   }
-  const g = x.createRadialGradient(c, c, 0, c, c, c);
-  g.addColorStop(0, `rgba(${rgb},0.9)`);
-  g.addColorStop(0.1, `rgba(${rgb},0.5)`);
-  g.addColorStop(0.2, `rgba(${rgb},0.3)`);
-  g.addColorStop(0.4, `rgba(${rgb},0.1)`);
-  g.addColorStop(0.7, `rgba(${rgb},0.025)`);
-  g.addColorStop(1, `rgba(${rgb},0)`);
-  x.fillStyle = g; x.fillRect(0, 0, w, w);
+});
+
+/* the rim and the corona, painted into the glow that stands in front */
+const glowTex = (o) => canvasTex(768, 768, (x, w) => {
+  const c = w / 2, disc = c * o.disc;
+  const halo = x.createRadialGradient(c, c, 0, c, c, c);
+  halo.addColorStop(0, `rgba(${o.glow},${o.core})`);
+  halo.addColorStop(o.disc * 0.9, `rgba(${o.glow},${(o.core * 0.62).toFixed(3)})`);
+  halo.addColorStop(o.disc * 1.6, `rgba(${o.glow},${(o.core * 0.22).toFixed(3)})`);
+  halo.addColorStop(0.62, `rgba(${o.glow},${(o.core * 0.05).toFixed(3)})`);
+  halo.addColorStop(1, `rgba(${o.glow},0)`);
+  x.fillStyle = halo;
+  x.fillRect(0, 0, w, w);
+  x.translate(c, c);
+  x.lineCap = 'round';
+  for (let i = 0; i < o.rays; i++) {
+    const a = (i / o.rays) * Math.PI * 2;
+    const long = i % 2 === 0;
+    const from = disc * 1.02;
+    const len = disc * (1 + o.reach * (long ? 1 : 0.58));
+    const bend = o.bend * (i % 3 === 0 ? -1 : 1);
+    const g = x.createLinearGradient(Math.cos(a) * from, Math.sin(a) * from,
+                                     Math.cos(a) * len, Math.sin(a) * len);
+    g.addColorStop(0, `rgba(${o.ray},${o.rayAlpha})`);
+    g.addColorStop(0.5, `rgba(${o.ray},${(o.rayAlpha * 0.5).toFixed(3)})`);
+    g.addColorStop(1, `rgba(${o.ray},0)`);
+    x.strokeStyle = g;
+    x.lineWidth = w * (long ? o.fine : o.fat);
+    const mid = (from + len) / 2;
+    x.beginPath();
+    x.moveTo(Math.cos(a) * from, Math.sin(a) * from);
+    x.quadraticCurveTo(Math.cos(a + bend) * mid, Math.sin(a + bend) * mid,
+                       Math.cos(a + bend * 1.8) * len, Math.sin(a + bend * 1.8) * len);
+    x.stroke();
+  }
+  x.setTransform(1, 0, 0, 1, 0, 0);
+});
+
+/* The gold rim the offering cards draw round both discs, on a sheet of its
+   own. Added light over a lit sky is white whatever colour it was, and a
+   rim that goes white is not a rim — so this one is laid over the sky
+   rather than added to it, and keeps its gold at noon.                  */
+const rimTex = (rim, at) => canvasTex(1024, 1024, (x, w) => {
+  const c = w / 2, r = c * at;
+  x.translate(c, c);
+  x.lineWidth = w * 0.017;
+  x.strokeStyle = `rgba(${rim},0.95)`;
+  x.beginPath(); x.arc(0, 0, r, 0, Math.PI * 2); x.stroke();
+  x.lineWidth = w * 0.006;
+  x.strokeStyle = 'rgba(255,247,222,0.85)';
+  x.beginPath(); x.arc(0, 0, r * 1.036, 0, Math.PI * 2); x.stroke();
+  x.setTransform(1, 0, 0, 1, 0, 0);
 });
 
 /* Tibetan cloud silhouettes and mineral-pigment spirals, painted once per
@@ -1451,16 +1526,38 @@ const M = {
              { flatShading: true, emissive: 0x1d2c27, emissiveIntensity: 0.4 }),
   wood:    mat('jambu_wood', 0x6b4f32, 0.68, 0.02),
   leaf:    mat('jambu_foliage', 0x4f7a4a, 0.62, 0.02),
-  sun:     mat('sun', 0xf6c25a, 0.3, 0.05, { emissive: 0xe0801e, emissiveIntensity: 0.9 }),
+  sun:     mat('sun', 0xffffff, 0.42, 0.02, Object.assign(
+             { emissive: 0xffffff, emissiveIntensity: 0.62, fog: false },
+             (() => { const t = discTex('#ef5a1c', '252,196,74', '190,38,14', 7);
+                      return { map: t, emissiveMap: t }; })())),
   sunGlow: Object.assign(new THREE.SpriteMaterial({
-    map: glowTex('255,205,120', 18), transparent: true, opacity: 0.5,
-    depthWrite: false, blending: THREE.AdditiveBlending, toneMapped: false
+    map: glowTex({ disc: 2 / 6.4, rays: 96, reach: 0.42, bend: 0.034,
+                   glow: '255,176,86', core: 0.30,
+                   ray: '255,201,112', rayAlpha: 0.40,
+                   fine: 0.0042, fat: 0.0030 }),
+    transparent: true, opacity: 0.55,
+    depthWrite: false, blending: THREE.AdditiveBlending, toneMapped: false, fog: false
   }), { name: 'sun_halo' }),
-  moonDisc:mat('moon', 0xf6f9fc, 0.3, 0.05, { emissive: 0xc9d9e8, emissiveIntensity: 0.62 }),
+  sunRim:  Object.assign(new THREE.SpriteMaterial({
+    map: rimTex('236,176,52', 2 / 3.0 * 1.03), transparent: true, opacity: 0.95,
+    depthWrite: false, toneMapped: false, fog: false
+  }), { name: 'sun_rim' }),
+  moonDisc:mat('moon', 0xffffff, 0.36, 0.03, Object.assign(
+             { emissive: 0xffffff, emissiveIntensity: 0.42, fog: false },
+             (() => { const t = discTex('#dbe5f3', '255,255,255', '124,156,196', 19);
+                      return { map: t, emissiveMap: t }; })())),
   moonGlow: Object.assign(new THREE.SpriteMaterial({
-    map: glowTex('204,228,250', 0), transparent: true, opacity: 0.6,
-    depthWrite: false, blending: THREE.AdditiveBlending, toneMapped: false
+    map: glowTex({ disc: 2 / 6.8, rays: 104, reach: 0.30, bend: 0.030,
+                   glow: '206,228,252', core: 0.26,
+                   ray: '246,229,184', rayAlpha: 0.30,
+                   fine: 0.0036, fat: 0.0026 }),
+    transparent: true, opacity: 0.62,
+    depthWrite: false, blending: THREE.AdditiveBlending, toneMapped: false, fog: false
   }), { name: 'moon_halo' }),
+  moonRim: Object.assign(new THREE.SpriteMaterial({
+    map: rimTex('232,204,132', 2 / 3.0 * 1.03), transparent: true, opacity: 0.9,
+    depthWrite: false, toneMapped: false, fog: false
+  }), { name: 'moon_rim' }),
   milk:    mat('wish_cow', 0xe7dfd0, 0.6, 0.02),
   hoof:    mat('cow_hoof', 0x4c4038, 0.56, 0.05),
   grain:   mat('harvest', 0xc2963f, 0.6, 0.05),
@@ -1472,6 +1569,22 @@ const M = {
   foliageLit: mat('wish_tree_foliage_sunlit', 0x62975b, 0.6, 0.02),
   ember:   mat('ember', 0x8a3a2c, 0.66, 0.06),
   cloud:   mat('heaven_cloud', 0xeff2f6, 0.92, 0.0),
+  /* The pigments the board of liberation paints its heavens with: the
+     near-black navy of the plinths and closed storeys, the cinnabar of the
+     roofs, the celadon of the lower one, the cream of a colonnade's walls,
+     the flame of an aureole, and the two jewels it stands inside one. */
+  indigo:  mat('palace_indigo', 0x1e2b4b, 0.56, 0.08),
+  cinnabar:mat('palace_cinnabar', 0xb63a2c, 0.5, 0.06),
+  celadon: mat('palace_celadon', 0x7fa79b, 0.52, 0.06),
+  vermilion: mat('palace_vermilion', 0xd1522a, 0.5, 0.06),
+  pearl:   mat('palace_wall', 0xeee7d6, 0.62, 0.02),
+  flame:   mat('aureole_flame', 0xd9491f, 0.46, 0.04,
+             { emissive: 0x6e1c06, emissiveIntensity: 0.45 }),
+  jewelBlue: mat('jewel_slate', 0x3d4c66, 0.34, 0.12),
+  jewelGold: mat('jewel_gold', 0xe0ab3d, 0.32, 0.2,
+             { emissive: 0x5a3d07, emissiveIntensity: 0.3 }),
+  wave:    mat('wave_crest', 0xa9c7e4, 0.7, 0.02),
+  halo:    mat('form_halo', 0x8fa3b2, 0.48, 0.1),
   formless: Object.assign(
     new THREE.MeshBasicMaterial({ color: 0x8a8578, wireframe: true }),
     { name: 'formless' }
@@ -1494,6 +1607,166 @@ const sq = (halfTop, halfBottom, h, material) => {
   return m;
 };
 
+/* ── Building the palaces ───────────────────────────────────────────────
+   The board of liberation draws a heaven as a building, and draws the same
+   building in the same hand every time: a plinth, storeys that step in as
+   they rise, roofs whose eaves lift and reach as they run to the corners,
+   and a gilt finial over the lot. Four helpers make those parts, so that
+   the summit's hall and the palaces above it are the same carpentry at
+   different sizes rather than four separate inventions.                  */
+
+/* A roof of four faces falling from a short crest. The eave is one closed
+   loop round the square, not four separate edges — that is what holds the
+   corners of neighbouring faces together while they horn upward and reach
+   out, the way a painted eave does. */
+function flaredRoof(half, rise, material, o = {}) {
+  const crest = o.crest === undefined ? 0.30 : o.crest;   // the ridge, in half-widths
+  const lift = o.lift === undefined ? 0.34 : o.lift;      // corner rise, in roof heights
+  const reach = o.reach === undefined ? 0.14 : o.reach;   // corner reach, in half-widths
+  const hollow = o.hollow === undefined ? 1.6 : o.hollow; // how scooped the slope is
+  const deep = (o.deep === undefined ? 0.16 : o.deep) * rise;   // the eave's own thickness
+  const across = 9, up = 5, cols = 4 * across, stride = cols + 1;
+  const pos = [], idx = [];
+  // the tiles, then the same surface again beneath them: an eave with an edge
+  for (let shell = 0; shell < 2; shell++) {
+    for (let r = 0; r <= up; r++) {
+      const u = r / up;
+      const w = half + (half * crest - half) * u;
+      const lower = rise * Math.pow(u, hollow);
+      for (let c = 0; c <= cols; c++) {
+        const t = (c % cols) / across;
+        const face = Math.floor(t), sAt = (t - face) * 2 - 1;
+        const horn = Math.pow(Math.abs(sAt), 4) * (1 - u);
+        const out = w * (1 + reach * horn) * (shell ? 0.985 : 1);
+        const a = face * Math.PI / 2;
+        const px = sAt * out, pz = out;
+        pos.push(px * Math.cos(a) + pz * Math.sin(a),
+                 lower + rise * lift * horn - (shell ? deep : 0),
+                 -px * Math.sin(a) + pz * Math.cos(a));
+      }
+    }
+  }
+  const under = stride * (up + 1);
+  for (let r = 0; r < up; r++) {
+    for (let c = 0; c < cols; c++) {
+      const a = r * stride + c, b = a + stride;
+      idx.push(a, a + 1, b, a + 1, b + 1, b);
+      const a2 = under + a, b2 = under + b;
+      idx.push(a2, b2, a2 + 1, a2 + 1, b2, b2 + 1);
+    }
+  }
+  for (let c = 0; c < cols; c++) {       // close the eave between the two shells
+    const a = c, b = under + c;
+    idx.push(a, b, a + 1, a + 1, b, b + 1);
+  }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+  g.setIndex(idx);
+  g.computeVertexNormals();
+  const group = new THREE.Group();
+  group.add(new THREE.Mesh(g, material));
+  // the crest itself, so the roof is closed when seen from above
+  const cap = sq(half * crest, half * crest, rise * 0.09, material);
+  cap.position.y = rise + rise * 0.04;
+  group.add(cap);
+  return group;
+}
+
+/* An open storey: a floor, posts round all four sides, and a lintel over
+   them, so that a level reads as somewhere with air in it. The posts are
+   laid round the square as one run, so no two stand in the same place. */
+function colonnade(half, height, bays, post, wall) {
+  const g = new THREE.Group();
+  const floor = sq(half * 1.04, half * 1.06, height * 0.12, wall);
+  floor.position.y = height * 0.06;
+  g.add(floor);
+  const t = half * 0.11, up = height * 0.74;
+  const geo = new THREE.BoxGeometry(t, up, t);
+  for (let side = 0; side < 4; side++) {
+    const a = side * Math.PI / 2;
+    for (let i = 0; i < bays; i++) {
+      const u = (i / bays) * 2 - 1;
+      const px = u * half, pz = half;
+      const m = new THREE.Mesh(geo, post);
+      m.position.set(px * Math.cos(a) + pz * Math.sin(a), height * 0.12 + up / 2,
+                     -px * Math.sin(a) + pz * Math.cos(a));
+      g.add(m);
+    }
+  }
+  const back = sq(half * 0.74, half * 0.74, up, wall);      // the room behind the posts
+  back.position.y = height * 0.12 + up / 2;
+  g.add(back);
+  const lintel = sq(half * 1.06, half * 1.02, height * 0.14, post);
+  lintel.position.y = height * 0.93;
+  g.add(lintel);
+  return g;
+}
+
+/* The gilt finial: a swelling drop over two flattened beads on a short
+   neck, which is what the painted ones put over every roof. */
+function finial(r, material) {
+  const g = new THREE.Group();
+  const neck = new THREE.Mesh(new THREE.CylinderGeometry(r * 0.46, r * 0.62, r * 0.8, 14), material);
+  neck.position.y = r * 0.40;
+  g.add(neck);
+  [[0.86, 0.66], [1.24, 0.54]].forEach(([at, rad]) => {
+    const bead = new THREE.Mesh(new THREE.SphereGeometry(r * rad, 16, 8), material);
+    bead.scale.y = 0.5;
+    bead.position.y = r * at;
+    g.add(bead);
+  });
+  const drop = new THREE.Mesh(new THREE.LatheGeometry([
+    [0.02, 0], [0.44, 0.14], [0.68, 0.42], [0.70, 0.76],
+    [0.52, 1.16], [0.26, 1.54], [0.08, 1.84], [0, 1.98]
+  ].map(([rr, hh]) => new THREE.Vector2(rr * r, hh * r)), 20), material);
+  drop.position.y = r * 1.42;
+  g.add(drop);
+  return g;
+}
+
+/* A jewel the way the board draws one: a round stone drawn up to a point,
+   which is the shape both the slate jewel of Tuṣita and the gold one of
+   Nirmāṇarati are given. */
+function jewelDrop(r, material) {
+  return new THREE.Mesh(new THREE.LatheGeometry([
+    [0, -1.00], [0.44, -0.92], [0.80, -0.66], [0.98, -0.28], [1.00, 0.10],
+    [0.88, 0.44], [0.62, 0.76], [0.30, 1.00], [0, 1.18]
+  ].map(([rr, hh]) => new THREE.Vector2(rr * r, hh * r)), 30), material);
+}
+
+/* One tongue of the painted aureole: a leaf with a curl at its tip. */
+const FLAME_SHAPE = (() => {
+  const f = new THREE.Shape();
+  f.moveTo(-0.30, 0);
+  f.bezierCurveTo(-0.36, 0.44, -0.26, 0.74, -0.05, 1.00);
+  f.bezierCurveTo(-0.02, 0.74, 0.10, 0.58, 0.19, 0.50);
+  f.bezierCurveTo(0.31, 0.34, 0.33, 0.16, 0.30, 0);
+  f.closePath();
+  return f;
+})();
+/* A ring of them standing round whatever they surround, leaning out
+   unevenly, so that the aureole reads from anywhere in the orbit rather
+   than only from the one side a flat one would face. */
+function flameHalo(radius, height, count, material, lean = 0.36) {
+  const g = new THREE.Group();
+  const geo = new THREE.ExtrudeGeometry(FLAME_SHAPE,
+    { depth: 0.07, bevelEnabled: false, curveSegments: 8 });
+  geo.translate(0, 0, -0.035);
+  for (let i = 0; i < count; i++) {
+    const a = (i / count) * Math.PI * 2;
+    const arm = new THREE.Group();
+    arm.rotation.y = a;
+    const tall = height * (0.60 + 0.40 * Math.abs(Math.sin(a * 1.5 + 0.6)));
+    const m = new THREE.Mesh(geo, material);
+    m.scale.set(tall * 0.82, tall, tall * 0.82);
+    m.position.z = radius;
+    m.rotation.x = -lean * (i % 2 ? 1 : 0.5);
+    arm.add(m);
+    g.add(arm);
+  }
+  return g;
+}
+
 /* ── Mount Meru ─────────────────────────────────────────────────────────
    80,000 yojanas square, 80,000 above the water and 80,000 sunk below.
    Drawn with a taper — base wider than summit — so it reads as a mountain
@@ -1508,7 +1781,10 @@ add(meru, 'meru_core');
 
 // The four faces, each a precious substance, each its own click target.
 function facePlate(y0, y1, material, name) {
-  const b = halfAt(y0), t = halfAt(y1), out = y(1100), inset = 0.9;
+  /* The plate is the core's own flank, moved out along it. The standoff has
+     to survive the whole orbit: two surfaces this nearly parallel resolve to
+     the same depth long before they touch, and the pair then flickers. */
+  const b = halfAt(y0), t = halfAt(y1), out = y(1900), inset = 0.9;
   const g = new THREE.BufferGeometry();
   g.setAttribute('position', new THREE.Float32BufferAttribute([
     -b * inset, y0, b + out,  b * inset, y0, b + out,  b * inset * 0 + t * inset, y1, t + out,
@@ -1540,8 +1816,11 @@ function facePlate(y0, y1, material, name) {
     const slab = sq(half, half * 0.9, t, M.gold);
     slab.position.y = topY - t / 2;
     add(slab, name);
+    /* The overhanging band under the terrace edge. Its top is held a little
+       below the terrace floor rather than level with it: two upward faces at
+       one height are one depth, and the pair flickers across the whole tier. */
     const lip = sq(half * 1.075, half * 1.055, t * 0.26, M.goldDeep);
-    lip.position.y = topY - t * 0.13;
+    lip.position.y = topY - t * 0.20;
     add(lip, name);
   });
 
@@ -1573,18 +1852,111 @@ const plat = sq(TOP_H * 1.06, TOP_H, yv(2600), M.gold);
 plat.position.y = SUMMIT + yv(1300);
 add(plat, 'meru_summit_platform');
 
-const city = sq(y(24000), y(24000), yv(2400), M.gold);
+/* Sudarśana, the city on the summit: a walled square with a gate in the
+   middle of each side, four parks outside the walls — one to each side, as
+   the Kośa puts them — and Vaijayanta at its centre. The field the board of
+   liberation gives this square is a hall of three storeys, and that is what
+   stands here rather than the palace the other heavens share: a stepped
+   navy plinth, an open colonnade under a celadon roof, a closed navy storey
+   under a cinnabar one, a gilt storey under the eaves that horn upward, and
+   the gilt drop over all of it. */
+const CITY = y(24000);                        // half the walled square
+const cityTop = SUMMIT + yv(5000);
+const city = sq(CITY, CITY, yv(2400), M.gold);
 city.position.y = SUMMIT + yv(3800);
 add(city, 'sudarshana_city');
 
-[[26000, 5600], [19000, 5600], [13000, 5600]].forEach(([side, h], i) => {
-  const tier = sq(y(side) / 2, y(side) / 2, yv(h), M.gold);
-  tier.position.y = SUMMIT + yv(5000) + yv(h) * (i + 0.5);
-  add(tier, `vaijayanta_tier_${i + 1}`);
+/* the wall, in four runs a side with the gate left open between them */
+const WALL_H = yv(2600), WALL_T = y(1400);
+for (let side = 0; side < 4; side++) {
+  const a = side * Math.PI / 2;
+  for (const [from, to] of [[-1, -0.24], [0.24, 1]]) {
+    const len = (to - from) * CITY;
+    const at = (from + to) / 2 * CITY;
+    const run = new THREE.Mesh(new THREE.BoxGeometry(len, WALL_H, WALL_T), M.goldDeep);
+    run.position.set(at * Math.cos(a) + CITY * Math.sin(a), cityTop + WALL_H / 2,
+                     -at * Math.sin(a) + CITY * Math.cos(a));
+    run.rotation.y = a;
+    add(run, 'sudarshana_city');
+  }
+}
+
+/* The four parks, one outside each side of the wall, each with its pond.
+   Caitraratha east, Pāruṣyaka south, Miśra west, Nandana north. */
+const PARK_R = y(11000);
+[['caitraratha', Math.PI / 2], ['parushyaka', 0],
+ ['mishra', -Math.PI / 2], ['nandana', Math.PI]].forEach(([, a]) => {
+  const at = CITY + PARK_R * 1.15;
+  const lawn = new THREE.Mesh(new THREE.CylinderGeometry(PARK_R, PARK_R * 0.94, yv(900), 22), M.leaf);
+  lawn.position.set(Math.sin(a) * at, SUMMIT + yv(2600) + yv(450), Math.cos(a) * at);
+  add(lawn, 'nandana');
+  const pond = new THREE.Mesh(new THREE.CylinderGeometry(PARK_R * 0.42, PARK_R * 0.40, yv(240), 18), M.water);
+  pond.position.set(Math.sin(a) * at, SUMMIT + yv(2600) + yv(960), Math.cos(a) * at);
+  pond.castShadow = false;
+  add(pond, 'nandana');
+  for (let i = 0; i < 3; i++) {
+    const t = a + (i - 1) * 0.42;
+    const r = PARK_R * 0.74;
+    const px = Math.sin(a) * at + Math.cos(t) * r, pz = Math.cos(a) * at - Math.sin(t) * r;
+    const trunk = new THREE.Mesh(new THREE.CylinderGeometry(y(180), y(240), yv(1300), 8), M.wood);
+    trunk.position.set(px, SUMMIT + yv(2600) + yv(1550), pz);
+    add(trunk, 'nandana');
+    const crown = new THREE.Mesh(new THREE.SphereGeometry(y(1500), 14, 10), M.foliage);
+    crown.scale.y = 0.78;
+    crown.position.set(px, SUMMIT + yv(2600) + yv(2500), pz);
+    add(crown, 'nandana');
+  }
 });
-const spire = new THREE.Mesh(new THREE.ConeGeometry(y(3400), yv(9000), 32), M.gold);
-spire.position.y = SUMMIT + yv(5000) + yv(16800) + yv(4500);
-add(spire, 'vaijayanta_spire');
+
+/* Vaijayanta, built to the field the board draws for this square */
+const HALL = y(36000) / 2;                    // half the hall, at the plinth
+const hall = new THREE.Group();
+hall.position.y = cityTop;
+world.add(hall);
+const stack = (mesh, name) => { mesh.name = name; hall.add(mesh); return mesh; };
+let hy = 0;
+[[1.16, yv(900)], [1.08, yv(800)]].forEach(([w, t]) => {
+  const step = sq(HALL * w * 0.98, HALL * w, t, M.indigo);
+  step.position.y = hy + t / 2;
+  stack(step, 'vaijayanta_tier_1');
+  hy += t;
+});
+const HALL_1 = yv(4600);
+const open = colonnade(HALL * 0.86, HALL_1, 3, M.gold, M.pearl);
+open.position.y = hy;
+open.traverse((o) => { if (o.isMesh) o.name = 'vaijayanta_tier_1'; });
+hall.add(open);
+hy += HALL_1;
+const roof1 = flaredRoof(HALL * 1.10, yv(2600), M.celadon, { crest: 0.52, lift: 0.22, reach: 0.10 });
+roof1.position.y = hy;
+roof1.traverse((o) => { if (o.isMesh) o.name = 'vaijayanta_tier_1'; });
+hall.add(roof1);
+hy += yv(2600);
+const HALL_2 = yv(3400);
+const storey2 = sq(HALL * 0.60, HALL * 0.62, HALL_2, M.indigo);
+storey2.position.y = hy + HALL_2 / 2;
+stack(storey2, 'vaijayanta_tier_2');
+hy += HALL_2;
+const roof2 = flaredRoof(HALL * 0.86, yv(2200), M.cinnabar, { crest: 0.46, lift: 0.26, reach: 0.13 });
+roof2.position.y = hy;
+roof2.traverse((o) => { if (o.isMesh) o.name = 'vaijayanta_tier_2'; });
+hall.add(roof2);
+hy += yv(2200);
+const HALL_3 = yv(2600);
+const storey3 = sq(HALL * 0.50, HALL * 0.52, HALL_3, M.gold);
+storey3.position.y = hy + HALL_3 / 2;
+stack(storey3, 'vaijayanta_tier_3');
+hy += HALL_3;
+const roof3 = flaredRoof(HALL * 0.92, yv(3000), M.cinnabar,
+  { crest: 0.40, lift: 0.52, reach: 0.24, hollow: 1.85 });
+roof3.position.y = hy;
+roof3.traverse((o) => { if (o.isMesh) o.name = 'vaijayanta_tier_3'; });
+hall.add(roof3);
+hy += yv(3000);
+const spire = finial(y(5200), M.gold);
+spire.position.y = hy - yv(300);
+spire.traverse((o) => { if (o.isMesh) o.name = 'vaijayanta_spire'; });
+hall.add(spire);
 
 /* ── Seven golden ranges ────────────────────────────────────────────────
    Concentric ridges. Each range's height above water equals its width and
@@ -1668,11 +2040,14 @@ const rimHole = new THREE.Path();
 rimHole.absarc(0, 0, RIM, 0, Math.PI * 2, true);
 rimShape.holes.push(rimHole);
 const rimGeo = new THREE.ExtrudeGeometry(rimShape, {
-  depth: yv(3200) - SEAT, bevelEnabled: false, curveSegments: 200
+  depth: yv(3200) - FLOOR, bevelEnabled: false, curveSegments: 200
 });
 rimGeo.rotateX(-Math.PI / 2);
 const rim = new THREE.Mesh(rimGeo, M.iron);
-rim.position.y = SEAT;
+/* The wall rises from the face of the golden ground rather than from the seat
+   below it. Sunk to the seat its outer face ran two millimetres down inside
+   the ground's own outer face, at the same radius, and the join shimmered. */
+rim.position.y = FLOOR;
 add(rim, 'cakravada_iron_ring');
 
 /* ── Elemental foundation, compressed ───────────────────────────────── */
@@ -1741,11 +2116,31 @@ function flat(shape, name, material, scale) {
 }
 
 const SHAPES = {
+  /* Jambudvīpa, and the two lands that flank it. The Kośa gives it as a
+     quadrilateral, two thousand yojanas on the north, east and west sides and
+     three and a half on the south — which drawn flat is a triangle with the
+     point cut off. The painted boards draw the same figure with a hand rather
+     than a rule: the northern edge, the side that faces Meru, arches out; the
+     flanks fall away from its corners in a long concave sweep and straighten
+     as they near the foot; and the southern edge is a short straight line.
+     That is the silhouette the field on the board of liberation carries, and
+     it is the one built here. The subcontinents take it at half size, as the
+     sources have them take the shape of the continent they flank.          */
   trapezoid() {
-    const half = CONT * y(1000), depth = CONT * y(1854), tip = CONT * y(250);
+    const half = CONT * y(1000);        // the broad northern edge, half of it
+    const tip = CONT * y(430);          // the short southern edge, half of it
+    const depth = CONT * y(1950);       // northern corners down to that edge
+    const arch = CONT * y(240);         // how far the northern edge bows out
+    const n = depth / 2, foot = -depth / 2;
     const s = new THREE.Shape();
-    s.moveTo(-half, depth / 2); s.lineTo(-tip, -depth / 2);
-    s.lineTo(tip, -depth / 2); s.lineTo(half, depth / 2); s.closePath();
+    s.moveTo(-half, n);
+    s.bezierCurveTo(-half * 0.70, n - depth * 0.22,
+                    -half * 0.44, n - depth * 0.60, -tip, foot);
+    s.lineTo(tip, foot);
+    s.bezierCurveTo(half * 0.44, n - depth * 0.60,
+                    half * 0.70, n - depth * 0.22, half, n);
+    s.quadraticCurveTo(0, n + arch * 2, -half, n);
+    s.closePath();
     return s;
   },
   semicircle() {
@@ -2198,12 +2593,12 @@ const LUMINARIES = [];
    run its own course, so it is set a little under a half-turn away, far enough
    round to be night here and still catch the light. */
 const MOON_LAG = Math.PI * 0.72;
-[['sun', M.sun, M.sunGlow, 4.6, Math.PI * 0.5, 7.2],
- ['moon', M.moonDisc, M.moonGlow, 4.3, Math.PI * 0.5 - MOON_LAG, 8.4]].forEach(
-  ([name, material, glow, r, a, gr]) => {
+[['sun', M.sun, M.sunGlow, M.sunRim, 4.6, Math.PI * 0.5, 6.4],
+ ['moon', M.moonDisc, M.moonGlow, M.moonRim, 4.3, Math.PI * 0.5 - MOON_LAG, 6.8]].forEach(
+  ([name, material, glow, rim, r, a, gr]) => {
     const rad = y(7000) * r;
     const p = new THREE.Vector3(Math.sin(a) * RIM * 0.88, yv(40000), Math.cos(a) * RIM * 0.88);
-    const d = new THREE.Mesh(new THREE.SphereGeometry(rad, 40, 28), material);
+    const d = new THREE.Mesh(new THREE.SphereGeometry(rad, 56, 36), material);
     d.position.copy(p);
     add(d, name);
     const s = new THREE.Sprite(glow);
@@ -2213,12 +2608,21 @@ const MOON_LAG = Math.PI * 0.72;
     s.renderOrder = 30;
     s.raycast = () => {};                    // the glow is not a click target
     add(s, name);
+    /* the painted rim, hugging the disc's edge at one and three hundredths
+       of its radius — the sheet is drawn for a sprite three radii across */
+    const ring = new THREE.Sprite(rim);
+    ring.position.copy(p);
+    ring.scale.setScalar(rad * 3.0);
+    ring.castShadow = false; ring.receiveShadow = false;
+    ring.renderOrder = 29;
+    ring.raycast = () => {};
+    add(ring, name);
     const hit = new THREE.Mesh(new THREE.SphereGeometry(rad * 1.45, 12, 8), PICK);
     hit.position.copy(p);
     hit.castShadow = false; hit.receiveShadow = false;
     hit.userData.pickOnly = true;
     add(hit, name);
-    LUMINARIES.push({ base: a, r: RIM * 0.88, h: yv(40000), objs: [d, s, hit] });
+    LUMINARIES.push({ base: a, r: RIM * 0.88, h: yv(40000), objs: [d, s, ring, hit] });
   }
 );
 
@@ -2243,7 +2647,13 @@ const CLUSTERS = [
   [M.crystal, ['anabhraka', 'punyaprasava', 'brihatphala',
                'avriha', 'atapa', 'sudrisha', 'sudarshana', 'akanishtha']]
 ];
-const STEP = 0.058, GAP = 0.030, PLATE_T = 0.005;
+/* The stride between levels, and the wider gap between groups. Five of the
+   levels now carry a building of their own rather than the shared palace,
+   and a series drawn at the old stride stood them in one another's eaves —
+   so both measures are opened up, in the same proportion to each other, and
+   the buildings are sized against the stride rather than fixed, so that the
+   whole stack keeps its shape against Meru below. */
+const STEP = 0.074, GAP = 0.040, PLATE_T = 0.005;
 const TOTAL = CLUSTERS.reduce((n, [, l]) => n + l.length, 0);
 const CLOUDLESS = 'anabhraka';        // sprin med: from here up, no cloud
 /* One cloud bank, scalloped the way the painted ones are and squashed to a
@@ -2263,6 +2673,155 @@ const CLOUD_GEO = (() => {
   g.computeVertexNormals();
   return g;
 })();
+/* ── Five levels the board draws for itself ──────────────────────────────
+   The painted cosmologies give every heaven the same palace, and that is
+   what the levels below carry. The board of liberation does not: three of
+   the desire heavens and the entrance to the realm of form each have a
+   field of their own on it, and each field is a different thing — a slate
+   jewel standing in flame, a gold one over scrolled water, a hall on a
+   faceted plinth, a two-storeyed hall inside the ring of its own light.
+   Where the board draws a thing, the model builds that thing, at the size
+   the level would have given a palace. The square's own painting is left to
+   the board, the throw card and the entry, which is where a picture of a
+   thing belongs; the world carries the thing itself.
+
+   Each builder is handed the level's extent and returns a group standing on
+   the level's floor. `w` is the widest half the building reaches and `H` its
+   whole height, both measured from the stride, so that they keep step with
+   the series however the stride is tuned.                                */
+const HEAVEN_FIELDS = {
+  /* 30 — Tuṣita, the joyful: the jewel of the buddha to come, on its rim,
+     inside an aureole of flame, on the bank the level already carries. */
+  tushita(w, H) {
+    const g = new THREE.Group();
+    const r = H * 0.52;
+    const foot = new THREE.Mesh(
+      new THREE.CylinderGeometry(r * 1.06, r * 0.82, r * 0.30, 26), M.silver);
+    foot.position.y = r * 0.15;
+    g.add(foot);
+    const jewel = jewelDrop(r, M.jewelBlue);
+    jewel.position.y = r * 1.26;
+    g.add(jewel);
+    // the aureole stands clear of the stone rather than closing over it
+    const halo = flameHalo(r * 1.58, r * 1.58, 17, M.flame, 0.40);
+    halo.position.y = r * 0.24;
+    g.add(halo);
+    return g;
+  },
+  /* 31 — Nirmāṇa-rati, delighting in emanations: the gold jewel in its
+     flames, standing on the scrolled water the field draws under it. */
+  nirmanarati(w, H) {
+    const g = new THREE.Group();
+    const r = H * 0.48;
+    const swell = new THREE.Mesh(CLOUD_GEO, M.wave);
+    swell.scale.set(r * 2.9, r * 0.56, r * 2.9);
+    swell.position.y = r * 0.10;
+    g.add(swell);
+    const curl = new THREE.TorusGeometry(r * 0.30, r * 0.13, 8, 20);
+    for (let i = 0; i < 8; i++) {
+      const a = (i / 8) * Math.PI * 2 + 0.35;
+      const c = new THREE.Mesh(curl, M.wave);
+      c.position.set(Math.sin(a) * r * 2.2, r * 0.30, Math.cos(a) * r * 2.2);
+      c.rotation.y = a;
+      g.add(c);
+    }
+    const jewel = jewelDrop(r, M.jewelGold);
+    jewel.position.y = r * 1.26;
+    g.add(jewel);
+    const halo = flameHalo(r * 1.52, r * 1.50, 15, M.flame, 0.38);
+    halo.position.y = r * 0.34;
+    g.add(halo);
+    return g;
+  },
+  /* 32 — Paranirmita-Vaśavartin, ruling the emanations of others: the last
+     and highest of the desire heavens, and the board gives it the grandest
+     of its buildings — a hall standing on a broad faceted plinth. */
+  paranirmitavashavartin(w, H) {
+    const g = new THREE.Group();
+    let up = 0;
+    const base = new THREE.Mesh(
+      new THREE.CylinderGeometry(w * 0.88, w * 0.76, H * 0.30, 6), M.indigo);
+    base.rotation.y = Math.PI / 6;
+    base.position.y = H * 0.15;
+    g.add(base);
+    up += H * 0.30;
+    const deck = new THREE.Mesh(
+      new THREE.CylinderGeometry(w * 0.90, w * 0.88, H * 0.045, 6), M.pearl);
+    deck.rotation.y = Math.PI / 6;
+    deck.position.y = up + H * 0.022;
+    g.add(deck);
+    up += H * 0.045;
+    const open = colonnade(w * 0.50, H * 0.26, 3, M.gold, M.pearl);
+    open.position.y = up;
+    g.add(open);
+    up += H * 0.26;
+    const eave = flaredRoof(w * 0.62, H * 0.07, M.cinnabar,
+      { crest: 0.76, lift: 0.16, reach: 0.07, deep: 0.34 });
+    eave.position.y = up;
+    g.add(eave);
+    up += H * 0.07;
+    const gilt = sq(w * 0.42, w * 0.44, H * 0.14, M.gold);
+    gilt.position.y = up + H * 0.07;
+    g.add(gilt);
+    up += H * 0.14;
+    const roof = flaredRoof(w, H * 0.20, M.cinnabar,
+      { crest: 0.34, lift: 0.54, reach: 0.24, hollow: 1.85 });
+    roof.position.y = up;
+    g.add(roof);
+    up += H * 0.20;
+    const top = finial(w * 0.16, M.gold);
+    top.position.y = up - H * 0.02;
+    g.add(top);
+    return g;
+  },
+  /* 35 — Brahmakāyika, where the realm of form begins: a hall of two
+     storeys inside the ring of its own light. The ring is given twice, at a
+     right angle, so that the halo reads from anywhere in the orbit instead
+     of only from the one side a flat one would face. */
+  brahmaparishadya(wide, H) {
+    const g = new THREE.Group();
+    /* narrower than the palaces beside it, so that the ring can stand round
+       the whole building rather than only behind its roofs */
+    const w = Math.min(wide, H * 0.80);
+    let up = 0;
+    const band = sq(w * 0.52, w * 0.54, H * 0.10, M.wave);
+    band.position.y = H * 0.05;
+    g.add(band);
+    up += H * 0.10;
+    const body = sq(w * 0.50, w * 0.52, H * 0.22, M.indigo);
+    body.position.y = up + H * 0.11;
+    g.add(body);
+    up += H * 0.22;
+    const low = flaredRoof(w * 0.78, H * 0.16, M.cinnabar,
+      { crest: 0.44, lift: 0.58, reach: 0.26 });
+    low.position.y = up;
+    g.add(low);
+    up += H * 0.16;
+    const upper = sq(w * 0.34, w * 0.36, H * 0.15, M.vermilion);
+    upper.position.y = up + H * 0.075;
+    g.add(upper);
+    up += H * 0.15;
+    const high = flaredRoof(w * 0.56, H * 0.14, M.indigo,
+      { crest: 0.38, lift: 0.50, reach: 0.22 });
+    high.position.y = up;
+    g.add(high);
+    up += H * 0.14;
+    const bud = finial(w * 0.13, M.vermilion);
+    bud.position.y = up - H * 0.015;
+    g.add(bud);
+    const R = H * 0.66;
+    const ring = new THREE.TorusGeometry(R, R * 0.048, 10, 64);
+    for (const turn of [0, Math.PI / 2]) {
+      const arc = new THREE.Mesh(ring, M.halo);
+      arc.position.y = R * 1.02;          // standing on the floor, not sunk in it
+      arc.rotation.y = turn;
+      arc.castShadow = false;
+      g.add(arc);
+    }
+    return g;
+  }
+};
+
 let level = 0, h = SUMMIT + yv(5000) + yv(16800) + yv(9000) + 0.03;
 let onCloud = true;
 CLUSTERS.forEach(([material, names], ci) => {
@@ -2270,38 +2829,48 @@ CLUSTERS.forEach(([material, names], ci) => {
     if (name === CLOUDLESS) onCloud = false;
     /* the level's extent, which grows the higher it stands */
     const half = 0.100 + (level / (TOTAL - 1)) * 0.110;
+    const id = `heaven_${name}`;
     if (onCloud) {
       const bank = new THREE.Mesh(CLOUD_GEO, M.cloud);
       bank.position.y = h - half * 0.055;
       bank.scale.set(half, half * 0.19, half);
-      add(bank, `heaven_${name}`);
+      add(bank, id);
     } else {
       // "the cloudless" and the seven above it: an open ledge, nothing under it
       const ledge = sq(half * 0.80, half * 0.84, PLATE_T, material);
       ledge.position.y = h - PLATE_T * 0.5;
-      add(ledge, `heaven_${name}`);
+      add(ledge, id);
     }
-    /* the palace on it: a plinth, one storey, a gilt pyramid roof, a finial.
-       On cloud it stands on the bank's own crown, not inside it. */
+    /* On cloud, whatever stands here stands on the bank's own crown. */
     const floor = onCloud ? h + half * 0.12 : h;
-    const pw = half * 0.23, storey = STEP * 0.22;
-    const plinth = sq(pw * 1.5, pw * 1.7, PLATE_T, material);
-    plinth.position.y = floor + PLATE_T * 0.5;
-    add(plinth, `heaven_${name}`);
-    const body = sq(pw, pw, storey, material);
-    body.position.y = floor + PLATE_T + storey / 2;
-    add(body, `heaven_${name}`);
-    const roof = new THREE.Mesh(
-      new THREE.ConeGeometry(pw * 1.55 * Math.SQRT2, storey * 0.95, 4), M.gold
-    );
-    roof.rotation.y = Math.PI / 4;
-    roof.position.y = floor + PLATE_T + storey * 1.475;
-    add(roof, `heaven_${name}`);
-    const finial = new THREE.Mesh(
-      new THREE.ConeGeometry(pw * 0.26, storey * 0.60, 8), M.gold
-    );
-    finial.position.y = floor + PLATE_T + storey * 2.25;
-    add(finial, `heaven_${name}`);
+    const field = HEAVEN_FIELDS[name];
+    if (field) {
+      const built = field(half * 0.34, STEP * 0.46);
+      built.position.y = floor;
+      built.traverse((o) => { if (o.isMesh) o.name = id; });
+      world.add(built);
+    } else {
+      /* the palace the painted cosmologies give every heaven alike: a
+         plinth, one storey, a gilt pyramid roof, a finial. */
+      const pw = half * 0.23, storey = STEP * 0.175;
+      const plinth = sq(pw * 1.5, pw * 1.7, PLATE_T, material);
+      plinth.position.y = floor + PLATE_T * 0.5;
+      add(plinth, id);
+      const body = sq(pw, pw, storey, material);
+      body.position.y = floor + PLATE_T + storey / 2;
+      add(body, id);
+      const roof = new THREE.Mesh(
+        new THREE.ConeGeometry(pw * 1.55 * Math.SQRT2, storey * 0.95, 4), M.gold
+      );
+      roof.rotation.y = Math.PI / 4;
+      roof.position.y = floor + PLATE_T + storey * 1.475;
+      add(roof, id);
+      const cap = new THREE.Mesh(
+        new THREE.ConeGeometry(pw * 0.26, storey * 0.60, 8), M.gold
+      );
+      cap.position.y = floor + PLATE_T + storey * 2.25;
+      add(cap, id);
+    }
     h += STEP;
     level++;
   });
@@ -2411,7 +2980,7 @@ const def = (id, o) => { E[id] = { id, ...o }; };
 
 /* — notes ————————————————————————————————————————————————————— */
 def('about', {
-  t: 'About this drawing', meta: 'What this is, and how to read it', k: 'start here',
+  t: 'About this model', meta: 'What this is, and how to read it', k: 'start here',
   f: [['After', 'Abhidharmakośa III; Myriad Worlds'],
       ['Base scale', '1 metre : 400,000 yojanas; schematic adaptations'],
       ['Index', 'Explanatory entries with search']],
@@ -2419,9 +2988,12 @@ def('about', {
       'A visual study aid for practitioners learning and visualizing mandala offerings, and for anyone studying Buddhist cosmology.',
       'Every part of the model is a click away from its entry: its name in Sanskrit and Tibetan, its measure, and what the texts say stands there. The index lists all of them, and takes a filter. <b>Mandala view</b> lays the world out heap by heap in the order the thirty-seven-point offering names it. <b>Motion</b> sets the sun and moon on their circuit and lets the view turn. The light follows the sun around Meru, or the moon in night mode, from a higher angle chosen for visibility. The small compass rose turns with the view; in the mandala view the four directions are lettered in English and Tibetan at the edge of the plate.',
       'Each continent takes its colour and shape from the face of Meru it stands opposite, and is flanked by two subcontinents of the same shape and half the size.',
-      'The model uses schematic changes of scale, shape, placement, and lighting to make its features readable. <b>The scale of this drawing</b> describes the principal adaptations.'],
+      'The model uses schematic changes of scale, shape, placement, and lighting to make its features readable. <b>The scale of this drawing</b> describes the principal adaptations.',
+      'The model is the work of <b>Andrzej R. Rybszleger</b>, built from the sources named below.'],
   rel: ['about_scale', 'meru_core', 'about_mandala'],
-  src: 'Vasubandhu, <i>Abhidharmakośa</i> &amp; <i>bhāṣya</i> III.45–102 (La Vallée Poussin / Pruden); Chim Jampaiyang, <i>Ornament of Abhidharma</i>; Jamgön Kongtrul, <i>Myriad Worlds</i>; Mipham, <i>Gateway to Knowledge</i> II.'
+  src: 'Vasubandhu, <i>Abhidharmakośa</i> &amp; <i>bhāṣya</i> III.45–102 (La Vallée Poussin / Pruden); Chim Jampaiyang, <i>Ornament of Abhidharma</i>; Jamgön Kongtrul, <i>Myriad Worlds</i>; Mipham, <i>Gateway to Knowledge</i> II. '
+     + 'Board, names and move graph: Tatz and Kent, <i>Rebirth: The Tibetan Game of Liberation</i> (1977), reconstructed from the printed chart, the square entries and the reverse index and cross-checked cell by cell. The commentary of that edition is not reproduced; the entries here are written for this model. '
+     + 'The model, and the entries with it, are by Andrzej R. Rybszleger.'
 });
 def('about_scale', {
   t: 'The scale of this drawing', meta: 'Scale, shape, placement and lighting', k: '1m : 400,000',
@@ -2431,8 +3003,8 @@ def('about_scale', {
   b: ['The drawing starts from one metre to 400,000 yojanas and makes several deliberate adaptations for legibility. The dimensions in the entries describe the sources; they cannot all be measured from the displayed model. The principal adaptations are:',
       '<b>Meru and the surrounding world.</b> Core heights above the water are multiplied by 3.4. Meru is tapered, with a wider base; the Kośa describes a constant square section. The ranges are drawn as circular ridges. The outer salt ocean is about half its stated width, and the twelve landmasses are enlarged fortyfold. Smaller ranges and their intervening seas are widened to at least 9,000 yojanas; range heights have a minimum of 3,400 before vertical exaggeration. The iron wall and small details are also enlarged for visibility.',
       '<b>Below the ground.</b> The foundation layers are compressed and narrowed. The hot hells and the preta realm are displayed below the disc so they can be seen; the cold hells are offset to one side. These display positions are schematic.',
-      '<b>Above the summit.</b> Each heaven is drawn the way the painted cosmologies draw it — a palace with a gilt roof, standing on a bank of cloud up to Anabhraka, "the cloudless", and on an open ledge from there to Akaniṣṭha. Each level is wider than the one below, following the texts, but the widening is illustrative rather than measured. Regular steps between heavens suggest the doubling of textual heights, with extra gaps between groups; this roughly logarithmic arrangement does not share the scale of Meru. The formless absorptions are represented by open meshes as a study aid; they have no physical location or dimensions.',
-      '<b>Sun, moon and light.</b> The textual discs are represented by strongly enlarged spheres with painted glows. The light follows the sun around Meru, or the moon in night mode, from a higher angle chosen to keep the world visible. The changing shadows are illustrative.',
+      '<b>Above the summit.</b> Most of the heavens are drawn the way the painted cosmologies draw them — a palace with a gilt roof, standing on a bank of cloud up to Anabhraka, "the cloudless", and on an open ledge from there to Akaniṣṭha. Four are not: Tuṣita, Nirmāṇa-rati, Paranirmita-Vaśavartin and the first heaven of form carry the field the board of liberation paints for them instead, since the board draws each of those as a thing of its own rather than as one more palace. Vaijayanta, on the summit below them, follows the same board\'s field for the Heaven of the Thirty-three. Each level is wider than the one below, following the texts, but the widening is illustrative rather than measured. Regular steps between heavens suggest the doubling of textual heights, with extra gaps between groups; this roughly logarithmic arrangement does not share the scale of Meru. The formless absorptions are represented by open meshes as a study aid; they have no physical location or dimensions.',
+      '<b>Sun, moon and light.</b> The textual discs are represented by strongly enlarged spheres, each with a mottled painted face inside a gold rim and a corona of fine rays, after the offering cards this project already serves. The light follows the sun around Meru, or the moon in night mode, from a higher angle chosen to keep the world visible. The changing shadows are illustrative.',
       '<b>The offering diagram.</b> Numbered marks for heaps 18–37 occupy rings outside the iron wall. These are offering positions; the sun and moon also appear within the cosmological model. The diagram\'s spacing and the small treasure emblems are chosen for readability.'],
   src: 'The model'
 });
@@ -2594,15 +3166,15 @@ def('sudarshana_city', {
       ['Ground', 'of a hundred and one colours, soft to the foot'],
       ['Hall', 'Sudharmā, where the gods take counsel']],
   b: ['The city at the centre of Meru\'s summit, with a thousand gates and a golden wall. Its ground yields under the foot like cotton and rises again. The assembly hall Sudharmā stands outside it, where Śakra and the thirty-two gods deliberate and where, the commentaries say, the dharma is heard among the gods.',
-      'Drawn far above true scale: 2,500 yojanas is a thirty-second part of the summit\'s width.'],
+      'Drawn far above true scale: 2,500 yojanas is a thirty-second part of the summit\'s width. The wall is drawn with its four gates and the four parks are drawn outside it, one to each side, as the Kośa places them.'],
   src: AK
 });
 def('vaijayanta', {
   t: 'Vaijayanta', tib: 'rnam par rgyal ba', en: 'the victorious', k: '250 square',
   meta: 'Śakra\'s palace',
   f: [['Extent', '250 yojanas square'], ['Position', 'the centre of Sudarśana']],
-  b: 'Śakra\'s own palace, at the middle of the city at the middle of the summit at the middle of the world — the exact centre of the horizontal cosmos. The texts give its splendour rather than its plan, so the tiers and spire here are schematic.',
-  src: AK
+  b: 'Śakra\'s own palace, at the middle of the city at the middle of the summit at the middle of the world — the exact centre of the horizontal cosmos. The texts give its splendour rather than its plan, so the building here follows the field the board of liberation paints for the Heaven of the Thirty-three instead: three storeys, an open colonnade under a celadon roof, two cinnabar ones above it, and a gilt finial. The plan is illustrative, not textual.',
+  src: AK + '; the field for square 28 on the board of liberation'
 });
 def('asuras', {
   t: 'The asuras', tib: 'lha ma yin', en: 'not-gods', k: 'Meru\'s base',
@@ -2719,7 +3291,7 @@ def('continent_jambudvipa', {
       ['Distinction', 'the only continent where a buddha appears']],
   b: ['Our continent, narrow at the south like the shoulder of an ox-cart. Its people are shortest-lived and least at ease of the four, and that is held to be its advantage: only here does a buddha take birth, only here is the dharma taught, and only here is the Vajrāsana, the diamond seat, on which every buddha of this world attains awakening.',
       'North of the inhabited land lie nine black mountains, then Himavat, then Gandhamādana, and between them Lake Anavatapta — "unheated" — fifty yojanas square, from which the Gaṅgā, Sindhu, Vakṣu and Sītā flow out to the four directions.',
-      'The southern edge is widened in this drawing so that the trapezoid reads; truly it is a point.'],
+      'The southern edge is widened here so that the figure reads; truly it is very nearly a point. The outline follows the field the board of liberation paints for Jambudvīpa — a bowed northern edge and two long concave flanks — rather than a ruled quadrilateral, and the two subcontinents take the same outline at half the size.'],
   rel: ['vajrasana', 'anavatapta', 'jambu', 'humans', 'meru_face_south'],
   src: `${AK}; lifespans AK III.78`
 });
@@ -3086,7 +3658,7 @@ def('nandana', {
       ['Sudharmā hall', 'south-west, where Śakra and the thirty-two take counsel'],
       ['Between them', 'gardens where gods of different heavens meet']],
   b: ['Four pleasure gardens stand outside the city, one on each side, and they are where the gods of the summit spend their time rather than indoors. The Kośa names them and gives their measure, but not much else; the tree and the assembly hall are the two features it insists on, one for pleasure and one for counsel.',
-      'They are not drawn here. At true scale a hundred-yojana park on an eighty-thousand-yojana summit is a mark too small to see.'],
+      'They are drawn here as four lawns with a pond and a few trees apiece, at nothing like true scale: a hundred-yojana park on an eighty-thousand-yojana summit would be a mark too small to see. Their placing — one outside each side of the wall — is the Kośa\'s own.'],
   rel: ['meru_summit_platform', 'sudarshana_city', 'vaijayanta'],
   src: 'Abhidharmakośa III.68'
 });
@@ -3350,7 +3922,11 @@ RB_SQUARES.forEach((sqr) => {
     t: sqr.n + '. ' + sqr.name, tib: rbTibetan(sqr.n), k: RB_BAND_LABEL[sqr.band], meta: sqr.cat,
     f: facts.concat(outs), b: body,
     more: SQUARE_FULL[sqr.n], moreLabel: 'The full entry',
-    src: 'Board, names and move graph: Tatz and Kent, <i>Rebirth: The Tibetan Game of Liberation</i> (1977), reconstructed from the printed chart, the square entries and the reverse index and cross-checked cell by cell. The commentary of that edition is not reproduced; this entry is written for this drawing.'
+    /* The board's own provenance is a long note, and a hundred and four
+       copies of it under a hundred and four squares is a hundred and three
+       too many. It is given once, at the end of <b>About this model</b>,
+       and the squares point at it. */
+    src: 'Written for this model. The board it reads, and the edition it is reconstructed from, are credited in <b>About this model</b>.'
   });
 });
 def('rebirth_game', {
@@ -3443,12 +4019,15 @@ function applyTheme(on) {
   });
   /* at night the sun is on the far side of the world: it keeps its
      colour but not its blaze, and the moon comes up to full */
-  M.sun.emissiveIntensity = on ? 0.7 : 0.9;
-  M.sunGlow.opacity = on ? 0.42 : 0.5;
+  M.sun.emissiveIntensity = on ? 0.48 : 0.62;
+  M.sunGlow.opacity = on ? 0.44 : 0.55;
+  M.sunRim.opacity = on ? 0.72 : 0.95;
+  M.moonRim.opacity = on ? 0.95 : 0.9;
   M.moonDisc.emissive.setHex(on ? 0xa6c6e0 : 0xc9d9e8);
   M.moonDisc.emissiveIntensity = on ? 0.62 : 0.62;
-  M.moonGlow.opacity = on ? 0.78 : 0.6;
+  M.moonGlow.opacity = on ? 0.8 : 0.62;
   M.formless.color.setHex(on ? 0xb9b09a : 0x8a8578);
+  SEA_FOG.color.setHex(on ? 0x0b2942 : 0x14506a);
   setSky(on);
   lightFromSky();
   invalidate();
@@ -3663,10 +4242,75 @@ function homeDist() {
   return BASE_DIST * Math.min(MAX_PULL, Math.max(1, REF_ASPECT / a));
 }
 cam.position.copy(ctr.target).add(HOME_DIR.clone().multiplyScalar(homeDist()));
-cam.near = 0.01;
+cam.near = 0.01;                 // a first frame to draw; fitDepth owns it after that
 cam.updateProjectionMatrix();
 ctr.update();
-const HOME = { p: cam.position.clone(), t: ctr.target.clone(), near: cam.near };
+const HOME = { p: cam.position.clone(), t: ctr.target.clone() };
+
+/* ── what the camera keeps ───────────────────────────────────────────────
+   The drawing spans four decimal places at once: a disc two and a half
+   metres across, terrace lips and water surfaces a couple of millimetres
+   apart, and a painted sky sixteen metres out. One fixed pair of clip planes
+   cannot serve all three. Held back, the near plane eats whatever the camera
+   dives into — the ocean, a continent, the flank of Meru — and the view
+   empties out. Held close, the depth buffer is spent on air the model never
+   occupies, and every pair of nearly coplanar surfaces in it begins to
+   flicker. So both planes follow the camera each frame: the near plane is a
+   fixed fraction of the clear air in front of the eye, and the far plane
+   reaches only as deep as the backdrop behind the world. */
+const SKY_R = 16;                     // the radius of the painted sky sphere
+const VIEW_BOUNDS = new THREE.Sphere(new THREE.Vector3(), 1);
+function measureBounds() {
+  const box = new THREE.Box3().setFromObject(world);
+  if (!box.isEmpty()) box.getBoundingSphere(VIEW_BOUNDS);
+}
+measureBounds();
+/* Inside the model the near plane closes right up: a millimetre and a half is
+   closer than the eye ever gets to a surface it is meant to be looking at,
+   and anything nearer is the surface it has already passed through. */
+const NEAR_FLOOR = 0.0012;
+function fitDepth() {
+  const toCentre = cam.position.distanceTo(VIEW_BOUNDS.center);
+  const clear = Math.max(toCentre - VIEW_BOUNDS.radius, 0);
+  const orbit = cam.position.distanceTo(ctr.target);
+  const near = Math.max(NEAR_FLOOR, Math.min(orbit, clear + VIEW_BOUNDS.radius * 0.02) * 0.02);
+  const far = toCentre + SKY_R * 1.02;
+  if (near === cam.near && far === cam.far) return;
+  cam.near = near;
+  cam.far = far;
+  cam.updateProjectionMatrix();
+}
+
+/* ── under the water ─────────────────────────────────────────────────────
+   The seas are a body and not a surface: the salt ocean runs out to the iron
+   wall and down eighty thousand yojanas to the golden ground, and a camera
+   that drops through the water line is inside it. Two things answer to that.
+   The scene carries a sea fog, held at nothing in air, which takes the far
+   parts of the world the way water does — the rim goes first, then the
+   ranges, then whatever is a few metres off. And a screen over the canvas
+   carries the near cast and the darkening toward the edges. Both come off
+   the moment the eye surfaces, so this is a place the view can be in rather
+   than a colour the world has been given. */
+const SEA_FOG = new THREE.FogExp2(0x14506a, 0);
+stage._scene.fog = SEA_FOG;
+const SEA_FOG_DENSITY = 0.62;
+const SEA_IN = y(38000);                  // the first sea begins clear of Meru
+const tintEl = document.querySelector('.underwater');
+function underwater() {
+  const p = cam.position;
+  if (p.y > 0 || p.y < FLOOR) return false;                 // above the line, or under the floor
+  const r = Math.hypot(p.x, p.z);
+  if (r > RIM || r < SEA_IN) return false;                  // beyond the wall, or in Meru's own well
+  return Math.max(Math.abs(p.x), Math.abs(p.z)) > halfAt(p.y);   // and clear of Meru's flank
+}
+let submerged = false;
+function setUnderwater(on) {
+  if (on === submerged) return;
+  submerged = on;
+  SEA_FOG.density = on ? SEA_FOG_DENSITY : 0;
+  tintEl.classList.toggle('on', on);
+  invalidate(4);
+}
 function refitHome() {
   HOME.p.copy(HOME.t).add(HOME_DIR.clone().multiplyScalar(homeDist()));
 }
@@ -3766,6 +4410,8 @@ const drawLoop = () => {
   if (frames <= 0) return;
   frames--;
   orientOfferingCards();
+  fitDepth();
+  setUnderwater(underwater());
   gl.render(stage._scene, cam);
   if (mandala) placeMarks();
   if (mode === 'game') { rbArt.face(cam); rbPlaceLabel(); rbPlaceChips(); }
@@ -3813,15 +4459,11 @@ function aimAt(centre, dist, fr, direction = null, dur) {
   const target = centre.clone()
     .addScaledVector(right, -(fr.x - w / 2) * perPx)
     .addScaledVector(up, (fr.y - h / 2) * perPx);
-  cam.near = Math.max(dist / 400, 0.0006);
-  cam.updateProjectionMatrix();
   fly(target.clone().addScaledVector(dir, dist), target, dur);
 }
 
 function home() {
   cam.clearViewOffset();
-  cam.near = HOME.near;
-  cam.updateProjectionMatrix();
   // a phone with a panel up has no room for the opening view; frame what is left
   if (tightScreen() && !dock.hidden) { reframeExplore(900); return; }
   fly(HOME.p.clone(), HOME.t.clone(), 900);
@@ -3901,7 +4543,8 @@ const ORIGINAL_VISIBILITY = new Map();
 // tree arrives with its continent, separately from the treasure at point 15.
 world.traverse(object => {
   let number = HEAP_NUMBERS.get(object.name);
-  if (/^(meru_|king_|vaijayanta_)/.test(object.name) || object.name === 'sudarshana_city') number = 1;
+  if (/^(meru_|king_|vaijayanta_)/.test(object.name)
+      || object.name === 'sudarshana_city' || object.name === 'nandana') number = 1;
   if (/^jambu_/.test(object.name)) number = 3;
   if (!object.isMesh && !object.isSprite) return;
   if (!number) return;
@@ -4249,8 +4892,6 @@ function setMandala(on) {
   orientOfferingCards();
   syncChrome();
   if (on) {
-    cam.near = HOME.near;
-    cam.updateProjectionMatrix();
     mandalaFly(900);
     placeMarks();
   } else {
@@ -4653,6 +5294,7 @@ const setOpen = (open, reframeView = true) => {
    board's own logic — row for height, side for which route you are on. */
 const rbBoard = createBoardLayer(THREE, { RIM, FLOOR, SUMMIT });
 world.add(rbBoard.group);
+measureBounds();       // the board stands outside the model; the clip planes answer to it too
 rbBoard.group.traverse((o) => {
   if (!o.isMesh) return;
   if (!byName.has(o.name)) byName.set(o.name, []);
@@ -4660,9 +5302,22 @@ rbBoard.group.traverse((o) => {
   if (o.userData.square) ALIAS[o.name] = 'rebirth_sq_' + o.userData.square;
 });
 
+/* The squares the world already stands in for. Where the model builds the
+   thing the square names as a thing you can walk round — the terrace of the
+   Four Kings, the city on the summit, the palaces of the desire heavens and
+   the emblem of the form realm — the geometry is the representation, and a
+   painted field hanging in front of it is the same square said twice, in two
+   idioms, one of them flat. Śuddhāvāsa is here for the same reason: the
+   mansion above the summit is the stand-in, and the flower the printed board
+   gives it belongs in the entry rather than over the mansion's roof. The
+   field itself is untouched — it is still the cell's ground on the board, the
+   face of the throw card, and the plate at the head of the expanded entry. */
+const RB_MODELLED = new Set([27, 28, 30, 31, 32, 35, 37]);
+
 /* The same slot in the world: a billboard on the marker of any square that
-   has a picture. Nothing is built and no sheet is fetched while none has. */
-const rbArt = createSquareArt(THREE, { SUMMIT }, (states) => {
+   has a picture and nothing built for it. Nothing is built and no sheet is
+   fetched while none has. */
+const rbArt = createSquareArt(THREE, { SUMMIT, modelled: RB_MODELLED }, (states) => {
   // The offerings' retry strip belongs to the offerings. A square sheet that
   // fails says so here instead; rbArt.load() retries only what failed, so the
   // affordance can be added with the artwork.
@@ -4745,7 +5400,7 @@ rbGrid.addEventListener('click', (ev) => {
 
 /* — sound: off until asked for, like motion —————————————————————— */
 const rbKit = createSoundKit(window.AudioContext || window.webkitAudioContext);
-const rbSoundOn = () => boardEl.querySelector('#g-sound').checked;
+const rbSoundOn = () => document.querySelector('#g-sound').checked;
 /* Where a throw ends has a character, and which way it went has another. The
    voice comes from the square's own company on the board — the hells are not
    the heavens, the sūtra route is not the mantra route — and under it a short

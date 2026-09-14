@@ -227,6 +227,12 @@ export function createBoardLayer(THREE, ctx) {
     });
   }
   const pick = new THREE.MeshBasicMaterial({ visible: false });
+  /* Where the faint markers stand in the queue. The seas are drawn late and
+     they write depth, so anything transparent that goes before them is
+     painted over by the water behind it — a marker out over the salt ocean
+     simply disappeared. These go after the water instead, and are still
+     hidden by it when they are genuinely beneath the surface. */
+  const OVER_WATER = 5;
   const markGeo = new THREE.OctahedronGeometry(ctx.SUMMIT * 0.022, 0);
   const pickGeo = new THREE.SphereGeometry(ctx.SUMMIT * 0.055, 8, 6);
   // a plinth under each mark, so a square reads as somewhere to stand
@@ -245,7 +251,10 @@ export function createBoardLayer(THREE, ctx) {
   const beyondMat = new THREE.MeshBasicMaterial({
     color: 0xf1e3bb, transparent: true, opacity: 0.92, side: THREE.DoubleSide, depthWrite: false
   });
-  const BEYOND_Y = ctx.SUMMIT * 4.3;    // clear of the formless absorptions
+  /* Clear of the formless absorptions, which stand at the head of the
+     heavens: the whole series has to pass beneath this, so the figure is
+     held above the top of the stack rather than fitted to it. */
+  const BEYOND_Y = ctx.SUMMIT * 5.05;
 
   const nodes = new Map();
   for (const s of SQUARES) {
@@ -259,6 +268,7 @@ export function createBoardLayer(THREE, ctx) {
     mark.castShadow = false;
     mark.receiveShadow = false;
     mark.position.y = ctx.SUMMIT * 0.030;
+    mark.renderOrder = OVER_WATER;
     if (beyond) mark.scale.setScalar(3.2);
     holder.add(mark);
     const plinth = beyond
@@ -267,6 +277,7 @@ export function createBoardLayer(THREE, ctx) {
     plinth.name = 'rebirth_plinth_' + s.n;
     if (beyond) plinth.rotation.x = -Math.PI / 2;
     plinth.castShadow = false;
+    plinth.renderOrder = OVER_WATER;
     holder.add(plinth);
     if (beyond) {
       // a second, wider ring, so that the place reads as open rather than empty
@@ -280,6 +291,7 @@ export function createBoardLayer(THREE, ctx) {
         aura.userData.square = s.n;
         aura.rotation.x = -Math.PI / 2;
         aura.castShadow = false;
+        aura.renderOrder = OVER_WATER;
         holder.add(aura);
       }
     }
@@ -385,6 +397,7 @@ export function createBoardLayer(THREE, ctx) {
     new THREE.LineBasicMaterial({ color: 0x7a5a2e, transparent: true, opacity: 0.42, depthWrite: false })
   );
   links.name = 'rebirth_links';
+  links.renderOrder = OVER_WATER;
   links.frustumCulled = false;
   links.visible = false;
   group.add(links);

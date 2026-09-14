@@ -418,7 +418,26 @@ for (const n of [1, 17, 59, 84, 104]) {
   assert.equal(plane.parent,app.rbBoard.nodes.get(n),'on that square\'s marker');
 }
 assert.equal([...boardEl.querySelectorAll('.bv-icon:not([hidden])')].length,104,'all 104 fields');
-assert.equal(app.rbArt.planes.size,104,'and 104 billboards');
+
+/* Where the world builds the thing a square names, the geometry is the
+   representation and the painted field would be the same square said twice.
+   Those squares carry no billboard — and keep their field everywhere a
+   picture belongs: the cell, the throw card and the expanded entry. */
+const modelled = [...app.rbArt.modelled].sort((a,b)=>a-b);
+assert.deepEqual(modelled,[27,28,30,31,32,35,37],'the squares the world stands in for');
+for (const n of modelled) {
+  assert.equal(app.rbArt.planes.get(n),undefined,'square '+n+' has no billboard over its model');
+  const holder = app.rbBoard.nodes.get(n);
+  assert.equal(holder.children.some(o=>o.userData.billboard),false,'nothing left on its marker');
+  assert.equal(cellOf(n).querySelector('.bv-icon').hidden,false,'its field still lights the cell');
+  app.show('rebirth_sq_'+n,false);
+  assert.equal(q('.entry-art').hidden,false,'and still heads the expanded entry');
+}
+assert.equal(app.rbArt.planes.size,104-modelled.length,'a billboard for all the rest');
+for (const n of [17,27,28,37]) {
+  const drawn = app.meshesFor(rbBoard.BY_N.get(n).anchor);
+  assert.ok(drawn.length,'square '+n+' still has something drawn for it');
+}
 assert.notEqual(cellOf(1).querySelector('.bv-icon').style.backgroundPosition,
                 cellOf(5).querySelector('.bv-icon').style.backgroundPosition,'no two cells share a place');
 // Four sheets, fetched once, when game mode is first opened.
@@ -445,6 +464,7 @@ assert.ok(app.rbArt.planes.get(17).quaternion.angleTo(app.cam.quaternion)<1e-6);
    standing on. The rest — mark, plinth and field alike — fall back. */
 const bandMesh = n => { let m=null; app.rbBoard.nodes.get(n).traverse(o=>{ if(o.isMesh&&o.userData.band) m=o; }); return m; };
 const start = rbBoard.START;
+app.rbArt.showActive([start]);
 assert.equal(app.rbArt.planes.get(start).material.opacity,1,'the square in hand is at full weight');
 assert.ok(app.rbArt.planes.get(59).material.opacity<0.5,'and one nobody is on stands back');
 assert.equal(bandMesh(59).material.transparent,true,'its marker too');
@@ -865,7 +885,7 @@ console.log(JSON.stringify({result:'PASS',heaps:37,illustrations:24,triangles,at
    + 'silent rather than throwing. The throw: a die that keeps its answer until it stops, cannot be '
    + 'thrown twice at once, announces where it landed, and resolves at once under reduced motion. A standing marker '
    + 'for every player, ringed for whoever holds the die, fanned apart when they share a square, and named where they '
-   + 'stand in their own colour. All 104 fields: the painting as the cell\'s own ground and as a billboard in the world, '
+   + 'stand in their own colour. All 104 fields: the painting as the cell\'s own ground, and as a billboard in the world for every square the world does not already build in three dimensions, '
    + 'four sheets fetched once and only in game mode, one failing and retried alone, and the cell arithmetic that a '
    + 'sheet of seven rows and a sheet of five both have to answer to. A Tibetan name on every square — in the cell, the '
    + 'card and the entry — and the switch that puts them in place of the English. Three arrangements of the game: board '
