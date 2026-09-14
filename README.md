@@ -63,6 +63,12 @@ already carries a phone layout, with the controls docked along the bottom edge.
 Chrome and Edge read the same details from `manifest.webmanifest` and offer to
 install it the same way.
 
+The phone layouts are drawn for one orientation. Thirteen rows of eight, a card
+and a head make a board upright and a letterbox on its side, so the manifest
+asks the installed app for portrait, the page asks the browser for a portrait
+lock when it goes full screen, and a phone turned on its side anyway is asked
+for the phone back rather than served a layout nothing was measured for.
+
 > **It is not offline yet.** A home-screen shortcut is still a web page: three.js
 > loads from unpkg through the import map, and the fonts from Google Fonts, so
 > with no network the page will not start. Making it genuinely offline needs the
@@ -119,6 +125,18 @@ northern edge and two long concave flanks — rather than a ruled quadrilateral.
 A camera that drops below the water line is under it: the scene takes a sea fog
 and the view a blue cast, and both come off again the moment it surfaces.
 
+Nothing in the scene moves on its own, so nothing is drawn unless something has
+changed, and a phone left holding the page renders no frames at all. Three
+things that do not look like changes are treated as ones: the canvas being
+resized without the window being resized — a phone's toolbar sliding away, a
+layout switching under it — which clears the drawing buffer and would otherwise
+leave the model gone until something else happened to ask for a frame; the board
+being given the whole screen, where the model is behind an opaque page and is
+not drawn at all until it is wanted again; and the browser taking the WebGL
+context away under memory pressure, which is met by stopping, saying so, and
+rebuilding the moment it is handed back rather than issuing frames into
+nothing.
+
 ## What is in it
 
 The index runs from the ground up:
@@ -148,10 +166,12 @@ Every square is drawn as the field it carries on the printed board — a coloure
 ring, a cartouche, a continent's own outline, a mountain, a temple, a ribbon —
 and every square is named in Tibetan as well as English. The field is the cell's
 own ground on the board, a billboard at the square's marker in the world, the
-picture in its entry, and the face of the card that announces a throw. One
-switch in the rail (`t`) puts the Tibetan names in place of the English ones
-wherever a square is named in passing; the entry in the drawer always gives
-both. See [ARTWORK.md](ARTWORK.md) for how the paintings are served.
+picture in its entry, and the face of the card that announces a throw. Every
+cell carries its name over that field, in whichever language the board is being
+read in — where the row is too short for the whole name, the beginning of it.
+**Names**, among the settings under Options (`t`), is a selector of two with the
+language in force held down; the entry in the drawer always gives both. See
+[ARTWORK.md](ARTWORK.md) for how the paintings are served.
 
 Three arrangements of the same game, switched from the rail or cycled with `b`:
 
@@ -162,9 +182,15 @@ Three arrangements of the same game, switched from the rail or cycled with `b`:
   the same board read in two dimensions instead of three.
 
 They share one selection: the lit square, the open entry and the tinted marker
-in the model are the same square. Where there is no room for board and world at
-once — a narrow window, a phone — `w` hands the screen from one to the other,
-and the throw stays reachable from either.
+in the model are the same square. Where the board cannot be set beside the world
+— a narrow window, a phone — **Both** divides the screen the other way instead:
+the world above, the board below, and the throw on the bar between them. `w`
+hands the whole screen from one to the other, and the throw stays reachable from
+either.
+
+Wherever somebody is standing, the square takes their colour: on a board of a
+hundred and four fields the size of a thumbnail, a counter in the corner of a
+cell is not something a player can find their token by.
 
 Each player keeps a karmic trail: the whole arc travelled, a chip for every
 throw, which is the one thing a position cannot record. A fall to a hell and
@@ -218,8 +244,9 @@ touching anything else.
 The die runs for a couple of seconds before it resolves, ticking and slowing,
 and shows nothing of the result until it stops; then the square arrived at is
 named in the middle of the board, large enough to read from across a room, and
-the card clears itself. Sound is off until asked for, under the `⋯` control
-beside the throw. `prefers-reduced-motion` gets the same game without the wait.
+the card clears itself. Sound is off until asked for, under Options, and stays
+where it was left rather than where the browser happens to restore it.
+`prefers-reduced-motion` gets the same game without the wait.
 
 ### Beginning again
 
@@ -301,15 +328,23 @@ the entries the legend sat beside.
 | --- | --- |
 | **Index** `i` | The drawer of explanatory entries, with a filter, headed by the title and the way into *About this model*. |
 | **View** `e` `m` `g` | Explorer, Maṇḍala, Game. Explorer is the model and its index; Maṇḍala is the thirty-seven heaps, in the order the offering names them; Game sets the board of rebirth beside the world. |
-| **Board, both or world** `b` | In game mode, what is on the screen: the board alone, the board beside the world, or the world alone. Kept between visits. Asked for on its own the board takes the whole page as a printed board rather than a panel: a painted sky of the model's own clouds, the title over it, the throw, the players, the last five faces and the square in hand on one card, the hundred and four fields under that, and the three controls docked along the foot. It has a night palette of its own, gold on ink. |
-| **Tibetan names** `t` | In game mode, names the squares in Tibetan instead of English wherever they are named in passing. The entry always gives both. |
+| **Board, both or world** `b` | In game mode, what is on the screen: the board alone, the board beside the world (or, where they cannot sit side by side, above it), or the world alone. Kept between visits, and only while the game is on the screen — the arrangement is the game's dress and comes off with it. Asked for on its own the board takes the whole page as a printed board rather than a panel: a painted sky of the model's own clouds, the wordmark over it, the throw, the players, the square in hand and the karmic trail on one card, the hundred and four named fields under that, and the three controls docked along the foot. It has a night palette of its own, gold on ink. |
+| **Names** `t` | Which language the squares are named in, in passing, wherever they are named — English or Tibetan. Under Options, as a selector of two with the one in force held down. The entry always gives both. |
 | **Board or world** `w` | In game mode on a narrow window, hands the screen from the board to the world and back. Where both fit, they are both already there. |
-| **Options** | Motion, night, sound, full screen and reset view, under one control. |
+| **Options** | Motion, night, sound, the language of the names, full screen and reset view, under one control. |
 | **Motion** `r` | Sets the sun and moon on their circuit around Meru — forty seconds to the day — and lets the view turn slowly with them. The sun is what lights the world, so Meru's shadow walks round the continents with it. The moon does not stand opposite it — directly behind Meru it would sit in the mountain's own shadow and never be lit at all — so it runs a little under a half-turn away. Off until asked for, so the model holds still while it is being read. |
 | **Night** `n` | Paper or dark. At night the moon takes over the lighting, and the clouds stand against a faint field of stars. |
 | **Sound** | The voice each square answers in, under Options with the rest of the settings that belong to no view. Off until asked for, like motion. |
 | **Full screen** `f` | Hidden where the platform has none to give: iOS Safari, and any window already running as an installed app. |
 | **Reset view** `Esc` | Disabled when there is nothing to undo. |
+
+An entry is read in the order a reader wants it: what it is called, then the
+thing itself — the painting, or the field the square is drawn as — then what is
+said about it, and last the table of measurements, or of where the square stands
+and what each face of the die does with it. **Zoom in**, in the foot of an entry,
+puts the camera on the thing named; where the board has been given the whole
+screen there is no camera on screen to put anywhere, and the control is not
+shown.
 
 The title at the head of the index opens **About this model** (`a`) — what this
 is, how to read it, what the colours mean, and who made it. That, and every other word of

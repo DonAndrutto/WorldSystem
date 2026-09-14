@@ -116,6 +116,8 @@
         rgba(7, 40, 66, .74) 100%);
   }
   .underwater.on { opacity: 1; }
+  /* shown by one media query only — a phone turned on its side */
+  .upright { display: none; }
   @media (prefers-reduced-motion: reduce) { .underwater { transition: none; } }
   .card {
     background: var(--surface); border: 1px solid var(--rule);
@@ -174,6 +176,19 @@
   .firsthint.gone { opacity: 0; }
   @media (min-width: 701px) { .firsthint { bottom: 26px; } }
 
+  /* Said when the browser takes the drawing's context away from it, and
+     taken back down the moment it is handed back. */
+  .glnote {
+    position: absolute; left: 50%; transform: translateX(-50%);
+    top: calc(84px + var(--sa-t)); margin: 0; z-index: 9;
+    width: min(420px, calc(100vw - 28px)); padding: 11px 13px;
+    display: flex; align-items: center; gap: 10px;
+    border-radius: 6px; font-size: 13px; line-height: 1.35; color: var(--ink-2);
+    pointer-events: auto;
+  }
+  .glnote[hidden] { display: none; }
+  .glnote span { flex: 1; }
+
   /* ── the control strip ────────────────────────────────────────────────
      Three controls, never more: the index, the view you are in, and the
      settings that belong to no view. The last two open downward into menus,
@@ -216,6 +231,27 @@
   .menu-body label.sw { cursor: pointer; }
   .menu-body label.sw input { margin: 0 0 0 auto; accent-color: var(--accent); }
   .menu-body label.sw:has(input:checked) { background: var(--hi-2); color: var(--ink); }
+  /* The names on the board are given in one language or the other, and which
+     one is a setting rather than a move in the game — so it sits here, with
+     the rest of what answers to no view. A single button carrying the other
+     language said བོད while the board was in English and Eng while it was in
+     Tibetan, which reads as a label and not as a switch: two options, and the
+     one in force is the one held down. */
+  .menu-body .menu-row {
+    display: flex; align-items: center; gap: 9px; padding: 7px 11px 6px;
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 10px; letter-spacing: .13em; text-transform: uppercase; color: var(--ink-2);
+  }
+  .menu-body .menu-row .g {
+    width: 1.2em; text-align: center; font-size: 12px; letter-spacing: 0;
+  }
+  .menu-body .menu-row .t { margin-right: auto; }
+  .menu-body .lang .seg { flex: none; }
+  .menu-body .lang .seg .btn { padding: 5px 9px 4px; }
+  .menu-body .lang .seg .btn[lang="bo"] {
+    font-family: inherit; font-size: 13px; letter-spacing: 0;
+    text-transform: none; padding: 2px 9px;
+  }
 
   /* compass — a small rose that turns with the view, so that north can be
      found without turning the world to look for it. It takes the corner the
@@ -634,9 +670,12 @@
     .controls > .btn, .controls .menu > .btn { padding: 13px 0 12px; justify-content: center; }
     .controls > .btn .t, .controls .menu > .btn .t { display: inline; }
     .controls > .btn .g, .controls .menu > .btn .g { margin-right: 6px; font-size: 12px; }
+    /* Anchored to the control's right edge and opening leftward: anchored to
+       its left, the widest menu of the three ran off the side of the screen
+       and took the switch on its widest row with it. */
     .menu-body {
-      top: auto; bottom: calc(100% + 7px); right: 0; left: 0;
-      min-width: 0; width: max(100%, 46vw);
+      top: auto; bottom: calc(100% + 7px); right: 0; left: auto;
+      min-width: 0; width: max(100%, 50vw); max-width: calc(100vw - 18px);
     }
     .menu-body .btn { padding: 12px 13px 11px; font-size: 11px; }
     .index { padding-bottom: calc(66px + var(--sa-b)); }
@@ -724,6 +763,16 @@
     background-size: 400% 200%; background-repeat: no-repeat; }
   .entry-art.field > div { width: min(100%, 190px); aspect-ratio: 1; }
   .entry-art figcaption { font-size: 13px; text-align: center; color: var(--ink-2); margin-top: 6px; }
+  /* On a phone the drawer is half a screen, and a picture set at the size a
+     desktop panel can afford fills the whole of it — the entry it heads is
+     then a scroll away from its own name. It keeps its place, at the size the
+     panel can pay for. */
+  @media (max-width: 700px) {
+    .entry-art { margin: 11px 0; }
+    .entry-art > div { width: min(64%, 168px); }
+    .entry-art.field > div { width: min(46%, 122px); }
+    .entry-art figcaption { font-size: 11.5px; }
+  }
   .art-status { flex-shrink: 0; padding: 9px 12px; margin: 0; font-size: 14px; line-height: 1.4; pointer-events: auto; }
   .art-status .btn { margin-top: 6px; }
   body.tour-view .marks .mk:not([aria-current="true"]), body.tour-view .marks .cp { display: none !important; }
@@ -798,7 +847,7 @@
     display: flex; flex-direction: column; justify-content: flex-end; align-items: center; gap: 0;
     transition: background-color .15s ease, border-color .15s ease;
   }
-  .bv-sq:hover { background: var(--hi); border-color: var(--rule-2); }
+  .bv-sq:hover { background-color: var(--hi); border-color: var(--rule-2); }
   .bv-sq:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
   .bv-sq .n {
     position: absolute; left: 2px; top: 1px; z-index: 2;
@@ -819,27 +868,29 @@
     text-shadow: 0 0 2px var(--paper), 0 0 3px var(--paper),
                  0 0 4px var(--paper), 0 0 7px var(--paper);
   }
-  /* A name only where the cell has the room for one. Thirteen rows of a short
-     board leave a field and nothing else, which is the board's own reading;
-     give the rows height and the names come back. */
-  .bv-sq .nm, .bv-sq .tb { display: none; }
-  .bv-sq .nm { font-size: 9.5px; line-height: 1.12; font-weight: 500; }
-  .bv-sq .tb { font-size: 12.5px; line-height: 1.6; white-space: nowrap; text-overflow: ellipsis; }
-  @container (min-height: 40px) {
-    .bv-sq .nm { display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; }
+  /* A square of this board carries a name, and a board whose names are all
+     withheld is a grid of ornaments — on a phone, where the rows are short,
+     it was every row. So the name is always set, in whichever language the
+     board is being read in, and where the row has not the height for the
+     whole of it the beginning is shown and the rest clipped. Give the rows
+     height and the second line comes back. */
+  .bv-sq .nm, .bv-sq .tb {
+    display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical;
   }
-  @container (min-height: 55px) {
+  .bv-sq .nm { font-size: 9.5px; line-height: 1.12; font-weight: 500; }
+  .bv-sq .tb { font-size: 12.5px; line-height: 1.5; }
+  /* How many lines of it a row can carry — measured against the cell's own
+     height, so the board answers to the window rather than to a breakpoint. */
+  @container (min-height: 24px) {
     .bv-sq .nm { -webkit-line-clamp: 2; }
   }
-  @container (min-height: 30px) {
-    .bv-sq .tb { display: none; }
+  @container (min-height: 52px) {
+    .bv-sq .nm { -webkit-line-clamp: 3; }
   }
-  /* Tibetan in place of the English, never over it */
+  /* one language or the other, never both over each other */
   body.tibetan-names .bv-sq .nm { display: none; }
-  @container (min-height: 30px) {
-    body.tibetan-names .bv-sq .tb { display: block; }
-  }
-  .bv-sq[data-start] { background: var(--hi); }
+  body:not(.tibetan-names) .bv-sq .tb { display: none; }
+  .bv-sq[data-start] { background-color: var(--hi); }
   .bv-sq[data-trap] .n::after { content: " ◈"; color: var(--z-tantra); }
   /* Nirvana is not the last square of the round but the one outside it, so
      its cell is set apart: a gold field of its own rather than a tinted one. */
@@ -848,8 +899,22 @@
     border-color: var(--accent); border-left-color: var(--accent);
   }
   .bv-sq[data-victory] .n, .bv-sq[data-victory] .nm, .bv-sq[data-victory] .tb { color: var(--accent); }
+  /* Whoever is standing here, said in their own colour over the whole field.
+     A dot in the corner of a cell the size of a thumbnail is not something
+     you can find a token by, and finding your token is the one thing the
+     board is for. Two on a square give the field both colours. */
+  .bv-sq.held {
+    background-image: linear-gradient(140deg,
+      color-mix(in srgb, var(--pc, transparent) 30%, transparent),
+      color-mix(in srgb, var(--pc-2, var(--pc, transparent)) 30%, transparent));
+    box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--pc, transparent) 62%, transparent);
+  }
   .bv-sq[aria-selected="true"] { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
-  .bv-sq.lit { background: var(--hi-2); }
+  .bv-sq.held[aria-selected="true"] {
+    box-shadow: inset 0 0 0 1px var(--accent),
+                inset 0 0 0 3px color-mix(in srgb, var(--pc, transparent) 55%, transparent);
+  }
+  .bv-sq.lit { background-color: var(--hi-2); }
   /* the squares the selected one's faces lead to */
   .bv-sq.reached { box-shadow: inset 0 0 0 1px var(--rule-2); }
   .bv-sq.reached .n { color: var(--accent); }
@@ -867,7 +932,6 @@
   .bv-views .btn { padding: 6px 8px 5px; }
   .bv-views .btn .g { font-size: 13px; letter-spacing: 0; }
   .bv-views .btn .t { display: none; }
-  .bv-tib { flex: none; align-self: flex-start; font-size: 13px; padding: 5px 9px 4px; letter-spacing: 0; }
   .die-face {
     width: 48px; height: 48px; flex: none; border: 1px solid var(--rule-2); border-radius: 8px;
     background: var(--field); display: grid; grid-template-columns: repeat(3, 1fr);
@@ -1064,20 +1128,26 @@
   body.world-only.index-open .board-view { bottom: auto; width: auto; right: auto; max-width: calc(100vw - 44px); }
   body.world-only .bv-rail { flex-wrap: wrap; }
   body.world-only .bv-mid { display: none; }
-  body.board-only three-d-stage { visibility: hidden; }
+  /* The world alone keeps only the throw, so the board's own box shrinks to
+     that one strip — and the card that says where a throw landed and the
+     dialog that begins a new game were laid out inside it and squeezed into
+     it, the card clipped through its own footer and the dialog's scrim
+     nowhere near the screen it was meant to cover. Both belong to the page. */
+  body.world-only .bv-card, body.world-only .bv-ask { position: fixed; }
+  body.game-view.board-only three-d-stage { visibility: hidden; }
   body.board-only .rb-label { display: none; }
   body.board-only .board-view,
   body.board-only.index-open .board-view {
     left: 22px; right: 22px; width: auto; max-width: none;
   }
-  body.board-only.panel-open .board-view { right: calc(min(406px, 100vw - 44px) + 30px); }
   /* Below this width the board and the world cannot share the screen, so they
      take turns: the board holds it, and one control hands it to the world. */
   @media (max-width: 1080px) {
     .board-view { left: 14px; right: 14px; width: auto; }
+    /* a dialog that says a game will be lost is the whole screen's business */
+    .bv-ask { position: fixed; }
     body.index-open .board-view { width: auto; right: calc(var(--panel) + 30px); }
     body.world-only .die-face { display: none; }
-    .bv-sq .nm { -webkit-line-clamp: 3; }
   }
   @media (max-width: 820px) {
     .bv-sq { padding: 2px 3px; }
@@ -1100,15 +1170,48 @@
     /* the rail is a strip, not a stack: the grid wants every row it can get */
     .bv-rail { padding: 6px 8px; gap: 6px; align-items: center; }
     .bv-rail .go { align-self: stretch; }
-    .bv-say { font-size: 11.5px; -webkit-line-clamp: 2; }
     .bv-new, .bv-more { align-self: center; }
     .bv-rail .go { min-width: 78px; }
     .die-face { width: 40px; height: 40px; padding: 5px; }
     .die-face i { width: 6px; height: 6px; }
-    .bv-say { font-size: 12px; overflow: hidden; display: -webkit-box;
-      -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
-    .bv-more-body { bottom: auto; top: calc(100% + 7px); }
+    /* Two lines cut the one thing the board has to say before a game starts
+       off in the middle of its second sentence. The running line is short
+       enough the rest of the time; let it have the room it needs. */
+    .bv-say { font-size: 12px; }
+    /* Opened from a control standing near the middle of the card, a panel
+       anchored to that control's right edge and given a fixed width started
+       a hundred pixels off the left of the screen. Given the card's own width
+       it cannot: it opens under the card, across it. */
+    .bv-more { position: static; }
+    .bv-more-body {
+      left: 8px; right: 8px; width: auto;
+      top: calc(100% + 7px); bottom: auto;
+      max-height: 46dvh; overflow-y: auto; overscroll-behavior: contain;
+    }
     body.world-only .board-view { top: calc(54px + var(--sa-t)); bottom: auto; }
+
+    /* ── the middle arrangement, on a phone ──────────────────────────────
+       A phone has no room to set the board beside the world, and stacking
+       the board over the whole of it left two arrangements where there are
+       three: the board with the screen, and the world with the screen. So
+       here the two share it along the other axis — the world above, on the
+       page's own sky, and the board under it with the throw between them.
+       The card keeps to what a turn needs; everything that is not part of a
+       turn is in the board's own view and in the move log. */
+    body.game-view:not(.board-only):not(.world-only) .bv-who,
+    body.game-view:not(.board-only):not(.world-only) .bv-trail,
+    body.game-view:not(.board-only):not(.world-only) .bv-new,
+    body.game-view:not(.board-only):not(.world-only) .bv-more { display: none; }
+    body.game-view:not(.board-only):not(.world-only) .die-face { order: 0; }
+    body.game-view:not(.board-only):not(.world-only) .bv-act { order: 1; flex: 1 1 110px; }
+    body.game-view:not(.board-only):not(.world-only) .bv-views { order: 2; align-self: center; }
+    body.game-view:not(.board-only):not(.world-only) .bv-mid {
+      order: 3; flex: 1 1 100%; min-width: 0;
+    }
+    body.game-view:not(.board-only):not(.world-only) .bv-say {
+      overflow: hidden; display: -webkit-box;
+      -webkit-line-clamp: 3; -webkit-box-orient: vertical;
+    }
   }
 
   /* ══ The board, given the whole screen ═══════════════════════════════════
@@ -1127,8 +1230,8 @@
     position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0;
     pointer-events: none; opacity: 0; transition: opacity .45s ease;
   }
-  body.board-only .bv-sky { opacity: 1; }
-  .bv-head, .bv-turn, .bv-rolls, .bv-where { display: none; }
+  body.game-view.board-only .bv-sky { opacity: 1; }
+  .bv-head, .bv-turn, .bv-where { display: none; }
 
   body.board-only {
     --cell: rgba(255, 255, 255, .74);
@@ -1154,6 +1257,16 @@
   body.board-only .bv-head,
   body.board-only .bv-rail,
   body.board-only .bv-grid { width: min(100%, 1120px); }
+  /* The printed board takes the whole page, and a drawer opened over it is a
+     drawer over the page — but a drawer standing on a column and a half of
+     squares is a drawer over the board. It keeps the width the drawer leaves.
+     On a phone the drawer is a sheet along the foot and takes no width. */
+  @media (min-width: 701px) {
+    body.board-only.panel-open .board-view,
+    body.board-only.index-open .board-view {
+      padding-right: calc(min(406px, 100vw - 44px) + 30px);
+    }
+  }
   body.board-only .bv-head { order: 0; }
   body.board-only .bv-rail { order: 1; }
   body.board-only .bv-grid { order: 2; }
@@ -1211,7 +1324,6 @@
   body.board-only .bv-views {
     order: 2; align-self: center; padding-left: 14px; border-left: 1px solid var(--rule);
   }
-  body.board-only .bv-tib { align-self: center; }
   /* the trail says what it is, the way the roll boxes beside it do */
   body.board-only .bv-trail::before {
     content: "Trail"; align-self: center; margin-right: 5px;
@@ -1220,13 +1332,9 @@
   }
   body.board-only .bv-mid {
     order: 4; flex: 1 1 100%; min-width: 0;
-    display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 7px 14px; align-items: center;
+    display: grid; grid-template-columns: minmax(0, 1fr); gap: 6px; align-items: center;
   }
   body.board-only .bv-who { grid-column: 1; grid-row: 1; }
-  body.board-only .bv-rolls {
-    grid-column: 2; grid-row: 1; justify-self: end;
-    display: flex; align-items: center; gap: 8px;
-  }
   body.board-only .bv-where,
   body.board-only .bv-say,
   body.board-only .bv-tally,
@@ -1240,19 +1348,7 @@
   body.board-only .bv-new { order: 3; align-self: center; }
   body.board-only .bv-more { order: 4; align-self: center; }
   body.board-only .bv-rail > .bv-mid { order: 6; }
-  body.board-only .bv-tib { order: 2; }
   body.board-only .bv-swap { display: none; }
-  .bv-rolls .lb {
-    font-family: "IBM Plex Mono", monospace; font-size: 8.5px; letter-spacing: .22em;
-    text-transform: uppercase; color: var(--ink-3);
-  }
-  .bv-rolls .rr { display: flex; gap: 5px; }
-  .rr-f {
-    width: 26px; height: 26px; display: grid; place-items: center;
-    border: 1px solid var(--rule); border-radius: 5px; background: var(--field);
-    font-family: "IBM Plex Mono", monospace; font-size: 12px; color: var(--ink-2);
-  }
-  .rr-f.last { border-color: var(--gold-2); background: var(--hi-2); color: var(--ink); }
 
   /* the squares themselves: a field apiece, edged in its zone's colour */
   body.board-only .bv-grid {
@@ -1260,21 +1356,20 @@
   }
   body.board-only .bv-sq {
     border: 1px solid var(--cell-edge); border-left: 3px solid var(--zone, var(--rule-2));
-    border-radius: 5px; background: var(--cell);
+    border-radius: 5px; background-color: var(--cell);
   }
   body.board-only .bv-sq .n {
     font-size: 10px; color: var(--ink-2);
     text-shadow: 0 0 3px var(--paper), 0 0 3px var(--paper), 0 0 5px var(--paper);
   }
-  /* On the printed board a square is its field and its number and nothing
-     else; the name is on the card above, in the cell's own tooltip, and in
-     the entry a click away. Given the whole screen, follow the board. */
-  body.board-only .bv-sq .nm, body.board-only .bv-sq .tb { display: none !important; }
-  body.board-only .bv-icon { inset: 0; bottom: 0; height: 88%; opacity: 1; }
+  /* The field is the cell's ground and the name is set along its foot, as on
+     the board itself. The field gives up the bottom of the cell for it. */
+  body.board-only .bv-icon { inset: 0 0 26% 0; height: 100%; opacity: 1; }
+  body.board-only .bv-sq .nm { color: var(--ink); }
   body.board-only .bv-sq[aria-selected="true"] {
     border-color: var(--gold-2); box-shadow: 0 0 0 2px var(--hi-2), inset 0 0 0 1px var(--gold-2);
   }
-  body.board-only .bv-sq.lit { background: var(--hi); }
+  body.board-only .bv-sq.lit { background-color: var(--hi); }
 
   /* the throw, said over a board that stands back while it is read */
   body.board-only .bv-card {
@@ -1324,23 +1419,94 @@
   @media (max-width: 820px) {
     body.board-only .bv-act { flex-basis: 160px; padding-left: 10px; }
     body.board-only .bv-views { padding-left: 10px; }
-    body.board-only .bv-rolls .lb { display: none; }
     body.board-only .bv-new, body.board-only .bv-more { align-self: center; }
   }
+  /* ── the printed board on a phone ───────────────────────────────────────
+     Everything the board has is still here; it is set to the width a phone
+     actually has. The head keeps its wordmark, at the size a head of that
+     width can carry. The card puts the throw on one line and the rest of the
+     controls on the next, and gives the whole remaining height to the
+     hundred and four squares. */
   @media (max-width: 700px) {
     body.board-only .board-view,
     body.board-only.index-open .board-view {
-      flex-direction: column; top: calc(6px + var(--sa-t));
-      padding: 0 9px calc(72px + var(--sa-b)); gap: 7px;
+      flex-direction: column; top: calc(4px + var(--sa-t));
+      padding: 13px 9px calc(70px + var(--sa-b)); gap: 6px;
     }
-    body.board-only .bv-head { display: none; }
-    body.board-only .bv-rail { padding: 9px 10px; border-radius: 11px; }
+    body.board-only .bv-head { padding: 0; }
+    .bv-mark { font-size: 13.5px; letter-spacing: .17em; }
+    .bv-mark span { margin-top: 2px; font-size: 7px; letter-spacing: .26em; }
+    .bv-orb { width: 42px; height: 42px; top: -9px; }
+    body.board-only .bv-rail { padding: 8px 9px; border-radius: 11px; gap: 7px 9px; }
+    body.board-only .bv-act { flex: 1 1 150px; padding-left: 9px; gap: 3px; }
+    body.board-only .bv-rail .go { padding: 9px 12px 8px; letter-spacing: .1em; }
+    body.board-only .bv-views { padding-left: 0; border-left: 0; }
     body.board-only .bv-where { font-size: 14px; }
-    body.board-only .rr-f { width: 22px; height: 22px; font-size: 11px; }
+    body.board-only .bv-say { font-size: 12px; }
+    /* the two that begin and record a game, small and out of the way */
+    body.board-only .bv-new,
+    body.board-only .bv-more > summary { padding: 6px 9px 5px; font-size: 9px; }
+    body.board-only .bv-mid { gap: 5px; }
+    body.board-only .bv-trail::before { display: none; }
+  }
+  /* Wherever the two cannot sit side by side, they share the screen along the
+     other axis instead — as long as there is height to give each of them a
+     share worth having. Without this the middle arrangement was the board
+     over the whole of the world, which is the board's own arrangement with
+     none of its dress: three controls, two things to see. */
+  @media (max-width: 1080px) and (min-height: 620px) {
+    body.game-view:not(.board-only):not(.world-only) .board-view,
+    body.game-view:not(.board-only):not(.world-only).index-open .board-view {
+      top: auto; height: min(60dvh, calc(100dvh - 240px - var(--sa-t)));
+    }
+  }
+
+  /* A short row, wherever it comes from: the number tucks into the corner and
+     the letters come down a size, so that two lines of the name still clear
+     it. Last in the sheet because it has to outrank the widths and the
+     printed board's own type, both of which set these from the outside. */
+  @container (max-height: 34px) {
+    .bv-sq .n, body.board-only .bv-sq .n { font-size: 8px; left: 1px; top: 0; }
+    .bv-sq .nm, body.board-only .bv-sq .nm { font-size: 8.5px; line-height: 1.08; }
+    .bv-sq .tb { font-size: 10.5px; line-height: 1.3; }
+  }
+
+  /* ── neither rotated nor stretched ──────────────────────────────────────
+     Thirteen rows of eight, a card and a head: upright this is a board, and
+     turned on its side it is a letterbox with two rows in it. The phone
+     layouts are drawn for one orientation, so the page asks for the phone
+     back rather than pretending to serve the other. The installed app takes
+     the same lock from the manifest. */
+  @media (orientation: landscape) and (max-height: 500px) and (max-width: 940px) and (pointer: coarse) {
+    .upright {
+      position: fixed; inset: 0; z-index: 30; display: flex;
+      flex-direction: column; align-items: center; justify-content: center;
+      gap: 14px; padding: 24px; text-align: center;
+      background: var(--paper); color: var(--ink);
+    }
+    .upright .turn {
+      width: 52px; height: 34px; border: 2px solid var(--ink-3); border-radius: 6px;
+      animation: upright-turn 2.6s ease-in-out infinite;
+    }
+    .upright p { margin: 0; font-size: 16px; max-width: 26ch; line-height: 1.4; }
+    .upright small {
+      font-family: "IBM Plex Mono", monospace; font-size: 9.5px;
+      letter-spacing: .14em; text-transform: uppercase; color: var(--ink-3);
+    }
+  }
+  @keyframes upright-turn {
+    0%, 42% { transform: rotate(0deg); }
+    58%, 100% { transform: rotate(90deg); }
   }
 </style>
 </head>
 <body>
+
+<div class="upright">
+  <i class="turn" aria-hidden="true"></i>
+  <p>Turn the phone upright to read the board.</p>
+  <small>Thirteen rows of eight want a tall screen</small>
+</div>
 
 <three-d-stage name="buddhist-world-system" background="#efe8da"></three-d-stage>
 <div class="underwater" aria-hidden="true"></div>
@@ -1365,6 +1531,13 @@
         <button class="btn" data-act="motion" type="button" aria-pressed="false" title="Set it turning — r"><span class="g">▶</span><span class="t">Motion</span></button>
         <button class="btn" data-act="night" type="button" aria-pressed="false" title="Night — n"><span class="g">☾</span><span class="t">Night</span></button>
         <label class="btn sw" for="g-sound" title="Sound — the voice each square answers in"><span class="g">♪</span><span class="t">Sound</span><input type="checkbox" id="g-sound"></label>
+        <div class="menu-row lang" role="group" aria-label="The language names are given in">
+          <span class="g" aria-hidden="true">ཨ</span><span class="t">Names</span>
+          <span class="seg">
+            <button class="btn" type="button" data-lang="en" aria-pressed="true" title="English names — t">Eng</button>
+            <button class="btn" type="button" data-lang="bo" aria-pressed="false" title="Tibetan names — t" lang="bo">བོད</button>
+          </span>
+        </div>
         <button class="btn" data-act="full" type="button" aria-pressed="false" title="Full screen — f"><span class="g">⛶</span><span class="t">Full screen</span></button>
         <button class="btn" data-act="home" type="button" title="Reset view — Esc"><span class="g">⟲</span><span class="t">Reset view</span></button>
       </div>
@@ -1372,6 +1545,12 @@
   </div>
 
   <p class="firsthint" hidden=""></p>
+
+  <!-- said only when the browser has taken the drawing's context away -->
+  <p class="glnote card" role="status" hidden>
+    <span>The drawing lost its place on the graphics card. It usually comes back on its own.</span>
+    <button class="btn" type="button" data-act="reload">Reload</button>
+  </p>
 
   <div class="compass" aria-hidden="true">
     <span class="cd" data-d="N">N</span><span class="cd" data-d="E">E</span>
@@ -1412,7 +1591,6 @@
       </div>
       <div class="bv-mid">
         <div class="bv-who"></div>
-        <div class="bv-rolls" aria-hidden="true"><span class="lb">Recent rolls</span><div class="rr"></div></div>
         <p class="bv-where" aria-hidden="true"></p>
         <p class="bv-say" role="status" aria-live="polite">Every token starts on 24, the Heavenly Highway. The die names a destination; it does not count spaces.</p>
         <div class="bv-tally" hidden></div>
@@ -1423,7 +1601,6 @@
         <button class="btn" type="button" data-layout="both" aria-pressed="true" title="Board and world together"><span class="g">◫</span><span class="t">Both</span></button>
         <button class="btn" type="button" data-layout="world" aria-pressed="false" title="The world alone, in three dimensions"><span class="g">◉</span><span class="t">World</span></button>
       </div>
-      <button class="btn bv-tib" type="button" data-game="tibetan" aria-pressed="false" title="Tibetan names — t" lang="bo">བོད</button>
       <button class="btn bv-new" type="button" data-game="ask-new" title="Start a new game — asks first">New game</button>
       <details class="bv-more">
         <summary class="btn" title="Every throw of this game, in order">Move log</summary>
@@ -1516,13 +1693,18 @@
       <p class="eyebrow"></p>
       <button class="x" type="button" title="Close — Esc" aria-label="Close">×</button>
     </div>
+    <!-- An entry is read in the order a reader wants it: what it is called,
+         the thing itself, what is said about it, and only then the table of
+         where it stands and what each face of the die does with it. The
+         table used to come second, between the name and the picture, which
+         put twelve rows of coordinates in front of every square's story. -->
     <div class="sheet-scroll scroll">
       <h2></h2>
       <p class="sub"></p>
-      <dl></dl>
       <figure class="entry-art" hidden><div role="img"></div><figcaption>Modern painted interpretation</figcaption></figure>
       <div class="bodies"></div>
       <details class="more" hidden=""><summary></summary><div class="more-body"></div></details>
+      <dl></dl>
       <div class="rel" hidden=""><p>See also</p><div></div></div>
       <p class="src"></p>
     </div>
@@ -1568,7 +1750,23 @@ import { SQUARE_NOTES, SQUARE_FULL } from './rebirth-notes.js';
 import { SQUARE_ART, cellBackground, createSquareArt, LIBERATION_ART } from './rebirth-icons.js';
 import { createSoundKit, voiceFor as rbVoice } from './rebirth-sound.js';
 const stage = document.querySelector('three-d-stage');
-const { THREE } = await stage.ready;
+/* Everything below this line is built on three.js, and three.js arrives over
+   the network. Where it does not — a phone that lost the connection between
+   the page and the library, a blocked or slow CDN — this module stopped here
+   and the page was left standing with an interface that answered nothing at
+   all: not the index, not the menus, not the board. Say what happened, and
+   offer the one thing that helps. */
+let THREE;
+try {
+  ({ THREE } = await stage.ready);
+} catch (err) {
+  const note = document.querySelector('.glnote');
+  note.querySelector('span').textContent =
+    'The 3D library did not load. Check the connection and try again.';
+  note.querySelector('[data-act="reload"]').addEventListener('click', () => location.reload());
+  note.hidden = false;
+  throw err;
+}
 stage.shadowRoot.querySelector('.note')?.remove();   // the page carries its own hint
 
 /* ── scale ───────────────────────────────────────────────────────────────
@@ -4472,6 +4670,7 @@ function show(id, reveal) {
   sSrc.innerHTML = e.src || '';
   sSrc.hidden = !e.src;
   zoomBtn.disabled = !ms.length;
+  syncZoom();
   sheet.hidden = false;
   sScroll.scrollTop = 0;
   const art = OFFERING_ART.get(id);
@@ -4513,6 +4712,13 @@ const step = (d) => {
   const next = order[pos + d];
   if (next) { show(next, true); goTo(next); }
 };
+/* Zoom in puts the camera on the thing the entry is about. Where the board
+   has been given the whole screen there is no camera on screen to put
+   anywhere — so the control goes, rather than standing in the foot of every
+   entry doing nothing when it is pressed. */
+function syncZoom() {
+  zoomBtn.hidden = document.body.classList.contains('board-only');
+}
 sheet.querySelector('.x').addEventListener('click', close);
 zoomBtn.addEventListener('click', () => {
   if (!current) return;
@@ -4697,6 +4903,11 @@ function reshadow() { gl.shadowMap.needsUpdate = true; invalidate(); }
    half in shadow at all hours; its direction around Meru is the sun's
    own. At night the moon takes it over from the other side, cool and dim. */
 const key = stage._key;
+/* A two-thousand-pixel shadow map is sixteen megabytes of depth buffer, and a
+   phone has other things to spend that on — the four painted sheets of the
+   board among them. At this size, on this screen, a quarter of it is the same
+   picture. */
+if (coarse) key.shadow.mapSize.set(1024, 1024);
 const LIGHT_TAN = 0.9;                  // the light's elevation: about 42°
 const _lightDir = new THREE.Vector3();
 function lightFromSky() {
@@ -4708,11 +4919,43 @@ function lightFromSky() {
   gl.shadowMap.needsUpdate = true;
 }
 ctr.addEventListener('change', () => invalidate(2));
-window.addEventListener('resize', () => { paintBoardSky(); invalidate(); });document.addEventListener('visibilitychange', () => { if (!document.hidden) invalidate(); });
+window.addEventListener('resize', () => { paintBoardSky(); invalidate(); });
+document.addEventListener('visibilitychange', () => { if (!document.hidden) invalidate(); });
+
+/* ── when the context is taken away ─────────────────────────────────
+   A phone sent to the background, or one under memory pressure, can have its
+   WebGL context taken from it. Nothing survives that by itself: three.js goes
+   on issuing draw calls into nothing, the canvas stays as it was last
+   composited, and the model appears to have frozen — which is what it looked
+   like. The loss has to be taken (the default action cancels any chance of
+   getting it back), the loop stopped while it is gone, and everything the
+   renderer cannot rebuild for itself put back when it returns. */
+const glCanvas = stage.shadowRoot.querySelector('canvas');
+const glNote = document.querySelector('.glnote');
+let glLost = false;
+glCanvas.addEventListener('webglcontextlost', (ev) => {
+  ev.preventDefault();
+  glLost = true;
+  glNote.hidden = false;
+});
+glCanvas.addEventListener('webglcontextrestored', () => {
+  glLost = false;
+  glNote.hidden = true;
+  gl.shadowMap.needsUpdate = true;
+  invalidate(6);
+  reframeCurrent(1);
+});
+
+/* The board given the whole screen stands in front of the canvas and hides
+   it. Drawing a world nobody can see is the most expensive thing a phone can
+   be asked to do for no reason, so it is not asked. */
+const worldHidden = () => document.body.classList.contains('board-only');
 const drawLoop = () => {
+  if (glLost) return;
   if (motion) stepMotion();
   ctr.update();                        // fires 'change' → invalidate, when moving
   if (frames <= 0) return;
+  if (worldHidden()) { frames = 0; return; }
   frames--;
   orientOfferingCards();
   fitDepth();
@@ -5002,6 +5245,7 @@ function syncChrome() {
   rbLabelEdge = dock.hidden ? Infinity : dock.getBoundingClientRect().left;
   // the players are named over the model, so they go where the model goes
   rbPlayersEl.hidden = mode !== 'game' || document.body.classList.contains('board-only');
+  syncZoom();
   document.documentElement.style.setProperty('--bl', '0px');
 }
 /* ── framing ────────────────────────────────────────────────────────────
@@ -5647,12 +5891,20 @@ function positionOfEntry(id) {
 let rbGame = createGame({ players: 2 });
 const rbDie = boardEl.querySelector('.die-face');
 const rbSay = boardEl.querySelector('.bv-say');
+/* What the board says before anything has happened, and says again whenever a
+   game is started. It was a rule of play with its rule cut off: the second
+   sentence — the one that says the die names a destination rather than a
+   number of steps to count — is the whole difference between this game and
+   every other board game, and a new game dropped it. Written once here and
+   set from here, so the markup and the reset cannot drift apart. */
+const RB_OPENING = 'Every token starts on 24, the Heavenly Highway. '
+  + 'The die names a destination; it does not count spaces.';
+rbSay.textContent = RB_OPENING;
 const rbFeed = boardEl.querySelector('.feed');
 const rbTally = boardEl.querySelector('.bv-tally');
 const rbWho = boardEl.querySelector('.bv-who');
 const rbTrail = boardEl.querySelector('.bv-trail');
 const rbTurnEl = boardEl.querySelector('.bv-turn');
-const rbRollsEl = boardEl.querySelector('.bv-rolls .rr');
 const rbWhereEl = boardEl.querySelector('.bv-where');
 const rbGrid = boardEl.querySelector('.bv-grid');
 const rbLabel = document.querySelector('.rb-label');
@@ -5707,8 +5959,20 @@ rbGrid.addEventListener('click', (ev) => {
 });
 
 /* — sound: off until asked for, like motion —————————————————————— */
+/* A checkbox left to itself is not off by default: a browser restores the
+   state of form controls across a reload and across a back gesture, so a page
+   that had once been asked for sound came back making it, unasked, with
+   nothing written down anywhere that said so. The setting is kept and set
+   here instead, and it starts silent. */
 const rbKit = createSoundKit(window.AudioContext || window.webkitAudioContext);
-const rbSoundOn = () => document.querySelector('#g-sound').checked;
+const rbSoundBox = document.querySelector('#g-sound');
+const rbSoundOn = () => rbSoundBox.checked;
+let savedSound = null;
+try { savedSound = localStorage.getItem('ws-sound'); } catch (err) {}
+rbSoundBox.checked = savedSound === '1';
+rbSoundBox.addEventListener('change', () => {
+  try { localStorage.setItem('ws-sound', rbSoundBox.checked ? '1' : '0'); } catch (err) {}
+});
 /* Where a throw ends has a character, and which way it went has another. The
    voice comes from the square's own company on the board — the hells are not
    the heavens, the sūtra route is not the mantra route — and under it a short
@@ -5824,7 +6088,16 @@ function rbSyncChips() {
    as four players. */
 function rbPlaceChips() {
   const w = stage.clientWidth, h = stage.clientHeight;
+  /* The square in hand is named where it stands, and everyone standing on the
+     board is named where they stand. On a wide screen those never meet; on a
+     phone they are all within a thumb of Meru, and the chips were laid over
+     the name. The label is placed first each frame, so it can be stood off
+     the way the chips stand off each other. */
   const placed = [];
+  if (!rbLabel.hidden) {
+    // the label is placed by its middle and a chip by its foot: meet halfway
+    placed.push({ x: rbLabel.offsetLeft, y: rbLabel.offsetTop + rbLabel.offsetHeight / 2 });
+  }
   RB_CHIPS.forEach((chip, i) => {
     const player = rbGame.players[i];
     if (!player) return;
@@ -5869,6 +6142,12 @@ function rbSyncTokens() {
     const on = here.get(n) || [];
     if (box.childElementCount === on.length
         && on.every((p, i) => box.children[i].dataset.p === String(p.i))) return;
+    /* the field itself takes the colour of whoever is standing on it, so a
+       token can be found on a board of a hundred and four thumbnails */
+    cell.classList.toggle('held', on.length > 0);
+    cell.style.setProperty('--pc', on.length ? RB_COLOURS[on[0].i] : 'transparent');
+    cell.style.setProperty('--pc-2',
+      RB_COLOURS[(on[1] || on[0] || {}).i] || 'transparent');
     box.textContent = '';
     on.forEach((p) => {
       const dot = document.createElement('span');
@@ -5941,7 +6220,6 @@ function rbSync() {
   rbTurnEl.textContent = rbGame.over
     ? (rbGame.stupa === null ? 'The stupa throw' : 'The game is over')
     : player.name + '\u2019s turn';
-  rbSyncRolls();
   rbSyncWho();
   rbSyncTokens();
   rbSyncTrail();
@@ -5949,22 +6227,11 @@ function rbSync() {
   rbPlaceToken();
   rbLight();
 }
-/* The last five throws, as the board itself would keep them. The move log
-   says what each one did; this says only what came up, which is what a player
-   glances at between turns. */
-const RB_ROLLS = [];
-function rbSyncRolls() {
-  rbRollsEl.textContent = '';
-  const shown = RB_ROLLS.slice(-5);
-  for (let i = 0; i < 5; i++) {
-    const box = document.createElement('span');
-    const face = shown[i - (5 - shown.length)];
-    box.className = 'rr-f' + (face && i === 4 ? ' last' : '');
-    box.textContent = face ? String(face) : '';
-    rbRollsEl.appendChild(box);
-  }
-}
-
+/* The five boxes of recent faces are gone. They said what the move log says,
+   and less than the trail beside them says — the trail is every throw with
+   the square it reached, which is what a player actually glances at between
+   turns — and on a phone they were a row of mostly empty boxes holding the
+   width the rest of the card needed. */
 /* ── the throw ──────────────────────────────────────────────────────────
    A die that resolves the instant it is clicked tells you the answer before
    you have asked the question. This one runs for a couple of seconds, ticking
@@ -6057,8 +6324,6 @@ function rbThrow() {
 }
 function rbResolve(face) {
   const who = rbGame.players[rbGame.turn].name;
-  RB_ROLLS.push(face);
-  if (RB_ROLLS.length > 12) RB_ROLLS.shift();
   const ev = throwDie(rbGame, face);
   if (ev.kind === 'stupa') {
     rbSay.innerHTML = ev.placed ? '<b>The relics pass into the stupa.</b> A rite after the fact; it settles nothing.'
@@ -6168,8 +6433,7 @@ function rbReset() {
   });
   rbSetDie(1);
   rbFeed.textContent = '';
-  RB_ROLLS.length = 0;
-  rbSay.innerHTML = 'Every token starts on 24, the Heavenly Highway.';
+  rbSay.innerHTML = RB_OPENING;
   rbSelect(RB_START, false);
   rbSync();
 }
@@ -6182,7 +6446,6 @@ boardEl.addEventListener('click', (ev) => {
   if (b.dataset.game === 'ask-new') rbAskNew();
   if (b.dataset.game === 'cancel-new') rbCloseAsk();
   if (b.dataset.game === 'swap') rbSwap();
-  if (b.dataset.game === 'tibetan') rbSetTibetan();
   if (b.dataset.game === 'card-close') rbHideCard();
   // the whole passage, one click from the card that announced the square
   if (b.dataset.game === 'card-entry' && rbCardSquare !== null) {
@@ -6220,13 +6483,25 @@ function rbSwap(to) {
    two dimensions instead of three. The choice is kept between visits. */
 const RB_LAYOUTS = ['both', 'board', 'world'];
 let rbView3D = 'both';
+/* Two of the three take the whole screen, and they do it by dressing the
+   page: board hides the canvas the world is drawn on, world folds the board
+   away. Neither means anything outside the game. Written straight onto the
+   body they outlived the game that asked for them — left over the explorer
+   they hid the model itself, which is the view that "stopped appearing" and
+   never came back short of clearing the site's storage. So the classes are
+   read off the mode every time, and the mode is the only thing that can put
+   them on. */
+function rbApplyLayout() {
+  const playing = mode === 'game';
+  document.body.classList.toggle('world-only', playing && rbView3D === 'world');
+  document.body.classList.toggle('board-only', playing && rbView3D === 'board');
+  boardEl.querySelectorAll('[data-layout]').forEach((b) =>
+    b.setAttribute('aria-pressed', String(b.dataset.layout === rbView3D)));
+}
 function rbLayout(next, remember = true) {
   const to = RB_LAYOUTS.includes(next) ? next : 'both';
   rbView3D = to;
-  document.body.classList.toggle('world-only', to === 'world');
-  document.body.classList.toggle('board-only', to === 'board');
-  boardEl.querySelectorAll('[data-layout]').forEach((b) =>
-    b.setAttribute('aria-pressed', String(b.dataset.layout === to)));
+  rbApplyLayout();
   boardEl.querySelector('[data-game="swap"]').textContent =
     to === 'world' ? 'Show the board' : 'Show the world';
   if (remember) { try { localStorage.setItem('ws-game-view', to); } catch (err) {} }
@@ -6246,10 +6521,12 @@ function rbCycleLayout() {
    named in passing — the cells, the card, the label in the world, the player
    tabs — while the entry in the drawer always gives both. */
 let rbTib = false;
+const rbLangButtons = [...document.querySelectorAll('[data-lang]')];
 function rbSetTibetan(to) {
   rbTib = to === undefined ? !rbTib : !!to;
   document.body.classList.toggle('tibetan-names', rbTib);
-  boardEl.querySelector('[data-game="tibetan"]').setAttribute('aria-pressed', String(rbTib));
+  rbLangButtons.forEach((b) =>
+    b.setAttribute('aria-pressed', String((b.dataset.lang === 'bo') === rbTib)));
   if (rbSelected !== null) rbNameLabel(rbSelected);
   rbSyncWho();
   try { localStorage.setItem('ws-tibetan', rbTib ? '1' : '0'); } catch (err) {}
@@ -6280,7 +6557,13 @@ function measureRound() {
   rbRoundRadius += RIM * 0.06;
 }
 function gameRadius(at) {
-  const base = rbView3D === 'world' ? Math.max(WORLD_R, rbRoundRadius) : WORLD_R;
+  /* The whole round is several times the world across, and framed to hold all
+     of it a phone shows the world itself as a coin in the middle of an empty
+     sky — which is not the world appearing, whatever the renderer thinks. On
+     a screen that small the world alone is framed like every other view, and
+     the rest of the round is one drag away. */
+  const base = rbView3D === 'world' && !tightScreen()
+    ? Math.max(WORLD_R, rbRoundRadius) : WORLD_R;
   if (!at) return base;
   return Math.max(base, HOME.t.distanceTo(at) + RIM * 0.10);
 }
@@ -6319,8 +6602,8 @@ function enterGame() {
   rbSetDie(1);
   rbSelect(rbGame.players[rbGame.turn].pos, false);
   rbSync();
-  document.body.classList.remove('world-only');
-  boardEl.querySelector('[data-game="swap"]').textContent = 'Show the world';
+  rbApplyLayout();          // the arrangement this game was last left in
+  paintBoardSky();          // and, if that is the printed board, its ground
   reshadow();
   requestAnimationFrame(() => { if (mode === 'game') reframeGame(900); });
   invalidate(4);
@@ -6331,7 +6614,8 @@ function leaveGame() {
   rbBoard.showLinks(null);
   // stand the players down too, so the world is left exactly as it was found
   rbBoard.tokens.forEach((t) => { t.visible = false; t.userData.halo.visible = false; });
-  document.body.classList.remove('world-only');
+  // the game's dress comes off with the game: mode is still 'game' here
+  document.body.classList.remove('world-only', 'board-only');
   reshadow();
   invalidate(4);
 }
@@ -6374,6 +6658,10 @@ document.addEventListener('pointerdown', (ev) => {
 }, true);
 
 controlsEl.addEventListener('click', (ev) => {
+  // the language selector stays open under the hand: picking one of two is
+  // not a reason to shut the menu that holds the rest of the settings
+  const lang = ev.target.closest('[data-lang]');
+  if (lang) { rbSetTibetan(lang.dataset.lang === 'bo'); return; }
   const act = ev.target.closest('[data-act],[data-mode]');
   if (!act || act.tagName === 'SUMMARY') return;
   closeMenus();
@@ -6384,6 +6672,8 @@ controlsEl.addEventListener('click', (ev) => {
   if (act.dataset.act === 'home') { close(); if (mode !== 'explore') setMode('explore'); else home(); }
   if (act.dataset.act === 'full') toggleFullScreen();
 });
+document.querySelector('.glnote [data-act="reload"]')
+  .addEventListener('click', () => location.reload());
 
 /* ── the motion switch ───────────────────────────────────────────────── */
 const motionBtn = document.querySelector('[data-act="motion"]');
@@ -6466,7 +6756,14 @@ function toggleFullScreen() {
     : (root.requestFullscreen
         ? root.requestFullscreen({ navigationUI: 'hide' })
         : root.webkitRequestFullscreen());
-  Promise.resolve(p).catch(() => {});
+  /* The layouts are drawn upright. Full screen is the one moment a page is
+     allowed to ask a phone to stay that way, so it asks; where the browser
+     will not, the landscape notice says so instead. */
+  Promise.resolve(p).then(() => {
+    if (!isFull() || !coarse) return;
+    const o = window.screen && window.screen.orientation;
+    if (o && o.lock) Promise.resolve(o.lock('portrait')).catch(() => {});
+  }).catch(() => {});
 }
 document.addEventListener('fullscreenchange', syncFull);
 document.addEventListener('webkitfullscreenchange', syncFull);
@@ -6484,6 +6781,17 @@ window.addEventListener('resize', () => {
   clearTimeout(reframe);
   reframe = setTimeout(reframeCurrent, 180);
 });
+/* The canvas changes size without the window doing: a phone's toolbar sliding
+   away, the keyboard coming up, the page going full screen. The stage resizes
+   its own drawing buffer for that — and a resized buffer is a cleared one, so
+   with nothing asking for a frame the model simply vanished until something
+   else happened to ask. Ask. */
+new ResizeObserver(() => {
+  refitHome();
+  invalidate(3);
+  clearTimeout(reframe);
+  reframe = setTimeout(reframeCurrent, 180);
+}).observe(stage);
 document.querySelector('[data-act="close-index"]').addEventListener('click', () => setOpen(false));
 
 let saved = null;
