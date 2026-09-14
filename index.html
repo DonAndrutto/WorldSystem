@@ -1110,12 +1110,241 @@
     .bv-more-body { bottom: auto; top: calc(100% + 7px); }
     body.world-only .board-view { top: calc(54px + var(--sa-t)); bottom: auto; }
   }
+
+  /* ══ The board, given the whole screen ═══════════════════════════════════
+     Beside the world the board is a panel: a grid and a rail, laid out to
+     leave the model room. Asked for on its own it is not a panel at all but
+     the printed board, and a printed board of this kind is printed on
+     something and has a head and a foot. So the whole page becomes it: a
+     field of sky with the same painted clouds the model stands in front of,
+     gathered along the top and the foot and leaving the middle clear; the
+     title over it; the throw, the players and the last few faces on one card;
+     the hundred and four squares under that; and the three controls docked
+     along the bottom as the board's own foot. Both palettes are the page's
+     own — paper by day, and at night the gold-on-ink the model already
+     takes. Nothing here is shown in the other two arrangements.          */
+  .bv-sky {
+    position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0;
+    pointer-events: none; opacity: 0; transition: opacity .45s ease;
+  }
+  body.board-only .bv-sky { opacity: 1; }
+  .bv-head, .bv-turn, .bv-rolls, .bv-where { display: none; }
+
+  body.board-only {
+    --cell: rgba(255, 255, 255, .74);
+    --cell-edge: rgba(35, 32, 26, .13);
+    --card: rgba(253, 251, 245, .93);
+    --gold-1: #f0dba6; --gold-2: #d9bd79; --gold-ink: #5d431c;
+  }
+  body.board-only.night {
+    --cell: rgba(233, 224, 199, .055);
+    --cell-edge: rgba(228, 189, 112, .26);
+    --card: rgba(11, 20, 38, .9);
+    --gold-1: #d8b978; --gold-2: #b7924a; --gold-ink: #1a1408;
+  }
+
+  body.board-only .board-view,
+  body.board-only.index-open .board-view,
+  body.board-only.panel-open .board-view {
+    left: 0; right: 0; top: 0; bottom: 0; width: auto; max-width: none;
+    flex-direction: column; align-items: center;
+    padding: clamp(6px, 1.4vh, 18px) clamp(10px, 3vw, 34px) calc(76px + var(--sa-b));
+    gap: clamp(6px, 1.1vh, 13px);
+  }
+  body.board-only .bv-head,
+  body.board-only .bv-rail,
+  body.board-only .bv-grid { width: min(100%, 1120px); }
+  body.board-only .bv-head { order: 0; }
+  body.board-only .bv-rail { order: 1; }
+  body.board-only .bv-grid { order: 2; }
+
+  /* the head: the wordmark, with the day's sun or the night's moon over it */
+  body.board-only .bv-head {
+    position: relative; display: flex; flex: none;
+    align-items: center; justify-content: center; padding: 6px 0 2px;
+  }
+  .bv-mark {
+    margin: 0; text-align: center; text-transform: uppercase; font-weight: 400;
+    font-size: clamp(16px, 2.2vw, 25px); letter-spacing: .15em; line-height: 1.05;
+    color: var(--ink);
+  }
+  .bv-mark span {
+    display: block; margin-top: 5px; color: var(--ink-3);
+    font-family: "IBM Plex Mono", monospace; font-size: 8.5px; letter-spacing: .32em;
+  }
+  .bv-orb {
+    position: absolute; left: 50%; top: -14px; width: 74px; height: 74px;
+    transform: translateX(-50%); pointer-events: none; opacity: .85;
+    background:
+      radial-gradient(circle, #eec263 0 20%, rgba(238,194,99,.62) 28%, rgba(238,194,99,0) 58%),
+      repeating-conic-gradient(from 0deg, rgba(214,169,72,.8) 0deg 1.3deg, rgba(214,169,72,0) 1.3deg 5.6deg);
+    -webkit-mask-image: radial-gradient(circle, #000 0 44%, transparent 70%);
+    mask-image: radial-gradient(circle, #000 0 44%, transparent 70%);
+  }
+  body.night .bv-orb {
+    background: radial-gradient(circle at 44% 40%, #efe8d2 0 24%, rgba(216,208,184,.45) 34%, rgba(216,208,184,0) 62%);
+    -webkit-mask-image: none; mask-image: none; opacity: .62;
+  }
+
+  /* the card: the throw, who is on the board, the last faces, the square */
+  body.board-only .bv-rail {
+    flex: none; align-items: center; gap: 10px 14px;
+    padding: 11px 14px 12px; border-radius: 13px; background: var(--card);
+  }
+  body.board-only .die-face { order: 0; }
+  body.board-only .bv-act {
+    order: 1; flex: 1 1 240px; display: flex; flex-direction: column;
+    align-items: center; gap: 5px; padding-left: 14px;
+    border-left: 1px solid var(--rule);
+  }
+  body.board-only .bv-turn {
+    display: block; margin: 0; font-family: "IBM Plex Mono", monospace;
+    font-size: 9px; letter-spacing: .24em; text-transform: uppercase; color: var(--ink-3);
+  }
+  body.board-only .bv-rail .go {
+    align-self: stretch; min-width: 0; border-radius: 999px; padding: 11px 18px 10px;
+    border-color: var(--gold-2); color: var(--gold-ink); font-size: 11px; letter-spacing: .16em;
+    background: linear-gradient(180deg, var(--gold-1), var(--gold-2));
+  }
+  body.board-only .bv-rail .go:hover { filter: brightness(1.05); }
+  body.board-only .bv-rail .go:disabled { filter: grayscale(.5); }
+  body.board-only .bv-views {
+    order: 2; align-self: center; padding-left: 14px; border-left: 1px solid var(--rule);
+  }
+  body.board-only .bv-tib { align-self: center; }
+  /* the trail says what it is, the way the roll boxes beside it do */
+  body.board-only .bv-trail::before {
+    content: "Trail"; align-self: center; margin-right: 5px;
+    font-family: "IBM Plex Mono", monospace; font-size: 8.5px; letter-spacing: .22em;
+    text-transform: uppercase; color: var(--ink-3);
+  }
+  body.board-only .bv-mid {
+    order: 4; flex: 1 1 100%; min-width: 0;
+    display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 7px 14px; align-items: center;
+  }
+  body.board-only .bv-who { grid-column: 1; grid-row: 1; }
+  body.board-only .bv-rolls {
+    grid-column: 2; grid-row: 1; justify-self: end;
+    display: flex; align-items: center; gap: 8px;
+  }
+  body.board-only .bv-where,
+  body.board-only .bv-say,
+  body.board-only .bv-tally,
+  body.board-only .bv-trail { grid-column: 1 / -1; }
+  body.board-only .bv-where {
+    display: block; margin: 0; font-size: clamp(15px, 1.7vw, 19px); color: var(--ink);
+  }
+  body.board-only .bv-say { font-size: 12px; color: var(--ink-2); }
+  /* the two that are not part of a turn ride the head of the card, so the
+     rest of it can be the turn and nothing else */
+  body.board-only .bv-new { order: 3; align-self: center; }
+  body.board-only .bv-more { order: 4; align-self: center; }
+  body.board-only .bv-rail > .bv-mid { order: 6; }
+  body.board-only .bv-tib { order: 2; }
+  body.board-only .bv-swap { display: none; }
+  .bv-rolls .lb {
+    font-family: "IBM Plex Mono", monospace; font-size: 8.5px; letter-spacing: .22em;
+    text-transform: uppercase; color: var(--ink-3);
+  }
+  .bv-rolls .rr { display: flex; gap: 5px; }
+  .rr-f {
+    width: 26px; height: 26px; display: grid; place-items: center;
+    border: 1px solid var(--rule); border-radius: 5px; background: var(--field);
+    font-family: "IBM Plex Mono", monospace; font-size: 12px; color: var(--ink-2);
+  }
+  .rr-f.last { border-color: var(--gold-2); background: var(--hi-2); color: var(--ink); }
+
+  /* the squares themselves: a field apiece, edged in its zone's colour */
+  body.board-only .bv-grid {
+    gap: 4px; padding: 8px; border-radius: 13px; background: var(--card);
+  }
+  body.board-only .bv-sq {
+    border: 1px solid var(--cell-edge); border-left: 3px solid var(--zone, var(--rule-2));
+    border-radius: 5px; background: var(--cell);
+  }
+  body.board-only .bv-sq .n {
+    font-size: 10px; color: var(--ink-2);
+    text-shadow: 0 0 3px var(--paper), 0 0 3px var(--paper), 0 0 5px var(--paper);
+  }
+  /* On the printed board a square is its field and its number and nothing
+     else; the name is on the card above, in the cell's own tooltip, and in
+     the entry a click away. Given the whole screen, follow the board. */
+  body.board-only .bv-sq .nm, body.board-only .bv-sq .tb { display: none !important; }
+  body.board-only .bv-icon { inset: 0; bottom: 0; height: 88%; opacity: 1; }
+  body.board-only .bv-sq[aria-selected="true"] {
+    border-color: var(--gold-2); box-shadow: 0 0 0 2px var(--hi-2), inset 0 0 0 1px var(--gold-2);
+  }
+  body.board-only .bv-sq.lit { background: var(--hi); }
+
+  /* the throw, said over a board that stands back while it is read */
+  body.board-only .bv-card {
+    background: color-mix(in srgb, var(--paper) 30%, transparent);
+    -webkit-backdrop-filter: blur(2.5px); backdrop-filter: blur(2.5px);
+  }
+  body.board-only .bv-card-in {
+    max-width: min(94%, 40ch); padding: 26px 34px 28px; border-radius: 18px;
+    border-color: var(--gold-2); background: var(--card); box-shadow: var(--shadow);
+  }
+  body.board-only .bv-card .face { letter-spacing: .22em; }
+  /* a rule, a bead, a rule — drawn rather than set, so it is the same
+     ornament in every font the page may fall back to */
+  body.board-only .bv-card .face::after {
+    content: ""; display: block; margin: 11px auto 5px; width: 92px; height: 7px;
+    background:
+      linear-gradient(var(--gold-2), var(--gold-2)) left center / 36px 1px no-repeat,
+      linear-gradient(var(--gold-2), var(--gold-2)) right center / 36px 1px no-repeat,
+      radial-gradient(circle, var(--gold-2) 0 2.4px, transparent 2.6px) center / 8px 8px no-repeat;
+  }
+  body.board-only .bv-card .num { font-size: 58px; color: var(--gold-2); }
+  body.board-only .bv-card-more {
+    margin-top: 16px; border-radius: 999px; padding: 11px 22px 10px;
+    border-color: var(--gold-2); color: var(--gold-ink); letter-spacing: .16em;
+    background: linear-gradient(180deg, var(--gold-1), var(--gold-2));
+  }
+
+  /* the three controls, docked along the foot as the board's own */
+  body.board-only .controls,
+  body.board-only.index-open .controls {
+    top: auto; bottom: calc(12px + var(--sa-b));
+    left: 50%; right: auto; transform: translateX(-50%);
+    width: min(620px, calc(100vw - 24px)); padding: 3px; border-radius: 14px;
+  }
+  body.board-only .controls > .btn, body.board-only .controls > .menu { flex: 1 1 0; }
+  body.board-only .controls > .btn,
+  body.board-only .controls .menu > .btn {
+    justify-content: center; padding: 13px 0 12px; border-radius: 11px; border-left: 0;
+  }
+  body.board-only .controls > .btn .t,
+  body.board-only .controls .menu > .btn .t { display: inline; }
+  body.board-only .controls > .btn .g,
+  body.board-only .controls .menu > .btn .g { font-size: 14px; margin-right: 7px; }
+  body.board-only .controls .menu > .btn .chev { display: none; }
+  body.board-only .controls .menu-body { top: auto; bottom: calc(100% + 8px); }
+
+  @media (max-width: 820px) {
+    body.board-only .bv-act { flex-basis: 160px; padding-left: 10px; }
+    body.board-only .bv-views { padding-left: 10px; }
+    body.board-only .bv-rolls .lb { display: none; }
+    body.board-only .bv-new, body.board-only .bv-more { align-self: center; }
+  }
+  @media (max-width: 700px) {
+    body.board-only .board-view,
+    body.board-only.index-open .board-view {
+      flex-direction: column; top: calc(6px + var(--sa-t));
+      padding: 0 9px calc(72px + var(--sa-b)); gap: 7px;
+    }
+    body.board-only .bv-head { display: none; }
+    body.board-only .bv-rail { padding: 9px 10px; border-radius: 11px; }
+    body.board-only .bv-where { font-size: 14px; }
+    body.board-only .rr-f { width: 22px; height: 22px; font-size: 11px; }
+  }
 </style>
 </head>
 <body>
 
 <three-d-stage name="buddhist-world-system" background="#efe8da"></three-d-stage>
 <div class="underwater" aria-hidden="true"></div>
+<canvas class="bv-sky" aria-hidden="true"></canvas>
 
 <div class="overlay">
   <!-- Three controls, and every one of them opens onto the rest. The index,
@@ -1127,7 +1356,7 @@
       <div class="menu-body card" role="group" aria-label="View">
         <button class="btn" data-mode="explore" type="button" aria-pressed="true" title="Explorer — e"><span class="g">✦</span><span class="t">Explorer</span></button>
         <button class="btn" data-mode="mandala" type="button" aria-pressed="false" title="Mandala — m"><span class="g">◎</span><span class="t">Mandala</span></button>
-        <button class="btn" data-mode="game" type="button" aria-pressed="false" title="Game of rebirth — g"><span class="g">⚄</span><span class="t">Game</span></button>
+        <button class="btn" data-mode="game" type="button" aria-pressed="false" title="Game of rebirth — g"><span class="g">☸</span><span class="t">Game</span></button>
       </div>
     </details>
     <details class="menu" data-menu="options">
@@ -1155,6 +1384,12 @@
   <div class="rb-players" aria-hidden="true" hidden=""></div>
 
   <section class="board-view" aria-label="The board of rebirth" hidden>
+    <!-- Shown only where the board has the whole screen: given that much
+         room it is a printed board and wants a head, not a panel. -->
+    <header class="bv-head" aria-hidden="true">
+      <i class="bv-orb"></i>
+      <p class="bv-mark">WorldSystem<span>Rebirth Board Game</span></p>
+    </header>
     <div class="bv-grid" role="grid" aria-label="The hundred and four squares"></div>
     <div class="bv-card" role="status" aria-live="assertive" hidden>
       <div class="bv-card-in card">
@@ -1171,9 +1406,14 @@
     </div>
     <div class="bv-rail card">
       <div class="die-face" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
-      <button class="btn go" type="button" data-game="throw">Throw</button>
+      <div class="bv-act">
+        <p class="bv-turn" aria-hidden="true"></p>
+        <button class="btn go" type="button" data-game="throw">Throw</button>
+      </div>
       <div class="bv-mid">
         <div class="bv-who"></div>
+        <div class="bv-rolls" aria-hidden="true"><span class="lb">Recent rolls</span><div class="rr"></div></div>
+        <p class="bv-where" aria-hidden="true"></p>
         <p class="bv-say" role="status" aria-live="polite">Every token starts on 24, the Heavenly Highway. The die names a destination; it does not count spaces.</p>
         <div class="bv-tally" hidden></div>
         <div class="bv-trail" aria-label="The karmic trail"></div>
@@ -2960,6 +3200,63 @@ function setSky(dark) {
   skyMat.needsUpdate = true;
 }
 
+/* ── The ground the board stands on ──────────────────────────────────────
+   Where the board is given the whole screen there is no model behind it, and
+   a field of flat colour is not what a board of this kind is printed on. So
+   the page takes a sky of its own: the same painted cloud silhouettes the
+   model stands in front of, gathered along the head and the foot and turned
+   back at the foot so the pattern closes, with the middle left clear for the
+   hundred and four squares. Painted once for a size and a theme, and only
+   when the board actually has the screen. */
+const boardSkyEl = document.querySelector('.bv-sky');
+const BOARD_GROUND = {
+  day: ['#e9f2fb', '#d3e5f5', '#c0d9ef'],
+  night: ['#091326', '#0e1d36', '#070f1e']
+};
+let boardSkyKey = '';
+function paintBoardSky(force) {
+  if (!force && !document.body.classList.contains('board-only')) return;
+  const w = Math.max(320, Math.round(window.innerWidth || 1280));
+  const h = Math.max(320, Math.round(window.innerHeight || 900));
+  const key = w + 'x' + h + (night ? 'n' : 'd');
+  if (key === boardSkyKey) return;
+  boardSkyKey = key;
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  boardSkyEl.width = Math.round(w * dpr);
+  boardSkyEl.height = Math.round(h * dpr);
+  const x = boardSkyEl.getContext('2d');
+  if (!x) return;
+  x.setTransform(dpr, 0, 0, dpr, 0, 0);
+  const [head, middle, foot] = BOARD_GROUND[night ? 'night' : 'day'];
+  const wash = x.createLinearGradient(0, 0, 0, h);
+  wash.addColorStop(0, head);
+  wash.addColorStop(0.52, middle);
+  wash.addColorStop(1, foot);
+  x.fillStyle = wash;
+  x.fillRect(0, 0, w, h);
+  const band = Math.round(Math.min(h * 0.46, 520));
+  const strip = document.createElement('canvas');
+  strip.width = w; strip.height = band;
+  const sx = strip.getContext('2d');
+  if (!sx) return;
+  paintClouds(sx, w, band, night, () => document.createElement('canvas'));
+  if (night) {
+    // at night the board is gold on ink, and its weather with it
+    sx.globalCompositeOperation = 'source-atop';
+    sx.fillStyle = 'rgba(206, 166, 88, .58)';
+    sx.fillRect(0, 0, w, band);
+    sx.globalCompositeOperation = 'source-over';
+  }
+  x.globalAlpha = night ? 0.9 : 1;
+  x.drawImage(strip, 0, 0, w, band);
+  x.save();
+  x.translate(0, h);
+  x.scale(1, -1);
+  x.drawImage(strip, 0, 0, w, band);
+  x.restore();
+  x.globalAlpha = 1;
+}
+
 /* A soft light from beneath, so the water and wind mandalas under the
    golden ground are not a black silhouette when the view drops low. */
 const underLight = new THREE.DirectionalLight(0xd8e6ef, 0.6);
@@ -4029,6 +4326,7 @@ function applyTheme(on) {
   M.formless.color.setHex(on ? 0xb9b09a : 0x8a8578);
   SEA_FOG.color.setHex(on ? 0x0b2942 : 0x14506a);
   setSky(on);
+  paintBoardSky();
   lightFromSky();
   invalidate();
   const btn = document.querySelector('[data-act="night"]');
@@ -4274,7 +4572,14 @@ function fitDepth() {
   const clear = Math.max(toCentre - VIEW_BOUNDS.radius, 0);
   const orbit = cam.position.distanceTo(ctr.target);
   const near = Math.max(NEAR_FLOOR, Math.min(orbit, clear + VIEW_BOUNDS.radius * 0.02) * 0.02);
-  const far = toCentre + SKY_R * 1.02;
+  /* The backdrop is a sphere on the world's own axis, not on the middle of
+     whatever the model happens to span, and the far side of it is the last
+     thing the eye can be shown. Measured from the model's centre instead,
+     the plane falls short of that far side wherever the camera stands well
+     off it — up among the heavens, say — and the sky is cut open there, with
+     the page's own paper showing through the hole. */
+  const far = Math.max(cam.position.length() + SKY_R * 1.04,
+                       toCentre + VIEW_BOUNDS.radius * 1.04);
   if (near === cam.near && far === cam.far) return;
   cam.near = near;
   cam.far = far;
@@ -4403,7 +4708,7 @@ function lightFromSky() {
   gl.shadowMap.needsUpdate = true;
 }
 ctr.addEventListener('change', () => invalidate(2));
-window.addEventListener('resize', () => invalidate());document.addEventListener('visibilitychange', () => { if (!document.hidden) invalidate(); });
+window.addEventListener('resize', () => { paintBoardSky(); invalidate(); });document.addEventListener('visibilitychange', () => { if (!document.hidden) invalidate(); });
 const drawLoop = () => {
   if (motion) stepMotion();
   ctr.update();                        // fires 'change' → invalidate, when moving
@@ -5346,6 +5651,9 @@ const rbFeed = boardEl.querySelector('.feed');
 const rbTally = boardEl.querySelector('.bv-tally');
 const rbWho = boardEl.querySelector('.bv-who');
 const rbTrail = boardEl.querySelector('.bv-trail');
+const rbTurnEl = boardEl.querySelector('.bv-turn');
+const rbRollsEl = boardEl.querySelector('.bv-rolls .rr');
+const rbWhereEl = boardEl.querySelector('.bv-where');
 const rbGrid = boardEl.querySelector('.bv-grid');
 const rbLabel = document.querySelector('.rb-label');
 let rbSelected = null;
@@ -5451,6 +5759,8 @@ function rbSelect(n, moveCamera) {
   const reached = new Set(rbBoard.showLinks(n));
   rbCells.forEach((cell, sq) => cell.classList.toggle('reached', reached.has(sq)));
   rbNameLabel(n);
+  rbWhereEl.textContent = rbCalled(n) + ' \u2014 square ' + n;
+  rbWhereEl.lang = rbTib && rbTibetan(n) ? 'bo' : 'en';
   rbLight();
   if (moveCamera && mode === 'game') reframeGame(700, rbBoard.positionOf(n));
   invalidate(2);
@@ -5628,6 +5938,10 @@ function rbSync() {
     : rbGame.over ? (rbGame.stupa === null ? 'Stupa throw' : 'Game over')
     : (player.trap ? 'Throw (trapped)' : 'Throw for ' + player.name);
   rbThrowBtn.disabled = rbRolling || (rbGame.over && rbGame.stupa !== null);
+  rbTurnEl.textContent = rbGame.over
+    ? (rbGame.stupa === null ? 'The stupa throw' : 'The game is over')
+    : player.name + '\u2019s turn';
+  rbSyncRolls();
   rbSyncWho();
   rbSyncTokens();
   rbSyncTrail();
@@ -5635,6 +5949,22 @@ function rbSync() {
   rbPlaceToken();
   rbLight();
 }
+/* The last five throws, as the board itself would keep them. The move log
+   says what each one did; this says only what came up, which is what a player
+   glances at between turns. */
+const RB_ROLLS = [];
+function rbSyncRolls() {
+  rbRollsEl.textContent = '';
+  const shown = RB_ROLLS.slice(-5);
+  for (let i = 0; i < 5; i++) {
+    const box = document.createElement('span');
+    const face = shown[i - (5 - shown.length)];
+    box.className = 'rr-f' + (face && i === 4 ? ' last' : '');
+    box.textContent = face ? String(face) : '';
+    rbRollsEl.appendChild(box);
+  }
+}
+
 /* ── the throw ──────────────────────────────────────────────────────────
    A die that resolves the instant it is clicked tells you the answer before
    you have asked the question. This one runs for a couple of seconds, ticking
@@ -5727,6 +6057,8 @@ function rbThrow() {
 }
 function rbResolve(face) {
   const who = rbGame.players[rbGame.turn].name;
+  RB_ROLLS.push(face);
+  if (RB_ROLLS.length > 12) RB_ROLLS.shift();
   const ev = throwDie(rbGame, face);
   if (ev.kind === 'stupa') {
     rbSay.innerHTML = ev.placed ? '<b>The relics pass into the stupa.</b> A rite after the fact; it settles nothing.'
@@ -5770,7 +6102,8 @@ function rbResolve(face) {
     rbFlash(ev.to);
     rbSelect(ev.to, true);
   } else {
-    rbSay.innerHTML = '<b>' + RB_BY_N.get(ev.to).name + '</b> — square ' + ev.to + '.';
+    rbSay.innerHTML = '<b>' + who + '</b> threw a ' + face + ': '
+      + ev.from + ' &rarr; ' + ev.to + ', ' + RB_BY_N.get(ev.to).name + '.';
     rbLog('<span class="mono">' + face + '</span> ' + who + ' ' + ev.from + ' → ' + ev.to);
     RB_SOUND.arrive(ev.to, ev.from);
     rbShowCard(face, who + ' threw a ' + face, ev.to, null);
@@ -5835,6 +6168,7 @@ function rbReset() {
   });
   rbSetDie(1);
   rbFeed.textContent = '';
+  RB_ROLLS.length = 0;
   rbSay.innerHTML = 'Every token starts on 24, the Heavenly Highway.';
   rbSelect(RB_START, false);
   rbSync();
@@ -5896,6 +6230,7 @@ function rbLayout(next, remember = true) {
   boardEl.querySelector('[data-game="swap"]').textContent =
     to === 'world' ? 'Show the board' : 'Show the world';
   if (remember) { try { localStorage.setItem('ws-game-view', to); } catch (err) {} }
+  paintBoardSky();
   syncChrome();
   framePut = null;
   invalidate(4);
@@ -6003,7 +6338,7 @@ function leaveGame() {
 const controlsEl = document.querySelector('.controls');
 const MENUS = [...controlsEl.querySelectorAll('.menu')];
 const closeMenus = (except) => MENUS.forEach((m) => { if (m !== except) m.open = false; });
-const MODE_FACE = { explore: ['\u2726', 'Explorer'], mandala: ['\u25ce', 'Mandala'], game: ['\u2684', 'Game'] };
+const MODE_FACE = { explore: ['\u2726', 'Explorer'], mandala: ['\u25ce', 'Mandala'], game: ['\u2638', 'Game'] };
 function syncModeButtons() {
   document.querySelectorAll('[data-mode]').forEach(b =>
     b.setAttribute('aria-pressed', String(b.dataset.mode === mode)));

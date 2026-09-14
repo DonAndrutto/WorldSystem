@@ -301,7 +301,7 @@ the entries the legend sat beside.
 | --- | --- |
 | **Index** `i` | The drawer of explanatory entries, with a filter, headed by the title and the way into *About this model*. |
 | **View** `e` `m` `g` | Explorer, Maṇḍala, Game. Explorer is the model and its index; Maṇḍala is the thirty-seven heaps, in the order the offering names them; Game sets the board of rebirth beside the world. |
-| **Board, both or world** `b` | In game mode, what is on the screen: the board alone as a diagram of positions, the board beside the world, or the world alone. Kept between visits. |
+| **Board, both or world** `b` | In game mode, what is on the screen: the board alone, the board beside the world, or the world alone. Kept between visits. Asked for on its own the board takes the whole page as a printed board rather than a panel: a painted sky of the model's own clouds, the title over it, the throw, the players, the last five faces and the square in hand on one card, the hundred and four fields under that, and the three controls docked along the foot. It has a night palette of its own, gold on ink. |
 | **Tibetan names** `t` | In game mode, names the squares in Tibetan instead of English wherever they are named in passing. The entry always gives both. |
 | **Board or world** `w` | In game mode on a narrow window, hands the screen from the board to the world and back. Where both fit, they are both already there. |
 | **Options** | Motion, night, sound, full screen and reset view, under one control. |
