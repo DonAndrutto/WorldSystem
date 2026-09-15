@@ -518,6 +518,27 @@ The model is by **Andrzej R. Rybszleger**, built from the sources above.
 
 ## Development checks
 
+### Guided game locations
+
+The arrival card and square entry both offer **Show in world**. This opens a
+temporary World view, folds the entry into a location caption, and frames the
+destination together with Meru. **Focus here** restores that composition after
+manual exploration; **World overview** gives context; **Return to board** (or
+Escape) restores the preceding board layout without changing the turn. The
+temporary visit does not overwrite the saved layout preference.
+
+`game-camera.js` contains the perspective fitting and exterior camera path.
+Compositions use the destination's region rather than the previous orbit angle.
+Underground focus clips the near half of the enclosing world layers; leaving
+the visit restores their original materials. Guided views stay still even when
+world motion is enabled, and dragging cancels a flight. Reduced motion applies
+the final camera position immediately.
+
+The regression suite projects all 104 destinations and Meru at desktop, phone,
+and landscape dimensions. It also checks deterministic focus, interruption,
+pop-up entry points, return navigation and material restoration. Actual browser
+layout and GPU rendering still require the visual checks described below.
+
 The browser reads three.js through the pinned import map, now from `vendor/`.
 The test harness needs Node and two development dependencies:
 

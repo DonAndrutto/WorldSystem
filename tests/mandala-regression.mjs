@@ -16,6 +16,7 @@ const rbGame = await import(pathToFileURL(repo + '/rebirth-game.js'));
 const {SQUARE_NOTES, SQUARE_FULL} = await import(pathToFileURL(repo + '/rebirth-notes.js'));
 const rbIcons = await import(pathToFileURL(repo + '/rebirth-icons.js'));
 const rbSound = await import(pathToFileURL(repo + '/rebirth-sound.js'));
+const gameCamera = await import(pathToFileURL(repo + '/game-camera.js'));
 // Every square is painted: the field it is drawn as on the board, served as
 // four atlas sheets that the module lays out from the square numbers alone.
 assert.equal(rbIcons.SQUARE_ART.size, 104, 'every square has its field');
@@ -46,7 +47,7 @@ const textureRequests = [];
 const THREE = {...RealThree, TextureLoader: class {
   load(url, success, progress, failure) { textureRequests.push({url, success, failure}); }
 }};
-Object.assign(window, {createOfferingModels, OFFERING_ART, TOUR_NOTES, installViewportGestures}, surfaces, skyClouds, {
+Object.assign(window, {createOfferingModels, OFFERING_ART, TOUR_NOTES, installViewportGestures}, surfaces, skyClouds, gameCamera, {
   RB_SQUARES: rbBoard.SQUARES, RB_SPECIAL: rbBoard.SPECIAL, RB_START: rbBoard.START,
   RB_VICTORY: rbBoard.VICTORY, TRAP_QUOTA: rbBoard.TRAP_QUOTA, TRAP_QUOTA_NOTE64: rbBoard.TRAP_QUOTA_NOTE64,
   DIE_FACES: rbBoard.FACES, RB_BY_N: rbBoard.BY_N, createBoardLayer: rbBoard.createBoardLayer,
@@ -108,15 +109,20 @@ q('.controls').getBoundingClientRect = () => viewport.w<=700
   ? rect(9,viewport.h-53,viewport.w-18,44) : rect(viewport.w-252,22,230,40);
 // The board holds the left of the screen; below 1080px it holds the width.
 q('.board-view').getBoundingClientRect = () => q('.board-view').hidden ? rect(0,0,0,0)
+  : document.body.classList.contains('world-only') ? rect(22,82,460,64)
   : viewport.w<=1080 ? rect(14,82,viewport.w-28,viewport.h-166)
   : rect(22,82,Math.min(viewport.w*0.56,viewport.w-430),viewport.h-166);
+q('.game-focus').getBoundingClientRect = () => q('.game-focus').hidden ? rect(0,0,0,0)
+  : viewport.w <= 700 ? rect(9,viewport.h-210,viewport.w-18,144)
+  : rect(22,viewport.h-150,440,128);
 const app = await window.eval(`(async()=>{${source}\nreturn {
  world, cam, ctr, E, HEAPS, MARKS, HEAP_MEMBERS, OFFERING_MODELS, ORIGINAL_VISIBILITY,
  STEPS, LUMINARIES, RIM, OFFERING_SIZE, freeRect, tourImageRect, meshesFor, visibleInScene,
  stageGround:()=>stage._ground,
  setMandala, setMode, show, close, setOpen, startTour, visitHeap, endTour, orientOfferingCards,
  applyStep, playToggle, stepBy, pausePlay, resetPlay, applyTheme, setMotion,
- rbBoard, rbArt, rbGame:()=>rbGame,
+ rbBoard, rbArt, rbGame:()=>rbGame, rbFocusWorld, rbFrameFocus, rbClearFocus,
+ gameFocus:()=>gameFocus,
  state:()=>({mandala,mode,touring,tourIndex,pStep,playing,current,motion,showHeapNumbers,lumSpin})
 };})()`);
 advance(1200);
@@ -911,6 +917,96 @@ app.OFFERING_MODELS.forEach(m=>assert.equal(app.visibleInScene(m),false,'The off
 key('e'); advance(1200); panel(null); assert.equal(app.state().mode,'explore');
 app.ORIGINAL_VISIBILITY.forEach((visible,obj)=>assert.equal(obj.visible,visible,'Original world restored after the game'));
 worldVisibility.forEach((visible,obj)=>assert.equal(obj.visible,visible,'All world context restored after the game'));
+
+/* Stage 1: all explicit game focus routes keep Meru and the destination in
+   the usable canvas. Real perspective projection, three representative
+   layouts, every square (including the actual anchored world positions). */
+app.setMode('game'); advance(1200);
+const unchangedGame = JSON.stringify(app.rbGame());
+reduced = true;
+for (const size of [{w:1440,h:1000}, {w:390,h:844}, {w:844,h:390}]) {
+  viewport = size; app.cam.aspect = size.w / size.h; app.cam.updateProjectionMatrix();
+  window.dispatchEvent(new window.Event('resize')); advance(700);
+  for (const square of rbBoard.SQUARES) {
+    app.rbFocusWorld('rebirth_sq_' + square.n); advance(700);
+    assert.equal(q('.sheet').hidden,true,'the full entry folds away');
+    assert.equal(q('.game-focus').hidden,false,'location caption remains');
+    const frame = app.freeRect();
+    const checkPoint = (point, label) => {
+      const p = point.clone().project(app.cam);
+      const x = (p.x + 1) * size.w / 2, y = (1 - p.y) * size.h / 2;
+      assert.ok(p.z > -1 && p.z < 1, label + ' is in front of the camera');
+      assert.ok(x >= frame.x-frame.w/2 && x <= frame.x+frame.w/2
+        && y >= frame.y-frame.h/2 && y <= frame.y+frame.h/2,
+        `${label}, square ${square.n}, ${size.w}×${size.h}: ${x},${y} outside ${JSON.stringify(frame)}`);
+    };
+    checkPoint(app.rbBoard.positionOf(square.n),'destination');
+    for (const id of ['meru_core','meru_summit_platform']) {
+      for (const mesh of app.meshesFor(id)) {
+        const box = new THREE.Box3().setFromObject(mesh);
+        for (const x of [box.min.x,box.max.x]) for (const y of [Math.max(0,box.min.y),box.max.y])
+          for (const z of [box.min.z,box.max.z]) checkPoint(new THREE.Vector3(x,y,z),id);
+      }
+    }
+  }
+}
+assert.equal(JSON.stringify(app.rbGame()),unchangedGame,'world visits never change a turn or position');
+viewport={w:1280,h:900}; app.cam.aspect=1280/900; app.cam.updateProjectionMatrix();
+app.rbFocusWorld('rebirth_sq_17'); advance(700);
+const intentional = { p:app.cam.position.clone(), t:app.ctr.target.clone() };
+app.cam.position.set(-6,1,-4); app.ctr.target.set(0,-1,0); app.ctr.update();
+q('[data-world="focus"]').click(); advance(700);
+assert.ok(app.cam.position.distanceTo(intentional.p)<1e-8,'prior orbit does not choose the focus angle');
+assert.ok(app.ctr.target.distanceTo(intentional.t)<1e-8);
+app.setMotion(true); advance(700);
+assert.equal(app.ctr.autoRotate,false,'focused camera stays still even with world motion enabled');
+app.rbFocusWorld('rebirth_sq_2'); advance(700);
+const floorMesh = app.meshesFor('golden_ground')[0];
+assert.ok(floorMesh.material.clippingPlanes?.length,'underground visit opens a cutaway');
+app.show('golden_ground',true); advance(700);
+app.close(); advance(700);
+q('[data-world="overview"]').click(); advance(700);
+assert.ok(!floorMesh.material.clippingPlanes?.length,'overview restores the foundation');
+q('[data-world="focus"]').click(); advance(700);
+assert.ok(floorMesh.material.clippingPlanes?.length);
+q('[data-world="return"]').click(); advance(700);
+assert.equal(app.gameFocus(),null,'return closes the focused visit');
+assert.ok(!floorMesh.material.clippingPlanes?.length,'return restores materials');
+assert.equal(q('.game-focus').hidden,true);
+assert.ok(!document.body.classList.contains('world-only'));
+
+// Both the full entry and arrival card are single-action entry points.
+app.show('rebirth_sq_27',true); advance(300);
+q('.zoom').click(); advance(700);
+assert.equal(app.gameFocus().id,'rebirth_sq_27');
+q('[data-world="return"]').click(); advance(300);
+face=1; q('[data-game="throw"]').click(); advance(700);
+assert.equal(q('.bv-card-world').hidden,false);
+const landed = app.rbGame().players[0].pos;
+q('[data-game="card-world"]').click(); advance(700);
+assert.equal(app.gameFocus().id,'rebirth_sq_'+landed);
+assert.equal(q('.bv-card').hidden,true);
+key('Escape'); advance(700);
+assert.equal(app.gameFocus(),null,'Escape returns from the visit before leaving the game');
+assert.equal(app.state().mode,'game');
+app.rbFocusWorld('rebirth_sq_2'); advance(700);
+newGame(1); advance(700);
+assert.equal(app.gameFocus(),null,'a fresh game clears the old visit');
+assert.ok(!floorMesh.material.clippingPlanes?.length);
+
+// Dragging interrupts an in-progress guided flight instead of fighting it.
+reduced=false;
+app.rbFocusWorld('rebirth_sq_104'); advance(150);
+app.ctr.dispatchEvent({type:'start'});
+const interrupted = app.cam.position.clone(); advance(1500);
+assert.ok(app.cam.position.distanceTo(interrupted)<1e-8,'pointer interaction cancels flight');
+app.ctr.dispatchEvent({type:'end'});
+app.setMotion(false);
+app.setMode('explore'); advance(1200); panel(null);
+assert.equal(app.gameFocus(),null);
+assert.equal(q('.bv-card').hidden,true);
+assert.equal(q('.game-focus').hidden,true);
+assert.ok(!floorMesh.material.clippingPlanes?.length);
 
 /* ── the chrome ─────────────────────────────────────────────────────────
    Three controls stand on the model and no more. The view you are in and the

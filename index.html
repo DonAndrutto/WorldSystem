@@ -1162,6 +1162,31 @@
   body.world-only .bv-card, body.world-only .bv-ask { position: fixed; }
   body.game-view.board-only three-d-stage { visibility: hidden; }
   body.board-only .rb-label { display: none; }
+  .game-focus {
+    position: fixed; z-index: 4; left: 22px; bottom: 22px;
+    max-width: min(490px, calc(100vw - 44px)); padding: 13px 16px;
+    background: var(--menu); border: 1px solid var(--rule-2);
+    box-shadow: var(--shadow); border-radius: 10px; pointer-events: auto;
+  }
+  .game-focus[hidden] { display: none !important; }
+  .game-focus strong { display: block; font-size: 19px; line-height: 1.25; }
+  .game-focus p { margin: 5px 0 10px; font-size: 13px; color: var(--ink-2); }
+  .game-focus nav { display: flex; flex-wrap: wrap; gap: 6px; }
+  .game-focus .btn { min-height: 40px; }
+  .rb-focus-pin {
+    position: fixed; z-index: 3; width: 26px; height: 26px;
+    border: 2px solid #fff5d5; border-radius: 50%; pointer-events: none;
+    box-shadow: 0 0 0 3px #896425, 0 2px 12px #0008;
+    transform: translate(-50%, -50%);
+  }
+  .rb-focus-pin[hidden] { display: none !important; }
+  @media (max-width: 700px) {
+    .game-focus { left: 9px; right: 9px; bottom: calc(64px + var(--sa-b)); max-width: none; padding: 10px 12px; }
+    .game-focus strong { font-size: 17px; }
+    .game-focus nav { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .game-focus .btn { min-height: 44px; font-size: 10px; padding: 7px 9px; }
+    .game-focus nav .btn { white-space: normal; line-height: 1.4; text-align: center; }
+  }
   body.board-only .board-view,
   body.board-only.index-open .board-view {
     left: 22px; right: 22px; width: auto; max-width: none;
@@ -1598,6 +1623,16 @@
   <div class="marks" id="offering-marks" hidden=""></div>
   <div class="rb-label" hidden=""><span class="n"></span><span class="t"></span></div>
   <div class="rb-players" aria-hidden="true" hidden=""></div>
+  <div class="rb-focus-pin" aria-hidden="true" hidden></div>
+  <aside class="game-focus" aria-label="Location in the world" hidden>
+    <strong tabindex="-1"></strong>
+    <p class="game-focus-note"></p>
+    <nav aria-label="World navigation">
+      <button class="btn" type="button" data-world="focus">Focus here</button>
+      <button class="btn" type="button" data-world="overview">World overview</button>
+      <button class="btn" type="button" data-world="return">Return to board</button>
+    </nav>
+  </aside>
 
   <section class="board-view" aria-label="The board of rebirth" hidden>
     <!-- Shown only where the board has the whole screen: given that much
@@ -1619,6 +1654,7 @@
         <span class="note"></span>
         <div class="bv-card-acts">
           <button class="btn go bv-card-go" type="button" data-game="card-throw">Continue</button>
+          <button class="btn bv-card-world" type="button" data-game="card-world">Show in world</button>
           <button class="btn bv-card-more" type="button" data-game="card-entry">Read the full entry</button>
         </div>
       </div>
@@ -1789,6 +1825,7 @@ import { createGame, throwDie, view as rbView, destination as rbDestination } fr
 import { SQUARE_NOTES, SQUARE_FULL } from './rebirth-notes.js';
 import { SQUARE_ART, cellBackground, createSquareArt, LIBERATION_ART } from './rebirth-icons.js';
 import { createSoundKit, voiceFor as rbVoice } from './rebirth-sound.js';
+import { composeGameFocus, orbitFlightPoint } from './game-camera.js';
 const stage = document.querySelector('three-d-stage');
 /* Everything below this line is built on three.js, and three.js arrives over
    the network. Where it does not — a phone that lost the connection between
@@ -4756,12 +4793,12 @@ const step = (d) => {
   const next = order[pos + d];
   if (next) { show(next, true); goTo(next); }
 };
-/* Zoom in puts the camera on the thing the entry is about. Where the board
-   has been given the whole screen there is no camera on screen to put
-   anywhere — so the control goes, rather than standing in the foot of every
-   entry doing nothing when it is pressed. */
+/* In the game the entry opens a contextual world visit, even from the 2D
+   board. The explorer retains its ordinary object inspection control. */
 function syncZoom() {
-  zoomBtn.hidden = document.body.classList.contains('board-only');
+  const inGame = mode === 'game';
+  zoomBtn.hidden = !inGame && document.body.classList.contains('board-only');
+  zoomBtn.textContent = inGame ? 'Show in world' : 'Zoom in';
 }
 /* A write-up may point at another square. The link opens that square's entry
    and takes the view with it, as the related-entry buttons below it do. */
@@ -4775,7 +4812,8 @@ sheet.addEventListener('click', (ev) => {
 sheet.querySelector('.x').addEventListener('click', close);
 zoomBtn.addEventListener('click', () => {
   if (!current) return;
-  focus(current);
+  if (mode === 'game') rbFocusWorld(current);
+  else focus(current);
 });
 sheetBack.addEventListener('click', close);
 sheetTour.addEventListener('click', () => startTour(HEAP_NUMBERS.get(current) - 1));
@@ -4894,10 +4932,14 @@ const ease = (x) => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
 const LUM_SPEED = Math.PI * 2 / 40;     // one circuit, forty seconds
 let motion = false, lumSpin = 0, lastFrame = 0;
 let orbitInteracting = false;
-ctr.addEventListener('start', () => { orbitInteracting = true; ctr.autoRotate = false; });
+let gameFocus = null;
+ctr.addEventListener('start', () => {
+  orbitInteracting = true; ctr.autoRotate = false;
+  if (anim) { cancelAnimationFrame(anim); anim = null; }
+});
 ctr.addEventListener('end', () => {
   orbitInteracting = false;
-  ctr.autoRotate = motion && !anim;
+  ctr.autoRotate = motion && !anim && !gameFocus;
   invalidate();
 });
 function placeLuminaries() {
@@ -4917,7 +4959,7 @@ function stepMotion() {
   invalidate(2);
 }
 
-function fly(toPos, toTarget, dur = 800) {
+function fly(toPos, toTarget, dur = 800, exterior = false) {
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) dur = 1;
   ctr.autoRotate = false;
   const fromP = cam.position.clone(), fromT = ctr.target.clone();
@@ -4925,11 +4967,12 @@ function fly(toPos, toTarget, dur = 800) {
   if (anim) cancelAnimationFrame(anim);
   const walk = () => {
     const k = Math.min(1, (performance.now() - t0) / dur), e = ease(k);
-    cam.position.lerpVectors(fromP, toPos, e);
+    if (exterior) cam.position.copy(orbitFlightPoint(THREE, fromP, toPos, e, RIM * 1.15));
+    else cam.position.lerpVectors(fromP, toPos, e);
     ctr.target.lerpVectors(fromT, toTarget, e);
     ctr.update();
     anim = k < 1 ? requestAnimationFrame(walk) : null;
-    if (!anim) ctr.autoRotate = motion && !orbitInteracting;
+    if (!anim) ctr.autoRotate = motion && !orbitInteracting && !gameFocus;
   };
   walk();
 }
@@ -5015,7 +5058,7 @@ const drawLoop = () => {
   setUnderwater(underwater());
   gl.render(stage._scene, cam);
   if (mandala) placeMarks();
-  if (mode === 'game') { rbArt.face(cam); rbPlaceLabel(); rbPlaceChips(); }
+  if (mode === 'game') { rbArt.face(cam); rbPlaceLabel(); rbPlaceChips(); rbPlaceFocusPin(); }
   if (!mandala || touring) placeCompass();
 };
 stage._loop = drawLoop;
@@ -5330,7 +5373,7 @@ function freeRect() {
     });
     ins[best.k] = Math.max(ins[best.k], best.v);
   };
-  [document.querySelector('.controls'), dock, boardEl].forEach(eat);
+  [document.querySelector('.controls'), dock, boardEl, document.querySelector('.game-focus')].forEach(eat);
   const pad = 14;
   /* a dock panel may claim two fifths of the width; the board claims most of it */
   const side = mode === 'game' ? 0.76 : 0.4;
@@ -5722,7 +5765,10 @@ resetPlay();
 const goTo = (id) => {
   if (touring && HEAP_NUMBERS.has(id)) visitHeap(HEAP_NUMBERS.get(id) - 1);
   // a square is framed with the world it stands over, not flown into
-  else if (mode === 'game' && /^rebirth_sq_/.test(id)) reframeGame(700, rbBoard.positionOf(Number(id.slice(11))));
+  else if (mode === 'game' && /^rebirth_sq_/.test(id)) {
+    if (gameFocus) rbFocusWorld(id);
+    else reframeGame(700, rbBoard.positionOf(Number(id.slice(11))));
+  }
   else if (!mandala) focus(id, null, 1.3);
 };
 
@@ -6298,6 +6344,7 @@ const rbCardArt = rbCard.querySelector('.bv-card-art');
 const rbCardEnd = rbCard.querySelector('.bv-card-end');
 const rbCardMore = rbCard.querySelector('.bv-card-more');
 const rbCardGo = rbCard.querySelector('.bv-card-go');
+const rbCardWorld = rbCard.querySelector('.bv-card-world');
 const rbCardActs = rbCard.querySelector('.bv-card-acts');
 
 /* Where the throw lands, said once and plainly and large: the field the square
@@ -6325,6 +6372,7 @@ function rbShowCard(face, title, name, note, closing) {
   rbCardEnd.alt = closing ? LIBERATION_ART.attribute : '';
   rbCardEnd.hidden = !closing;
   rbCardMore.hidden = name === null;
+  rbCardWorld.hidden = name === null;
   /* The turn has already passed by the time the card is drawn, so the throw it
      offers is the next player's: the game can be played from the card without
      going back to the rail between turns. There is nothing to offer once the
@@ -6403,6 +6451,7 @@ function rbTumble(final, done) {
 }
 function rbThrow() {
   if (rbRolling || rbGame.over && rbGame.stupa !== null) return;
+  rbClearFocus();
   const face = 1 + Math.floor(Math.random() * 6);
   rbHideCard();
   if (reducedMotion()) { rbSetDie(face); rbResolve(face); return; }
@@ -6510,6 +6559,7 @@ function rbCloseAsk() {
   rbThrowBtn.focus();
 }
 function rbReset() {
+  rbClearFocus();
   clearTimeout(rbTumbleTimer);
   rbDie.classList.remove('tumbling');
   rbRolling = false;
@@ -6536,6 +6586,7 @@ boardEl.addEventListener('click', (ev) => {
   if (b.dataset.game === 'swap') rbSwap();
   if (b.dataset.game === 'card-close') rbHideCard(true);
   if (b.dataset.game === 'card-throw') rbThrow();
+  if (b.dataset.game === 'card-world' && rbCardSquare !== null) rbFocusWorld('rebirth_sq_' + rbCardSquare);
   // the whole passage, one click from the card that announced the square
   if (b.dataset.game === 'card-entry' && rbCardSquare !== null) {
     const square = rbCardSquare;
@@ -6587,8 +6638,9 @@ function rbApplyLayout() {
   boardEl.querySelectorAll('[data-layout]').forEach((b) =>
     b.setAttribute('aria-pressed', String(b.dataset.layout === rbView3D)));
 }
-function rbLayout(next, remember = true) {
+function rbLayout(next, remember = true, reframeView = true) {
   const to = RB_LAYOUTS.includes(next) ? next : 'both';
+  if (to !== 'world' && gameFocus) rbClearFocus();
   rbView3D = to;
   rbApplyLayout();
   boardEl.querySelector('[data-game="swap"]').textContent =
@@ -6598,7 +6650,7 @@ function rbLayout(next, remember = true) {
   syncChrome();
   framePut = null;
   invalidate(4);
-  requestAnimationFrame(() => { if (mode === 'game') reframeGame(); });
+  if (reframeView) requestAnimationFrame(() => { if (mode === 'game') reframeCurrent(); });
 }
 function rbCycleLayout() {
   rbLayout(RB_LAYOUTS[(RB_LAYOUTS.indexOf(rbView3D) + 1) % RB_LAYOUTS.length]);
@@ -6665,6 +6717,135 @@ function reframeGame(dur = 700, at = null) {
   const dist = gameRadius(at) * 1.20 / half * h / Math.min(fr.w, fr.h);
   aimAt(HOME.t, dist, fr, HOME_DIR, dur);
 }
+
+/* One explicit world visit from a throw card, an entry, or the location
+   caption. Presentation state stays separate from whose turn it is. */
+const gameFocusEl = document.querySelector('.game-focus');
+const gameFocusPin = document.querySelector('.rb-focus-pin');
+const focusCutaway = new Map();
+let focusClippingWas = gl.localClippingEnabled;
+let focusRequest = null;
+function rbRestoreCutaway() {
+  // Selection highlighting may have wrapped a clipped material while its
+  // entry was open. Unwrap it before restoring and disposing the cutaway.
+  if (focusCutaway.size) clearPick();
+  focusCutaway.forEach((original, mesh) => {
+    [].concat(mesh.material).forEach(material => material.dispose());
+    mesh.material = original;
+  });
+  if (focusCutaway.size) { gl.localClippingEnabled = focusClippingWas; reshadow(); }
+  focusCutaway.clear();
+}
+function rbClearFocus() {
+  if (focusRequest !== null) cancelAnimationFrame(focusRequest);
+  focusRequest = null;
+  if (gameFocus && anim) { cancelAnimationFrame(anim); anim = null; }
+  gameFocus = null;
+  gameFocusEl.hidden = true;
+  gameFocusPin.hidden = true;
+  rbRestoreCutaway();
+  ctr.autoRotate = motion && !anim && !orbitInteracting;
+}
+function rbFocusAnchor(id) {
+  const square = /^rebirth_sq_(\d+)$/.exec(id);
+  return square ? rbBoard.positionOf(Number(square[1]))?.clone() : positionOfEntry(id);
+}
+function rbFocusWorld(id) {
+  if (mode !== 'game') return;
+  const anchor = rbFocusAnchor(id);
+  if (!anchor) return;
+  const previous = gameFocus;
+  gameFocus = {
+    id, anchor, view: 'focus',
+    returnLayout: previous?.returnLayout || (rbView3D === 'world' ? 'board' : rbView3D),
+    camera: previous?.camera || { p: cam.position.clone(), t: ctr.target.clone() }
+  };
+  rbHideCard();
+  close();
+  setOpen(false, false);
+  const square = /^rebirth_sq_(\d+)$/.exec(id);
+  if (square) rbSelect(Number(square[1]), false);
+  gameFocusEl.querySelector('strong').textContent = square
+    ? Number(square[1]) + ' · ' + rbCalled(Number(square[1])) : E[id]?.t || 'Selected location';
+  gameFocusEl.hidden = false;
+  rbLayout('world', false, false);
+  clearTimeout(panelReframe);
+  if (focusRequest !== null) cancelAnimationFrame(focusRequest);
+  focusRequest = requestAnimationFrame(() => {
+    focusRequest = null;
+    if (!gameFocus || mode !== 'game') return;
+    rbFrameFocus(850);
+    gameFocusEl.querySelector('strong').focus({ preventScroll: true });
+  });
+}
+function rbFrameFocus(dur = 650) {
+  if (!gameFocus || mode !== 'game') return;
+  rbRestoreCutaway();
+  if (gameFocus.view === 'overview') {
+    gameFocusEl.querySelector('p').textContent = 'World overview · choose Focus here to return to this location.';
+    reframeGame(dur);
+    return;
+  }
+  world.updateMatrixWorld(true);
+  const meruBounds = new THREE.Box3();
+  byName.forEach((meshes, name) => {
+    if (/^(meru_|king_|vaijayanta)/.test(name) || name === 'sudarshana_city')
+      meshes.forEach(mesh => meruBounds.expandByObject(mesh));
+  });
+  // The recognisable above-water silhouette, including the summit palace.
+  meruBounds.min.y = Math.max(0, meruBounds.min.y);
+  const composition = composeGameFocus(THREE, {
+    anchor: gameFocus.anchor, meruBounds, summit: SUMMIT,
+    viewport: { w: stage.clientWidth, h: stage.clientHeight }, rect: freeRect(), fov: cam.fov
+  });
+  gameFocusEl.querySelector('p').textContent = composition.below
+    ? 'Below the world · a cutaway reveals the location while Meru stays in view.'
+    : 'Meru stays in view · drag to explore, or choose Focus here to return.';
+  if (composition.below) {
+    focusClippingWas = gl.localClippingEnabled;
+    // Remove the near half of the enclosing layers only. Meru, the selected
+    // realm and the far half retain their materials and positions.
+    const normal = composition.direction.clone(); normal.y = 0; normal.normalize().negate();
+    const plane = new THREE.Plane(normal, 0);
+    world.traverse(mesh => {
+      if (!mesh.isMesh || !/^(golden_ground|water_mandala|wind_mandala|salt_ocean|seven_inner_seas|cakravada_iron_ring|range_)/.test(mesh.name)) return;
+      focusCutaway.set(mesh, mesh.material);
+      const clipped = [].concat(mesh.material).map(material => {
+        const copy = material.clone(); copy.clippingPlanes = [plane]; copy.clipShadows = true;
+        copy.needsUpdate = true; return copy;
+      });
+      mesh.material = Array.isArray(mesh.material) ? clipped : clipped[0];
+    });
+    gl.localClippingEnabled = true;
+    reshadow();
+  }
+  fly(composition.position, composition.target, dur, true);
+  invalidate(4);
+}
+function rbPlaceFocusPin() {
+  if (!gameFocus || gameFocusEl.hidden) { gameFocusPin.hidden = true; return; }
+  const point = gameFocus.anchor.clone().project(cam);
+  gameFocusPin.hidden = point.z < -1 || point.z > 1 || Math.abs(point.x) > 1 || Math.abs(point.y) > 1;
+  if (gameFocusPin.hidden) return;
+  gameFocusPin.style.left = ((point.x + 1) * stage.clientWidth / 2) + 'px';
+  gameFocusPin.style.top = ((1 - point.y) * stage.clientHeight / 2) + 'px';
+}
+gameFocusEl.addEventListener('click', event => {
+  const action = event.target.closest('[data-world]')?.dataset.world;
+  if (!action || !gameFocus) return;
+  if (action === 'focus') { gameFocus.view = 'focus'; rbFrameFocus(); }
+  if (action === 'overview') { gameFocus.view = 'overview'; rbFrameFocus(); }
+  if (action === 'return') {
+    const previous = gameFocus;
+    rbClearFocus();
+    close();
+    rbLayout(previous.returnLayout, false, false);
+    clearTimeout(panelReframe);
+    cam.position.copy(previous.camera.p); ctr.target.copy(previous.camera.t); ctr.update();
+    rbThrowBtn.focus({ preventScroll: true });
+    invalidate(3);
+  }
+});
 /* On a phone a panel is half the screen, and the model behind it is a model
    nobody can see. Where the panels take that much, the explorer is framed in
    what they leave too — not only the maṇḍala and the game. */
@@ -6680,10 +6861,12 @@ function reframeExplore(dur = 420) {
 function reframeCurrent(dur = 420) {
   if (mandala) reframeOffering();
   else if (mode === 'game') {
-    reframeGame(dur, rbSelected === null ? null : rbBoard.positionOf(rbSelected));
+    if (gameFocus) rbFrameFocus(dur);
+    else reframeGame(dur, rbSelected === null ? null : rbBoard.positionOf(rbSelected));
   } else if (tightScreen() && !dock.hidden) reframeExplore(dur);
 }
 function enterGame() {
+  close();
   rbBoard.group.visible = true;
   rbBoard.placeAnchored(positionOfEntry);
   measureRound();
@@ -6698,6 +6881,10 @@ function enterGame() {
   invalidate(4);
 }
 function leaveGame() {
+  rbClearFocus();
+  rbHideCard();
+  rbCloseAsk();
+  close();
   rbBoard.group.visible = false;
   rbLabel.hidden = true;
   rbBoard.showLinks(null);
@@ -6769,7 +6956,7 @@ const motionBtn = document.querySelector('[data-act="motion"]');
 function setMotion(on) {
   motion = on;
   lastFrame = performance.now();
-  ctr.autoRotate = on && !anim && !orbitInteracting;
+  ctr.autoRotate = on && !anim && !orbitInteracting && !gameFocus;
   ctr.autoRotateSpeed = 0.7;           // a turn and a half in the time a circuit takes
   if (!on) { lumSpin = 0; placeLuminaries(); lightFromSky(); }   // back where the text has them
   motionBtn.setAttribute('aria-pressed', String(on));
@@ -6949,6 +7136,7 @@ window.addEventListener('keydown', (e) => {
     if (MENUS.some((m) => m.open)) { closeMenus(); return; }
     if (mode === 'game' && !rbAsk.hidden) rbCloseAsk();
     else if (mode === 'game' && rbCardUp()) rbHideCard(true);
+    else if (mode === 'game' && gameFocus) gameFocusEl.querySelector('[data-world="return"]').click();
     else if (document.body.classList.contains('index-open')) setOpen(false);
     else if (!sheet.hidden) close();
     else if (touring) endTour();
