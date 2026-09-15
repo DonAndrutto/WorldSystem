@@ -348,6 +348,17 @@
     text-wrap: pretty;
   }
   .sheet .body + .body { margin-top: 8px; }
+  /* A write-up may carry a list or a piece of quoted verse; both arrive from
+     rebirth-notes.js as their own element and keep the body's rhythm. */
+  .sheet ul.body, .sheet ol.body { padding-left: 21px; }
+  .sheet ul.body li + li, .sheet ol.body li + li { margin-top: 5px; }
+  .sheet blockquote.verse {
+    margin: 13px 0 0; padding-left: 12px; border-left: 1px solid var(--rule-2);
+    font-size: 14px; line-height: 1.45; color: var(--ink-2);
+  }
+  .sheet blockquote.verse p { margin: 0; text-wrap: pretty; }
+  .sheet blockquote.verse p + p, .sheet blockquote.verse cite { margin-top: 8px; }
+  .sheet blockquote.verse cite { display: block; font-style: normal; color: var(--ink-3); }
   /* An entry that has more to say keeps it folded until it is asked for. */
   .sheet .more { margin: 13px 0 0; }
   .sheet .more[hidden] { display: none; }
@@ -3504,8 +3515,8 @@ def('about', {
       'The model is the work of <b>Andrzej R. Rybszleger</b>, built from the sources named below.'],
   rel: ['about_scale', 'meru_core', 'about_mandala'],
   src: 'Vasubandhu, <i>Abhidharmakośa</i> &amp; <i>bhāṣya</i> III.45–102 (La Vallée Poussin / Pruden); Chim Jampaiyang, <i>Ornament of Abhidharma</i>; Jamgön Kongtrul, <i>Myriad Worlds</i>; Mipham, <i>Gateway to Knowledge</i> II. '
-     + 'Board, names and move graph: Tatz and Kent, <i>Rebirth: The Tibetan Game of Liberation</i> (1977), reconstructed from the printed chart, the square entries and the reverse index and cross-checked cell by cell. The commentary of that edition is not reproduced; the entries here are written for this model. '
-     + 'The model, and the entries with it, are by Andrzej R. Rybszleger.'
+     + 'Board, names and move graph: Tatz and Kent, <i>Rebirth: The Tibetan Game of Liberation</i> (1977), reconstructed from the printed chart, the square entries and the reverse index and cross-checked cell by cell. The write-ups on the 104 squares are a separate revised English edition of the square texts. '
+     + 'The model is by Andrzej R. Rybszleger.'
 });
 def('about_scale', {
   t: 'The scale of this drawing', meta: 'Scale, shape, placement and lighting', k: '1m : 400,000',
@@ -4438,7 +4449,7 @@ RB_SQUARES.forEach((sqr) => {
        copies of it under a hundred and four squares is a hundred and three
        too many. It is given once, at the end of <b>About this model</b>,
        and the squares point at it. */
-    src: 'Written for this model. The board it reads, and the edition it is reconstructed from, are credited in <b>About this model</b>.'
+    src: 'The write-ups on this square are from the revised English edition of the square texts. The board they sit on, and the edition it is reconstructed from, are credited in <b>About this model</b>.'
   });
 });
 def('rebirth_game', {
@@ -4630,6 +4641,10 @@ function close() {
   document.querySelectorAll('.index .row[aria-current]').forEach((r) => r.removeAttribute('aria-current'));
   syncChrome();
 }
+/* A write-up is a run of blocks. Most of them are paragraphs and are wrapped as
+   one; a list or a quotation comes through as its own element and is set down
+   as it stands. */
+const bodyBlock = (p) => (/^<(?:ul|ol|blockquote)\b/.test(p) ? p : '<p class="body">' + p + '</p>');
 function show(id, reveal) {
   const e = E[id];
   if (!e) return;
@@ -4665,13 +4680,13 @@ function show(id, reveal) {
   sSub.hidden = !bits.length;
   sList.innerHTML = (e.f || []).map((r) => '<dt>' + r[0] + '</dt><dd>' + r[1] + '</dd>').join('');
   sList.hidden = !(e.f || []).length;
-  sBodies.innerHTML = [].concat(e.b || []).map((p) => '<p class="body">' + p + '</p>').join('');
+  sBodies.innerHTML = [].concat(e.b || []).map(bodyBlock).join('');
   const more = [].concat(e.more || []);
   sMore.hidden = !more.length;
   sMore.open = false;
   if (more.length) {
     sMore.querySelector('summary').textContent = e.moreLabel || 'The full entry';
-    sMore.querySelector('.more-body').innerHTML = more.map((p) => '<p class="body">' + p + '</p>').join('');
+    sMore.querySelector('.more-body').innerHTML = more.map(bodyBlock).join('');
   }
   const rel = (e.rel || []).filter((r) => E[r]);
   sRelRow.innerHTML = '';
@@ -4736,6 +4751,15 @@ const step = (d) => {
 function syncZoom() {
   zoomBtn.hidden = document.body.classList.contains('board-only');
 }
+/* A write-up may point at another square. The link opens that square's entry
+   and takes the view with it, as the related-entry buttons below it do. */
+sheet.addEventListener('click', (ev) => {
+  const link = ev.target.closest && ev.target.closest('a[data-sq]');
+  if (!link) return;
+  ev.preventDefault();
+  const id = 'rebirth_sq_' + link.dataset.sq;
+  if (E[id]) { show(id, true); goTo(id); }
+});
 sheet.querySelector('.x').addEventListener('click', close);
 zoomBtn.addEventListener('click', () => {
   if (!current) return;

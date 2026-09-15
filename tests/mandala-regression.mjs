@@ -363,7 +363,7 @@ for (const sq of rbBoard.SQUARES) {
 assert.ok(cellOf(rbBoard.START).hasAttribute('data-start'));
 assert.ok(cellOf(1).hasAttribute('data-trap') && cellOf(48).hasAttribute('data-trap'));
 assert.ok(cellOf(104).hasAttribute('data-victory'));
-// Every square has an entry of our own, and none of them is the 1977 commentary.
+// Every square has both write-ups, built from the Markdown in content/.
 assert.equal(Object.keys(SQUARE_NOTES).length,104);
 for (const sq of rbBoard.SQUARES) {
   assert.ok(SQUARE_NOTES[sq.n] && SQUARE_NOTES[sq.n].split(' ').length>20,'square '+sq.n+' has a note');
@@ -589,6 +589,29 @@ const entryOrder = [...q('.sheet-scroll').children]
   .map(el => el.tagName === 'DIV' ? 'bodies' : el.tagName);
 assert.deepEqual(entryOrder,['H2','FIGURE','bodies','DL'],
   'name, then field, then the prose, and the table last');
+
+/* The write-ups are authored as Markdown in content/ and built into
+   rebirth-notes.js, and they carry more than paragraphs: lists, quoted verse,
+   and cross-references to other squares. Each has to be laid down as itself
+   rather than folded into a paragraph, and a cross-reference has to work. */
+for (const [n,blocks] of Object.entries(SQUARE_FULL)) {
+  for (const block of blocks) {
+    for (const ref of block.matchAll(/data-sq="(\d+)"/g)) {
+      assert.ok(rbBoard.BY_N.has(Number(ref[1])),'square '+n+' points at a square on the board');
+    }
+  }
+}
+app.show('rebirth_sq_7',false);
+assert.ok(q('.sheet .more-body ul.body li'),'a list in a write-up is set as a list');
+app.show('rebirth_sq_1',false);
+assert.ok(q('.sheet .more-body blockquote.verse p br'),'quoted verse keeps its line breaks');
+assert.equal(q('.sheet .more-body blockquote.verse cite').textContent,'\u2014 Milarepa','and names who said it');
+app.show('rebirth_sq_15',false);
+const xref = q('.sheet .more-body a[data-sq="28"]');
+assert.ok(xref,'a write-up can point at another square');
+xref.click(); advance(300);
+assert.ok(q('.sheet h2').textContent.startsWith('28.'),'and following it opens that square');
+app.show('rebirth_sq_17',false); advance(300);
 app.close(); advance(300);
 assert.ok(!playerChips[1].classList.contains('turn'));
 
@@ -922,7 +945,7 @@ console.log(JSON.stringify({result:'PASS',heaps:37,illustrations:24,triangles,at
  checks:'Terrain overlay priority, independent motion/mandala switches and gesture resume, numbers toggle, '
    + 'billboards from 16 angles, 84% tour image fit at three viewport sizes, all 37 stops, playback, isolation, '
    + 'exclusive panels, image failure/retry, keyboard controls, reduced motion and visibility restoration. '
-   + 'The board of rebirth: the three-way mode switch, 104 cells in the board\'s own order with their names and zones, an entry of our own on every '
+   + 'The board of rebirth: the three-way mode switch, 104 cells in the board\'s own order with their names and zones, a write-up on every '
    + 'square, the world framed clear of the board, all 21 anchored squares over the geometry drawn for them, the printed '
    + 'first move, the karmic trail, selection shared between cell, entry and marker, reading a player without taking their '
    + 'turn, the counter trap end to end, victory and its rite, the board/world swap, silence until asked, pointer events on '
