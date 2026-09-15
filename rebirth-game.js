@@ -11,6 +11,8 @@
 // board records that a position cannot: the fall to a hell and the climb out of
 // it are the same square twice, and only the trail tells them apart.
 
+import { PLAYER_SKINS } from './game-players.js';
+
 import { MOVES, SPECIAL, START, VICTORY, TRAP_QUOTA, FACES } from './rebirth-board.js';
 
 export function createGame(options = {}) {
@@ -25,14 +27,17 @@ export function createGame(options = {}) {
     winner: null,
     stupa: null,
     players: Array.from({ length: count }, (_, i) => ({
-      i, name: playerName(options.names, i), pos: START, trap: null, history: []
+      i, name: playerName(options.names, i),
+      skin: PLAYER_SKINS.some(s => s.id === options.skins?.[i]) ? options.skins[i] : PLAYER_SKINS[i % 6].id,
+      colour: Number.isInteger(options.colours?.[i]) && options.colours[i] >= 0 && options.colours[i] < 4 ? options.colours[i] : i,
+      pos: START, trap: null, history: []
     }))
   };
 }
 
 // A player answers to whatever they were called, or to their number.
 function playerName(names, i) {
-  const given = names && names[i] ? String(names[i]).trim() : '';
+  const given = names && names[i] ? String(names[i]).trim().slice(0, 24) : '';
   return given || 'Player ' + (i + 1);
 }
 

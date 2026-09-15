@@ -16,6 +16,8 @@ const rbGame = await import(pathToFileURL(repo + '/rebirth-game.js'));
 const {SQUARE_NOTES, SQUARE_FULL} = await import(pathToFileURL(repo + '/rebirth-notes.js'));
 const rbIcons = await import(pathToFileURL(repo + '/rebirth-icons.js'));
 const rbSound = await import(pathToFileURL(repo + '/rebirth-sound.js'));
+const gamePlayers = await import(pathToFileURL(repo + '/game-players.js'));
+const gameSession = await import(pathToFileURL(repo + '/game-session.js'));
 const gameCamera = await import(pathToFileURL(repo + '/game-camera.js'));
 // Every square is painted: the field it is drawn as on the board, served as
 // four atlas sheets that the module lays out from the square numbers alone.
@@ -47,7 +49,7 @@ const textureRequests = [];
 const THREE = {...RealThree, TextureLoader: class {
   load(url, success, progress, failure) { textureRequests.push({url, success, failure}); }
 }};
-Object.assign(window, {createOfferingModels, OFFERING_ART, TOUR_NOTES, installViewportGestures}, surfaces, skyClouds, gameCamera, {
+Object.assign(window, {createOfferingModels, OFFERING_ART, TOUR_NOTES, installViewportGestures}, surfaces, skyClouds, gameCamera, gamePlayers, gameSession, {
   RB_SQUARES: rbBoard.SQUARES, RB_SPECIAL: rbBoard.SPECIAL, RB_START: rbBoard.START,
   RB_VICTORY: rbBoard.VICTORY, TRAP_QUOTA: rbBoard.TRAP_QUOTA, TRAP_QUOTA_NOTE64: rbBoard.TRAP_QUOTA_NOTE64,
   DIE_FACES: rbBoard.FACES, RB_BY_N: rbBoard.BY_N, createBoardLayer: rbBoard.createBoardLayer,
@@ -65,6 +67,7 @@ window.matchMedia = query => ({matches:query.includes('reduced-motion') ? reduce
   : query.includes('max-width: 980px') ? viewport.w <= 980
   : query.includes('max-width: 1080px') ? viewport.w <= 1080 : false});
 window.ResizeObserver = class {observe(){} disconnect(){}};
+window.localStorage.setItem('ws-game-view','both'); window.localStorage.setItem('ws-game-onboarded','1');
 window.localStorage.setItem('ws-hint','1'); window.localStorage.setItem('ws-index','0');
 let now = 0, serial = 0, renderLoop = () => {};
 const timers = new Map();
@@ -573,7 +576,7 @@ const playerChips = [...q('.rb-players').children];
 assert.equal(playerChips.length,4,'a chip for every possible player');
 assert.equal(playerChips.filter(c=>!c.hidden).length,2,'two players, two chips');
 for (const [i,chip] of playerChips.slice(0,2).entries()) {
-  assert.equal(chip.style.getPropertyValue('--pc'),rbBoard.PLAYER_COLOURS[i],'in their own colour');
+  assert.equal(chip.style.getPropertyValue('--pc'),gamePlayers.PLAYER_PALETTE[i],'in their own colour');
   assert.equal(chip.querySelector('.who').textContent,app.rbGame().players[i].name);
   assert.equal(chip.querySelector('.sq').textContent,String(app.rbGame().players[i].pos));
 }
@@ -1063,6 +1066,54 @@ silent.dice(0); silent.land(); silent.arrive('hell',-1); silent.dead(); silent.c
 assert.equal(silent.ready(),false,'and never opens one it was not given');
 assert.deepEqual(Object.keys(silent.voices).sort(),rbSound.VOICES.slice().sort(),
   'a recipe for every voice');
+
+// Stages 2–5: appearance survives a new game/save, and navigation or skipping
+// cannot lose or duplicate the sampled roll, including the movement interval.
+app.setMode('game'); advance(1000); clearCard();
+newGame(2, ['<b>A</b>', 'B']);
+clearCard(); q('[data-game="ask-new"]').click();
+const person = q('.bv-person');
+person.querySelector('[aria-label="Female · Teal elder"]').click();
+person.querySelector('select').value = '3'; person.querySelector('select').dispatchEvent(new window.Event('change'));
+q('.bv-ask form').dispatchEvent(new window.Event('submit', {cancelable:true,bubbles:true}));
+assert.equal(app.rbGame().players[0].skin, 'teal'); assert.equal(app.rbGame().players[0].colour, 3);
+assert.equal(cellOf(24).querySelector('[data-p="0"]').style.getPropertyValue('--skin-y'), '100%');
+const skinRequest = textureRequests.find(r => r.url === gamePlayers.PLAYER_ATLAS);
+assert.ok(skinRequest, 'skin texture is requested on entering game');
+skinRequest.success(new THREE.Texture());
+assert.equal(app.rbBoard.tokens[0].children.at(-1).isSprite, true);
+assert.equal(app.rbBoard.tokens[0].children.at(-1).material.map.offset.x, 2 / 3);
+face = 1; q('[data-game="throw"]').click();
+let saved = JSON.parse(window.localStorage.getItem(gameSession.SESSION_KEY));
+assert.equal(saved.pending, 1, 'die is saved before any animation'); assert.equal(saved.rolls.length, 0);
+q('[data-game="skip"]').click(); advance(3200);
+saved = JSON.parse(window.localStorage.getItem(gameSession.SESSION_KEY));
+assert.deepEqual(saved.rolls, [1]); assert.equal(saved.pending, null);
+assert.equal(app.rbGame().players[0].pos, 27);
+assert.equal(q('.bv-card').hidden, false); assert.equal(q('[data-game="throw"]').disabled, false);
+assert.equal(q('.bv-card .face').textContent, '<b>A</b> threw a 1', 'names stay literal in cards');
+assert.ok(!q('.feed li b'), 'player names cannot inject markup into the feed');
+assert.equal(q('.bv-card-go').textContent, 'Throw for B');
+clearCard(); face = 2; q('[data-game="throw"]').click(); advance(2200);
+q('[data-layout="world"]').click(); advance(1200);
+saved = JSON.parse(window.localStorage.getItem(gameSession.SESSION_KEY));
+assert.deepEqual(saved.rolls, [1, 2], 'layout switch during movement keeps exactly one result');
+assert.equal(q('[data-game="throw"]').disabled, false); assert.equal(q('.bv-traveling'), null);
+clearCard(); face = 3; q('[data-game="throw"]').click(); app.setMode('explore'); advance(3200);
+saved = JSON.parse(window.localStorage.getItem(gameSession.SESSION_KEY));
+assert.deepEqual(saved.rolls, [1, 2, 3], 'mode exit finishes the pending die');
+assert.equal(q('.bv-card').hidden, true, 'no game overlay reappears in explorer');
+assert.deepEqual(JSON.parse(JSON.stringify(gameSession.restoreSession(JSON.stringify(saved)).game)),
+  JSON.parse(JSON.stringify(app.rbGame())), 'persisted game matches the UI after interrupted animations');
+app.setMode('game'); advance(1000); clearCard();
+q('[data-layout="board"]').click(); q('[data-layout="world"]').click(); q('[data-layout="board"]').click(); advance(1200);
+assert.equal(q('.bv-board-ghost'), null); assert.equal(q('.bv-grid').classList.contains('assembling'), false);
+q('#g-large-board').click(); assert.ok(q('.board-view').classList.contains('large-squares'));
+q('#g-large-board').click();
+q('#g-pace').value = 'instant'; q('#g-pace').dispatchEvent(new window.Event('change'));
+face = 4; q('[data-game="throw"]').click();
+assert.equal(q('[data-game="throw"]').disabled, false); assert.equal(q('.bv-card').hidden, false);
+assert.equal(JSON.parse(window.localStorage.getItem(gameSession.SESSION_KEY)).rolls.length, 4);
 
 console.log(JSON.stringify({result:'PASS',heaps:37,illustrations:24,triangles,atlasRequests:3,
  squares:app.rbBoard.nodes.size,anchoredSquares:anchoredSquares.length,boardCells:cells.length,

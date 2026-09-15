@@ -201,6 +201,12 @@ The index runs from the ground up:
 
 ## The game of rebirth
 
+The game now opens with traveler selection and defaults to the Board view.
+Six male/female character skins, destination previews, direct token movement,
+board assembly transitions, pace controls and automatic local resume are
+described in [GAME-UI.md](GAME-UI.md). The Game menu also offers larger,
+scrollable squares and the move log.
+
 The third mode is a whole board of 104 squares beside the world it is a section
 through. It is the game attributed to Sakya Paṇḍita, from the 1977 English
 edition: the die names the square you go to rather than a number of steps, a

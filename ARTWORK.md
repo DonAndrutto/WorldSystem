@@ -131,3 +131,11 @@ silhouettes, internal spiral ribbons, mineral-colour bands and fine ivory edges.
 The artwork is drawn procedurally on canvas. No generated cloud image, copied
 reference image or external image service is loaded by the app. The day/night
 WebP images in `assets/sky/` are review previews of those canvas textures.
+
+## Selectable travelers
+
+`assets/rebirth/travelers.png` is a generated transparent 3 × 2 atlas for the six
+selectable player characters. The CSS and Three.js billboards use the same
+figures. These contemporary game illustrations are separate from the historical
+board fields. See [GAME-UI.md](GAME-UI.md#character-artwork) for provenance and
+the full generation prompt.
