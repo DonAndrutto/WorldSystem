@@ -25,7 +25,9 @@ Click any part to open its entry; drag to orbit, scroll to zoom.
 | `tests/mandala-regression.mjs` | DOM and geometry regression checks. |
 | `rebirth-board.js` | The 104 squares of the game of rebirth, their Tibetan names, the die-to-destination graph, and the armature that places the squares the world system has no room for. |
 | `rebirth-game.js` | The rules on their own: dead faces, the two counter traps, victory at 104, and each player's trail. No DOM, no WebGL. |
-| `rebirth-notes.js` | Two entries per square, written for this drawing: the short note and the full one it expands to. The 1977 commentary is not reproduced. |
+| `content/squares-1-104-blurbs.md`, `content/squares-1-104-full.md` | The write-ups on the 104 squares, authored as Markdown: the short one a square opens with, and the full one it expands to. |
+| `scripts/build-square-notes.cjs` | Turns those two files into `rebirth-notes.js`. |
+| `rebirth-notes.js` | Generated. Two write-ups per square, keyed by square number. |
 | `rebirth-icons.js` | Where each square's field sits on the atlas sheets, and the billboards that carry it in the world — for every square the world does not already build in three dimensions. |
 | `rebirth-sound.js` | The voice every square answers in, and the small synthesiser that plays it. |
 | `tests/rebirth-regression.mjs` | Board and rules checks, including the routes the Rules of Play claim. |
@@ -276,13 +278,17 @@ silently: square 85 reads a one to 71, as the other Buddha fields each give one
 sūtra exit and one tantric, and the reading that sends it to 73 is recorded
 beside it.
 
-The commentary prose of that edition is not reproduced: it is copyright © 1977
-by Jody Kent, all rights reserved, and this page is public. Every square
-instead carries two entries written for this drawing, in the same voice as the
-rest of the index — a short note, and a fuller one that unfolds from it in the
-drawer. Both live in `rebirth-notes.js`, keyed by square number, so anyone
-holding permission to publish the 1977 text can substitute it there without
-touching anything else.
+What each square carries is a revised English edition by Andrzej R.
+Rybszleger: a short write-up the square opens with, and a fuller one that
+unfolds from it in the drawer. Both are authored as Markdown in `content/squares-1-104-blurbs.md` and
+`content/squares-1-104-full.md`, headed `## <n>. <name>` per square, and
+`node scripts/build-square-notes.cjs` builds them into `rebirth-notes.js`. That
+is the file the page imports and the only one to regenerate; edit the Markdown
+rather than the module. The build reduces Markdown to the small amount of HTML
+the drawer renders — bold, italic, lists, `>` quoted verse, and a
+`[No. 48](#field-48)` cross-reference, which becomes a link that opens square
+48 — and the square names and the Tibetan beside them are never read from it:
+they live in `rebirth-board.js` and stay as they are.
 
 ### Throwing
 
@@ -307,10 +313,24 @@ When the die stops, a card says where the token has arrived: the field the
 square is drawn as, its number in large figures, its name in English and in
 Tibetan, and what has happened to the turn. **Read the full entry** opens that
 square's entry in the drawer with the whole passage already unfolded, so the
-card is one click from everything the project has to say about the square. The
-card clears itself, but not while it is being read — hovering or tabbing into it
-holds it open. Victory and the stupa throw that follows carry a painting of
-their own: Amitābha, the stupa and the Guru.
+card is one click from everything the project has to say about the square, and
+**Continue** throws for whoever is next, so a game is played from the card and
+the rail is only where its first throw comes from. The card used to clear
+itself on a timer; a card you are meant to act from cannot, so it stands until
+it is answered — by the throw, by the entry, by its own close, by Escape, or by
+a click anywhere outside it. Victory and the stupa throw that follows carry a
+painting of their own: Amitābha, the stupa and the Guru.
+
+### One window at a time
+
+Nothing here sits on top of anything else. Whatever is up takes the next click
+outside it as a dismissal and nothing more, so the click that clears the screen
+never also opens something behind it; the click after it does. The card answers
+to a click anywhere. The drawer answers to a tap on the board or in the world,
+which is where a field is opened from, so one field is never swapped for
+another under the reader. The index is left out of it: the dock shows one panel
+at a time already, so it never stands over anything — and neither do the menus,
+which keep working on the first click.
 
 ### What the board sounds like
 

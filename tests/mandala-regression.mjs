@@ -363,7 +363,7 @@ for (const sq of rbBoard.SQUARES) {
 assert.ok(cellOf(rbBoard.START).hasAttribute('data-start'));
 assert.ok(cellOf(1).hasAttribute('data-trap') && cellOf(48).hasAttribute('data-trap'));
 assert.ok(cellOf(104).hasAttribute('data-victory'));
-// Every square has an entry of our own, and none of them is the 1977 commentary.
+// Every square has both write-ups, built from the Markdown in content/.
 assert.equal(Object.keys(SQUARE_NOTES).length,104);
 for (const sq of rbBoard.SQUARES) {
   assert.ok(SQUARE_NOTES[sq.n] && SQUARE_NOTES[sq.n].split(' ').length>20,'square '+sq.n+' has a note');
@@ -589,6 +589,29 @@ const entryOrder = [...q('.sheet-scroll').children]
   .map(el => el.tagName === 'DIV' ? 'bodies' : el.tagName);
 assert.deepEqual(entryOrder,['H2','FIGURE','bodies','DL'],
   'name, then field, then the prose, and the table last');
+
+/* The write-ups are authored as Markdown in content/ and built into
+   rebirth-notes.js, and they carry more than paragraphs: lists, quoted verse,
+   and cross-references to other squares. Each has to be laid down as itself
+   rather than folded into a paragraph, and a cross-reference has to work. */
+for (const [n,blocks] of Object.entries(SQUARE_FULL)) {
+  for (const block of blocks) {
+    for (const ref of block.matchAll(/data-sq="(\d+)"/g)) {
+      assert.ok(rbBoard.BY_N.has(Number(ref[1])),'square '+n+' points at a square on the board');
+    }
+  }
+}
+app.show('rebirth_sq_7',false);
+assert.ok(q('.sheet .more-body ul.body li'),'a list in a write-up is set as a list');
+app.show('rebirth_sq_1',false);
+assert.ok(q('.sheet .more-body blockquote.verse p br'),'quoted verse keeps its line breaks');
+assert.equal(q('.sheet .more-body blockquote.verse cite').textContent,'\u2014 Milarepa','and names who said it');
+app.show('rebirth_sq_15',false);
+const xref = q('.sheet .more-body a[data-sq="28"]');
+assert.ok(xref,'a write-up can point at another square');
+xref.click(); advance(300);
+assert.ok(q('.sheet h2').textContent.startsWith('28.'),'and following it opens that square');
+app.show('rebirth_sq_17',false); advance(300);
 app.close(); advance(300);
 assert.ok(!playerChips[1].classList.contains('turn'));
 
@@ -616,7 +639,17 @@ assert.ok(cellOf(104).hasAttribute('data-victory'),'and its cell is set apart');
 let face = 1;
 window.Math.random = () => (face-1)/6 + 1e-6;
 // A throw now runs for a couple of seconds before it resolves.
-const throwFace = f => { face=f; q('[data-game="throw"]').click(); advance(3200); };
+/* A card stands until it is answered, and it carries the next throw, so that
+   is where the following turn is played from; the rail throws when no card is
+   up. */
+/* A click anywhere outside the card clears it and is not acted on, so a test
+   that wants to press something else says so first. */
+const clearCard = () => { if (!q('.bv-card').hidden) { q('.bv-grid').click(); advance(400); } };
+const throwFace = f => {
+  face=f;
+  (q('.bv-card').hidden ? q('[data-game="throw"]') : q('.bv-card-go')).click();
+  advance(3200);
+};
 /* Starting over goes through the dialog, which is also where players are
    named. Nothing resets until Start is pressed. */
 const newGame = (count, names=[]) => {
@@ -665,8 +698,13 @@ assert.equal(q('.bv-card-art').style.backgroundImage,'url("'+rbIcons.SQUARE_ART.
 assert.equal(q('.bv-card-end').hidden,true,'the closing painting is for the end');
 // The whole passage is one click away, and the card waits while it is read.
 assert.equal(q('.bv-card-more').hidden,false,'the entry is offered from the card');
-advance(3000);
-assert.equal(q('.bv-card').hidden,false,'a card long enough to read is still up');
+advance(12000);
+assert.equal(q('.bv-card').hidden,false,'a card stands until it is answered');
+/* It carries the next throw as well as the passage, so the turn passes from
+   the card and the rail is only where a game's first throw comes from. */
+assert.equal(q('.bv-card-go').hidden,false,'the next throw is offered from the card');
+assert.match(q('.bv-card-go').getAttribute('aria-label'),/^Continue — throw for /,
+  'and says whose it is');
 q('.bv-card-more').click(); advance(600);
 assert.equal(app.state().current,'rebirth_sq_27','the card opens the square\'s entry');
 assert.equal(q('.sheet .more').open,true,'with the full passage already unfolded');
@@ -683,6 +721,11 @@ assert.deepEqual(app.rbGame().players[0].history,[{face:'one',from:24,to:27}]);
 throwFace(3);   // 27 -three-> 23
 assert.deepEqual(chips().map(c=>+c.dataset.square),[27,23]);
 assert.ok(chips()[1].classList.contains('last'),'the newest chip is marked');
+/* One window at a time. The card is up, so the first click outside it clears
+   the screen and does nothing else; the click after it is the one that acts. */
+chips()[0].click(); advance(400);
+assert.equal(q('.bv-card').hidden,true,'a click outside the card clears it');
+assert.notEqual(app.state().current,'rebirth_sq_27','and is not acted on as well');
 chips()[0].click(); advance(600);
 assert.equal(app.state().current,'rebirth_sq_27','a chip opens that square');
 assert.equal(cellOf(27).getAttribute('aria-selected'),'true','and lights it on the board');
@@ -719,8 +762,13 @@ viewport={w:1280,h:900}; window.dispatchEvent(new window.Event('resize')); advan
 key('w'); advance(600);
 assert.ok(!document.body.classList.contains('world-only'),
   'and where both fit there is nothing to hand over');
-// a trap lists no moves of its own, so it draws nothing
+// a trap lists no moves of its own, so it draws nothing. The drawer is open on
+// square 30, so the first tap on the board closes it and the second opens 48.
+cellOf(48).click(); advance(400);
+assert.equal(q('.sheet').hidden,true,'a tap on the board clears the drawer first');
+assert.equal(app.state().current,null,'and opens nothing on that tap');
 cellOf(48).click(); advance(600);
+assert.equal(app.state().current,'rebirth_sq_48','the tap after it opens the square');
 assert.equal(app.rbBoard.links.visible,false,'Cessation leads nowhere by a throw');
 app.close(); advance(300);
 
@@ -739,6 +787,7 @@ assert.match(boardEl.querySelector('.bv-pt .short').textContent,/^Tenzin/);
 throwFace(1);
 assert.equal(app.rbGame().turn,1,'the die passed to the second player');
 assert.equal(app.rbGame().viewing,1);
+clearCard();
 boardEl.querySelector('[data-player="0"]').click(); advance(200);
 assert.equal(app.rbGame().viewing,0,'now reading the first player');
 assert.equal(app.rbGame().turn,1,'but the turn has not moved');
@@ -767,12 +816,16 @@ assert.equal(q('.bv-card .tb').textContent,rbBoard.tibetanOf(104));
 assert.equal(q('.bv-card-end').hidden,false,'victory carries the closing painting');
 assert.match(q('.bv-card-end').getAttribute('src'),/liberation\.webp$/);
 assert.equal(q('[data-game="throw"]').textContent,'Stupa throw');
+assert.equal(q('.bv-card-go').hidden,false,'the rite is offered from the card too');
 throwFace(5);
 assert.equal(app.rbGame().winner,0,'the rite cannot change the winner');
 assert.equal(q('[data-game="throw"]').textContent,'Game over');
 assert.equal(q('[data-game="throw"]').disabled,true);
+assert.equal(q('.bv-card-go').hidden,true,'and with nothing left to throw the card offers nothing');
 // A game in play says so before it is thrown away.
+clearCard();
 q('[data-game="ask-new"]').click();
+assert.equal(q('.bv-ask').hidden,false,'the dialog opens');
 assert.equal(q('.bv-ask-warn').hidden,false,'the warning appears once there is a game to lose');
 q('[data-game="cancel-new"]').click();
 assert.equal(app.rbGame().winner,0,'and keeping playing changes nothing');
@@ -922,7 +975,7 @@ console.log(JSON.stringify({result:'PASS',heaps:37,illustrations:24,triangles,at
  checks:'Terrain overlay priority, independent motion/mandala switches and gesture resume, numbers toggle, '
    + 'billboards from 16 angles, 84% tour image fit at three viewport sizes, all 37 stops, playback, isolation, '
    + 'exclusive panels, image failure/retry, keyboard controls, reduced motion and visibility restoration. '
-   + 'The board of rebirth: the three-way mode switch, 104 cells in the board\'s own order with their names and zones, an entry of our own on every '
+   + 'The board of rebirth: the three-way mode switch, 104 cells in the board\'s own order with their names and zones, a write-up on every '
    + 'square, the world framed clear of the board, all 21 anchored squares over the geometry drawn for them, the printed '
    + 'first move, the karmic trail, selection shared between cell, entry and marker, reading a player without taking their '
    + 'turn, the counter trap end to end, victory and its rite, the board/world swap, silence until asked, pointer events on '
