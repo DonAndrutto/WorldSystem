@@ -15,18 +15,21 @@
  *
  * three.js loads through the page's import map. Include this EXACT pinned
  * map in <head>, before any module runs — versions and integrity hashes
- * stay together (same map the "3D object" skill mandates):
+ * stay together. This page serves the library from the repository rather
+ * than from a CDN, so that an installed copy needs no network; the hashes
+ * are unchanged, because the vendored files are byte for byte the ones
+ * unpkg publishes for 0.184.0 (see scripts/vendor-three.cjs):
  *
  *   <script type="importmap">
  *   {
  *     "imports": {
- *       "three": "https://unpkg.com/three@0.184.0/build/three.module.js",
- *       "three/addons/controls/OrbitControls.js": "https://unpkg.com/three@0.184.0/examples/jsm/controls/OrbitControls.js"
+ *       "three": "./vendor/three@0.184.0/build/three.module.js",
+ *       "three/addons/controls/OrbitControls.js": "./vendor/three@0.184.0/examples/jsm/controls/OrbitControls.js"
  *     },
  *     "integrity": {
- *       "https://unpkg.com/three@0.184.0/build/three.module.js": "sha384-8FCZ1eVO6it4+pbec2aDtnTrwjWXZLJRC+MAGCIPDgsYnUrl/E0A2YlF8ioMKI/J",
- *       "https://unpkg.com/three@0.184.0/build/three.core.js": "sha384-dw2ooPewaEIrAgl6oFDBmmBWCE9oW9LxRGcfwZ0hLvEprzo202wXl7vCYHRlSnOT",
- *       "https://unpkg.com/three@0.184.0/examples/jsm/controls/OrbitControls.js": "sha384-4rziNxOBZKQ69i+w+f89KJ55TCYquwchVbByQwmaOeIOXdOU2PLDn3kOfXHwIJC9"
+ *       "./vendor/three@0.184.0/build/three.module.js": "sha384-8FCZ1eVO6it4+pbec2aDtnTrwjWXZLJRC+MAGCIPDgsYnUrl/E0A2YlF8ioMKI/J",
+ *       "./vendor/three@0.184.0/build/three.core.js": "sha384-dw2ooPewaEIrAgl6oFDBmmBWCE9oW9LxRGcfwZ0hLvEprzo202wXl7vCYHRlSnOT",
+ *       "./vendor/three@0.184.0/examples/jsm/controls/OrbitControls.js": "sha384-4rziNxOBZKQ69i+w+f89KJ55TCYquwchVbByQwmaOeIOXdOU2PLDn3kOfXHwIJC9"
  *     }
  *   }
  *   </script>

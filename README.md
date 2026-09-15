@@ -36,14 +36,25 @@ Click any part to open its entry; drag to orbit, scroll to zoom.
 | `scripts/build-icons.cjs` | Rebuilds all icon sizes from the single master artwork, using Sharp. |
 | `scripts/build-square-art.cjs` | Rebuilds the board's four field sheets from the 105 source paintings, using Sharp. |
 | `manifest.webmanifest` | Name, colours and icons for installing the page. |
+| `sw.js` | The service worker: what an installed copy holds, the version it holds it under, and how a newer one reaches it. |
+| `vendor/three@0.184.0/` | three.js, vendored — byte for byte the files unpkg publishes, so the import map's integrity hashes are unchanged. |
+| `assets/fonts/` | EB Garamond and IBM Plex Mono in the latin and latin-ext cuts the page sets, with both OFL notices. |
+| `scripts/vendor-three.cjs` | Re-fetches the pinned three.js from npm and checks it against the hashes in the import map. |
+| `scripts/build-fonts.cjs` | Rebuilds the font sheet and its woff2 files from Google Fonts. |
+| `scripts/build-sw.cjs` | Writes the worker's list of files and the version it holds them under. |
+| `tests/offline.mjs` | Checks that nothing is asked of another origin, that the pinned hashes still hold, and that the worker's shelf matches the tree. |
 
 Serve the directory over HTTP and open it (not `file://` — the page uses ES
-modules). It is published with GitHub Pages at
-<https://donandrutto.github.io/WorldSystem/>. three.js
-0.184.0 loads from unpkg through the pinned import map in the head, with integrity
-hashes; the fonts are EB Garamond and IBM Plex Mono from Google Fonts. The offering views load three local WebP artwork sheets on first use. The sun and moon glows, the cloud backdrop — clouds after the convention
-of the thangka painters, with scalloped silhouettes, broad internal spirals and
-tapered wind tails — and the night's stars are all drawn onto canvases at runtime.
+modules, and no service worker will register from a file). It is published with
+GitHub Pages at <https://donandrutto.github.io/WorldSystem/>, which is still
+nothing but the files in this tree. Nothing the page draws with comes from
+anywhere else: three.js 0.184.0 sits under `vendor/` and is reached through the
+pinned import map in the head, still carrying its integrity hashes, and EB
+Garamond and IBM Plex Mono are served from `assets/fonts/`. The offering views
+load three local WebP artwork sheets on first use. The sun and moon glows, the
+cloud backdrop — clouds after the convention of the thangka painters, with
+scalloped silhouettes, broad internal spirals and tapered wind tails — and the
+night's stars are all drawn onto canvases at runtime.
 
 The daytime sky grades from clear blue overhead to pale cyan at the horizon.
 Clouds use mainly ivory and periwinkle, with occasional jade, ochre and rose;
@@ -69,11 +80,45 @@ asks the installed app for portrait, the page asks the browser for a portrait
 lock when it goes full screen, and a phone turned on its side anyway is asked
 for the phone back rather than served a layout nothing was measured for.
 
-> **It is not offline yet.** A home-screen shortcut is still a web page: three.js
-> loads from unpkg through the import map, and the fonts from Google Fonts, so
-> with no network the page will not start. Making it genuinely offline needs the
-> library vendored into the repository and a service worker to cache the shell —
-> a separate change.
+### With no network
+
+It works offline. Everything the page draws with is in this repository, the
+library among it, and the service worker in `sw.js` puts the whole of it by on
+the first visit: the page, its modules, three.js, the two typefaces, the three
+offering sheets and the board's four painted fields. Thirty-nine files, about
+7 MB, fetched once. From the second visit on, the network is never asked for any
+of them — only ever whether there is a newer world.
+
+So: open it once with a connection, add it to the home screen, turn the network
+off and reload. The model still starts, with its letters, its paintings and its
+board. Adding it rather than bookmarking it matters on iOS: Safari clears what a
+site has written to storage after seven days without a visit, and exempts a page
+that has been added to the home screen.
+
+**One version at a time.** `VERSION` in `sw.js` is a digest of the worker's own
+logic together with the contents of every file it holds, written by
+`node scripts/build-sw.cjs`. The cache is named after it, so each version is a
+separate shelf: an installed copy keeps reading the shelf it started on until a
+complete new one exists beside it, and a half-finished download can never be
+mistaken for a world. Activation then deletes every older shelf. Because the
+digest is taken from the contents, running the script again over an unchanged
+tree leaves no diff.
+
+**A newer world waits to be asked.** A worker that has finished installing does
+not step in front of a page that is already running: that page is holding
+modules and textures from the old version in memory and would end up half in
+each. It waits, and the page says *A newer drawing is ready* and offers it.
+Taking the offer reloads into the new version at once; declining costs nothing,
+since the next cold start opens it anyway, which for a home-screen app is
+usually the same evening. The browser looks for a new worker on every
+navigation, and the page asks again itself when it is brought back after an hour
+away — an installed copy can stay open for days without ever navigating.
+
+**What is not put by.** The 105 source paintings under `assets/Game of Liberation
+English titles/`, the app-icon master and the flat sky previews are what the
+build scripts eat; no visitor fetches them, and 28 MB has no business on a
+phone. Anything else of this origin that a later version adds is served from
+last time while a fresh copy is fetched behind the page.
 
 ## The drawing
 
@@ -453,8 +498,8 @@ The model is by **Andrzej R. Rybszleger**, built from the sources above.
 
 ## Development checks
 
-The browser continues to use the existing pinned Three.js import map. The test
-harness needs Node and two development dependencies:
+The browser reads three.js through the pinned import map, now from `vendor/`.
+The test harness needs Node and two development dependencies:
 
 ```sh
 npm install --no-save --package-lock=false three@0.184.0 jsdom@26
@@ -462,16 +507,26 @@ node tests/mandala-regression.mjs
 node tests/rebirth-regression.mjs
 node tests/viewport-gestures.mjs
 node tests/world-surfaces.mjs
+node tests/offline.mjs
 ```
 
-It runs the complete app script with real Three.js geometry and camera math,
-checking the 37 reveals, tour sequence, exclusive panel states, texture UVs,
-loading/retry behavior, keyboard controls and restoration of the world view.
+The maṇḍala suite runs the complete app script with real Three.js geometry and
+camera math, checking the 37 reveals, tour sequence, exclusive panel states,
+texture UVs, loading/retry behavior, keyboard controls and restoration of the
+world view.
 Canvas/GPU rendering, texture delivery and browser layout have test substitutes.
 A passing result does not establish actual WebGL appearance or device usability.
 
 The surface checks cover closed geometry seams, range separation, height and
 wave limits, and the shared ripple texture. They do not render the GPU scene.
+
+The offline checks need neither dependency and run on Node alone. They read
+files and start no browser: that every subresource the page names is this repository's own, that the vendored three.js still hashes to
+what the import map pins, that every `@font-face` keeps a unicode-range and
+points at a file that is here, that `sw.js` is what `scripts/build-sw.cjs` would
+write from the tree as it stands, and that the manifest's icons are both present
+and cached. They say nothing about whether an install actually survives a
+network being cut — only about what it would have to hand.
 
 The board checks run on the data and the rules alone, with no DOM: the 104
 squares, all 624 square/face combinations, the two counter traps, victory, the
@@ -481,6 +536,21 @@ the board's own order, an entry on every square, the world framed clear of the
 board, the twenty-one anchored squares standing on what the model draws for
 them, the shared selection, and a game played through the board — is checked in
 the maṇḍala suite, which builds the real scene.
+
+## Rebuilding what is served
+
+Everything the installed app holds is committed, so a GitHub Pages deploy is
+still the files in this tree and nothing else. Three scripts put them there, and
+none of them needs a development dependency:
+
+| run | after |
+| --- | --- |
+| `node scripts/vendor-three.cjs` | moving to another three.js — change the version and the hashes in the import map in `index.html` first, and the script refuses to vendor anything that does not match them |
+| `node scripts/build-fonts.cjs` | changing which cuts of EB Garamond or IBM Plex Mono the page sets |
+| `node scripts/build-sw.cjs` | **anything the page serves itself**: the page, a module, a painted sheet, an icon, the fonts, the library |
+
+The last one is the one that is easy to forget. `node tests/offline.mjs` fails
+if `sw.js` is behind the tree, which is the whole reason it exists.
 
 To rebuild the icon assets, install Sharp as an additional development dependency
 (`npm install --no-save --package-lock=false three@0.184.0 jsdom@26 sharp`) and run
