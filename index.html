@@ -1006,7 +1006,11 @@
     font: inherit; font-size: 17px; line-height: 1;
   }
   .bv-card-x:hover { color: var(--ink); }
-  .bv-card-more { margin-top: 9px; }
+  /* the two things a card is good for: the passage behind the square, and
+     the next throw without going back to the rail for it */
+  .bv-card-acts { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 9px; }
+  .bv-card-acts[hidden] { display: none !important; }
+  .bv-card-go { border-color: var(--accent); color: var(--ink); }
   .bv-card.out .bv-card-in { animation: card-out .3s ease both; }
   @keyframes card-in  { from { opacity: 0; transform: scale(.88) translateY(7px); } to { opacity: 1; transform: none; } }
   @keyframes card-out { to { opacity: 0; transform: scale(.97); } }
@@ -1413,11 +1417,16 @@
       radial-gradient(circle, var(--gold-2) 0 2.4px, transparent 2.6px) center / 8px 8px no-repeat;
   }
   body.board-only .bv-card .num { font-size: 58px; color: var(--gold-2); }
-  body.board-only .bv-card-more {
-    margin-top: 16px; border-radius: 999px; padding: 11px 22px 10px;
-    border-color: var(--gold-2); color: var(--gold-ink); letter-spacing: .16em;
+  body.board-only .bv-card-acts { margin-top: 16px; gap: 10px; }
+  body.board-only .bv-card-more, body.board-only .bv-card-go {
+    border-radius: 999px; padding: 11px 22px 10px; letter-spacing: .16em;
+  }
+  /* the throw is the card's own act and takes the gold the rail gives it */
+  body.board-only .bv-card-go {
+    border-color: var(--gold-2); color: var(--gold-ink);
     background: linear-gradient(180deg, var(--gold-1), var(--gold-2));
   }
+  body.board-only .bv-card-go:hover { filter: brightness(1.05); }
 
   /* the three controls, docked along the foot as the board's own */
   body.board-only .controls,
@@ -1608,7 +1617,10 @@
         <span class="nm"></span>
         <span class="tb" lang="bo"></span>
         <span class="note"></span>
-        <button class="btn bv-card-more" type="button" data-game="card-entry">Read the full entry</button>
+        <div class="bv-card-acts">
+          <button class="btn go bv-card-go" type="button" data-game="card-throw">Continue</button>
+          <button class="btn bv-card-more" type="button" data-game="card-entry">Read the full entry</button>
+        </div>
       </div>
     </div>
     <div class="bv-rail card">
@@ -3515,8 +3527,8 @@ def('about', {
       'The model is the work of <b>Andrzej R. Rybszleger</b>, built from the sources named below.'],
   rel: ['about_scale', 'meru_core', 'about_mandala'],
   src: 'Vasubandhu, <i>Abhidharmakośa</i> &amp; <i>bhāṣya</i> III.45–102 (La Vallée Poussin / Pruden); Chim Jampaiyang, <i>Ornament of Abhidharma</i>; Jamgön Kongtrul, <i>Myriad Worlds</i>; Mipham, <i>Gateway to Knowledge</i> II. '
-     + 'Board, names and move graph: Tatz and Kent, <i>Rebirth: The Tibetan Game of Liberation</i> (1977), reconstructed from the printed chart, the square entries and the reverse index and cross-checked cell by cell. The write-ups on the 104 squares are a separate revised English edition of the square texts. '
-     + 'The model is by Andrzej R. Rybszleger.'
+     + 'Board, names and move graph: Tatz and Kent, <i>Rebirth: The Tibetan Game of Liberation</i> (1977), reconstructed from the printed chart, the square entries and the reverse index and cross-checked cell by cell. The write-ups on the 104 squares are a revised English edition of the square texts. '
+     + 'The model, and the write-ups with it, are by <b>Andrzej R. Rybszleger</b>.'
 });
 def('about_scale', {
   t: 'The scale of this drawing', meta: 'Scale, shape, placement and lighting', k: '1m : 400,000',
@@ -4449,7 +4461,7 @@ RB_SQUARES.forEach((sqr) => {
        copies of it under a hundred and four squares is a hundred and three
        too many. It is given once, at the end of <b>About this model</b>,
        and the squares point at it. */
-    src: 'The write-ups on this square are from the revised English edition of the square texts. The board they sit on, and the edition it is reconstructed from, are credited in <b>About this model</b>.'
+    src: 'The board this square sits on, the edition it is reconstructed from, and the write-ups here are credited in <b>About this model</b>.'
   });
 });
 def('rebirth_game', {
@@ -5995,6 +6007,7 @@ for (let row = 12; row >= 0; row -= 1) {
   }
 }
 rbGrid.addEventListener('click', (ev) => {
+  if (rbDismissForField(ev.target)) return;   // this tap only clears the screen
   const cell = ev.target.closest('[data-square]');
   if (cell) show('rebirth_sq_' + cell.dataset.square, true);
 });
@@ -6278,12 +6291,14 @@ function rbSync() {
    you have asked the question. This one runs for a couple of seconds, ticking
    and slowing, shows nothing of the result until it stops, and then says
    where you have arrived in letters large enough to read across a room. */
-const RB_TUMBLE_MS = 2300, RB_TUMBLE_TICKS = 17, RB_CARD_MS = 5200;
+const RB_TUMBLE_MS = 2300, RB_TUMBLE_TICKS = 17, RB_CARD_OUT_MS = 300;
 let rbRolling = false, rbTumbleTimer = null, rbCardTimer = null, rbCardSquare = null;
 const rbCard = boardEl.querySelector('.bv-card');
 const rbCardArt = rbCard.querySelector('.bv-card-art');
 const rbCardEnd = rbCard.querySelector('.bv-card-end');
 const rbCardMore = rbCard.querySelector('.bv-card-more');
+const rbCardGo = rbCard.querySelector('.bv-card-go');
+const rbCardActs = rbCard.querySelector('.bv-card-acts');
 
 /* Where the throw lands, said once and plainly and large: the field the square
    is drawn as, its number, its name in both languages, and the way straight
@@ -6310,29 +6325,61 @@ function rbShowCard(face, title, name, note, closing) {
   rbCardEnd.alt = closing ? LIBERATION_ART.attribute : '';
   rbCardEnd.hidden = !closing;
   rbCardMore.hidden = name === null;
+  /* The turn has already passed by the time the card is drawn, so the throw it
+     offers is the next player's: the game can be played from the card without
+     going back to the rail between turns. There is nothing to offer once the
+     stupa throw has been made. */
+  const spent = rbGame.over && rbGame.stupa !== null;
+  rbCardGo.hidden = spent;
+  if (!spent) {
+    const next = rbGame.players[rbGame.turn];
+    const label = rbGame.over ? 'the stupa throw' : 'for ' + next.name;
+    rbCardGo.title = 'Throw ' + label;
+    rbCardGo.setAttribute('aria-label', 'Continue — throw ' + label);
+  }
+  rbCardActs.hidden = rbCardMore.hidden && rbCardGo.hidden;   // the last card asks nothing
   rbCard.hidden = false;
-  rbCardCountdown();
 }
-/* Hovering or tabbing into the card holds it open; leaving it starts the clock
-   again, so a card can be read without racing it. */
-function rbCardCountdown() {
+/* The card stays until it is answered — by the throw it offers, by the entry
+   it opens, by its own close, or by a click anywhere outside it, which is the
+   rule every window on this page keeps. It used to clear itself on a timer,
+   which a card you are meant to act from cannot do. */
+function rbHideCard(fade) {
   clearTimeout(rbCardTimer);
-  if (rbCard.hidden) return;
-  rbCardTimer = setTimeout(() => {
-    rbCard.classList.add('out');
-    rbCardTimer = setTimeout(() => { rbCard.hidden = true; rbCard.classList.remove('out'); }, 300);
-  }, RB_CARD_MS);
-}
-function rbHideCard() {
-  clearTimeout(rbCardTimer);
-  rbCard.hidden = true;
-  rbCard.classList.remove('out');
   rbCardSquare = null;
+  if (!fade || rbCard.hidden) {
+    rbCard.hidden = true;
+    rbCard.classList.remove('out');
+    return;
+  }
+  rbCard.classList.add('out');
+  rbCardTimer = setTimeout(() => { rbCard.hidden = true; rbCard.classList.remove('out'); }, RB_CARD_OUT_MS);
 }
-rbCard.addEventListener('pointerenter', () => clearTimeout(rbCardTimer));
-rbCard.addEventListener('pointerleave', rbCardCountdown);
-rbCard.addEventListener('focusin', () => clearTimeout(rbCardTimer));
-rbCard.addEventListener('focusout', rbCardCountdown);
+/* ── one window at a time ────────────────────────────────────────────────
+   Nothing on this page is meant to sit on top of anything else. Whatever is
+   up takes the next click outside it as a dismissal and nothing more, so the
+   click that clears the screen never also opens something behind it; the one
+   after it does. The card answers to a click anywhere; the drawer
+   answers to a tap on the board or in the world, which is where a field is
+   opened from, so no field is swapped for another under the reader. The index
+   is left out of it: the dock shows one panel at a time already, so it never
+   stands over anything, and neither do the menus, which keep working on the
+   first click. */
+const rbCardUp = () => !rbCard.hidden && !rbCard.classList.contains('out');
+function rbDismissCard(target) {
+  if (!rbCardUp()) return false;
+  if (target && target.closest && target.closest('.bv-card-in')) return false;
+  rbHideCard(true);
+  return true;
+}
+function rbDismissForField(target) {
+  if (rbDismissCard(target)) return true;
+  if (!sheet.hidden) { close(); return true; }
+  return false;
+}
+document.addEventListener('click', (ev) => {
+  if (rbDismissCard(ev.target)) { ev.stopPropagation(); ev.preventDefault(); }
+}, true);
 // Walk the faces the die is not going to land on, so the answer never shows early.
 function rbTumble(final, done) {
   const others = [1, 2, 3, 4, 5, 6].filter((f) => f !== final);
@@ -6487,7 +6534,8 @@ boardEl.addEventListener('click', (ev) => {
   if (b.dataset.game === 'ask-new') rbAskNew();
   if (b.dataset.game === 'cancel-new') rbCloseAsk();
   if (b.dataset.game === 'swap') rbSwap();
-  if (b.dataset.game === 'card-close') rbHideCard();
+  if (b.dataset.game === 'card-close') rbHideCard(true);
+  if (b.dataset.game === 'card-throw') rbThrow();
   // the whole passage, one click from the card that announced the square
   if (b.dataset.game === 'card-entry' && rbCardSquare !== null) {
     const square = rbCardSquare;
@@ -6869,6 +6917,7 @@ canvas.addEventListener('pointerup', (e) => {
   const slow = Date.now() - down.t > 500;
   down = null;
   if (moved > 5 || slow) return;
+  if (rbDismissForField(e.target)) return;   // this tap only clears the screen
   const r = canvas.getBoundingClientRect();
   ray.setFromCamera(new THREE.Vector2(
     ((e.clientX - r.left) / r.width) * 2 - 1,
@@ -6899,6 +6948,7 @@ window.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') {
     if (MENUS.some((m) => m.open)) { closeMenus(); return; }
     if (mode === 'game' && !rbAsk.hidden) rbCloseAsk();
+    else if (mode === 'game' && rbCardUp()) rbHideCard(true);
     else if (document.body.classList.contains('index-open')) setOpen(false);
     else if (!sheet.hidden) close();
     else if (touring) endTour();

@@ -278,9 +278,9 @@ silently: square 85 reads a one to 71, as the other Buddha fields each give one
 sūtra exit and one tantric, and the reading that sends it to 73 is recorded
 beside it.
 
-What each square carries is a separate revised English edition: a short
-write-up the square opens with, and a fuller one that unfolds from it in the
-drawer. Both are authored as Markdown in `content/squares-1-104-blurbs.md` and
+What each square carries is a revised English edition by Andrzej R.
+Rybszleger: a short write-up the square opens with, and a fuller one that
+unfolds from it in the drawer. Both are authored as Markdown in `content/squares-1-104-blurbs.md` and
 `content/squares-1-104-full.md`, headed `## <n>. <name>` per square, and
 `node scripts/build-square-notes.cjs` builds them into `rebirth-notes.js`. That
 is the file the page imports and the only one to regenerate; edit the Markdown
@@ -313,10 +313,24 @@ When the die stops, a card says where the token has arrived: the field the
 square is drawn as, its number in large figures, its name in English and in
 Tibetan, and what has happened to the turn. **Read the full entry** opens that
 square's entry in the drawer with the whole passage already unfolded, so the
-card is one click from everything the project has to say about the square. The
-card clears itself, but not while it is being read — hovering or tabbing into it
-holds it open. Victory and the stupa throw that follows carry a painting of
-their own: Amitābha, the stupa and the Guru.
+card is one click from everything the project has to say about the square, and
+**Continue** throws for whoever is next, so a game is played from the card and
+the rail is only where its first throw comes from. The card used to clear
+itself on a timer; a card you are meant to act from cannot, so it stands until
+it is answered — by the throw, by the entry, by its own close, by Escape, or by
+a click anywhere outside it. Victory and the stupa throw that follows carry a
+painting of their own: Amitābha, the stupa and the Guru.
+
+### One window at a time
+
+Nothing here sits on top of anything else. Whatever is up takes the next click
+outside it as a dismissal and nothing more, so the click that clears the screen
+never also opens something behind it; the click after it does. The card answers
+to a click anywhere. The drawer answers to a tap on the board or in the world,
+which is where a field is opened from, so one field is never swapped for
+another under the reader. The index is left out of it: the dock shows one panel
+at a time already, so it never stands over anything — and neither do the menus,
+which keep working on the first click.
 
 ### What the board sounds like
 

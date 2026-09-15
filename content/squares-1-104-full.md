@@ -2,7 +2,7 @@
 
 *Revised English edition · 15 September 2026*
 
-This edition preserves the full sequence and scope of the supplied English text, with corrections to spelling, grammar, formatting, and terminology. Where the English is damaged or ambiguous, repairs are inferred from context; no Tibetan original has been reconstructed. Verses and quotations are edited from the supplied English, rather than presented as new translations from their original languages. The historical, cosmological, and doctrinal accounts retain the perspective of the source. Substantive editorial decisions and remaining uncertainties are recorded separately in [Editorial notes](destinations-1-104-editorial-notes.md).
+This edition preserves the full sequence and scope of the supplied English text, with corrections to spelling, grammar, formatting, and terminology. Where the English is damaged or ambiguous, repairs are inferred from context; no Tibetan original has been reconstructed. Verses and quotations are edited from the supplied English, rather than presented as new translations from their original languages. The historical, cosmological, and doctrinal accounts retain the perspective of the source.
 
 <a id="field-1"></a>
 
@@ -896,12 +896,6 @@ The bell empowerment, symbolized by a bell representing the feminine principle a
 
 The southern pure land is that created by Ratnasambhava, “source of jewels.” He is the lord of the wish-granting gem, and fulfills the Buddha’s function of giving what is needed. His steed is a horse, his color yellow, his element the earth, expansive and fertile. The primal awareness associated with this state is that of equality, for all things are equal on the broad earth; it counteracts pride and cupidity. Ratnasambhava is embraced by Māmakī, who represents fertilizing water; his bodhisattvas are named Element of Space (Ākāśagarbha) and Wholly Benevolent (Samantabhadra).
 
-**After rolling:**
-
-- **1:** Go to Fourth Sūtrayāna Bhūmi ([No. 78](#field-78)).
-- **2:** Go to Third Vajrayāna Bhūmi ([No. 74](#field-74)).
-- **3:** Go to Second Vajrayāna Bhūmi ([No. 73](#field-73)).
-
 <a id="field-77"></a>
 
 ## 77. Land of Bliss (Sukhāvatī)
@@ -1076,11 +1070,6 @@ Contemplating luminosity whose substance is emptiness, one now achieves the actu
 > Whoever understands them as inseparable  
 > Is released from nirvāṇa and saṃsāra.
 
-**After rolling:**
-
-- **1:** Go to Supreme Heaven (Akaniṣṭha) ([No. 84](#field-84)).
-- **2:** Go to Great Dharmakāya ([No. 93](#field-93)).
-
 <a id="field-92"></a>
 
 ## 92. Great Saṃbhogakāya
@@ -1165,11 +1154,6 @@ The bodhisattva’s deeds now arise spontaneously, without conceptual effort: th
 
 The eighth-stage bodhisattva is like an ornament of gold worn on the neck of a king. He approaches the omniscience of the Buddha, knowing all the intricacies of the world system, such as its size and age, down to each atomic particle within it. He appears in appropriate forms to the different classes of society. Like the sun and the moon in water, he is reflected in the affairs of the world, but without the slightest attachment on his part.
 
-**After rolling:**
-
-- **1:** Go to Tenth Sūtrayāna Bhūmi ([No. 94](#field-94)).
-- **2:** Go to Ninth Sūtrayāna Bhūmi ([No. 95](#field-95)).
-
 <a id="field-97"></a>
 
 ## 97. Adopting a Physical Form
@@ -1202,10 +1186,6 @@ He studies with two Brahmanical masters who teach the liberation of the Supreme 
 
 For six years the bodhisattva abides in the “space-pervading concentration,” suspending his breath, slowing his vital functions, and feeding on a grain of rice or sesame each day. He sits immovably until the villagers think him dead. Finally his mother, from the heaven of the Thirty-Three, begs him not to die without fulfilling his destiny. Perceiving that asceticism is not the way to liberation, he enters the village nearby and begs a bowl of milk and rice from a young cowgirl. His five companions abandon him in disgust. He washes himself in the river and advances to the Bodhi tree, the tree of awakening, to sit in meditation.
 
-**After rolling:**
-
-- **1 or 2:** Go to Conquest of Māra ([No. 100](#field-100)).
-
 <a id="field-100"></a>
 
 ## 100. Conquest of Māra
@@ -1223,10 +1203,6 @@ Nor can whirlwinds and rainstorms move the bodhisattva, who is imperturbable.
 Then Māra challenges the bodhisattva to reveal what merits he has gained to make him worthy of liberation. The great meditator acknowledges the great sacrifice that Māra must have made, in past lives, to attain his state of the lord god of the Desire Realm. Yet he himself has made many such sacrifices during his career as a bodhisattva to ordinary creatures as well as gods, and furthermore with liberation, not power, as his aim. Māra claims that the evidence for his own sacrifice is unimpeachable, for the bodhisattva himself has just been witness to it, but that for the bodhisattva’s sacrifice there is no witness at all. Then the bodhisattva, touching the earth with his right hand, calls the earth goddess to witness. The earth shakes six times. Showing half her body and folding her hands with reverence, the goddess rises half out of the earth to attest to his fitness for awakening. Māra and his hosts flee like smaller animals before the lion’s roar.
 
 Māra, however, has one more device. He sends down his daughters, named Desire, Pleasure, and Passion, to tempt the bodhisattva. They dance before him like the swaying branches of a young and leafy tree. They appeal to him with spring songs. Yet he is not moved by the image of transient pleasures. As the sun sets, his victory is complete. The tree nymphs come to praise him, while many of Māra’s following are ashamed and converted, making the creative effort for awakening.
-
-**After rolling:**
-
-- **1 or 2:** Go to Buddhahood ([No. 101](#field-101)).
 
 <a id="field-101"></a>
 
