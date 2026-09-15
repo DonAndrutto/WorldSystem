@@ -7,10 +7,12 @@ export function composeGameFocus(THREE, { anchor, meruBounds, summit, viewport, 
   const radial = Math.hypot(anchor.x, anchor.z);
   const profile = below ? 'below' : high ? 'heavens' : radial > summit ? 'surface' : 'meru';
   // A three-quarter angle from the destination's side separates its marker
-  // from Meru. Central/high destinations keep the familiar south-east view.
+  // from Meru. Below-ground visits face the destination directly and nearly
+  // level: the realms already hang below the intact disc, so no cutaway is
+  // needed to expose them. Central/high destinations keep the familiar south-east view.
   const azimuth = radial > summit * 0.35
-    ? Math.atan2(anchor.x, anchor.z) + Math.PI / 3 : Math.atan2(1, 1.25);
-  const elevation = { below: 0.10, surface: 0.60, meru: 0.46, heavens: 0.25 }[profile];
+    ? Math.atan2(anchor.x, anchor.z) + (below ? 0 : Math.PI / 3) : Math.atan2(1, 1.25);
+  const elevation = { below: -0.16, surface: 0.60, meru: 0.46, heavens: 0.25 }[profile];
   const direction = new THREE.Vector3(Math.sin(azimuth), elevation, Math.cos(azimuth)).normalize();
   const right = new THREE.Vector3().crossVectors(new THREE.Vector3(0, 1, 0), direction).normalize();
   const up = new THREE.Vector3().crossVectors(direction, right).normalize();

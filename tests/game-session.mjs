@@ -2,9 +2,9 @@ import assert from 'node:assert/strict';
 import { createGame, throwDie, emptyTally } from '../rebirth-game.js';
 import { makeSession, restoreSession, possibleThrows } from '../game-session.js';
 import { MOVES, FACES, TRAP_QUOTA, TRAP_QUOTA_NOTE64 } from '../rebirth-board.js';
-import { PLAYER_SKINS } from '../game-players.js';
+import { PLAYER_SKINS, PLAYER_CULTURES } from '../game-players.js';
 const options = { players: 4, names: ['One', 'Two', 'Three', 'Four'],
-  skins: ['teal', 'plum', 'terracotta', 'indigo'], colours: [3, 2, 1, 0] };
+  skins: ['tibetan-female', 'indian-female', 'thai-male', 'western-male'], colours: [3, 2, 1, 0] };
 for (const quotas of [TRAP_QUOTA, TRAP_QUOTA_NOTE64]) {
   const game = createGame({ ...options, quotas });
   const session = makeSession(game);
@@ -54,6 +54,15 @@ for (const bad of ['not json', '{}', '{"version":2}', JSON.stringify({...makeSes
   JSON.stringify({...makeSession(createGame()), rolls:[0]}), JSON.stringify({...makeSession(createGame()), names:[]})]) {
   assert.equal(restoreSession(bad), null, 'invalid saves are rejected');
 }
-assert.equal(PLAYER_SKINS.length, 6);
+assert.equal(PLAYER_SKINS.length, 12);
 assert.equal(createGame({skins:['missing'], colours:[99]}).players[0].skin, PLAYER_SKINS[0].id);
 console.log('PASS: session replay, pending roll recovery, both quotas, both trap exits, 624 previews, invalid saves and appearance defaults.');
+
+for (const culture of PLAYER_CULTURES) {
+  assert.deepEqual(PLAYER_SKINS.filter(s => s.culture === culture).map(s => s.gender), ['male', 'female']);
+}
+const legacy = {version:1, names:['A', 'B'], skins:['ochre', 'teal'], colours:[0,1], note64:false, rolls:[1,2], pending:null};
+const migrated = restoreSession(JSON.stringify(legacy));
+assert.deepEqual(migrated.game.players.map(p => p.skin), ['bhutanese-male', 'tibetan-female']);
+assert.deepEqual(migrated.session.rolls, [1,2], 'appearance migration preserves played dice');
+assert.deepEqual(restoreSession(JSON.stringify(migrated.session)).game, migrated.game);

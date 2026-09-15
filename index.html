@@ -1836,7 +1836,7 @@ import { createGame, throwDie, view as rbView, destination as rbDestination } fr
 import { SQUARE_NOTES, SQUARE_FULL } from './rebirth-notes.js';
 import { SQUARE_ART, cellBackground, createSquareArt, LIBERATION_ART } from './rebirth-icons.js';
 import { createSoundKit, voiceFor as rbVoice } from './rebirth-sound.js';
-import { PLAYER_SKINS, PLAYER_PALETTE, paintPlayer, createPlayerArt } from './game-players.js';
+import { PLAYER_SKINS, PLAYER_CULTURES, normalizeSkin, PLAYER_PALETTE, paintPlayer, createPlayerArt } from './game-players.js';
 import { SESSION_KEY, makeSession, restoreSession, possibleThrows } from './game-session.js';
 import { composeGameFocus, orbitFlightPoint } from './game-camera.js';
 const stage = document.querySelector('three-d-stage');
@@ -6225,7 +6225,7 @@ function rbPlaceChips() {
     if (!player) return;
     const at = rbBoard.positionOf(player.pos);
     if (!at) { chip.el.style.visibility = 'hidden'; return; }
-    NDC.set(at.x, at.y + SUMMIT * 0.42, at.z).project(cam);
+    NDC.set(at.x, at.y + SUMMIT * 0.34, at.z).project(cam);
     if (NDC.z >= 1) { chip.el.style.visibility = 'hidden'; return; }
     let x = (NDC.x * 0.5 + 0.5) * w, y = (-NDC.y * 0.5 + 0.5) * h;
     // the board and any open panel are drawn over the canvas; stay clear
@@ -6592,28 +6592,42 @@ function rbNameFields(prefill) {
   const wanted = Number(rbPlayerCount.value);
   rbNames.textContent = '';
   for (let i = 0; i < wanted; i += 1) {
-    rbDraft[i] ||= { skin: PLAYER_SKINS[i].id, colour: i };
+    rbDraft[i] ||= { skin: normalizeSkin(null, i), colour: i };
     const row = document.createElement('fieldset');
     row.className = 'bv-person';
     row.innerHTML = '<legend>Player ' + (i + 1) + '</legend><label>Name <input type="text" maxlength="24" data-player="' + i + '" placeholder="Player ' + (i + 1) + '"></label>'
-      + '<label>Colour <select class="player-colour">' + ['Rust', 'Teal', 'Gold', 'Plum'].map((c, n) => '<option value="' + n + '">' + c + '</option>').join('') + '</select></label><div class="player-choices" role="group" aria-label="Character for player ' + (i + 1) + '"></div>';
+      + '<label>Colour <select class="player-colour">' + ['Rust', 'Teal', 'Gold', 'Plum'].map((c, n) => '<option value="' + n + '">' + c + '</option>').join('') + '</select></label><label class="player-origin">Background <select class="player-culture">' + PLAYER_CULTURES.map(c => '<option>' + c + '</option>').join('') + '</select></label><div class="player-choices" role="group" aria-label="Character for player ' + (i + 1) + '"></div>';
     row.querySelector('input').value = prefill[i] || '';
     const colour = row.querySelector('select');
     colour.value = String(rbDraft[i].colour);
     colour.addEventListener('change', () => { rbDraft[i].colour = Number(colour.value); });
-    PLAYER_SKINS.forEach(skin => {
-      const button = document.createElement('button');
-      button.type = 'button'; button.className = 'player-choice';
-      button.setAttribute('aria-label', skin.name); button.title = skin.name;
-      button.setAttribute('aria-pressed', String(skin.id === rbDraft[i].skin));
-      const art = document.createElement('span'); paintPlayer(art, { skin: skin.id, i });
-      art.setAttribute('aria-hidden', 'true'); button.appendChild(art);
-      button.addEventListener('click', () => {
-        rbDraft[i].skin = skin.id;
-        row.querySelectorAll('.player-choice').forEach(b => b.setAttribute('aria-pressed', String(b === button)));
+    const culture = row.querySelector('.player-culture');
+    culture.value = PLAYER_SKINS.find(s => s.id === rbDraft[i].skin).culture;
+    const choices = row.querySelector('.player-choices');
+    const renderChoices = () => {
+      choices.textContent = '';
+      PLAYER_SKINS.filter(s => s.culture === culture.value).forEach(skin => {
+        const button = document.createElement('button');
+        button.type = 'button'; button.className = 'player-choice';
+        button.setAttribute('aria-label', skin.name); button.title = skin.name;
+        button.setAttribute('aria-pressed', String(skin.id === rbDraft[i].skin));
+        const art = document.createElement('span'); paintPlayer(art, { skin: skin.id, i });
+        art.setAttribute('aria-hidden', 'true'); button.appendChild(art);
+        const caption = document.createElement('span'); caption.className = 'player-choice-caption';
+        caption.textContent = skin.gender === 'male' ? 'Male' : 'Female'; button.appendChild(caption);
+        button.addEventListener('click', () => {
+          rbDraft[i].skin = skin.id;
+          choices.querySelectorAll('.player-choice').forEach(b => b.setAttribute('aria-pressed', String(b === button)));
+        });
+        choices.appendChild(button);
       });
-      row.querySelector('.player-choices').appendChild(button);
+    };
+    culture.addEventListener('change', () => {
+      const gender = PLAYER_SKINS.find(s => s.id === rbDraft[i].skin).gender;
+      rbDraft[i].skin = culture.value.toLowerCase() + '-' + gender;
+      renderChoices();
     });
+    renderChoices();
     rbNames.appendChild(row);
   }
 }
@@ -6953,20 +6967,7 @@ function reframeGame(dur = 700, at = null) {
    caption. Presentation state stays separate from whose turn it is. */
 const gameFocusEl = document.querySelector('.game-focus');
 const gameFocusPin = document.querySelector('.rb-focus-pin');
-const focusCutaway = new Map();
-let focusClippingWas = gl.localClippingEnabled;
 let focusRequest = null;
-function rbRestoreCutaway() {
-  // Selection highlighting may have wrapped a clipped material while its
-  // entry was open. Unwrap it before restoring and disposing the cutaway.
-  if (focusCutaway.size) clearPick();
-  focusCutaway.forEach((original, mesh) => {
-    [].concat(mesh.material).forEach(material => material.dispose());
-    mesh.material = original;
-  });
-  if (focusCutaway.size) { gl.localClippingEnabled = focusClippingWas; reshadow(); }
-  focusCutaway.clear();
-}
 function rbClearFocus() {
   if (focusRequest !== null) cancelAnimationFrame(focusRequest);
   focusRequest = null;
@@ -6974,7 +6975,6 @@ function rbClearFocus() {
   gameFocus = null;
   gameFocusEl.hidden = true;
   gameFocusPin.hidden = true;
-  rbRestoreCutaway();
   ctr.autoRotate = motion && !anim && !orbitInteracting;
 }
 function rbFocusAnchor(id) {
@@ -7011,7 +7011,6 @@ function rbFocusWorld(id) {
 }
 function rbFrameFocus(dur = 650) {
   if (!gameFocus || mode !== 'game') return;
-  rbRestoreCutaway();
   if (gameFocus.view === 'overview') {
     gameFocusEl.querySelector('p').textContent = 'World overview · choose Focus here to return to this location.';
     reframeGame(dur);
@@ -7030,26 +7029,8 @@ function rbFrameFocus(dur = 650) {
     viewport: { w: stage.clientWidth, h: stage.clientHeight }, rect: freeRect(), fov: cam.fov
   });
   gameFocusEl.querySelector('p').textContent = composition.below
-    ? 'Below the world · a cutaway reveals the location while Meru stays in view.'
+    ? 'Below the world · the side view keeps the location and Meru together.'
     : 'Meru stays in view · drag to explore, or choose Focus here to return.';
-  if (composition.below) {
-    focusClippingWas = gl.localClippingEnabled;
-    // Remove the near half of the enclosing layers only. Meru, the selected
-    // realm and the far half retain their materials and positions.
-    const normal = composition.direction.clone(); normal.y = 0; normal.normalize().negate();
-    const plane = new THREE.Plane(normal, 0);
-    world.traverse(mesh => {
-      if (!mesh.isMesh || !/^(golden_ground|water_mandala|wind_mandala|salt_ocean|seven_inner_seas|cakravada_iron_ring|range_)/.test(mesh.name)) return;
-      focusCutaway.set(mesh, mesh.material);
-      const clipped = [].concat(mesh.material).map(material => {
-        const copy = material.clone(); copy.clippingPlanes = [plane]; copy.clipShadows = true;
-        copy.needsUpdate = true; return copy;
-      });
-      mesh.material = Array.isArray(mesh.material) ? clipped : clipped[0];
-    });
-    gl.localClippingEnabled = true;
-    reshadow();
-  }
   fly(composition.position, composition.target, dur, true);
   invalidate(4);
 }

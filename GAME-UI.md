@@ -4,7 +4,7 @@ Built on main after the stage 1 camera and popup-navigation change (#26).
 
 ## Playing
 
-- The first visit to Game opens traveler setup. Choose 1–4 players, names, one of six characters (three male, three female), and independent player colours. Duplicate characters are allowed. Appearance does not change the rules.
+- The first visit to Game opens traveler setup. Choose 1–4 players, names, one of twelve characters (male and female Bhutanese, Tibetan, Indian, Chinese, Thai and Western travelers), and independent player colours. Duplicate characters are allowed. Appearance does not change the rules.
 - The selected artwork appears in setup, player tabs, board tokens and camera-facing 3D figures. If the world texture fails, coloured markers remain; entering Game again retries it.
 - Board is the default for new visitors. Existing view and language preferences still apply. Board, Both and World now have visible labels.
 - Destinations previews all six outcomes for the player holding the die, including dead faces and trap counts. Its entries open the corresponding descriptions.
@@ -26,8 +26,10 @@ Built on main after the stage 1 camera and popup-navigation change (#26).
 
 ## Character artwork
 
-`assets/rebirth/travelers.png` is one transparent 3-column × 2-row sprite atlas generated with the built-in image-generation tool. It is contemporary game illustration, not an image from the historical board. The same atlas is cropped by CSS and Three.js texture coordinates; the generated image was copied without pixel editing.
+`assets/rebirth/travelers.png` is one transparent 6-column × 2-row sprite atlas generated with the built-in image-generation tool. It is contemporary game illustration, not an image from the historical board. The same atlas is cropped by CSS and Three.js texture coordinates; the final generated image was copied with its alpha channel intact. An image-tool background-extraction pass followed the initial generation.
 
-Generation prompt:
+The 3D figures are 0.30 × SUMMIT tall (previously 0.63), a 52% reduction. Existing saved character IDs migrate to the new roster while preserving gender, colours and the dice journal.
 
-> Use case: stylized-concept. Asset type: ONE production sprite atlas for a Himalayan-inspired illustrated board game, 3 columns by 2 rows, six full-body human traveler cutouts. Transparent background with genuine alpha, no paper backdrop, no ground shadows, no text, no labels, no borders. Each character occupies exactly one equal rectangular slot: top row three MALE adults, bottom row three FEMALE adults. Precisely centered in each slot, same baseline and head height, upright front three-quarter pose, full body and feet visible, ample transparent space between all figures, nothing crossing slot boundaries. All six match in scale and hand-painted mineral pigment / fine ink illustration style suitable for a warm parchment board game. Clear simple silhouettes readable as tiny game pieces. Top left: young male traveler, dark short hair, ochre robe, blue sash. Top middle: mature male traveler, salt-and-pepper beard, sage coat, warm brown boots. Top right: elderly male traveler, grey hair, indigo robe, small walking staff held close to body. Bottom left: young female traveler, dark braided hair, terracotta robe, teal sash. Bottom middle: mature female traveler, dark tied hair, deep plum robe, ochre scarf. Bottom right: elderly female traveler, silver braided hair, teal robe, warm rust scarf. Calm friendly expressions, human lay travelers, modest layered garments, no deity imagery, no halos, no weapons. This is a texture atlas: exact 3x2 alignment and complete isolated figures on transparency are essential. Square canvas.
+Guided underground visits now use a low side view instead of clipping half the terrain. Tests check all 104 destinations at three viewport sizes for unchanged terrain materials/visibility, and raycast every underground sightline to ensure the intact layers do not obscure the destination.
+
+See [TRAVELER-ART-PROMPTS.md](TRAVELER-ART-PROMPTS.md) for both final prompts and atlas details.

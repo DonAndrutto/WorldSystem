@@ -134,8 +134,9 @@ WebP images in `assets/sky/` are review previews of those canvas textures.
 
 ## Selectable travelers
 
-`assets/rebirth/travelers.png` is a generated transparent 3 × 2 atlas for the six
-selectable player characters. The CSS and Three.js billboards use the same
+`assets/rebirth/travelers.png` is a generated transparent 6 × 2 atlas for twelve
+selectable player characters: male and female Bhutanese, Tibetan, Indian,
+Chinese, Thai and Western travelers. The CSS and Three.js billboards use the same
 figures. These contemporary game illustrations are separate from the historical
 board fields. See [GAME-UI.md](GAME-UI.md#character-artwork) for provenance and
 the full generation prompt.

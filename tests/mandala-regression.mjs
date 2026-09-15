@@ -926,6 +926,11 @@ worldVisibility.forEach((visible,obj)=>assert.equal(obj.visible,visible,'All wor
    layouts, every square (including the actual anchored world positions). */
 app.setMode('game'); advance(1200);
 const unchangedGame = JSON.stringify(app.rbGame());
+const intactTerrain = new Map();
+app.world.traverse(mesh => {
+  if (mesh.isMesh && /^(golden_ground|water_mandala|wind_mandala|salt_ocean|seven_inner_seas|cakravada_iron_ring|range_)/.test(mesh.name))
+    intactTerrain.set(mesh, { material: mesh.material, visible: mesh.visible });
+});
 reduced = true;
 for (const size of [{w:1440,h:1000}, {w:390,h:844}, {w:844,h:390}]) {
   viewport = size; app.cam.aspect = size.w / size.h; app.cam.updateProjectionMatrix();
@@ -934,6 +939,11 @@ for (const size of [{w:1440,h:1000}, {w:390,h:844}, {w:844,h:390}]) {
     app.rbFocusWorld('rebirth_sq_' + square.n); advance(700);
     assert.equal(q('.sheet').hidden,true,'the full entry folds away');
     assert.equal(q('.game-focus').hidden,false,'location caption remains');
+    intactTerrain.forEach((original, mesh) => {
+      assert.equal(mesh.material, original.material, mesh.name + ' retains its original material at square ' + square.n);
+      assert.equal(mesh.visible, original.visible, mesh.name + ' stays visible');
+      assert.ok([].concat(mesh.material).every(m => !m.clippingPlanes?.length), 'no world clipping');
+    });
     const frame = app.freeRect();
     const checkPoint = (point, label) => {
       const p = point.clone().project(app.cam);
@@ -944,6 +954,19 @@ for (const size of [{w:1440,h:1000}, {w:390,h:844}, {w:844,h:390}]) {
         `${label}, square ${square.n}, ${size.w}×${size.h}: ${x},${y} outside ${JSON.stringify(frame)}`);
     };
     checkPoint(app.rbBoard.positionOf(square.n),'destination');
+    const destination = app.rbBoard.positionOf(square.n);
+    if (destination.y < 0) {
+      const toDestination = destination.clone().sub(app.cam.position);
+      const sightline = new THREE.Raycaster(app.cam.position, toDestination.clone().normalize(), 0, toDestination.length() - 1e-5);
+      const blockers = sightline.intersectObjects([...intactTerrain.keys()], false);
+      assert.equal(blockers.length, 0, 'intact terrain must not obscure below-ground square ' + square.n + ' at ' + size.w + 'x' + size.h);
+      const summitPoint = new THREE.Box3().setFromObject(app.meshesFor('meru_summit_platform')[0]).getCenter(new THREE.Vector3());
+      const summitLine = summitPoint.clone().sub(app.cam.position);
+      const summitRay = new THREE.Raycaster(app.cam.position, summitLine.clone().normalize(), 0, summitLine.length() - 1e-5);
+      assert.equal(summitRay.intersectObjects([...intactTerrain.keys()], false).length, 0, 'Meru summit remains visible above the intact plate');
+
+    }
+
     for (const id of ['meru_core','meru_summit_platform']) {
       for (const mesh of app.meshesFor(id)) {
         const box = new THREE.Box3().setFromObject(mesh);
@@ -965,13 +988,13 @@ app.setMotion(true); advance(700);
 assert.equal(app.ctr.autoRotate,false,'focused camera stays still even with world motion enabled');
 app.rbFocusWorld('rebirth_sq_2'); advance(700);
 const floorMesh = app.meshesFor('golden_ground')[0];
-assert.ok(floorMesh.material.clippingPlanes?.length,'underground visit opens a cutaway');
+assert.ok(!floorMesh.material.clippingPlanes?.length,'underground visit preserves the entire world plate');
 app.show('golden_ground',true); advance(700);
 app.close(); advance(700);
 q('[data-world="overview"]').click(); advance(700);
 assert.ok(!floorMesh.material.clippingPlanes?.length,'overview restores the foundation');
 q('[data-world="focus"]').click(); advance(700);
-assert.ok(floorMesh.material.clippingPlanes?.length);
+assert.ok(!floorMesh.material.clippingPlanes?.length,'refocusing never clips the plate');
 q('[data-world="return"]').click(); advance(700);
 assert.equal(app.gameFocus(),null,'return closes the focused visit');
 assert.ok(!floorMesh.material.clippingPlanes?.length,'return restores materials');
@@ -1073,16 +1096,24 @@ app.setMode('game'); advance(1000); clearCard();
 newGame(2, ['<b>A</b>', 'B']);
 clearCard(); q('[data-game="ask-new"]').click();
 const person = q('.bv-person');
-person.querySelector('[aria-label="Female · Teal elder"]').click();
+person.querySelector('.player-culture').value = 'Tibetan';
+person.querySelector('.player-culture').dispatchEvent(new window.Event('change'));
+person.querySelector('[aria-label="Tibetan · Female"]').click();
 person.querySelector('select').value = '3'; person.querySelector('select').dispatchEvent(new window.Event('change'));
 q('.bv-ask form').dispatchEvent(new window.Event('submit', {cancelable:true,bubbles:true}));
-assert.equal(app.rbGame().players[0].skin, 'teal'); assert.equal(app.rbGame().players[0].colour, 3);
+assert.equal(app.rbGame().players[0].skin, 'tibetan-female'); assert.equal(app.rbGame().players[0].colour, 3);
 assert.equal(cellOf(24).querySelector('[data-p="0"]').style.getPropertyValue('--skin-y'), '100%');
 const skinRequest = textureRequests.find(r => r.url === gamePlayers.PLAYER_ATLAS);
 assert.ok(skinRequest, 'skin texture is requested on entering game');
 skinRequest.success(new THREE.Texture());
 assert.equal(app.rbBoard.tokens[0].children.at(-1).isSprite, true);
-assert.equal(app.rbBoard.tokens[0].children.at(-1).material.map.offset.x, 2 / 3);
+assert.equal(app.rbBoard.tokens[0].children.at(-1).material.map.offset.x, 1 / 6);
+assert.equal(app.rbBoard.tokens[0].children.at(-1).material.map.offset.y, 0);
+const traveler = app.rbBoard.tokens[0].children.at(-1);
+assert.ok(traveler.scale.y < .32 * app.RIM, 'travelers remain small within the world');
+assert.equal(traveler.scale.x / traveler.scale.y, .5, 'atlas proportions are preserved');
+assert.equal(traveler.material.depthTest, false, 'small game pieces stay visible over the intact terrain');
+assert.equal(traveler.renderOrder, 10);
 face = 1; q('[data-game="throw"]').click();
 let saved = JSON.parse(window.localStorage.getItem(gameSession.SESSION_KEY));
 assert.equal(saved.pending, 1, 'die is saved before any animation'); assert.equal(saved.rolls.length, 0);
