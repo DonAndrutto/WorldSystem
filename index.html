@@ -21,25 +21,33 @@
 <meta name="apple-mobile-web-app-title" content="World System">
 <meta name="theme-color" content="#efe8da">
 
-<!-- three.js for <three-d-stage>, pinned with integrity hashes. -->
+<!-- three.js for <three-d-stage>, vendored into the repository so the page
+     needs nothing from the network, and still pinned with integrity hashes.
+     The files are byte-identical to the ones unpkg serves for 0.184.0, so the
+     hashes below are the upstream hashes and can be checked against npm:
+     `node scripts/vendor-three.cjs` re-fetches the tarball and verifies them
+     against this very map. -->
 <script type="importmap">
 {
   "imports": {
-    "three": "https://unpkg.com/three@0.184.0/build/three.module.js",
-    "three/addons/controls/OrbitControls.js": "https://unpkg.com/three@0.184.0/examples/jsm/controls/OrbitControls.js"
+    "three": "./vendor/three@0.184.0/build/three.module.js",
+    "three/addons/controls/OrbitControls.js": "./vendor/three@0.184.0/examples/jsm/controls/OrbitControls.js"
   },
   "integrity": {
-    "https://unpkg.com/three@0.184.0/build/three.module.js": "sha384-8FCZ1eVO6it4+pbec2aDtnTrwjWXZLJRC+MAGCIPDgsYnUrl/E0A2YlF8ioMKI/J",
-    "https://unpkg.com/three@0.184.0/build/three.core.js": "sha384-dw2ooPewaEIrAgl6oFDBmmBWCE9oW9LxRGcfwZ0hLvEprzo202wXl7vCYHRlSnOT",
-    "https://unpkg.com/three@0.184.0/examples/jsm/controls/OrbitControls.js": "sha384-4rziNxOBZKQ69i+w+f89KJ55TCYquwchVbByQwmaOeIOXdOU2PLDn3kOfXHwIJC9"
+    "./vendor/three@0.184.0/build/three.module.js": "sha384-8FCZ1eVO6it4+pbec2aDtnTrwjWXZLJRC+MAGCIPDgsYnUrl/E0A2YlF8ioMKI/J",
+    "./vendor/three@0.184.0/build/three.core.js": "sha384-dw2ooPewaEIrAgl6oFDBmmBWCE9oW9LxRGcfwZ0hLvEprzo202wXl7vCYHRlSnOT",
+    "./vendor/three@0.184.0/examples/jsm/controls/OrbitControls.js": "sha384-4rziNxOBZKQ69i+w+f89KJ55TCYquwchVbByQwmaOeIOXdOU2PLDn3kOfXHwIJC9"
   }
 }
 </script>
 <script src="three-d-stage.js"></script>
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<!-- The two typefaces are served from the repository as well, in the latin and
+     latin-ext cuts the page actually sets. Each rule keeps its unicode-range,
+     so anything outside them — the Tibetan, the drawing's few symbols — falls
+     through to the stack's own Georgia and monospace, exactly as before.
+     `node scripts/build-fonts.cjs` rebuilds the sheet and the files. -->
+<link rel="stylesheet" href="assets/fonts/fonts.css?v=1">
 
 <style>
   * { box-sizing: border-box; }
@@ -176,9 +184,10 @@
   .firsthint.gone { opacity: 0; }
   @media (min-width: 701px) { .firsthint { bottom: 26px; } }
 
-  /* Said when the browser takes the drawing's context away from it, and
-     taken back down the moment it is handed back. */
-  .glnote {
+  /* Two things the page occasionally has to say for itself, in one shape: the
+     browser has taken the drawing's context away — taken back down the moment
+     it is handed back — or a newer version of the whole world is ready. */
+  .glnote, .swnote {
     position: absolute; left: 50%; transform: translateX(-50%);
     top: calc(84px + var(--sa-t)); margin: 0; z-index: 9;
     width: min(420px, calc(100vw - 28px)); padding: 11px 13px;
@@ -186,8 +195,10 @@
     border-radius: 6px; font-size: 13px; line-height: 1.35; color: var(--ink-2);
     pointer-events: auto;
   }
-  .glnote[hidden] { display: none; }
-  .glnote span { flex: 1; }
+  .glnote[hidden], .swnote[hidden] { display: none; }
+  .glnote span, .swnote span { flex: 1; }
+  /* both at once is all but impossible; if it happens they stand in a column */
+  .glnote:not([hidden]) ~ .swnote { top: calc(150px + var(--sa-t)); }
 
   /* ── the control strip ────────────────────────────────────────────────
      Three controls, never more: the index, the view you are in, and the
@@ -1550,6 +1561,12 @@
   <p class="glnote card" role="status" hidden>
     <span>The drawing lost its place on the graphics card. It usually comes back on its own.</span>
     <button class="btn" type="button" data-act="reload">Reload</button>
+  </p>
+
+  <!-- said when a newer world has finished putting itself by behind this one -->
+  <p class="swnote card" role="status" hidden>
+    <span>A newer drawing is ready. It opens on the next start, or now.</span>
+    <button class="btn" type="button" data-act="update">Open it now</button>
   </p>
 
   <div class="compass" aria-hidden="true">
@@ -6885,5 +6902,66 @@ window.addEventListener('keydown', (e) => {
 });
 </script>
 
+<!-- ── the world, kept ──────────────────────────────────────────────────
+     All the page does about being offline is register the worker; what is
+     held and how it is versioned is sw.js's own business, written up there.
+     What belongs here is the one choice that is the reader's: a newer world
+     that has finished downloading waits instead of stepping in front of the
+     modules and textures this page is already holding, and is offered. -->
+<script>
+(() => {
+  if (!('serviceWorker' in navigator)) return;
+  const note = document.querySelector('.swnote');
+  let accepted = false;
+
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    // Only once the offer has been taken. The first worker of all claims the
+    // page as it installs, and that is no reason to pull the drawing out from
+    // under somebody who has just opened it.
+    if (!accepted) return;
+    accepted = false;
+    location.reload();
+  });
+
+  const offer = worker => {
+    note.querySelector('[data-act="update"]').onclick = () => {
+      accepted = true;
+      note.hidden = true;
+      worker.postMessage({ type: 'SKIP_WAITING' });
+    };
+    note.hidden = false;
+  };
+
+  window.addEventListener('load', async () => {
+    let reg;
+    try {
+      // `none` keeps the browser's own HTTP cache out of the update check:
+      // whether there is a newer world is a question for the server.
+      reg = await navigator.serviceWorker.register('sw.js', { scope: './', updateViaCache: 'none' });
+    } catch (err) {
+      return;   // opened from file://, or a browser that will not have one
+    }
+    // A worker in hand and another already waiting behind it: the reader has
+    // come back to a version that finished downloading after they last looked.
+    if (reg.waiting && navigator.serviceWorker.controller) offer(reg.waiting);
+    reg.addEventListener('updatefound', () => {
+      const arriving = reg.installing;
+      if (!arriving) return;
+      arriving.addEventListener('statechange', () => {
+        if (arriving.state === 'installed' && navigator.serviceWorker.controller) offer(arriving);
+      });
+    });
+    // On the home screen this page can stay open for days and never ask for a
+    // navigation, which is where the browser would otherwise look. Coming back
+    // to it after an hour away is a fair moment to look instead.
+    let asked = Date.now();
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden || Date.now() - asked < 36e5) return;
+      asked = Date.now();
+      reg.update().catch(() => {});
+    });
+  });
+})();
+</script>
 
 </body></html>
