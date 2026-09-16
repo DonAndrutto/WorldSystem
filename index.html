@@ -1830,6 +1830,7 @@ import { createOfferingModels, OFFERING_ART } from './mandala-offerings.js';
 import { TOUR_NOTES } from './mandala-tour.js';
 import { installViewportGestures } from './viewport-gestures.js';
 import { createGoldenRangeGeometry, createWaterNormalMap, createWaterMaterial, createWaterGeometry } from './world-surfaces.js';
+import { createSummitDetail } from './summit-detail.js';
 import { DAY_SKY, paintClouds } from './sky-clouds.js';
 import { SQUARES as RB_SQUARES, SPECIAL as RB_SPECIAL, START as RB_START, VICTORY as RB_VICTORY, TRAP_QUOTA, TRAP_QUOTA_NOTE64, FACES as DIE_FACES, BY_N as RB_BY_N, VARIANTS as RB_VARIANTS, zoneOf as rbZoneOf, PLAYER_COLOURS as RB_COLOURS, createBoardLayer, tibetanOf as rbTibetan } from './rebirth-board.js';
 import { createGame, throwDie, view as rbView, destination as rbDestination } from './rebirth-game.js';
@@ -1838,7 +1839,7 @@ import { SQUARE_ART, cellBackground, createSquareArt, LIBERATION_ART } from './r
 import { createSoundKit, voiceFor as rbVoice } from './rebirth-sound.js';
 import { PLAYER_SKINS, PLAYER_CULTURES, normalizeSkin, PLAYER_PALETTE, paintPlayer, createPlayerArt } from './game-players.js';
 import { SESSION_KEY, makeSession, restoreSession, possibleThrows } from './game-session.js';
-import { composeGameFocus, orbitFlightPoint } from './game-camera.js';
+import { composeGameFocus, composeGameOverview, orbitFlightPoint } from './game-camera.js';
 const stage = document.querySelector('three-d-stage');
 /* Everything below this line is built on three.js, and three.js arrives over
    the network. Where it does not — a phone that lost the connection between
@@ -2153,7 +2154,7 @@ function flaredRoof(half, rise, material, o = {}) {
   const reach = o.reach === undefined ? 0.14 : o.reach;   // corner reach, in half-widths
   const hollow = o.hollow === undefined ? 1.6 : o.hollow; // how scooped the slope is
   const deep = (o.deep === undefined ? 0.16 : o.deep) * rise;   // the eave's own thickness
-  const across = 9, up = 5, cols = 4 * across, stride = cols + 1;
+  const across = o.across ?? 9, up = o.up ?? 5, cols = 4 * across, stride = cols + 1;
   const pos = [], idx = [];
   // the tiles, then the same surface again beneath them: an eave with an edge
   for (let shell = 0; shell < 2; shell++) {
@@ -2422,18 +2423,6 @@ const PARK_R = y(11000);
   pond.position.set(Math.sin(a) * at, SUMMIT + yv(2600) + yv(960), Math.cos(a) * at);
   pond.castShadow = false;
   add(pond, 'nandana');
-  for (let i = 0; i < 3; i++) {
-    const t = a + (i - 1) * 0.42;
-    const r = PARK_R * 0.74;
-    const px = Math.sin(a) * at + Math.cos(t) * r, pz = Math.cos(a) * at - Math.sin(t) * r;
-    const trunk = new THREE.Mesh(new THREE.CylinderGeometry(y(180), y(240), yv(1300), 8), M.wood);
-    trunk.position.set(px, SUMMIT + yv(2600) + yv(1550), pz);
-    add(trunk, 'nandana');
-    const crown = new THREE.Mesh(new THREE.SphereGeometry(y(1500), 14, 10), M.foliage);
-    crown.scale.y = 0.78;
-    crown.position.set(px, SUMMIT + yv(2600) + yv(2500), pz);
-    add(crown, 'nandana');
-  }
 });
 
 /* Vaijayanta, built to the field the board draws for this square */
@@ -2485,6 +2474,13 @@ const spire = finial(y(5200), M.gold);
 spire.position.y = hy - yv(300);
 spire.traverse((o) => { if (o.isMesh) o.name = 'vaijayanta_spire'; });
 hall.add(spire);
+
+// Static architectural relief and garden planting share the existing entries
+// and pigments, while keeping the board painting's three-storey silhouette.
+world.add(createSummitDetail(THREE, {
+  materials: M, y, yv, summit: SUMMIT, cityTop, cityHalf: CITY,
+  hallHalf: HALL, parkRadius: PARK_R, flaredRoof
+}));
 
 /* ── Seven golden ranges ────────────────────────────────────────────────
    Concentric ridges. Each range's height above water equals its width and
@@ -3379,20 +3375,20 @@ CLUSTERS.forEach(([material, names], ci) => {
       world.add(built);
     } else {
       /* the palace the painted cosmologies give every heaven alike: a
-         plinth, one storey, a gilt pyramid roof, a finial. */
+         plinth, an open colonnade, lifted gilt eaves and a finial. */
       const pw = half * 0.23, storey = STEP * 0.175;
       const plinth = sq(pw * 1.5, pw * 1.7, PLATE_T, material);
       plinth.position.y = floor + PLATE_T * 0.5;
       add(plinth, id);
-      const body = sq(pw, pw, storey, material);
-      body.position.y = floor + PLATE_T + storey / 2;
-      add(body, id);
-      const roof = new THREE.Mesh(
-        new THREE.ConeGeometry(pw * 1.55 * Math.SQRT2, storey * 0.95, 4), M.gold
-      );
-      roof.rotation.y = Math.PI / 4;
-      roof.position.y = floor + PLATE_T + storey * 1.475;
-      add(roof, id);
+      const body = colonnade(pw, storey, 3, M.gold, material);
+      body.position.y = floor + PLATE_T;
+      body.traverse(o => { if (o.isMesh) o.name = id; });
+      world.add(body);
+      const roof = flaredRoof(pw * 1.55, storey * 0.95, M.gold,
+        { crest: 0.14, lift: 0.24, reach: 0.08 });
+      roof.position.y = floor + PLATE_T + storey;
+      roof.traverse(o => { if (o.isMesh) o.name = id; });
+      world.add(roof);
       const cap = new THREE.Mesh(
         new THREE.ConeGeometry(pw * 0.26, storey * 0.60, 8), M.gold
       );
@@ -4499,7 +4495,10 @@ RB_SQUARES.forEach((sqr) => {
                   + RB_BY_N.get(to).name + ', in another witness']);
     });
   }
-  const body = [SQUARE_NOTES[sqr.n], RB_BAND_NOTE[sqr.band]];
+  const placement = sqr.n === 84
+    ? 'This Buddha field rises above the tenth stages in the game’s symbolic ascent. The samsaric heaven of the same name remains in the world below.'
+    : RB_BAND_NOTE[sqr.band];
+  const body = [SQUARE_NOTES[sqr.n], placement];
   if (special && special.kind === 'tally') {
     body.push('A trap. Throws that are still needed let you keep going in the same turn; a throw you no longer need ends it, and the counts are kept until the next. Twenty-one useful throws in all.');
   }
@@ -4521,8 +4520,8 @@ def('rebirth_game', {
       ['Start', '24, the Heavenly Highway'], ['Victory', '104, Nirvana'],
       ['Traps', '1 and 48'], ['Already in the model', '21 squares'], ['Given a place by the board', '83 squares']],
   b: ['A game attributed to Sakya Pandita, in which a die names the square you go to rather than a number of steps to travel. A face with no listed move is dead: you stay where you are and pass.',
-      'Read as a section, the board is already a cosmology. Its row is height above or below the golden ground, and its two columns of paths separate the tantric route from the route of the sutras. Where a square names a region — a hell, a continent, a heaven — the world system has already built it, and the marker simply floats above it.',
-      'Where a square names a path, an attainment or a Buddha field, there is nothing in the world system to stand on. The sources say as much: Buddha fields lie outside the Meru arrangement. Those eighty-three squares are given a place here, on an armature that keeps the board’s own logic of height and side.'],
+      'Read as a section, the board is already a cosmology. Its rows suggest an ascent above the golden ground, and its two columns of paths separate the tantric route from the route of the sutras. Where a square names a region — a hell, a continent, a heaven — the world system has already built it, and the marker simply floats above it.',
+      'Where a square names a path, an attainment or a Buddha field, there is nothing in the world system to stand on. The sources say as much: Buddha fields lie outside the Meru arrangement. Those eighty-three squares are given a place here, on a symbolic ascent. Realization rises above the complete samsaric heaven stack; the sutra stages ascend in attainment order even where their printed numbers run backwards. The game’s Akaniṣṭha Buddha field also rises above the tenth stages, while the samsaric heaven remains in place.'],
   rel: ['rebirth_sq_24', 'rebirth_sq_1', 'rebirth_sq_48', 'rebirth_sq_104']
 });
 
@@ -4882,13 +4881,12 @@ function fitDepth() {
   const clear = Math.max(toCentre - VIEW_BOUNDS.radius, 0);
   const orbit = cam.position.distanceTo(ctr.target);
   const near = Math.max(NEAR_FLOOR, Math.min(orbit, clear + VIEW_BOUNDS.radius * 0.02) * 0.02);
-  /* The backdrop is a sphere on the world's own axis, not on the middle of
-     whatever the model happens to span, and the far side of it is the last
-     thing the eye can be shown. Measured from the model's centre instead,
-     the plane falls short of that far side wherever the camera stands well
-     off it — up among the heavens, say — and the sky is cut open there, with
-     the page's own paper showing through the hole. */
-  const far = Math.max(cam.position.length() + SKY_R * 1.04,
+  // The complete realization spire can put the overview camera beyond the
+  // original sky radius. Keep the world-centred backdrop around the eye,
+  // with its far side inside the clip plane, even in a narrow viewport.
+  const skyRadius = Math.max(SKY_R, cam.position.length() + VIEW_BOUNDS.radius * 2);
+  skyMesh.scale.setScalar(skyRadius / SKY_R);
+  const far = Math.max(cam.position.length() + skyRadius * 1.04,
                        toCentre + VIEW_BOUNDS.radius * 1.04);
   if (near === cam.near && far === cam.far) return;
   cam.near = near;
@@ -5951,9 +5949,18 @@ const setOpen = (open, reframeView = true) => {
 
 /* ── the game of rebirth ────────────────────────────────────────────────
    A board laid over the world system. Squares that name a region bind to the
-   geometry already drawn for it; the rest stand on an armature that keeps the
-   board's own logic — row for height, side for which route you are on. */
-const rbBoard = createBoardLayer(THREE, { RIM, FLOOR, SUMMIT });
+   geometry already drawn for it; the realization spire rises above the heavens
+   in attainment order, with radial bands separating the routes. */
+// The realization path must clear the live heavens, including the schematic
+// formless meshes. Measuring their geometry keeps the hierarchy intact if a
+// heaven's spacing, palace or emblem is later made taller.
+const samsaraBounds = new THREE.Box3();
+world.updateMatrixWorld(true);
+world.traverse(o => {
+  if (o.isMesh && /^(heaven_|formless_)/.test(o.name)) samsaraBounds.expandByObject(o);
+});
+const SAMSARA_TOP = Math.max(SUMMIT, samsaraBounds.isEmpty() ? SUMMIT : samsaraBounds.max.y);
+const rbBoard = createBoardLayer(THREE, { RIM, FLOOR, SUMMIT, SAMSARA_TOP });
 world.add(rbBoard.group);
 measureBounds();       // the board stands outside the model; the clip planes answer to it too
 rbBoard.group.traverse((o) => {
@@ -6922,45 +6929,27 @@ function rbSetTibetan(to) {
    the English otherwise. The drawer gives both, always. */
 const rbCalled = (n) => (rbTib && rbTibetan(n)) || RB_BY_N.get(n).name;
 
-/* The world in game mode is the home view, fitted into whatever the board
-   leaves — on a wide screen a tall strip on the right. WORLD_R is the radius
-   the home distance frames, so the two views agree on how big the world is. */
+/* The overview includes the whole ascent, including Nirvana. The bounds
+   follow the live destinations so raising the spire cannot crop its cap. */
 const WORLD_R = BASE_DIST * Math.tan(cam.fov * Math.PI / 360);
-/* Beside the board, the world is the subject and keeps the size it has in
-   every other view. Given the whole screen it can afford the whole round as
-   well — the spiral from the hells below the ground to the last act above the
-   summit — so that is what the world alone is framed to. Nirvana stands
-   outside the round either way, and is framed in only when it is the square in
-   hand: a square is brought into the same frame rather than flown to, and the
-   frame opens only as far as it must to hold one standing off the model. */
-let rbRoundRadius = 0;
+const rbOverviewBounds = new THREE.Box3();
 function measureRound() {
-  rbRoundRadius = 0;
+  rbOverviewBounds.set(new THREE.Vector3(-RIM, FLOOR, -RIM),
+    new THREE.Vector3(RIM, SAMSARA_TOP, RIM));
   rbBoard.nodes.forEach((holder, n) => {
-    if (n === RB_VICTORY) return;
-    rbRoundRadius = Math.max(rbRoundRadius, HOME.t.distanceTo(holder.position));
+    const radius = SUMMIT * (n === RB_VICTORY ? 0.80 : 0.20);
+    rbOverviewBounds.union(new THREE.Box3().setFromCenterAndSize(holder.position,
+      new THREE.Vector3(2, 2, 2).multiplyScalar(radius)));
   });
-  rbRoundRadius += RIM * 0.06;
-}
-function gameRadius(at) {
-  /* The whole round is several times the world across, and framed to hold all
-     of it a phone shows the world itself as a coin in the middle of an empty
-     sky — which is not the world appearing, whatever the renderer thinks. On
-     a screen that small the world alone is framed like every other view, and
-     the rest of the round is one drag away. */
-  const base = rbView3D === 'world' && !tightScreen()
-    ? Math.max(WORLD_R, rbRoundRadius) : WORLD_R;
-  if (!at) return base;
-  return Math.max(base, HOME.t.distanceTo(at) + RIM * 0.10);
 }
 function reframeGame(dur = 700, at = null) {
-  const fr = freeRect();
-  const h = Math.max(stage.clientHeight, 1);
-  const half = Math.tan(cam.fov * Math.PI / 360);
-  /* the world is a wide flat disc seen from a short way off, so its near edge
-     spreads well past its bounding sphere: the fit is paid for in advance */
-  const dist = gameRadius(at) * 1.20 / half * h / Math.min(fr.w, fr.h);
-  aimAt(HOME.t, dist, fr, HOME_DIR, dur);
+  measureRound();
+  if (at) rbOverviewBounds.expandByPoint(at);
+  const composition = composeGameOverview(THREE, {
+    bounds: rbOverviewBounds, fov: cam.fov, rect: freeRect(),
+    viewport: { w: Math.max(stage.clientWidth, 1), h: Math.max(stage.clientHeight, 1) }
+  });
+  fly(composition.position, composition.target, dur);
 }
 
 /* One explicit world visit from a throw card, an entry, or the location

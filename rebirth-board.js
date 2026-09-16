@@ -187,17 +187,51 @@ const BAND_RADIUS = {
   island: 1.26, field: 1.16, axis: 0.52, anchored: 1.00
 };
 
-/* One rising spiral, read in the board's own order: square 1 below the golden
-   ground at the widest turn, square 104 on the axis above the summit, and the
-   hundred and two between them winding up and inward. Nothing in the Meru
-   system has this shape — it is the board's shape, not the world's, which is
-   why it is drawn as a path through the world rather than as part of it. */
+/* The printed sutra stages run right to left within their rows. Their numbers
+   therefore descend while realization ascends. The Buddha-field Akaniṣṭha
+   leads from the tenth stages to Dharma Body, Enjoyment Body and the acts of
+   a Buddha; its game destination must not fall back to the form-realm heaven
+   with the same name. These are presentation slots, never changes to rules,
+   square numbers, or the world's physical realm locations. */
+const ASCENT_SLOT = {
+  40: 46.25, 45: 46.5, 46: 46.75,
+  78: 80, 79: 79, 80: 78,
+  86: 88, 87: 87, 88: 86,
+  94: 96, 95: 95, 96: 94,
+  84: 97, 93: 98, 92: 99,
+  97: 100, 98: 101, 99: 102, 100: 103, 101: 104, 102: 105, 103: 106
+};
+
+function ascentHeight(square, { FLOOR, SUMMIT, SAMSARA_TOP }) {
+  const slot = ASCENT_SLOT[square.n] || square.n;
+  // Preserve the below-ground and human approach. Preparatory paths then
+  // climb beside the heavens; vision, cultivation, arhatship and subsequent
+  // attainment clear the complete stack, including the highest formless sphere.
+  if (slot <= 24) return FLOOR * 1.15 + (slot - 1) / 23 * (SUMMIT * 0.30 - FLOOR * 1.15);
+  if (slot <= 46) return SUMMIT * 0.40 + (slot - 25) / 21 * (SAMSARA_TOP - SUMMIT * 0.17);
+  const stagesTop = SAMSARA_TOP + SUMMIT * (0.44 + 49 * 0.07);
+  // Wider steps near the axis keep the late-act artwork from stacking on
+  // itself as the spiral narrows. Nirvana has its own clear interval above.
+  if (square.n === VICTORY) return stagesTop + SUMMIT * (10 * 0.17 + 0.85);
+  if (slot > 96) return stagesTop + SUMMIT * (slot - 96) * 0.17;
+  return SAMSARA_TOP + SUMMIT * (0.44 + (slot - 47) * 0.07);
+}
+
+/* One inward winding ascent. Angle follows the printed board; height follows
+   realization and is measured against the live world's samsaric ceiling,
+   not Meru's much lower summit. This remains a symbolic path through the
+   model rather than another cosmological distance scale. */
 export function seamPosition(square, ctx) {
-  const { RIM, FLOOR, SUMMIT } = ctx;
+  const { RIM } = ctx;
   const { band, n } = square;
-  const t = (n - 1) / 103;
-  const rise = FLOOR * 1.15 + t * (SUMMIT * 2.55 - FLOOR * 1.15);
-  const radius = RIM * (1.30 - 1.02 * Math.pow(t, 0.85)) * (BAND_RADIUS[band] || 1);
+  const rise = ascentHeight(square, ctx);
+  if (n === VICTORY) return { x: 0, y: rise, z: 0 };
+  const t = (n - 1) / 102;
+  // Retain enough circumference for neighbouring billboards even where the
+  // path narrows. The axis band still draws the final acts inward, and the
+  // open Nirvana cap closes the ascent on the axis itself.
+  const radius = Math.max(RIM * (1.30 - 1.02 * Math.pow(t, 0.85)), ctx.SUMMIT * 1.16)
+    * (BAND_RADIUS[band] || 1);
   const angle = (SPIRAL.phase + t * SPIRAL.turns) * TAU;
   return { x: Math.cos(angle) * radius, y: rise, z: Math.sin(angle) * radius };
 }
@@ -251,10 +285,6 @@ export function createBoardLayer(THREE, ctx) {
   const beyondMat = new THREE.MeshBasicMaterial({
     color: 0xf1e3bb, transparent: true, opacity: 0.92, side: THREE.DoubleSide, depthWrite: false
   });
-  /* Clear of the formless absorptions, which stand at the head of the
-     heavens: the whole series has to pass beneath this, so the figure is
-     held above the top of the stack rather than fitted to it. */
-  const BEYOND_Y = ctx.SUMMIT * 5.05;
 
   const nodes = new Map();
   for (const s of SQUARES) {
@@ -301,8 +331,7 @@ export function createBoardLayer(THREE, ctx) {
     hit.userData.pickOnly = true;
     if (beyond) hit.scale.setScalar(2.4);
     holder.add(hit);
-    if (beyond) holder.position.set(0, BEYOND_Y, 0);
-    else if (!s.anchor) {
+    if (beyond || !s.anchor) {
       const p = seamPosition(s, ctx);
       holder.position.set(p.x, p.y, p.z);
     }
@@ -429,7 +458,12 @@ export function createBoardLayer(THREE, ctx) {
       if (!s.anchor || s.n === VICTORY) continue;
       const p = positionOfEntry(s.anchor);
       const holder = nodes.get(s.n);
-      if (p) holder.position.set(p.x, p.y + ctx.SUMMIT * 0.055, p.z);
+      if (p) {
+        const y = p.y + ctx.SUMMIT * 0.055;
+        // Keep the Akaniṣṭha field aligned with its named realm, but let its
+        // realization destination rise beyond the samsaric heaven below it.
+        holder.position.set(p.x, s.cat === 'Buddha fields' ? Math.max(y, ascentHeight(s, ctx)) : y, p.z);
+      }
       else holder.position.copy(vec(THREE, seamPosition(s, ctx)));
       holder.userData.anchored = !!p;
     }

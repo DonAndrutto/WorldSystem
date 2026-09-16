@@ -25,7 +25,7 @@
    current shelf or the runtime one, so old versions do not accumulate. */
 
 /* ── written by scripts/build-sw.cjs — do not edit below ─────────────── */
-const VERSION = 'b615df341fe5971a';
+const VERSION = '70962c7a1d0e6d9f';
 const SHELL = [
   "apple-touch-icon.png",
   "assets/fonts/eb-garamond-400-italic-latin-ext.woff2",
@@ -65,6 +65,7 @@ const SHELL = [
   "rebirth-notes.js",
   "rebirth-sound.js",
   "sky-clouds.js",
+  "summit-detail.js",
   "three-d-stage.js",
   "vendor/three@0.184.0/build/three.core.js",
   "vendor/three@0.184.0/build/three.module.js",

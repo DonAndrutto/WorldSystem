@@ -48,6 +48,33 @@ export function composeGameFocus(THREE, { anchor, meruBounds, summit, viewport, 
     direction, profile, below, points };
 }
 
+/* Fit the full vertical journey in the available canvas. A sphere centred on
+ * the ocean wastes most of the frame once the realization spire rises above
+ * the heavens; this fit uses the actual bounds and their perspective depth. */
+export function composeGameOverview(THREE, { bounds, viewport, rect, fov }) {
+  const direction = new THREE.Vector3(1, 0.38, 1.25).normalize();
+  const right = new THREE.Vector3().crossVectors(new THREE.Vector3(0, 1, 0), direction).normalize();
+  const up = new THREE.Vector3().crossVectors(direction, right).normalize();
+  const centre = bounds.getCenter(new THREE.Vector3());
+  const half = Math.tan(fov * Math.PI / 360);
+  const tanX = half * rect.w / viewport.h * 0.86;
+  const tanY = half * rect.h / viewport.h * 0.86;
+  const offsetX = (rect.x - viewport.w / 2) * 2 / viewport.h * half;
+  const offsetY = -(rect.y - viewport.h / 2) * 2 / viewport.h * half;
+  let distance = 1;
+  for (const x of [bounds.min.x, bounds.max.x]) for (const y of [bounds.min.y, bounds.max.y])
+    for (const z of [bounds.min.z, bounds.max.z]) {
+      const delta = new THREE.Vector3(x, y, z).sub(centre);
+      const depth = delta.dot(direction);
+      distance = Math.max(distance,
+        depth + Math.abs(delta.dot(right) + offsetX * depth) / tanX,
+        depth + Math.abs(delta.dot(up) + offsetY * depth) / tanY);
+    }
+  const target = centre.clone().addScaledVector(right, -offsetX * distance)
+    .addScaledVector(up, -offsetY * distance);
+  return { position: target.clone().addScaledVector(direction, distance), target };
+}
+
 /* A shortest azimuth arc outside the mountain, rather than a chord through
  * it. The camera controls' target can interpolate independently. */
 export function orbitFlightPoint(THREE, from, to, t, clearance) {

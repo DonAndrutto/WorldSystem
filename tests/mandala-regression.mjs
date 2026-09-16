@@ -19,6 +19,7 @@ const rbSound = await import(pathToFileURL(repo + '/rebirth-sound.js'));
 const gamePlayers = await import(pathToFileURL(repo + '/game-players.js'));
 const gameSession = await import(pathToFileURL(repo + '/game-session.js'));
 const gameCamera = await import(pathToFileURL(repo + '/game-camera.js'));
+const summitDetail = await import(pathToFileURL(repo + '/summit-detail.js'));
 // Every square is painted: the field it is drawn as on the board, served as
 // four atlas sheets that the module lays out from the square numbers alone.
 assert.equal(rbIcons.SQUARE_ART.size, 104, 'every square has its field');
@@ -49,7 +50,7 @@ const textureRequests = [];
 const THREE = {...RealThree, TextureLoader: class {
   load(url, success, progress, failure) { textureRequests.push({url, success, failure}); }
 }};
-Object.assign(window, {createOfferingModels, OFFERING_ART, TOUR_NOTES, installViewportGestures}, surfaces, skyClouds, gameCamera, gamePlayers, gameSession, {
+Object.assign(window, {createOfferingModels, OFFERING_ART, TOUR_NOTES, installViewportGestures}, surfaces, skyClouds, gameCamera, gamePlayers, gameSession, summitDetail, {
   RB_SQUARES: rbBoard.SQUARES, RB_SPECIAL: rbBoard.SPECIAL, RB_START: rbBoard.START,
   RB_VICTORY: rbBoard.VICTORY, TRAP_QUOTA: rbBoard.TRAP_QUOTA, TRAP_QUOTA_NOTE64: rbBoard.TRAP_QUOTA_NOTE64,
   DIE_FACES: rbBoard.FACES, RB_BY_N: rbBoard.BY_N, createBoardLayer: rbBoard.createBoardLayer,
@@ -125,7 +126,7 @@ const app = await window.eval(`(async()=>{${source}\nreturn {
  setMandala, setMode, show, close, setOpen, startTour, visitHeap, endTour, orientOfferingCards,
  applyStep, playToggle, stepBy, pausePlay, resetPlay, applyTheme, setMotion,
  rbBoard, rbArt, rbGame:()=>rbGame, rbFocusWorld, rbFrameFocus, rbClearFocus,
- gameFocus:()=>gameFocus,
+ gameFocus:()=>gameFocus, reframeGame, rbOverviewBounds, SAMSARA_TOP,
  state:()=>({mandala,mode,touring,tourIndex,pStep,playing,current,motion,showHeapNumbers,lumSpin})
 };})()`);
 advance(1200);
@@ -635,8 +636,19 @@ const modelTop = (() => {
   return box.max.y;
 })();
 assert.ok(nirvana.position.y>modelTop,'and above the whole world system');
+const samsara = new THREE.Box3();
+app.world.traverse(o => {
+  if (o.isMesh && /^(heaven_|formless_)/.test(o.name)) samsara.expandByObject(o);
+});
+assert.equal(app.SAMSARA_TOP, samsara.max.y, 'Measure the ceiling from the actual rendered heavens');
+for (const square of rbBoard.SQUARES.filter(s => s.n >= 66 || [40,45,46,47,48,51].includes(s.n))) {
+  assert.ok(app.rbBoard.positionOf(square.n).y > samsara.max.y + 0.68 * 0.34,
+    square.name + ' stands clearly above the complete samsaric stack');
+}
+assert.ok(app.rbBoard.positionOf(84).y > Math.max(app.rbBoard.positionOf(91).y, app.rbBoard.positionOf(94).y),
+  'The live Akaniṣṭha Buddha-field marker clears both tenth stages after anchoring');
 for (const n of [103, 93]) {
-  assert.ok(nirvana.position.y>app.rbBoard.nodes.get(n).position.y*1.5,
+  assert.ok(nirvana.position.y-app.rbBoard.nodes.get(n).position.y>0.68*0.80,
     'well clear of square '+n+', which is still inside the round');
 }
 const nirvanaParts = []; nirvana.traverse(o=>{ if(o.isMesh) nirvanaParts.push(o); });
@@ -935,6 +947,20 @@ reduced = true;
 for (const size of [{w:1440,h:1000}, {w:390,h:844}, {w:844,h:390}]) {
   viewport = size; app.cam.aspect = size.w / size.h; app.cam.updateProjectionMatrix();
   window.dispatchEvent(new window.Event('resize')); advance(700);
+  app.reframeGame(0); advance(700);
+  const backdrop = stage._scene.getObjectByName('sky_backdrop');
+  const skyRadius = backdrop.geometry.parameters.radius * backdrop.scale.x;
+  assert.ok(skyRadius > app.cam.position.length(), 'Overview camera stays inside the sky');
+  assert.ok(app.cam.far > app.cam.position.length() + skyRadius, 'The entire backdrop stays inside the far plane');
+  const overviewRect = app.freeRect(), overview = app.rbOverviewBounds;
+  for (const x of [overview.min.x,overview.max.x]) for (const y of [overview.min.y,overview.max.y])
+    for (const z of [overview.min.z,overview.max.z]) {
+      const p = new THREE.Vector3(x,y,z).project(app.cam);
+      const px = (p.x+1)*size.w/2, py = (1-p.y)*size.h/2;
+      assert.ok(p.z > -1 && p.z < 1 && px >= overviewRect.x-overviewRect.w/2
+        && px <= overviewRect.x+overviewRect.w/2 && py >= overviewRect.y-overviewRect.h/2
+        && py <= overviewRect.y+overviewRect.h/2, 'Complete ascent fits the overview at '+size.w+'×'+size.h);
+    }
   for (const square of rbBoard.SQUARES) {
     app.rbFocusWorld('rebirth_sq_' + square.n); advance(700);
     assert.equal(q('.sheet').hidden,true,'the full entry folds away');
