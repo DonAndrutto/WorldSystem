@@ -201,6 +201,12 @@ The index runs from the ground up:
 
 ## The game of rebirth
 
+The game now opens with traveler selection and defaults to the Board view.
+Twelve male/female characters from six backgrounds, destination previews, direct token movement,
+board assembly transitions, pace controls and automatic local resume are
+described in [GAME-UI.md](GAME-UI.md). The Game menu also offers larger,
+scrollable squares and the move log.
+
 The third mode is a whole board of 104 squares beside the world it is a section
 through. It is the game attributed to Sakya Paṇḍita, from the 1977 English
 edition: the die names the square you go to rather than a number of steps, a
@@ -529,8 +535,8 @@ temporary visit does not overwrite the saved layout preference.
 
 `game-camera.js` contains the perspective fitting and exterior camera path.
 Compositions use the destination's region rather than the previous orbit angle.
-Underground focus clips the near half of the enclosing world layers; leaving
-the visit restores their original materials. Guided views stay still even when
+Underground focus uses a low view from the destination’s side. The world plate,
+seas and ranges remain intact; focusing never clips or replaces their materials. Guided views stay still even when
 world motion is enabled, and dragging cancels a flight. Reduced motion applies
 the final camera position immediately.
 
