@@ -210,8 +210,13 @@ check('reading a player does not hand them the die', () => {
   assert.equal(g.viewing, g.turn, 'the next throw brings the trail back to whoever holds the die');
 });
 
-check('the spiral rises in the board\'s order and closes on the axis', () => {
-  const ctx = { RIM: 1.5, FLOOR: -0.2, SUMMIT: 0.68 };
+// The ceiling is the top of the rendered samsaric stack, including the final
+// formless sphere. Live geometry is checked by mandala-regression.mjs.
+const worldContext = { RIM: 1.212415, FLOOR: -0.2, SUMMIT: 0.68, SAMSARA_TOP: 3.1298 };
+const position = (n, ctx = worldContext) => board.seamPosition(board.BY_N.get(n), ctx);
+
+check('the winding path stays finite and finishes on the axis', () => {
+  const ctx = worldContext;
   const at = SQUARES.map(s => ({ n: s.n, band: s.band, ...board.seamPosition(s, ctx) }));
   const radius = (p) => Math.hypot(p.x, p.z);
   const seen = new Set();
@@ -221,15 +226,10 @@ check('the spiral rises in the board\'s order and closes on the axis', () => {
     assert.ok(!seen.has(key), 'square ' + p.n + ' overlaps another');
     seen.add(key);
   }
-  // one continuous rise from below the golden ground to above the summit
-  for (let i = 1; i < at.length; i += 1) {
-    assert.ok(at[i].y > at[i - 1].y, 'square ' + at[i].n + ' stands above ' + at[i - 1].n);
-  }
-  assert.ok(at[0].y < 0, 'the first square is below the ground');
-  assert.ok(at[103].y > ctx.SUMMIT * 2, 'and the last is well above the summit');
-  // and one that winds, and closes in as it goes
+  assert.ok(at[0].y < ctx.FLOOR, 'the first square is below the ground');
+  assert.ok(at[103].y > ctx.SAMSARA_TOP, 'the last is beyond all samsaric heavens');
   let wound = 0, previous = Math.atan2(at[0].z, at[0].x);
-  for (const p of at.slice(1)) {
+  for (const p of at.slice(1, -1)) {
     const a = Math.atan2(p.z, p.x);
     let step = a - previous;
     if (step < -Math.PI) step += 2 * Math.PI;
@@ -237,10 +237,54 @@ check('the spiral rises in the board\'s order and closes on the axis', () => {
     wound += step;
     previous = a;
   }
-  assert.ok(Math.abs(wound / (2 * Math.PI) - board.SPIRAL.turns) < 0.05,
-    'it makes the turns it says it makes');
+  assert.ok(Math.abs(wound / (2 * Math.PI) - board.SPIRAL.turns) < 1e-9,
+    'the winding path makes the turns it says it makes');
   assert.ok(radius(at[0]) > ctx.RIM, 'the widest turn is outside the rim');
-  assert.ok(radius(at[103]) < radius(at[0]) * 0.3, 'and the last square is near the axis');
+  assert.ok(radius(at[102]) < radius(at[0]) * 0.3, 'the last acts draw near the axis');
+  assert.equal(radius(at[103]), 0, 'Nirvana closes the ascent on the axis');
+});
+
+check('realization rises in attainment order, including reversed printed sutra stages', () => {
+  const paths = [
+    [25, 33, 41, 42, 49, 50, 57, 58, 66, 73, 74, 75, 81, 82, 83, 89, 90, 91],
+    [38, 39, 40, 51],
+    [43, 44, 45, 46, 47, 48],
+    [52, 53, 54, 55, 56, 63, 64, 71, 80, 79, 78, 88, 87, 86, 96, 95, 94],
+    [91, 84, 93, 92, 97, 98, 99, 100, 101, 102, 103, 104],
+    [94, 84, 93, 92, 97, 98, 99, 100, 101, 102, 103, 104]
+  ];
+  for (const path of paths) for (let i = 1; i < path.length; i++) {
+    assert.ok(position(path[i]).y > position(path[i - 1]).y,
+      board.BY_N.get(path[i]).name + ' rises above ' + board.BY_N.get(path[i - 1]).name);
+  }
+});
+
+check('advanced realization and Buddha fields clear the whole samsaric stack even when it grows', () => {
+  const attained = [40, 45, 46, 47, 48, 51, 66, 71, 73, 74, 75, 78, 79, 80,
+    81, 82, 83, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104];
+  const fields = SQUARES.filter(s => s.cat === 'Buddha fields').map(s => s.n);
+  for (const ceiling of [worldContext.SAMSARA_TOP, worldContext.SAMSARA_TOP * 1.6]) {
+    const ctx = { ...worldContext, SAMSARA_TOP: ceiling };
+    for (const n of new Set([...attained, ...fields])) {
+      assert.ok(position(n, ctx).y >= ceiling + ctx.SUMMIT * 0.35,
+        n + ' remains visibly above all samsaric heavens at ceiling ' + ceiling);
+    }
+    assert.equal(position(24, ctx).y, position(24).y, 'human approach does not move with heavens');
+    assert.ok(position(104, ctx).y - position(103, ctx).y > ctx.SUMMIT * 0.8,
+      'Nirvana remains clear of the final act and its artwork');
+  }
+});
+
+check('the upper spire leaves space for its billboard artwork', () => {
+  const loose = SQUARES.filter(s => !s.anchor && s.n !== VICTORY);
+  // Bounding spheres around the square paintings must not intersect even
+  // when billboarding turns the planes toward another camera angle.
+  const diameter = worldContext.SUMMIT * 0.145 * Math.SQRT2;
+  for (let i = 0; i < loose.length; i++) for (const b of loose.slice(i + 1)) {
+    const a = loose[i], pa = position(a.n), pb = position(b.n);
+    const separation = Math.hypot(pa.x - pb.x, pa.y - pb.y, pa.z - pb.z);
+    assert.ok(separation > diameter, a.n + ' and ' + b.n + ' artwork have distinct space');
+  }
 });
 
 console.log('\n' + checks + ' checks passed.');

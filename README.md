@@ -230,7 +230,7 @@ Three arrangements of the same game, switched from the rail or cycled with `b`:
 
 - **Both** — the board beside the world it is a section through.
 - **World** — the model alone, with only the throw kept, framed to hold the
-  whole round from the hells below the ground to the last act above the summit.
+  whole ascent from the hells below the ground to Nirvana above the realization spire.
 - **Board** — the game as a plain diagram of positions, with no model behind it:
   the same board read in two dimensions instead of three.
 
@@ -255,18 +255,23 @@ sit on this model at all. Its row is height above or below the golden ground;
 its two columns of paths separate the tantric route from the route of the
 sūtras. Twenty-one squares name something this drawing already builds — the
 hot and cold hells, the four continents, the six heavens of sense desire, the
-Formless Realm, Akaniṣṭha — and their markers float above the existing
-geometry rather than duplicating it.
+Formless Realm, Akaniṣṭha — and their markers align with the existing
+geometry. The game’s Akaniṣṭha Buddha field shares the heaven’s horizontal
+axis but rises above the tenth stages; the samsaric heaven stays in place.
 
 The other eighty-three have no coordinate here, and could not have one. They are
 paths, stages of training, wisdom-holder attainments, sacred lands and Buddha
 fields, and the sources are explicit that Buddha fields lie outside the Meru
 world system. **These are the destinations that exist only in game mode.**
 
-They stand on one rising spiral, read in the board's own order: square 1 below
-the golden ground at the widest turn, square 104 on the axis above the summit,
-and the hundred and two between them winding up and inward over three and a
-quarter turns. Nothing in the Meru system has that shape — it is the board's
+They stand on one rising spiral: square 1 below the golden ground at the
+widest turn, square 104 on the axis above the whole ascent, and the hundred
+and two between them winding inward over three and a quarter turns. The angle
+follows the printed board; height follows attainment, including the sūtra
+stages whose square numbers run backwards. Realization clears the measured
+top of all samsaric heavens and formless emblems, so taller world geometry
+cannot overtake the upper path. These are symbolic positions, not physical
+altitudes of spiritual attainment. Nothing in the Meru system has that shape — it is the board's
 shape, not the world's, which is why it is drawn as a path through the world
 rather than as part of it. How far each square stands off the spiral still says
 which route it belongs to, so the two ascents remain separable by eye. Every
@@ -373,7 +378,8 @@ Nirvana is not the last square of the round but the one outside it. It is drawn
 outside the model to match: on the axis, clear above the formless absorptions
 and above everything else the world system builds, as open rings rather than
 anything to stand on. Its cell on the board is set apart in gold. The camera
-opens far enough to hold it only when it is the square in hand.
+includes it in the game overview. Focus here still frames an individual
+destination together with Meru.
 
 ### How the fields are served
 
@@ -554,6 +560,7 @@ node tests/mandala-regression.mjs
 node tests/rebirth-regression.mjs
 node tests/viewport-gestures.mjs
 node tests/world-surfaces.mjs
+node tests/summit-detail.mjs
 node tests/offline.mjs
 ```
 
@@ -563,6 +570,13 @@ texture UVs, loading/retry behavior, keyboard controls and restoration of the
 world view.
 Canvas/GPU rendering, texture delivery and browser layout have test substitutes.
 A passing result does not establish actual WebGL appearance or device usability.
+
+The summit detail uses the existing pigments and selectable entries for four
+roofed gates, corner pavilions, lattice windows, roof ribs, stairs, parapets
+and planted gardens. These are illustrative additions to the drawing. Repeated
+ornament is merged into 20 meshes (31,264 triangles), with no new textures.
+The shared heaven palaces also have open colonnades and curved roofs.
+The summit checks cover finite geometry, bounded cost and open gate arches.
 
 The surface checks cover closed geometry seams, range separation, height and
 wave limits, and the shared ripple texture. They do not render the GPU scene.
