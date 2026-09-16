@@ -1555,6 +1555,7 @@
     58%, 100% { transform: rotate(90deg); }
   }
 </style>
+<link rel="stylesheet" href="game-ui.css">
 </head>
 <body>
 
@@ -1652,7 +1653,9 @@
         <span class="nm"></span>
         <span class="tb" lang="bo"></span>
         <span class="note"></span>
+        <p class="bv-card-context"></p><div class="bv-summary" hidden></div>
         <div class="bv-card-acts">
+          <button class="btn bv-again" type="button" data-game="ask-new" hidden>Play again</button>
           <button class="btn go bv-card-go" type="button" data-game="card-throw">Continue</button>
           <button class="btn bv-card-world" type="button" data-game="card-world">Show in world</button>
           <button class="btn bv-card-more" type="button" data-game="card-entry">Read the full entry</button>
@@ -1662,7 +1665,7 @@
     <div class="bv-rail card">
       <div class="die-face" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
       <div class="bv-act">
-        <p class="bv-turn" aria-hidden="true"></p>
+        <p class="bv-turn"></p>
         <button class="btn go" type="button" data-game="throw">Throw</button>
       </div>
       <div class="bv-mid">
@@ -1677,6 +1680,13 @@
         <button class="btn" type="button" data-layout="both" aria-pressed="true" title="Board and world together"><span class="g">◫</span><span class="t">Both</span></button>
         <button class="btn" type="button" data-layout="world" aria-pressed="false" title="The world alone, in three dimensions"><span class="g">◉</span><span class="t">World</span></button>
       </div>
+      <button class="btn bv-skip" type="button" data-game="skip" hidden>Skip animation</button>
+      <details class="bv-options"><summary class="btn" title="The six possible destinations for this turn">Destinations</summary><div class="bv-options-body card"></div></details>
+      <details class="bv-tools"><summary class="btn">Game</summary><div class="bv-tools-body card">
+      <label>Animation pace <select id="g-pace"><option value="calm">Calm</option><option value="quick">Quick</option><option value="instant">Instant</option></select></label>
+      <label class="sw"><input type="checkbox" id="g-large-board"> Larger board squares (scroll)</label>
+      <p class="bv-save" role="status"></p>
+      <p>Throw the die to follow its destination. A missing destination means stay and pass. In a trap, collect the required faces; a needed face gives another throw. Reach 104 to win.</p>
       <button class="btn bv-new" type="button" data-game="ask-new" title="Start a new game — asks first">New game</button>
       <details class="bv-more">
         <summary class="btn" title="Every throw of this game, in order">Move log</summary>
@@ -1684,12 +1694,13 @@
           <ul class="feed"></ul>
         </div>
       </details>
+      </div></details>
       <button class="btn bv-swap" type="button" data-game="swap" title="Show the world — w">Show the world</button>
     </div>
 
     <div class="bv-ask" role="dialog" aria-modal="true" aria-labelledby="bv-ask-title" hidden>
       <form class="bv-ask-in card" method="dialog">
-        <h2 id="bv-ask-title">A new game</h2>
+        <h2 id="bv-ask-title">Choose your travelers</h2><p>Choose a name, character and colour for each player. Everyone starts on 24. The die names a destination, not a number of steps.</p>
         <p class="bv-ask-warn" hidden>The game in play will be lost.</p>
         <div class="bv-setup">
           <label for="g-players">Players</label>
@@ -1825,6 +1836,8 @@ import { createGame, throwDie, view as rbView, destination as rbDestination } fr
 import { SQUARE_NOTES, SQUARE_FULL } from './rebirth-notes.js';
 import { SQUARE_ART, cellBackground, createSquareArt, LIBERATION_ART } from './rebirth-icons.js';
 import { createSoundKit, voiceFor as rbVoice } from './rebirth-sound.js';
+import { PLAYER_SKINS, PLAYER_CULTURES, normalizeSkin, PLAYER_PALETTE, paintPlayer, createPlayerArt } from './game-players.js';
+import { SESSION_KEY, makeSession, restoreSession, possibleThrows } from './game-session.js';
 import { composeGameFocus, orbitFlightPoint } from './game-camera.js';
 const stage = document.querySelector('three-d-stage');
 /* Everything below this line is built on three.js, and three.js arrives over
@@ -5988,6 +6001,10 @@ function positionOfEntry(id) {
 }
 
 let rbGame = createGame({ players: 2 });
+let rbSession = null, rbEvents = [], rbPending = null;
+const rbPlayerArt = createPlayerArt(THREE, rbBoard.tokens, SUMMIT, () => invalidate(3));
+const rbEscape = value => String(value).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
 const rbDie = boardEl.querySelector('.die-face');
 const rbSay = boardEl.querySelector('.bv-say');
 /* What the board says before anything has happened, and says again whenever a
@@ -6024,6 +6041,7 @@ for (let row = 12; row >= 0; row -= 1) {
     cell.className = 'bv-sq';
     cell.style.setProperty('--zone', 'var(--z-' + rbZoneOf(sq) + ')');
     cell.dataset.square = String(sq.n);
+    cell.style.setProperty('--tile-delay', (12 - row) * 16 + 'ms');
     cell.setAttribute('role', 'gridcell');
     const tib = rbTibetan(sq.n);
     cell.title = sq.n + ' · ' + sq.name + (tib ? ' · ' + tib : '');
@@ -6104,6 +6122,7 @@ function rbLog(html) {
 }
 function rbPlaceToken() {
   rbBoard.placeTokens(rbGame.players, rbGame.turn);
+  rbPlayerArt.sync(rbGame.players);
   invalidate(3);
 }
 /* One selection, shared: the lit cell, the open entry and the tinted marker in
@@ -6118,6 +6137,7 @@ function rbLight() {
 }
 function rbSelect(n, moveCamera) {
   rbSelected = n;
+  if (boardEl.classList.contains('large-squares')) rbCells.get(n)?.scrollIntoView?.({ block: 'nearest', inline: 'nearest' });
   rbCells.forEach((cell, sq) => cell.setAttribute('aria-selected', String(sq === n)));
   // the squares this one's faces lead to, drawn and lit on the board
   const reached = new Set(rbBoard.showLinks(n));
@@ -6174,6 +6194,8 @@ function rbSyncChips() {
     const player = rbGame.players[i];
     chip.el.hidden = !player;
     if (!player) return;
+    chip.el.style.setProperty('--pc', PLAYER_PALETTE[player.colour]);
+    paintPlayer(chip.el.querySelector('b'), player);
     const line = player.name + '\u2002' + player.pos;
     if (line !== chip.was) {
       chip.el.querySelector('.who').textContent = player.name;
@@ -6203,7 +6225,7 @@ function rbPlaceChips() {
     if (!player) return;
     const at = rbBoard.positionOf(player.pos);
     if (!at) { chip.el.style.visibility = 'hidden'; return; }
-    NDC.set(at.x, at.y + SUMMIT * 0.42, at.z).project(cam);
+    NDC.set(at.x, at.y + SUMMIT * 0.34, at.z).project(cam);
     if (NDC.z >= 1) { chip.el.style.visibility = 'hidden'; return; }
     let x = (NDC.x * 0.5 + 0.5) * w, y = (-NDC.y * 0.5 + 0.5) * h;
     // the board and any open panel are drawn over the canvas; stay clear
@@ -6240,20 +6262,19 @@ function rbSyncTokens() {
   rbCells.forEach((cell, n) => {
     const box = cell.querySelector('.bv-toks');
     const on = here.get(n) || [];
-    if (box.childElementCount === on.length
-        && on.every((p, i) => box.children[i].dataset.p === String(p.i))) return;
+
     /* the field itself takes the colour of whoever is standing on it, so a
        token can be found on a board of a hundred and four thumbnails */
     cell.classList.toggle('held', on.length > 0);
-    cell.style.setProperty('--pc', on.length ? RB_COLOURS[on[0].i] : 'transparent');
+    cell.style.setProperty('--pc', on.length ? PLAYER_PALETTE[on[0].colour] : 'transparent');
     cell.style.setProperty('--pc-2',
-      RB_COLOURS[(on[1] || on[0] || {}).i] || 'transparent');
+      PLAYER_PALETTE[(on[1] || on[0] || {}).colour] || 'transparent');
     box.textContent = '';
     on.forEach((p) => {
       const dot = document.createElement('span');
       dot.className = 'bv-tok' + (p.i === rbGame.turn && !rbGame.over ? ' turn' : '');
       dot.dataset.p = String(p.i);
-      dot.style.background = RB_COLOURS[p.i];
+      paintPlayer(dot, p);
       dot.title = p.name;
       box.appendChild(dot);
     });
@@ -6269,7 +6290,8 @@ function rbSyncWho() {
     tab.setAttribute('aria-current', String(p.i === rbGame.viewing));
     tab.title = p.name + ' on ' + rbNamed(p.pos);
     tab.innerHTML = '<span class="pip-dot"></span><span class="short"></span><span class="full"></span>';
-    tab.querySelector('.pip-dot').style.background = RB_COLOURS[p.i];
+    paintPlayer(tab.querySelector('.pip-dot'), p);
+    tab.classList.toggle('turn', p.i === rbGame.turn && !rbGame.over);
     tab.querySelector('.short').textContent = p.name + ' · ' + p.pos;
     tab.querySelector('.full').textContent = rbCalled(p.pos);
     tab.querySelector('.full').lang = rbTib && rbTibetan(p.pos) ? 'bo' : 'en';
@@ -6279,8 +6301,9 @@ function rbSyncWho() {
 /* Reading another player's trail must not hand them the die. */
 rbWho.addEventListener('click', (ev) => {
   const tab = ev.target.closest('[data-player]');
-  if (!tab) return;
+  if (!tab || rbRolling) return;
   rbView(rbGame, Number(tab.dataset.player));
+  rbSelect(rbGame.players[rbGame.viewing].pos, false);
   rbSync();
 });
 function rbSyncTrail() {
@@ -6326,6 +6349,8 @@ function rbSync() {
   rbSyncChips();
   rbPlaceToken();
   rbLight();
+  rbSyncOptions();
+  boardEl.querySelector('.bv-skip').hidden = !rbRolling;
 }
 /* The five boxes of recent faces are gone. They said what the move log says,
    and less than the trail beside them says — the trail is every throw with
@@ -6337,7 +6362,7 @@ function rbSync() {
    you have asked the question. This one runs for a couple of seconds, ticking
    and slowing, shows nothing of the result until it stops, and then says
    where you have arrived in letters large enough to read across a room. */
-const RB_TUMBLE_MS = 2300, RB_TUMBLE_TICKS = 17, RB_CARD_OUT_MS = 300;
+const RB_TUMBLE_MS = 1800, RB_TUMBLE_TICKS = 6, RB_CARD_OUT_MS = 300;
 let rbRolling = false, rbTumbleTimer = null, rbCardTimer = null, rbCardSquare = null;
 const rbCard = boardEl.querySelector('.bv-card');
 const rbCardArt = rbCard.querySelector('.bv-card-art');
@@ -6359,6 +6384,11 @@ function rbShowCard(face, title, name, note, closing) {
   rbCard.querySelector('.nm').textContent = name === null ? '' : RB_BY_N.get(name).name;
   rbCard.querySelector('.tb').textContent = name === null ? '' : rbTibetan(name);
   rbCard.querySelector('.note').textContent = note || '';
+  rbCard.querySelector('.bv-card-context').innerHTML = name === null ? '' : (SQUARE_NOTES[name] || '');
+  const summary = rbCard.querySelector('.bv-summary');
+  summary.hidden = !rbGame.over;
+  summary.textContent = rbGame.over ? rbGame.players.map(p => p.name + ': ' + rbEvents.filter(e => e.player === p.i).length + ' throws, ' + p.history.length + ' journeys').join(' · ') : '';
+  rbCard.querySelector('.bv-again').hidden = !rbGame.over;
   const art = name === null ? null : SQUARE_ART.get(name);
   if (art) {
     const where = cellBackground(art);
@@ -6382,10 +6412,11 @@ function rbShowCard(face, title, name, note, closing) {
   if (!spent) {
     const next = rbGame.players[rbGame.turn];
     const label = rbGame.over ? 'the stupa throw' : 'for ' + next.name;
+    rbCardGo.textContent = rbGame.over ? 'Stupa throw' : 'Throw for ' + next.name;
     rbCardGo.title = 'Throw ' + label;
     rbCardGo.setAttribute('aria-label', 'Continue — throw ' + label);
   }
-  rbCardActs.hidden = rbCardMore.hidden && rbCardGo.hidden;   // the last card asks nothing
+  rbCardActs.hidden = false;   // the last card asks nothing
   rbCard.hidden = false;
 }
 /* The card stays until it is answered — by the throw it offers, by the entry
@@ -6431,7 +6462,7 @@ document.addEventListener('click', (ev) => {
 // Walk the faces the die is not going to land on, so the answer never shows early.
 function rbTumble(final, done) {
   const others = [1, 2, 3, 4, 5, 6].filter((f) => f !== final);
-  const at = (k) => Math.round(RB_TUMBLE_MS * (1 - Math.pow(1 - k / RB_TUMBLE_TICKS, 2.3)));
+  const at = (k) => Math.round(RB_TUMBLE_MS * Math.pow(k / RB_TUMBLE_TICKS, 1.3));
   rbDie.classList.add('tumbling');
   let i = 0;
   const step = () => {
@@ -6439,11 +6470,14 @@ function rbTumble(final, done) {
     if (i >= RB_TUMBLE_TICKS) {
       rbDie.classList.remove('tumbling');
       rbSetDie(final);
+      rbPreviewFace(final);
       RB_SOUND.land();
       done();
       return;
     }
-    rbSetDie(others[i % others.length]);
+    const shown = others[i % others.length];
+    rbSetDie(shown);
+    rbPreviewFace(shown);
     RB_SOUND.dice(i / RB_TUMBLE_TICKS);
     rbTumbleTimer = setTimeout(step, at(i + 1) - at(i));
   };
@@ -6452,16 +6486,41 @@ function rbTumble(final, done) {
 function rbThrow() {
   if (rbRolling || rbGame.over && rbGame.stupa !== null) return;
   rbClearFocus();
-  const face = 1 + Math.floor(Math.random() * 6);
   rbHideCard();
-  if (reducedMotion()) { rbSetDie(face); rbResolve(face); return; }
+  boardEl.querySelector('.bv-tools').open = false;
+  rbSession ||= makeSession(rbGame);
+  rbPending = 1 + Math.floor(Math.random() * 6);
+  rbSession.pending = rbPending;
+  rbSave();
+  rbRollOptions = possibleThrows(rbGame);
+  rbSay.setAttribute('aria-live', 'off');
+  if (rbInstant()) { rbFinishThrow(); return; }
   rbRolling = true;
   rbSync();
-  rbTumble(face, () => { rbRolling = false; rbResolve(face); });
+  if (rbPace.value === 'quick') {
+    rbSetDie(rbPending); rbPreviewFace(rbPending);
+    rbTumbleTimer = setTimeout(() => rbFinishThrow(true), 350);
+  } else rbTumble(rbPending, () => { rbTumbleTimer = setTimeout(() => rbFinishThrow(true), 300); });
 }
-function rbResolve(face) {
-  const who = rbGame.players[rbGame.turn].name;
+function rbFinishThrow(animate = false) {
+  clearTimeout(rbTumbleTimer);
+  rbDie.classList.remove('tumbling');
+  if (rbPending === null) { rbFinishMovement(); return; }
+  const face = rbPending;
+  rbPending = null; rbRolling = false;
+  rbSetDie(face); rbClearPreview();
+  rbSay.setAttribute('aria-live', 'polite');
+  rbResolve(face, animate);
+}
+function rbResolve(face, animate = true) {
+  const player = rbGame.players[rbGame.turn], who = rbEscape(player.name);
+  const oldWorld = rbBoard.tokens[player.i].position.clone();
+  const oldRect = rbCells.get(player.pos).getBoundingClientRect();
   const ev = throwDie(rbGame, face);
+  rbEvents.push(ev);
+  rbSession ||= makeSession(rbGame);
+  rbSession.rolls.push(face); rbSession.pending = null;
+  rbSave();
   if (ev.kind === 'stupa') {
     rbSay.innerHTML = ev.placed ? '<b>The relics pass into the stupa.</b> A rite after the fact; it settles nothing.'
                                 : '<b>Nothing follows.</b> The victory already stands.';
@@ -6487,32 +6546,33 @@ function rbResolve(face) {
     RB_SOUND.arrive(ev.to, ev.from);
     rbShowCard(face, 'Out of the trap', ev.to, 'The checklist is complete.');
     rbFlash(ev.to);
-    rbSelect(ev.to, true);
+    rbSelect(ev.to, false);
   } else if (ev.kind === 'trapped') {
     rbSay.innerHTML = '<b>' + RB_BY_N.get(ev.to).name + '.</b> A trap. Counting begins next turn.';
     rbLog('<span class="mono">' + face + '</span> ' + who + ' ' + ev.from + ' → ' + ev.to);
     RB_SOUND.arrive(ev.to, ev.from);
     rbShowCard(face, 'Trapped', ev.to, 'Counting begins next turn.');
     rbFlash(ev.to);
-    rbSelect(ev.to, true);
+    rbSelect(ev.to, false);
   } else if (ev.kind === 'victory') {
-    rbSay.innerHTML = '<b>' + rbGame.players[ev.player].name + ' reaches Nirvana.</b> Victory is declared on arrival. A further 1 or 2 passes the relics into the stupa.';
+    rbSay.innerHTML = '<b>' + rbEscape(rbGame.players[ev.player].name) + ' reaches Nirvana.</b> Victory is declared on arrival. A further 1 or 2 passes the relics into the stupa.';
     rbLog('<span class="mono">' + face + '</span> ' + who + ' wins at 104');
     RB_SOUND.arrive(ev.to, ev.from);
     rbShowCard(face, rbGame.players[ev.player].name + ' wins', ev.to,
       'Nirvana. Beyond the round the rest of the board draws.', true);
     rbFlash(ev.to);
-    rbSelect(ev.to, true);
+    rbSelect(ev.to, false);
   } else {
     rbSay.innerHTML = '<b>' + who + '</b> threw a ' + face + ': '
       + ev.from + ' &rarr; ' + ev.to + ', ' + RB_BY_N.get(ev.to).name + '.';
     rbLog('<span class="mono">' + face + '</span> ' + who + ' ' + ev.from + ' → ' + ev.to);
     RB_SOUND.arrive(ev.to, ev.from);
-    rbShowCard(face, who + ' threw a ' + face, ev.to, null);
+    rbShowCard(face, player.name + ' threw a ' + face, ev.to, null);
     rbFlash(ev.to);
-    rbSelect(ev.to, true);
+    rbSelect(ev.to, false);
   }
   rbSync();
+  if (animate && ev.to && ev.from !== ev.to && !rbInstant() && mode === 'game') rbAnimateMove(player, oldRect, oldWorld);
 }
 /* ── beginning again ────────────────────────────────────────────────────
    A game can be abandoned at any moment, and abandoning one by accident is
@@ -6522,43 +6582,82 @@ function rbResolve(face) {
 const rbAsk = boardEl.querySelector('.bv-ask');
 const rbNames = boardEl.querySelector('.bv-names');
 const rbPlayerCount = boardEl.querySelector('#g-players');
-const rbInPlay = () => rbGame.players.some((p) => p.history.length) || rbGame.over;
+const rbInPlay = () => rbEvents.length > 0 || rbPending !== null || rbGame.over;
 
 // A name the player never gave is not a name to carry forward.
 const rbGivenName = (p, i) => (p && p.name !== 'Player ' + (i + 1) ? p.name : '');
 
+let rbDraft = [];
 function rbNameFields(prefill) {
   const wanted = Number(rbPlayerCount.value);
   rbNames.textContent = '';
   for (let i = 0; i < wanted; i += 1) {
-    const row = document.createElement('label');
-    const dot = document.createElement('span');
-    dot.className = 'pip-dot';
-    dot.style.background = RB_COLOURS[i];
-    const field = document.createElement('input');
-    field.type = 'text';
-    field.maxLength = 24;
-    field.dataset.player = String(i);
-    field.placeholder = 'Player ' + (i + 1);
-    field.value = prefill[i] || '';
-    row.append(dot, field);
+    rbDraft[i] ||= { skin: normalizeSkin(null, i), colour: i };
+    const row = document.createElement('fieldset');
+    row.className = 'bv-person';
+    row.innerHTML = '<legend>Player ' + (i + 1) + '</legend><label>Name <input type="text" maxlength="24" data-player="' + i + '" placeholder="Player ' + (i + 1) + '"></label>'
+      + '<label>Colour <select class="player-colour">' + ['Rust', 'Teal', 'Gold', 'Plum'].map((c, n) => '<option value="' + n + '">' + c + '</option>').join('') + '</select></label><label class="player-origin">Background <select class="player-culture">' + PLAYER_CULTURES.map(c => '<option>' + c + '</option>').join('') + '</select></label><div class="player-choices" role="group" aria-label="Character for player ' + (i + 1) + '"></div>';
+    row.querySelector('input').value = prefill[i] || '';
+    const colour = row.querySelector('select');
+    colour.value = String(rbDraft[i].colour);
+    colour.addEventListener('change', () => { rbDraft[i].colour = Number(colour.value); });
+    const culture = row.querySelector('.player-culture');
+    culture.value = PLAYER_SKINS.find(s => s.id === rbDraft[i].skin).culture;
+    const choices = row.querySelector('.player-choices');
+    const renderChoices = () => {
+      choices.textContent = '';
+      PLAYER_SKINS.filter(s => s.culture === culture.value).forEach(skin => {
+        const button = document.createElement('button');
+        button.type = 'button'; button.className = 'player-choice';
+        button.setAttribute('aria-label', skin.name); button.title = skin.name;
+        button.setAttribute('aria-pressed', String(skin.id === rbDraft[i].skin));
+        const art = document.createElement('span'); paintPlayer(art, { skin: skin.id, i });
+        art.setAttribute('aria-hidden', 'true'); button.appendChild(art);
+        const caption = document.createElement('span'); caption.className = 'player-choice-caption';
+        caption.textContent = skin.gender === 'male' ? 'Male' : 'Female'; button.appendChild(caption);
+        button.addEventListener('click', () => {
+          rbDraft[i].skin = skin.id;
+          choices.querySelectorAll('.player-choice').forEach(b => b.setAttribute('aria-pressed', String(b === button)));
+        });
+        choices.appendChild(button);
+      });
+    };
+    culture.addEventListener('change', () => {
+      const gender = PLAYER_SKINS.find(s => s.id === rbDraft[i].skin).gender;
+      rbDraft[i].skin = culture.value.toLowerCase() + '-' + gender;
+      renderChoices();
+    });
+    renderChoices();
     rbNames.appendChild(row);
   }
 }
 function rbAskNew() {
+  close(); setOpen(false);
+  rbFinishThrow();
+  rbHideCard();
+  boardEl.querySelector('.bv-tools').open = false;
+  rbDraft = rbGame.players.map(p => ({ skin: p.skin, colour: p.colour }));
+  boardEl.querySelector('#g-note64').checked = rbGame.quotas.six === TRAP_QUOTA_NOTE64.six;
   rbAsk.querySelector('.bv-ask-warn').hidden = !rbInPlay();
+  rbAsk.querySelector('[data-game="cancel-new"]').textContent = rbSession ? 'Keep playing' : 'Use defaults';
   rbPlayerCount.value = String(rbGame.players.length);
   // whoever is playing now, so the usual case is New game then Start
   rbNameFields(rbGame.players.map(rbGivenName));
   rbAsk.hidden = false;
+  rbGrid.inert = true; boardEl.querySelector('.bv-rail').inert = true; controlsEl.inert = true;
   const first = rbNames.querySelector('input');
   if (first) first.focus();
 }
 function rbCloseAsk() {
   rbAsk.hidden = true;
+  rbGrid.inert = false; boardEl.querySelector('.bv-rail').inert = false; controlsEl.inert = false;
+  try { localStorage.setItem('ws-game-onboarded', '1'); } catch {}
   rbThrowBtn.focus();
 }
 function rbReset() {
+  rbFinishMovement();
+  rbClearPreview();
+  rbPending = null;
   rbClearFocus();
   clearTimeout(rbTumbleTimer);
   rbDie.classList.remove('tumbling');
@@ -6567,8 +6666,11 @@ function rbReset() {
   rbGame = createGame({
     players: Number(rbPlayerCount.value),
     names: [...rbNames.querySelectorAll('input')].map((i) => i.value),
+    skins: rbDraft.map(p => p.skin), colours: rbDraft.map(p => p.colour),
     quotas: boardEl.querySelector('#g-note64').checked ? TRAP_QUOTA_NOTE64 : TRAP_QUOTA
   });
+  rbSession = makeSession(rbGame); rbEvents = []; rbSave();
+  rbPlayerArt.load(rbGame.players);
   rbSetDie(1);
   rbFeed.textContent = '';
   rbSay.innerHTML = RB_OPENING;
@@ -6580,6 +6682,7 @@ boardEl.addEventListener('click', (ev) => {
   if (layout) { rbLayout(layout.dataset.layout); return; }
   const b = ev.target.closest('[data-game]');
   if (!b) return;
+  if (b.dataset.game === 'skip') rbFinishThrow();
   if (b.dataset.game === 'throw') rbThrow();
   if (b.dataset.game === 'ask-new') rbAskNew();
   if (b.dataset.game === 'cancel-new') rbCloseAsk();
@@ -6621,6 +6724,145 @@ function rbSwap(to) {
    whole screen to the model and keeps only the throw. Board is the game as a
    plain diagram of positions, with no model behind it — the same game read in
    two dimensions instead of three. The choice is kept between visits. */
+// Presentation never chooses a second result. Skip, navigation and backgrounding
+// all finish the one durable pending throw before clearing visual state.
+const rbPace = boardEl.querySelector('#g-pace');
+const rbLargeBoard = boardEl.querySelector('#g-large-board');
+rbLargeBoard.addEventListener('change', () => {
+  boardEl.classList.toggle('large-squares', rbLargeBoard.checked);
+  if (rbLargeBoard.checked) rbCells.get(rbSelected)?.scrollIntoView?.({ block: 'center', inline: 'center' });
+});
+let rbOnboarded = false, rbRollOptions = [], rbMovement = null;
+let rbTransitionTimer = null, rbTransitionGhost = null, rbLayoutTimer = null;
+const rbMenus = [...boardEl.querySelectorAll('.bv-tools,.bv-options')];
+rbMenus.forEach(menu => menu.addEventListener('toggle', () => { if (menu.open) rbMenus.forEach(other => { if (other !== menu) other.open = false; }); }));
+document.addEventListener('pointerdown', ev => rbMenus.forEach(menu => { if (!menu.contains(ev.target)) menu.open = false; }));
+try { rbPace.value = localStorage.getItem('ws-game-pace') || 'calm'; } catch {}
+if (!['calm', 'quick', 'instant'].includes(rbPace.value)) rbPace.value = 'calm';
+const rbInstant = () => reducedMotion() || rbPace.value === 'instant';
+rbPace.addEventListener('change', () => {
+  rbFinishThrow(); rbCancelTransition();
+  try { localStorage.setItem('ws-game-pace', rbPace.value); } catch {}
+});
+function rbSave() {
+  if (!rbSession) return;
+  const status = boardEl.querySelector('.bv-save');
+  try { localStorage.setItem(SESSION_KEY, JSON.stringify(rbSession)); status.textContent = 'Saved on this device.'; }
+  catch { status.textContent = 'Saving is unavailable. Keep this tab open to continue this game.'; }
+}
+function rbRestore() {
+  let raw;
+  try { raw = localStorage.getItem(SESSION_KEY); rbOnboarded = localStorage.getItem('ws-game-onboarded') === '1'; } catch {}
+  if (!raw) return;
+  const restored = restoreSession(raw);
+  if (!restored) { boardEl.querySelector('.bv-save').textContent = 'The saved game could not be read. Start a new game.'; return; }
+  rbGame = restored.game; rbSession = restored.session; rbEvents = restored.events;
+  rbEvents.slice(-60).forEach(e => {
+    rbLog(rbEscape(rbGame.players[e.player].name) + ' · ' + (DIE_FACES.indexOf(e.face) + 1)
+      + ' · ' + (e.to ? e.from + ' → ' + e.to : e.kind.replaceAll('-', ' ')));
+  });
+  rbSay.textContent = 'Game resumed. ' + rbGame.players[rbGame.turn].name + (rbGame.over ? ' reached Nirvana.' : ' has the die.')
+    + (restored.recovered ? ' The interrupted throw has been completed.' : '');
+  rbSave();
+}
+function rbSyncOptions() {
+  const box = boardEl.querySelector('.bv-options-body');
+  box.textContent = '';
+  if (rbGame.over && rbGame.stupa !== null) { box.textContent = 'The game is complete. Start a new game to play again.'; return; }
+  possibleThrows(rbGame).forEach(option => {
+    const button = document.createElement('button');
+    button.type = 'button'; button.className = 'bv-option';
+    button.dataset.face = String(DIE_FACES.indexOf(option.face) + 1);
+    button.textContent = button.dataset.face + ' → ' + (option.label || rbNamed(option.target));
+    if (option.target) {
+      button.title = rbNamed(option.target);
+      button.addEventListener('click', () => { boardEl.querySelector('.bv-options').open = false; show('rebirth_sq_' + option.target, true); });
+    } else button.disabled = true;
+    box.appendChild(button);
+  });
+}
+function rbClearPreview() {
+  rbCells.forEach(cell => cell.classList.remove('roll-option'));
+  boardEl.querySelectorAll('.bv-option').forEach(el => el.classList.remove('roll-option'));
+  rbLight();
+}
+function rbPreviewFace(face) {
+  rbClearPreview();
+  const option = rbRollOptions[face - 1];
+  if (!option) return;
+  if (option.target) {
+    rbCells.get(option.target)?.classList.add('roll-option');
+    rbBoard.showActive([...rbGame.players.map(p => p.pos), option.target]);
+    rbArt.showActive([...rbGame.players.map(p => p.pos), option.target]);
+  }
+  boardEl.querySelector('.bv-option[data-face="' + face + '"]')?.classList.add('roll-option');
+  rbSay.textContent = 'Die ' + face + ' → ' + (option.label || rbNamed(option.target));
+  invalidate(2);
+}
+function rbAnimateMove(player, oldRect, oldWorld) {
+  rbFinishMovement();
+  const token = rbBoard.tokens[player.i], end = token.position.clone();
+  const rect = rbCells.get(player.pos).getBoundingClientRect();
+  const ghost = document.createElement('span'); ghost.className = 'bv-traveling';
+  paintPlayer(ghost, player); ghost.setAttribute('aria-hidden', 'true');
+  if (oldRect.width && rect.width && rbView3D !== 'world') document.body.appendChild(ghost);
+  const destinationToken = rbCells.get(player.pos).querySelector('[data-p="' + player.i + '"]');
+
+  rbMovement = { token, end, ghost, destinationToken, raf: null };
+  rbCard.hidden = true; rbRolling = true; rbSync();
+  rbMovement.destinationToken = rbCells.get(player.pos).querySelector('[data-p="' + player.i + '"]');
+  if (rbMovement.destinationToken) rbMovement.destinationToken.style.visibility = 'hidden';
+  const start = performance.now(), duration = rbPace.value === 'quick' ? 220 : 650;
+  const step = now => {
+    if (!rbMovement) return;
+    const t = Math.min(1, (now - start) / duration), eased = t * t * (3 - 2 * t);
+    token.position.lerpVectors(oldWorld, end, eased);
+    token.position.y += Math.sin(t * Math.PI) * SUMMIT * .08;
+    ghost.style.left = (oldRect.left + oldRect.width / 2 + (rect.left + rect.width / 2 - oldRect.left - oldRect.width / 2) * eased) + 'px';
+    ghost.style.top = (oldRect.top + oldRect.height / 2 + (rect.top + rect.height / 2 - oldRect.top - oldRect.height / 2) * eased - Math.sin(t * Math.PI) * 22) + 'px';
+    invalidate(2);
+    if (t < 1) rbMovement.raf = requestAnimationFrame(step);
+    else rbFinishMovement();
+  };
+  rbMovement.raf = requestAnimationFrame(step);
+}
+function rbFinishMovement() {
+  if (!rbMovement) return;
+  const move = rbMovement; rbMovement = null;
+  cancelAnimationFrame(move.raf); move.token.position.copy(move.end);
+  move.ghost.remove(); if (move.destinationToken) move.destinationToken.style.visibility = '';
+  rbRolling = false; rbSync(); rbCard.hidden = mode !== 'game';
+  invalidate(2);
+}
+function rbCancelTransition() {
+  clearTimeout(rbTransitionTimer); rbTransitionGhost?.remove(); rbTransitionGhost = null;
+  rbGrid.classList.remove('assembling');
+}
+function rbTransition(from, to, animate) {
+  rbCancelTransition();
+  if (mode !== 'game' || from === to || !animate || rbInstant()) return;
+  if (to === 'world') {
+    const rect = rbGrid.getBoundingClientRect();
+    if (rect.width && rect.height) {
+      const ghost = rbGrid.cloneNode(true);
+      ghost.className = 'bv-grid bv-board-ghost disassembling'; ghost.setAttribute('aria-hidden', 'true'); ghost.inert = true;
+      ghost.style.cssText = 'left:' + rect.left + 'px;top:' + rect.top + 'px;width:' + rect.width + 'px;height:' + rect.height + 'px';
+      ghost.querySelectorAll('button').forEach(b => { b.tabIndex = -1; });
+      document.body.appendChild(ghost); rbTransitionGhost = ghost;
+    }
+  } else rbGrid.classList.add('assembling');
+  rbTransitionTimer = setTimeout(rbCancelTransition, 650);
+}
+document.addEventListener('visibilitychange', () => { if (document.hidden) { rbFinishThrow(); rbCancelTransition(); } });
+window.addEventListener('pagehide', () => { rbFinishThrow(); });
+rbAsk.addEventListener('keydown', ev => {
+  if (ev.key !== 'Tab') return;
+  const controls = [...rbAsk.querySelectorAll('button,input,select')].filter(el => !el.disabled && !el.hidden);
+  const first = controls[0], last = controls.at(-1);
+  if (ev.shiftKey && document.activeElement === first) { ev.preventDefault(); last.focus(); }
+  if (!ev.shiftKey && document.activeElement === last) { ev.preventDefault(); first.focus(); }
+});
+
 const RB_LAYOUTS = ['both', 'board', 'world'];
 let rbView3D = 'both';
 /* Two of the three take the whole screen, and they do it by dressing the
@@ -6639,7 +6881,9 @@ function rbApplyLayout() {
     b.setAttribute('aria-pressed', String(b.dataset.layout === rbView3D)));
 }
 function rbLayout(next, remember = true, reframeView = true) {
-  const to = RB_LAYOUTS.includes(next) ? next : 'both';
+  const to = RB_LAYOUTS.includes(next) ? next : 'board';
+  rbFinishThrow();
+  rbTransition(rbView3D, to, reframeView);
   if (to !== 'world' && gameFocus) rbClearFocus();
   rbView3D = to;
   rbApplyLayout();
@@ -6650,7 +6894,8 @@ function rbLayout(next, remember = true, reframeView = true) {
   syncChrome();
   framePut = null;
   invalidate(4);
-  if (reframeView) requestAnimationFrame(() => { if (mode === 'game') reframeCurrent(); });
+  clearTimeout(rbLayoutTimer);
+  if (reframeView) rbLayoutTimer = setTimeout(() => { if (mode === 'game') reframeCurrent(); }, rbInstant() ? 0 : 650);
 }
 function rbCycleLayout() {
   rbLayout(RB_LAYOUTS[(RB_LAYOUTS.indexOf(rbView3D) + 1) % RB_LAYOUTS.length]);
@@ -6722,20 +6967,7 @@ function reframeGame(dur = 700, at = null) {
    caption. Presentation state stays separate from whose turn it is. */
 const gameFocusEl = document.querySelector('.game-focus');
 const gameFocusPin = document.querySelector('.rb-focus-pin');
-const focusCutaway = new Map();
-let focusClippingWas = gl.localClippingEnabled;
 let focusRequest = null;
-function rbRestoreCutaway() {
-  // Selection highlighting may have wrapped a clipped material while its
-  // entry was open. Unwrap it before restoring and disposing the cutaway.
-  if (focusCutaway.size) clearPick();
-  focusCutaway.forEach((original, mesh) => {
-    [].concat(mesh.material).forEach(material => material.dispose());
-    mesh.material = original;
-  });
-  if (focusCutaway.size) { gl.localClippingEnabled = focusClippingWas; reshadow(); }
-  focusCutaway.clear();
-}
 function rbClearFocus() {
   if (focusRequest !== null) cancelAnimationFrame(focusRequest);
   focusRequest = null;
@@ -6743,7 +6975,6 @@ function rbClearFocus() {
   gameFocus = null;
   gameFocusEl.hidden = true;
   gameFocusPin.hidden = true;
-  rbRestoreCutaway();
   ctr.autoRotate = motion && !anim && !orbitInteracting;
 }
 function rbFocusAnchor(id) {
@@ -6780,7 +7011,6 @@ function rbFocusWorld(id) {
 }
 function rbFrameFocus(dur = 650) {
   if (!gameFocus || mode !== 'game') return;
-  rbRestoreCutaway();
   if (gameFocus.view === 'overview') {
     gameFocusEl.querySelector('p').textContent = 'World overview · choose Focus here to return to this location.';
     reframeGame(dur);
@@ -6799,26 +7029,8 @@ function rbFrameFocus(dur = 650) {
     viewport: { w: stage.clientWidth, h: stage.clientHeight }, rect: freeRect(), fov: cam.fov
   });
   gameFocusEl.querySelector('p').textContent = composition.below
-    ? 'Below the world · a cutaway reveals the location while Meru stays in view.'
+    ? 'Below the world · the side view keeps the location and Meru together.'
     : 'Meru stays in view · drag to explore, or choose Focus here to return.';
-  if (composition.below) {
-    focusClippingWas = gl.localClippingEnabled;
-    // Remove the near half of the enclosing layers only. Meru, the selected
-    // realm and the far half retain their materials and positions.
-    const normal = composition.direction.clone(); normal.y = 0; normal.normalize().negate();
-    const plane = new THREE.Plane(normal, 0);
-    world.traverse(mesh => {
-      if (!mesh.isMesh || !/^(golden_ground|water_mandala|wind_mandala|salt_ocean|seven_inner_seas|cakravada_iron_ring|range_)/.test(mesh.name)) return;
-      focusCutaway.set(mesh, mesh.material);
-      const clipped = [].concat(mesh.material).map(material => {
-        const copy = material.clone(); copy.clippingPlanes = [plane]; copy.clipShadows = true;
-        copy.needsUpdate = true; return copy;
-      });
-      mesh.material = Array.isArray(mesh.material) ? clipped : clipped[0];
-    });
-    gl.localClippingEnabled = true;
-    reshadow();
-  }
   fly(composition.position, composition.target, dur, true);
   invalidate(4);
 }
@@ -6870,8 +7082,9 @@ function enterGame() {
   rbBoard.group.visible = true;
   rbBoard.placeAnchored(positionOfEntry);
   measureRound();
+  rbPlayerArt.load(rbGame.players);
   rbArt.load();
-  rbSetDie(1);
+  rbSetDie(rbSession?.rolls.at(-1) || 1);
   rbSelect(rbGame.players[rbGame.turn].pos, false);
   rbSync();
   rbApplyLayout();          // the arrangement this game was last left in
@@ -6879,8 +7092,14 @@ function enterGame() {
   reshadow();
   requestAnimationFrame(() => { if (mode === 'game') reframeGame(900); });
   invalidate(4);
+  rbTransition('world', rbView3D, true);
+  if (rbGame.over) rbShowCard(rbSession?.rolls.at(-1) || 1, rbGame.players[rbGame.winner].name + ' wins', RB_VICTORY, rbGame.stupa === null ? 'One ceremonial stupa throw remains.' : 'The game is complete.', true);
+  if (!rbSession && !rbOnboarded) { rbOnboarded = true; rbAskNew(); }
 }
 function leaveGame() {
+  clearTimeout(rbLayoutTimer);
+  rbFinishThrow();
+  rbCancelTransition();
   rbClearFocus();
   rbHideCard();
   rbCloseAsk();
@@ -7084,7 +7303,8 @@ try {
   savedGameView = localStorage.getItem('ws-game-view');
   savedTibetan = localStorage.getItem('ws-tibetan');
 } catch (err) {}
-rbLayout(savedGameView || 'both', false);
+rbRestore();
+rbLayout(savedGameView || 'board', false);
 rbSetTibetan(savedTibetan === '1');
 syncHome();
 
@@ -7126,6 +7346,9 @@ canvas.addEventListener('pointerup', (e) => {
   if (!touring) close();
 });
 window.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && rbMenus.some(m => m.open)) {
+    rbMenus.forEach(m => { m.open = false; }); e.target.blur?.(); e.preventDefault(); return;
+  }
   if (['INPUT', 'SELECT', 'TEXTAREA'].includes(e.target.tagName) || e.target.isContentEditable) {
     if (e.key === 'Escape') e.target.blur(); return;
   }
@@ -7146,7 +7369,7 @@ window.addEventListener('keydown', (e) => {
   }
   if (e.key === 'f' || e.key === 'F') { e.preventDefault(); toggleFullScreen(); }
   if (e.key === 'm' || e.key === 'M') setMode(mode === 'mandala' ? 'explore' : 'mandala');
-  if (e.key === 'g' || e.key === 'G') setMode(mode === 'game' ? 'explore' : 'game');
+  if (e.key === 'g' || e.key === 'G') { e.preventDefault(); setMode(mode === 'game' ? 'explore' : 'game'); }
   if ((e.key === 'w' || e.key === 'W') && mode === 'game') rbSwap();
   if ((e.key === 'b' || e.key === 'B') && mode === 'game') rbCycleLayout();
   if ((e.key === 't' || e.key === 'T') && mode === 'game') rbSetTibetan();

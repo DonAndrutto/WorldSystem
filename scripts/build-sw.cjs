@@ -21,13 +21,13 @@ const root = path.resolve(__dirname, '..');
 // sky previews, are the material the build scripts eat — no visitor fetches
 // them, and an installed app has no use for the 28 MB.
 const SHELL = [
-  'index.html',
+  'index.html', 'game-ui.css',
   'manifest.webmanifest',
   ['.', /\.js$/, { skip: ['sw.js'] }],        // the page's modules and the stage
   ['vendor', /\.js$/, { deep: true }],        // three.js, vendored beside them
   ['assets/fonts', /\.(css|woff2)$/],
   ['assets/offerings', /\.webp$/],            // the three offering sheets
-  ['assets/rebirth', /\.webp$/],              // the board's four field sheets
+  ['assets/rebirth', /\.(webp|png)$/],              // the board's four field sheets
   'apple-touch-icon.png', 'favicon.ico', 'favicon-32.png',
   'icon-192.png', 'icon-512.png', 'icon-maskable-512.png'
 ];
