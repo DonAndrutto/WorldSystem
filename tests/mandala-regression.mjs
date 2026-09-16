@@ -20,6 +20,7 @@ const gamePlayers = await import(pathToFileURL(repo + '/game-players.js'));
 const gameSession = await import(pathToFileURL(repo + '/game-session.js'));
 const gameCamera = await import(pathToFileURL(repo + '/game-camera.js'));
 const summitDetail = await import(pathToFileURL(repo + '/summit-detail.js'));
+const continentModels = await import(pathToFileURL(repo + '/continent-models.js'));
 // Every square is painted: the field it is drawn as on the board, served as
 // four atlas sheets that the module lays out from the square numbers alone.
 assert.equal(rbIcons.SQUARE_ART.size, 104, 'every square has its field');
@@ -50,7 +51,7 @@ const textureRequests = [];
 const THREE = {...RealThree, TextureLoader: class {
   load(url, success, progress, failure) { textureRequests.push({url, success, failure}); }
 }};
-Object.assign(window, {createOfferingModels, OFFERING_ART, TOUR_NOTES, installViewportGestures}, surfaces, skyClouds, gameCamera, gamePlayers, gameSession, summitDetail, {
+Object.assign(window, {createOfferingModels, OFFERING_ART, TOUR_NOTES, installViewportGestures}, surfaces, skyClouds, gameCamera, gamePlayers, gameSession, summitDetail, continentModels, {
   RB_SQUARES: rbBoard.SQUARES, RB_SPECIAL: rbBoard.SPECIAL, RB_START: rbBoard.START,
   RB_VICTORY: rbBoard.VICTORY, TRAP_QUOTA: rbBoard.TRAP_QUOTA, TRAP_QUOTA_NOTE64: rbBoard.TRAP_QUOTA_NOTE64,
   DIE_FACES: rbBoard.FACES, RB_BY_N: rbBoard.BY_N, createBoardLayer: rbBoard.createBoardLayer,
@@ -140,6 +141,14 @@ const heaps = () => [...app.HEAP_MEMBERS].filter(([,members])=>members.some(app.
 assert.equal(app.HEAPS.length,37); assert.equal(TOUR_NOTES.length,37);
 assert.equal(app.OFFERING_MODELS.size,24); assert.equal(textureRequests.length,0,'Images are lazy');
 panel(null);
+const continentSculptures = ['treasure_mountain', 'treasure_tree', 'treasure_cow', 'treasure_harvest'];
+for (const id of continentSculptures) {
+  const parts = app.meshesFor(id);
+  assert.ok(parts.length >= 3 && parts.every(app.visibleInScene), id + ': complete sculpture is visible in Explorer');
+}
+const jambuParts = app.meshesFor('jambu');
+assert.equal(jambuParts.length, 6, 'Both trunk pigments, foliage, stems and fruit resolve to the rose-apple entry');
+assert.ok(jambuParts.every(part => app.HEAP_MEMBERS.get(3).includes(part)), 'All rose-apple detail belongs to the southern continent');
 const worldVisibility = new Map();
 app.world.traverse(o => worldVisibility.set(o, o.visible));
 app.setMandala(true); advance(1200); panel('.mandala-note');
@@ -148,6 +157,12 @@ app.world.traverse(o => mandalaVisibility.set(o, o.visible));
 assert.equal(textureRequests.length,3);
 assert.equal(heaps().length,37);
 assert.ok(app.LUMINARIES.every(l=>l.objs.every(o=>!o.visible)));
+for (const id of continentSculptures) {
+  const parts = [];
+  app.world.traverse(o => { if (o.isMesh && o.name === id) parts.push(o); });
+  assert.ok(parts.length, id + ': the selectable model remains present alongside its offering card');
+}
+assert.ok(jambuParts.every(app.visibleInScene), 'Rose-apple remains with its continent in Mandala');
 assert.equal(app.state().showHeapNumbers,true,'Numbers start on');
 q('[data-numbers]').click();
 assert.equal(app.state().showHeapNumbers,false);

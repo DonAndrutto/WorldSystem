@@ -19,6 +19,7 @@ Click any part to open its entry; drag to orbit, scroll to zoom.
 | `mandala-tour.js` | Looking prompts for the 37 stops of the separate study tour. |
 | `sky-clouds.js` | Tibetan cloud silhouettes, layered colour bands and day/night cloud palettes. |
 | `world-surfaces.js` | Closed mountain ridges, depth-coloured seas and one shared procedural ripple normal map. |
+| `continent-models.js` | Batched sculptures for the four continent treasures and the rose-apple tree. |
 | `viewport-gestures.js` | Routes scene gestures to the camera and prevents gestures from magnifying the menu interface. |
 | `assets/offerings/` | Three locally served artwork sheets, with the generation prompts. |
 | `ARTWORK.md` | Image provenance, source references and iconographic adaptations. |
@@ -561,6 +562,7 @@ node tests/rebirth-regression.mjs
 node tests/viewport-gestures.mjs
 node tests/world-surfaces.mjs
 node tests/summit-detail.mjs
+node tests/continent-models.mjs
 node tests/offline.mjs
 ```
 
@@ -577,6 +579,18 @@ and planted gardens. These are illustrative additions to the drawing. Repeated
 ornament is merged into 20 meshes (31,264 triangles), with no new textures.
 The shared heaven palaces also have open colonnades and curved roofs.
 The summit checks cover finite geometry, bounded cost and open gate arches.
+
+The continent sculptures continue that detail with branching roots, layered
+leaf sprays and rose-apple fruit; suspended jewels on the wish tree; a draped
+cinnabar cloth, gilt borders, beaded collar and cloven hooves on the cow;
+gilded mountain ledges and crystal outcrops; and nodding grain with articulated
+stalks and leaves. These are illustrative ornaments in the existing palette.
+The rose-apple landmark is enlarged for visibility and remains distinct from
+the wish-fulfilling tree. All five sculptures together use 32 material batches
+and 70,414 triangles, without new textures or animation. The original treasure
+placements, entry names, and painted mandala offerings are preserved.
+The continent checks cover bounds, deterministic geometry, normalized normals,
+front/reverse/overhead picking, outward cloth faces and a geometry budget.
 
 The surface checks cover closed geometry seams, range separation, height and
 wave limits, and the shared ripple texture. They do not render the GPU scene.
