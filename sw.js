@@ -25,7 +25,7 @@
    current shelf or the runtime one, so old versions do not accumulate. */
 
 /* ── written by scripts/build-sw.cjs — do not edit below ─────────────── */
-const VERSION = '70962c7a1d0e6d9f';
+const VERSION = '49f5f234429f57bb';
 const SHELL = [
   "apple-touch-icon.png",
   "assets/fonts/eb-garamond-400-italic-latin-ext.woff2",
@@ -46,6 +46,7 @@ const SHELL = [
   "assets/rebirth/squares-3.webp",
   "assets/rebirth/squares-4.webp",
   "assets/rebirth/travelers.png",
+  "continent-models.js",
   "favicon-32.png",
   "favicon.ico",
   "game-camera.js",
