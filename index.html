@@ -6906,9 +6906,15 @@ new ResizeObserver(() => {
 }).observe(stage);
 document.querySelector('[data-act="close-index"]').addEventListener('click', () => setOpen(false));
 
+/* The index waits to be asked for. A drawer that opened itself on a wide
+   window made the first thing on the screen a panel standing over Meru, and
+   the first thing asked of a reader the dismissing of it; the model is what
+   they came for. So it starts closed at every width, and only a reader's own
+   toggle opens it. That choice is what is kept: someone who reads with the
+   index open finds it open again. */
 let saved = null;
 try { saved = localStorage.getItem('ws-index'); } catch (err) {}
-setOpen(saved === null ? window.innerWidth > 1120 : saved === '1');
+setOpen(saved === '1');
 let savedNight = null;
 try { savedNight = localStorage.getItem('ws-night'); } catch (err) {}
 applyTheme(savedNight === '1');
