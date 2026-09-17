@@ -404,7 +404,7 @@ the entries the legend sat beside.
 
 | | |
 | --- | --- |
-| **Index** `i` | The drawer of explanatory entries, with a filter, headed by the title and the way into *About this model*. |
+| **Index** `i` | The drawer of explanatory entries, with a filter, headed by the title and the way into *About this model*. Closed until it is asked for, at every width, so the world and not a panel is the first thing on the screen; once asked for, whether it stands open is kept between visits. |
 | **View** `e` `m` `g` | Explorer, Maṇḍala, Game. Explorer is the model and its index; Maṇḍala is the thirty-seven heaps, in the order the offering names them; Game sets the board of rebirth beside the world. |
 | **Board, both or world** `b` | In game mode, what is on the screen: the board alone, the board beside the world (or, where they cannot sit side by side, above it), or the world alone. Kept between visits, and only while the game is on the screen — the arrangement is the game's dress and comes off with it. Asked for on its own the board takes the whole page as a printed board rather than a panel: a painted sky of the model's own clouds, the wordmark over it, the throw, the players, the square in hand and the karmic trail on one card, the hundred and four named fields under that, and the three controls docked along the foot. It has a night palette of its own, gold on ink. |
 | **Names** `t` | Which language the squares are named in, in passing, wherever they are named — English or Tibetan. Under Options, as a selector of two with the one in force held down. The entry always gives both. |
