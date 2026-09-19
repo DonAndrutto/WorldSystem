@@ -1595,6 +1595,13 @@
             <button class="btn" type="button" data-lang="bo" aria-pressed="false" title="Tibetan names — t" lang="bo">བོད</button>
           </span>
         </div>
+        <div class="menu-row lang" role="group" aria-label="Interface language">
+          <span class="g" aria-hidden="true">文</span><span class="t">Language</span>
+          <span class="seg">
+            <button class="btn" type="button" data-ui-lang="en" aria-pressed="true" title="English interface">Eng</button>
+            <button class="btn" type="button" data-ui-lang="pl" aria-pressed="false" title="Polish interface">Polski</button>
+          </span>
+        </div>
         <button class="btn" data-act="full" type="button" aria-pressed="false" title="Full screen — f"><span class="g">⛶</span><span class="t">Full screen</span></button>
         <button class="btn" data-act="home" type="button" title="Reset view — Esc"><span class="g">⟲</span><span class="t">Reset view</span></button>
       </div>
@@ -1825,6 +1832,7 @@
   </div>
 </div>
 
+<script src="locales/pl.js"></script>
 <script type="module">
 import { createOfferingModels, OFFERING_ART } from './mandala-offerings.js';
 import { TOUR_NOTES } from './mandala-tour.js';
@@ -6770,6 +6778,8 @@ document.addEventListener('pointerdown', (ev) => {
 }, true);
 
 controlsEl.addEventListener('click', (ev) => {
+  const uiLang = ev.target.closest('[data-ui-lang]');
+  if (uiLang) { window.WorldSystemLocale?.setLanguage(uiLang.dataset.uiLang); return; }
   // the language selector stays open under the hand: picking one of two is
   // not a reason to shut the menu that holds the rest of the settings
   const lang = ev.target.closest('[data-lang]');

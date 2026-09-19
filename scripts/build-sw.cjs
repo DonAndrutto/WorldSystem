@@ -24,6 +24,7 @@ const SHELL = [
   'index.html', 'game-ui.css',
   'manifest.webmanifest',
   ['.', /\.js$/, { skip: ['sw.js'] }],        // the page's modules and the stage
+  ['locales', /\.js$/],                       // language packs loaded by the page
   ['vendor', /\.js$/, { deep: true }],        // three.js, vendored beside them
   ['assets/fonts', /\.(css|woff2)$/],
   ['assets/offerings', /\.webp$/],            // the three offering sheets
