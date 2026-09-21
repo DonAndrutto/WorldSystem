@@ -4118,7 +4118,10 @@ RB_SQUARES.forEach((sqr) => {
   const facts = [['Square', sqr.n + ' of 104'],
                  ['On the board', 'row ' + (sqr.row + 1) + ', column ' + (sqr.col + 1) + ' from the right'],
                  ['Stands', RB_BAND_LABEL[sqr.band]]];
-  if (sqr.anchor) facts.push(['Drawn as', sqr.anchor.replace(/_/g, ' ')]);
+  // What the square is drawn as is an entry in the model, so say what that
+  // entry is called. The anchor itself is an id — "hell_avichi" — and
+  // printing it put a lower-case, undiacriticked slug on the screen.
+  if (sqr.anchor) facts.push(['Drawn as', E[sqr.anchor]?.t || sqr.anchor.replace(/_/g, ' ')]);
   if (special && special.kind === 'tally') facts.push(['Trap', 'one 1, two 2s, and so on through six 6s, then out to ' + special.exit_to]);
   if (sqr.n === RB_START) facts.push(['Start', 'every token begins here']);
   if (special && special.kind === 'terminal') facts.push(['Victory', 'declared on arrival; the stupa throw that follows is a ceremony']);

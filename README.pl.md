@@ -16,15 +16,22 @@ Polska warstwa obejmuje:
 
 Angielski pozostaje językiem domyślnym i źródłowym. Nazwy sanskryckie, tybetańskie oraz cytowania bibliograficzne zachowują oryginalną postać, aby polska wersja nie odrywała terminów od tekstów, na których opiera się model.
 
-## Czego jeszcze brakuje
+## Do przejrzenia
 
-Opisy pól planszy i część haseł indeksu są tłumaczone partiami i do czasu
-ukończenia wyświetlają się po angielsku. Nazwy wszystkich 104 pól są już gotowe.
+Przekład jest kompletny: interfejs, indeks kosmologii, nazwy wszystkich 104 pól
+oraz opisy pól wraz z cytowanymi strofami. Do decyzji tłumacza pozostają:
+
+- **Złożenia z *kāya***. W prożie oddano je spolszczone i odmieniane
+  (dharmakāja, dharmakāji), tak jak słownik postępuje z mahajaną; w nazwach pól
+  92 i 93 zachowano postać źródłową (Sambhoga-Kāya, Dharma-Kāya). To dwie różne
+  konwencje w jednym tekście.
+- **Vidyādhara**. W nazwach pól „Trzymający Wiedzę”, w opisach „widjadhara”.
+- **Nazwy 34 pól**, dla których powstały dwa równie możliwe warianty.
+- **Kṣānti** — „cierpliwość” (pola 57, 63) wobec „receptywności” w opisach.
 
 Wcześniejsza wersja pakietu podawała dla pól 57–104 nazwy przesunięte względem
-planszy: pole 59 (Shambhala) nosiło nazwę „Mahajana, stan arhata”, a pole 97
-(Adopting a Physical Form) — „Nirwana”, czyli nazwę pola 104. Te wpisy usunięto
-i zastąpiono nowymi.
+planszy: pole 59 (Shambhala) nosiło nazwę „Mahajana, stan arhata”, a pole 97 —
+„Nirwana”, czyli nazwę pola 104. Te wpisy usunięto i zastąpiono nowymi.
 
 ## Terminologia
 
