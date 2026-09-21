@@ -820,48 +820,32 @@ const BOARD_NAMES={
   "Mahāyāna, Middle Path of Accumulation": "Mahajana, średnia ścieżka nagromadzenia",
   "Mahāyāna, Greater Path of Accumulation": "Mahajana, wielka ścieżka nagromadzenia",
   "Mahāyāna, Path of Application: “Heat” (Ūṣman)": "Mahajana, ścieżka zastosowania — ciepło",
-  "Mahāyāna, Path of Application: “Climax” (Mūrdhan)": "Mahajana, ścieżka zastosowania — szczyt",
-  "Tantra, Path of Application: “Receptivity”": "Mahajana, ścieżka widzenia",
-  "Tantra, Path of Application: “Highest Teachings”": "Mahajana, ścieżka kultywacji",
-  "Shambhala": "Mahajana, stan arhata",
-  "Potāla": "Kaja Wadżry",
-  "Urgyan (Uḍḍiyāna)": "Mowa Wadżry",
-  "Hindu Wisdom-Holder (Vidyādhara)": "Umysł Wadżry",
-  "Mahāyāna, Path of Application: “Receptivity” (Kṣānti)": "Aktywność Wadżry",
-  "Mahāyāna, Path of Application: “Highest Teachings” (Laukikāgra-Dharma)": "Cztery ścieżki tantry jogi",
-  "Wisdom-Holder of the Bön Tradition (*Bön Vidyādhara)": "Ścieżka nagromadzenia tantry jogi",
-  "First Tantra Stage": "Ścieżka zastosowania tantry jogi",
-  "Wisdom-Holder Among the Gods of Sense Desire (*Kāmadeva-Vidyādhara)": "Ścieżka widzenia tantry jogi",
-  "Wisdom-Holder of the Realm of Form (*Rūpa-Dhātu-Vidyādhara)": "Ścieżka kultywacji tantry jogi",
-  "Tantric Wheel-Turning King (*Mantra-Cakravartin)": "Stan wadżry tantry jogi",
-  "Realm of Action-Completion (*Karma-Paripūraṇa)": "Dziesięć stopni bodhisattwy",
-  "First Sutra Stage (Bhūmi)": "Pierwszy stopień",
-  "Wisdom-Holder of the Eight Siddhis": "Drugi stopień",
-  "Second Tantra Stage": "Trzeci stopień",
-  "Third Tantra Stage": "Czwarty stopień",
-  "Fourth Tantra Stage": "Piąty stopień",
-  "Realm of Jeweled Peaks (Ratna-Kūṭa)": "Szósty stopień",
-  "Land of Bliss (Sukhāvatī)": "Siódmy stopień",
-  "Fourth Sutra Stage": "Ósmy stopień",
-  "Third Sutra Stage": "Dziewiąty stopień",
-  "Second Sutra Stage": "Dziesiąty stopień",
-  "Fifth Tantra Stage": "Niebo Akaniṣṭhy",
-  "Sixth Tantra Stage": "Niebo Trzydziestu Trzech",
-  "Seventh Tantra Stage": "Niebo Karmicznych Ciał",
-  "Supreme Heaven (Akaniṣṭha)": "Niebo Ciał Radości",
-  "Realm of Superjoy (Abhirati)": "Niebo Ciał Emanacji",
-  "Seventh Sutra Stage": "Niebo Wadżradhary",
-  "Sixth Sutra Stage": "Pole Wadżradhary",
-  "Fifth Sutra Stage": "Pole Wielkiej Błogości",
-  "Eighth Tantra Stage": "Pole Najwyższego Raju",
-  "Ninth Tantra Stage": "Pole Akaniṣṭhy",
-  "Tenth Tantra Stage": "Świetlistość Dharmy",
-  "Great Enjoyment Body (Sambhoga-Kāya)": "Światło pięciu mądrości",
-  "Great Dharma Body (Dharma-Kāya)": "Podbój Mary",
-  "Tenth Sutra Stage": "Stan buddy",
-  "Ninth Sutra Stage": "Obracanie Kołem Dharmy",
-  "Eighth Sutra Stage": "Ukazanie cudów",
-  "Adopting a Physical Form": "Nirwana"
+  "Mahāyāna, Path of Application: “Climax” (Mūrdhan)": "Mahajana, ścieżka zastosowania — szczyt"
+  /* Squares 57–104 have no Polish name here yet.
+
+     They did, briefly, and every one of them was wrong: the values ran on as a
+     doctrinal sequence of their own — the four vajras, the ten bhūmis, the
+     buddha fields — while the keys went on naming the board. Shambhala (59) came
+     out as Mahāyāna arhatship; Adopting a Physical Form (97) came out as Nirvana,
+     which is square 104. On a board whose squares are destinations, a square
+     wearing another square's name is worse than a square in English, so these
+     fall back to the board's own names until the Polish ones are written.
+
+     Wanted, in board order: 57 Tantra, Path of Application “Receptivity” · 58 the
+     same, “Highest Teachings” · 59 Shambhala · 60 Potāla · 61 Urgyan (Uḍḍiyāna) ·
+     62 Hindu Wisdom-Holder · 63–64 Mahāyāna, Path of Application “Receptivity” and
+     “Highest Teachings” · 65 Wisdom-Holder of the Bön Tradition · 66 First Tantra
+     Stage · 67 Wisdom-Holder Among the Gods of Sense Desire · 68 Wisdom-Holder of
+     the Realm of Form · 69 Tantric Wheel-Turning King · 70 Realm of
+     Action-Completion · 71 First Sutra Stage · 72 Wisdom-Holder of the Eight
+     Siddhis · 73–75 Second to Fourth Tantra Stage · 76 Realm of Jeweled Peaks ·
+     77 Land of Bliss · 78–80 Fourth to Second Sutra Stage · 81–83 Fifth to Seventh
+     Tantra Stage · 84 Supreme Heaven · 85 Realm of Superjoy · 86–88 Seventh to
+     Fifth Sutra Stage · 89–91 Eighth to Tenth Tantra Stage · 92 Great Enjoyment
+     Body · 93 Great Dharma Body · 94–96 Tenth to Eighth Sutra Stage · 97 Adopting a
+     Physical Form · 98 The Setting Forth · 99 Ascetic Practices · 100 Conquest of
+     Māra · 101 Buddhahood · 102 Turning the Wheel of Dharma · 103 Demonstration of
+     Miracles · 104 Nirvana. rebirth-board.js holds the English for each. */
 }; Object.assign(T,BOARD_NAMES, {
   Language: 'Język', 'English interface': 'Interfejs angielski', 'Polish interface': 'Interfejs polski', Polish: 'Polski', English: 'Angielski',
   Night: 'Noc', Day: 'Dzień', 'About the game': 'O grze', 'The field this square is drawn as on the board': 'To pole przedstawia to miejsce na planszy',
@@ -875,12 +859,144 @@ const BOARD_NAMES={
   'There is all the bountiful wealth of gods and men, complete and flawless—': 'Oto całe, doskonałe i bezbłędne bogactwo bogów i ludzi —',
   'The jewel mountain, the wish-fulfilling tree,': 'Góra klejnotów i drzewo spełniające życzenia,', 'The wish-fulfilling cow, the harvest which needs no sowing,': 'Krowa spełniająca życzenia i zboże, którego nie trzeba siać,',
   'The precious wheel, the precious gem,': 'Drogocenne koło i drogocenny klejnot,', 'The precious queen, the precious minister,': 'Drogocenna królowa i drogocenny minister,', 'The precious elephant, the precious horse,': 'Drogocenny słoń i drogocenny koń,', 'The precious general, the vase of great treasure,': 'Drogocenny generał i waza wielkiego skarbu,', 'The goddess of beauty, the goddess of garlands,': 'Bogini piękna i bogini girland,', 'The goddess of song, the goddess of dance,': 'Bogini śpiewu i bogini tańca,', 'The goddess of flowers, the goddess of incense,': 'Bogini kwiatów i bogini kadzidła,', 'The goddess of light, the goddess of perfume,': 'Bogini światła i bogini wonności,', 'The royal banner victorious in all directions:': 'Królewski sztandar zwycięski we wszystkich kierunkach:',
-  'Tour the 37 heaps': 'Zwiedzaj 37 kopczyków'
+  'Tour the 37 heaps': 'Zwiedzaj 37 kopczyków',
+  /* the two menu rows the interface switch sits in; the others (View, Options) are already above */
+  'Interface language': 'Język interfejsu',
+  'The language names are given in': 'Język, w którym podawane są nazwy'
 });
-const PATTERNS=[[/^Player (\d+)$/, 'Gracz $1'],[/^player (\d+)$/,'gracz $1'],[/^([A-Za-z][A-Za-z ]*) wins$/, '$1 wygrywa'],[/^([A-Za-z][A-Za-z ]*) has the die\.$/, '$1 ma kostkę.'],[/^([A-Za-z][A-Za-z ]*) reached Nirvana\.$/, '$1 osiągnął Nirwanę.'],[/^Die (\d+) → (.*)$/, 'Kostka $1 → $2'],[/^Throw for (.*)$/, 'Rzut dla $1'],[/^Next turn: (.*)$/, 'Następna tura: $1'],[/^Square (\d+) lists no move on a (\d+), so the token stays and the die passes\.$/, 'Pole $1 nie ma ruchu dla wyniku $2, więc pionek zostaje, a kolejka przechodzi dalej.'],[/^The die names a destination; it does not count spaces\.$/, 'Kostka wskazuje cel, nie liczbę pól do przejścia.'],[/^Every token starts on 24, the Heavenly Highway\. /, 'Każdy pionek zaczyna na polu 24, Niebiańskiej Drodze. '],[/^(.+) threw a (\d+): /, '$1 wyrzucił $2: '],[/^([0-9]+) of 104$/, '$1 ze 104'],[/^row (\d+), column (\d+) from the right$/, 'rząd $1, kolumna $2 od prawej'],[/^(.+) · square (\d+)$/, '$1 · pole $2'],[/^Heap (\d+) of 37$/, 'Kopczyk $1 z 37'],[/^(.+) · (\d+) throws, (\d+) journeys$/, '$1 · $2 rzutów, $3 podróży']];
-function tr(s){if(typeof s!=='string')return s;if(Object.prototype.hasOwnProperty.call(T,s))return T[s];for(const [re,to] of PATTERNS){if(re.test(s))return s.replace(re,to);}return s;}
-let lang='en',translating=false; function translateNode(root){if(lang!=='pl'||translating)return;translating=true;try{const all=[root,...(root.querySelectorAll?.('*')||[])];for(const el of all){if(el.nodeType!==1||el.dataset?.noLocalize!==undefined)continue;for(const a of ['title','aria-label','placeholder'])if(el.hasAttribute(a)){const v=tr(el.getAttribute(a));if(v!==el.getAttribute(a))el.setAttribute(a,v);}const html=el.innerHTML;if(html&&T[html])el.innerHTML=T[html];}const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);let n;while(n=walker.nextNode()){if(n.parentElement?.closest('[data-no-localize]'))continue;const v=tr(n.nodeValue);if(v!==n.nodeValue)n.nodeValue=v;}}finally{translating=false;}}
-function apply(){translateNode(document.body);document.documentElement.lang=lang==='pl'?'pl':'en';document.body.classList.toggle('polish',lang==='pl');document.querySelectorAll('[data-ui-lang]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.uiLang===lang)));}
-function setLanguage(next){const target=next==='pl'?'pl':'en';if(target==='en'&&lang==='pl'){try{localStorage.setItem('ws-language','en');}catch{}location.reload();return;}lang=target;try{localStorage.setItem('ws-language',lang);}catch{}apply();window.dispatchEvent(new CustomEvent('ws-language-change',{detail:{lang}}));}
-window.WorldSystemLocale={translations:T,translate:tr,apply,setLanguage,get language(){return lang;}}; const observer=new MutationObserver(()=>{if(lang==='pl')translateNode(document.body);}); function boot(){try{lang=localStorage.getItem('ws-language')==='pl'?'pl':'en';}catch{}apply();observer.observe(document.body,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:['title','aria-label','placeholder']});} if(document.body)boot();else document.addEventListener('DOMContentLoaded',boot);
+const PATTERNS=[[/^Player (\d+)$/, 'Gracz $1'],[/^player (\d+)$/,'gracz $1'],[/^(.+) wins$/, '$1 wygrywa'],[/^([A-Za-z][A-Za-z ]*) has the die\.$/, '$1 ma kostkę.'],[/^([A-Za-z][A-Za-z ]*) reached Nirvana\.$/, '$1 osiągnął Nirwanę.'],[/^Die (\d+) → (.*)$/, 'Kostka $1 → $2'],[/^Throw for (.*)$/, 'Rzut dla $1'],[/^Next turn: (.*)$/, 'Następna tura: $1'],[/^Square (\d+) lists no move on a (\d+), so the token stays and the die passes\.$/, 'Pole $1 nie ma ruchu dla wyniku $2, więc pionek zostaje, a kolejka przechodzi dalej.'],[/^The die names a destination; it does not count spaces\.$/, 'Kostka wskazuje cel, nie liczbę pól do przejścia.'],[/^Every token starts on 24, the Heavenly Highway\. /, 'Każdy pionek zaczyna na polu 24, Niebiańskiej Drodze. '],[/^(.+) threw a (\d+): /, '$1 wyrzucił $2: '],[/^([0-9]+) of 104$/, '$1 ze 104'],[/^row (\d+), column (\d+) from the right$/, 'rząd $1, kolumna $2 od prawej'],[/^(.+) — square (\d+)$/, (all, name, n) => tr(name) + ' — pole ' + n],[/^Heap (\d+) of 37$/, 'Kopczyk $1 z 37'],[/^(.+) · (\d+) throws, (\d+) journeys$/, '$1 · $2 rzutów, $3 podróży']];
+
+/* ── the runtime ─────────────────────────────────────────────────────────
+   Three rules keep the page answering while it is being translated.
+
+   1. Never write a value back unchanged. `innerHTML =` replaces the child
+      nodes even when the string it is handed is identical, and a handful of
+      entries above translate to themselves — Mandala, Bön, Mahākāla. One of
+      those in the markup is enough: the write is a mutation, the mutation is
+      translated, and the two feed each other until the page stops answering.
+   2. Never serialize a subtree looking for a phrase. Only twelve strings here
+      carry markup, and each sits in one paragraph whose children are inline
+      <a>, <b> and <i>. Everything else is reached as a text node, which costs
+      nothing to read. Reading innerHTML off every element instead walks the
+      whole document once per element — with ~280 KB of module source inside
+      <body>, that is megabytes of string per pass.
+   3. Never re-walk the document for a change to one node. The observer is
+      handed the records; translate what they name, and nothing else. */
+
+const has = (obj, key) => Object.prototype.hasOwnProperty.call(obj, key);
+
+let depth = 0;
+function tr(s) {
+  if (typeof s !== 'string') return s;
+  if (has(T, s)) return T[s];                 // has(), not T[s]: 'constructor' is not a phrase
+  if (depth > 2) return s;                    // a replacement may translate its own captures
+  depth++;
+  try {
+    for (const [re, to] of PATTERNS) if (re.test(s)) return s.replace(re, to);
+  } finally { depth--; }
+  return s;
+}
+
+const MARKUP = new Set(Object.keys(T).filter(k => k.includes('<')));
+const MARKUP_MAX = Math.max(0, ...[...MARKUP].map(k => k.length));
+const INLINE = new Set(['A', 'B', 'I', 'EM', 'STRONG', 'SPAN', 'SUB', 'SUP', 'SMALL', 'CODE', 'BR', 'U']);
+const OPAQUE = new Set(['SCRIPT', 'STYLE', 'NOSCRIPT', 'TEXTAREA', 'CANVAS']);
+const ATTRS = ['title', 'aria-label', 'placeholder'];
+
+let lang = 'en';
+
+const skipped = el => OPAQUE.has(el.tagName) || el.hasAttribute('data-no-localize');
+
+function translateAttrs(el, only) {
+  for (const a of (only ? [only] : ATTRS)) {
+    if (!el.hasAttribute(a)) continue;
+    const cur = el.getAttribute(a);
+    const next = tr(cur);
+    if (next !== cur) el.setAttribute(a, next);
+  }
+}
+
+/* the shape the twelve markup phrases take: a few inline children, none of
+   them nested. Anything else is a container, and serializing it is the cost
+   rule 2 is about */
+function markupCandidate(el) {
+  const kids = el.children;
+  if (!kids.length || kids.length > 12) return false;
+  for (const kid of kids) if (kid.childElementCount || !INLINE.has(kid.tagName)) return false;
+  return true;
+}
+
+function translateMarkup(el) {
+  if (!MARKUP.size || !markupCandidate(el)) return;
+  const html = el.innerHTML;
+  if (html.length > MARKUP_MAX || !MARKUP.has(html)) return;
+  if (T[html] !== html) el.innerHTML = T[html];          // rule 1
+}
+
+function translateText(node) {
+  const parent = node.parentElement;
+  if (parent && (OPAQUE.has(parent.tagName) || parent.closest('[data-no-localize]'))) return;
+  const next = tr(node.nodeValue);
+  if (next !== node.nodeValue) node.nodeValue = next;
+}
+
+/* one walk of one subtree: elements for their attributes and their markup,
+   text nodes for the rest. A skipped element takes its subtree with it */
+function translateNode(root) {
+  if (lang !== 'pl' || !root) return;
+  if (root.nodeType === 3) { translateText(root); return; }
+  if (root.nodeType !== 1 || skipped(root)) return;
+  translateAttrs(root);
+  translateMarkup(root);
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT, {
+    acceptNode: n => (n.nodeType === 1 && skipped(n)) ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT
+  });
+  for (let n = walker.nextNode(); n; n = walker.nextNode()) {
+    if (n.nodeType === 1) { translateAttrs(n); translateMarkup(n); }
+    else translateText(n);
+  }
+}
+
+function apply() {
+  translateNode(document.body);
+  document.documentElement.lang = lang;
+  document.body.classList.toggle('polish', lang === 'pl');
+  document.querySelectorAll('[data-ui-lang]')
+    .forEach(b => b.setAttribute('aria-pressed', String(b.dataset.uiLang === lang)));
+}
+
+function setLanguage(next) {
+  const target = next === 'pl' ? 'pl' : 'en';
+  if (target === lang) return;
+  try { localStorage.setItem('ws-language', target); } catch {}
+  /* English cannot be walked back onto the page: it is no longer there */
+  if (target === 'en') { location.reload(); return; }
+  lang = target;
+  apply();
+  window.dispatchEvent(new CustomEvent('ws-language-change', { detail: { lang } }));
+}
+
+const observer = new MutationObserver(records => {
+  if (lang !== 'pl') return;
+  for (const r of records) {
+    if (r.type === 'characterData') { translateText(r.target); continue; }
+    if (r.target.nodeType !== 1 || skipped(r.target)) continue;
+    if (r.type === 'attributes') { translateAttrs(r.target, r.attributeName); continue; }
+    for (const added of r.addedNodes) translateNode(added);
+    translateMarkup(r.target);                 // children changed; the phrase may be whole now
+  }
+  /* every write above is queued back to this callback, already translated.
+     Handing them to it is how rule 1's loop starts even for one bad entry */
+  observer.takeRecords();
+});
+
+function boot() {
+  try { lang = localStorage.getItem('ws-language') === 'pl' ? 'pl' : 'en'; } catch {}
+  apply();
+  observer.observe(document.body,
+    { subtree: true, childList: true, characterData: true, attributes: true, attributeFilter: ATTRS });
+}
+
+window.WorldSystemLocale = { translations: T, translate: tr, apply, setLanguage, get language() { return lang; } };
+if (document.body) boot(); else document.addEventListener('DOMContentLoaded', boot);
 })();

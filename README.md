@@ -563,6 +563,8 @@ node tests/viewport-gestures.mjs
 node tests/world-surfaces.mjs
 node tests/summit-detail.mjs
 node tests/continent-models.mjs
+node tests/game-session.mjs
+node tests/localization.mjs
 node tests/offline.mjs
 ```
 
