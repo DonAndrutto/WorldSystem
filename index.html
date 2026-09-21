@@ -257,9 +257,9 @@
     width: 1.2em; text-align: center; font-size: 12px; letter-spacing: 0;
   }
   .menu-body .menu-row .t { margin-right: auto; }
-  .menu-body .lang .seg { flex: none; }
-  .menu-body .lang .seg .btn { padding: 5px 9px 4px; }
-  .menu-body .lang .seg .btn[lang="bo"] {
+  .menu-body .menu-row .seg { flex: none; }
+  .menu-body .menu-row .seg .btn { padding: 5px 9px 4px; }
+  .menu-body .menu-row .seg .btn[lang="bo"] {
     font-family: inherit; font-size: 13px; letter-spacing: 0;
     text-transform: none; padding: 2px 9px;
   }
@@ -1586,6 +1586,14 @@
       <summary class="btn" title="Motion, night, full screen, reset"><span class="g">⚙</span><span class="t">Options</span><span class="chev">▾</span></summary>
       <div class="menu-body card" role="group" aria-label="Options">
         <button class="btn" data-act="motion" type="button" aria-pressed="false" title="Set it turning — r"><span class="g">▶</span><span class="t">Motion</span></button>
+        <div class="menu-row speed" role="group" aria-label="How fast the sun and moon go round">
+          <span class="g" aria-hidden="true">↻</span><span class="t">Speed</span>
+          <span class="seg">
+            <button class="btn" type="button" data-speed="slow" aria-pressed="true" title="Slow">Slow</button>
+            <button class="btn" type="button" data-speed="medium" aria-pressed="false" title="Medium">Medium</button>
+            <button class="btn" type="button" data-speed="fast" aria-pressed="false" title="Fast">Fast</button>
+          </span>
+        </div>
         <button class="btn" data-act="night" type="button" aria-pressed="false" title="Night — n"><span class="g">☾</span><span class="t">Night</span></button>
         <label class="btn sw" for="g-sound" title="Sound — the voice each square answers in"><span class="g">♪</span><span class="t">Sound</span><input type="checkbox" id="g-sound"></label>
         <div class="menu-row lang" role="group" aria-label="The language names are given in">
@@ -4577,9 +4585,22 @@ const ease = (x) => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
 /* ── motion ──────────────────────────────────────────────────────────────
    One button, two movements: the sun and moon walk their circuit around
    Meru at the height of Yugandhara, and the view turns slowly with them.
-   Both are off until asked for, so the model holds still while it is being
-   read, and a phone renders nothing at all when idle. */
-const LUM_SPEED = Math.PI * 2 / 40;     // one circuit, forty seconds
+   Both are on when the model is first opened and both stop together; stopped,
+   the page draws nothing at all until something asks it to. A system that asks
+   for less movement is met with the model held still, and a reader who stops
+   or starts it is taken at their word from then on.
+
+   Three paces for that one movement, and the one it opens at is the slow one,
+   slow enough to be read against. Fast is the forty-second circuit the model
+   used to hold, and the view turns a turn and a half in the time each circuit
+   takes. */
+const MOTION_PACE = {
+  slow:   { circuit: 160, turn: 0.175 },
+  medium: { circuit: 80,  turn: 0.35 },
+  fast:   { circuit: 40,  turn: 0.7 }
+};
+let motionPace = 'slow';
+const lumSpeed = () => Math.PI * 2 / MOTION_PACE[motionPace].circuit;
 let motion = false, lumSpin = 0, lastFrame = 0;
 let orbitInteracting = false;
 let gameFocus = null;
@@ -4594,7 +4615,11 @@ ctr.addEventListener('end', () => {
 });
 function placeLuminaries() {
   LUMINARIES.forEach((L) => {
-    const a = L.base + lumSpin;
+    /* The angle is measured from the south, and east is a quarter turn on from
+       it, so the spin is subtracted rather than added: the sun leaves the east
+       for the south, which is clockwise seen from above with north at the top
+       — the way it is seen to go from Jambudvīpa. */
+    const a = L.base - lumSpin;
     const x = Math.sin(a) * L.r, z = Math.cos(a) * L.r;
     L.objs.forEach((o) => o.position.set(x, L.h, z));
   });
@@ -4603,7 +4628,7 @@ function stepMotion() {
   const now = performance.now();
   const dt = Math.min((now - lastFrame) / 1000, 0.1);   // a backgrounded tab must not lurch
   lastFrame = now;
-  lumSpin += dt * LUM_SPEED;
+  lumSpin += dt * lumSpeed();
   placeLuminaries();
   lightFromSky();
   invalidate(2);
@@ -5733,7 +5758,7 @@ const rbSoundBox = document.querySelector('#g-sound');
 const rbSoundOn = () => rbSoundBox.checked;
 let savedSound = null;
 try { savedSound = localStorage.getItem('ws-sound'); } catch (err) {}
-rbSoundBox.checked = savedSound === '1';
+rbSoundBox.checked = savedSound !== '0';     // on unless it has been turned off
 rbSoundBox.addEventListener('change', () => {
   try { localStorage.setItem('ws-sound', rbSoundBox.checked ? '1' : '0'); } catch (err) {}
 });
@@ -6554,6 +6579,18 @@ function rbCycleLayout() {
    tabs — while the entry in the drawer always gives both. */
 let rbTib = false;
 const rbLangButtons = [...document.querySelectorAll('[data-lang]')];
+/* The other side of that switch is whatever language the interface is in: with
+   the interface in Polish the names it gives are Polish, so the button says PL
+   rather than Eng. Its title is written in English and the language pack turns
+   it over, the way it does with every other title here. */
+const rbNameLangBtn = document.querySelector('[data-lang="en"]');
+function rbSyncNameLang() {
+  const polish = window.WorldSystemLocale && window.WorldSystemLocale.language === 'pl';
+  rbNameLangBtn.textContent = polish ? 'PL' : 'Eng';
+  rbNameLangBtn.title = (polish ? 'Polish names' : 'English names') + ' \u2014 t';
+}
+window.addEventListener('ws-language-change', rbSyncNameLang);
+rbSyncNameLang();
 function rbSetTibetan(to) {
   rbTib = to === undefined ? !rbTib : !!to;
   document.body.classList.toggle('tibetan-names', rbTib);
@@ -6787,6 +6824,8 @@ controlsEl.addEventListener('click', (ev) => {
   // not a reason to shut the menu that holds the rest of the settings
   const lang = ev.target.closest('[data-lang]');
   if (lang) { rbSetTibetan(lang.dataset.lang === 'bo'); return; }
+  const pace = ev.target.closest('[data-speed]');
+  if (pace) { setMotionPace(pace.dataset.speed); return; }
   const act = ev.target.closest('[data-act],[data-mode]');
   if (!act || act.tagName === 'SUMMARY') return;
   closeMenus();
@@ -6806,7 +6845,7 @@ function setMotion(on) {
   motion = on;
   lastFrame = performance.now();
   ctr.autoRotate = on && !anim && !orbitInteracting && !gameFocus;
-  ctr.autoRotateSpeed = 0.7;           // a turn and a half in the time a circuit takes
+  ctr.autoRotateSpeed = MOTION_PACE[motionPace].turn;
   if (!on) { lumSpin = 0; placeLuminaries(); lightFromSky(); }   // back where the text has them
   motionBtn.setAttribute('aria-pressed', String(on));
   motionBtn.querySelector('.g').textContent = on ? '❙❙' : '▶';
@@ -6814,6 +6853,19 @@ function setMotion(on) {
   motionBtn.title = (on ? 'Hold still' : 'Set it turning') + ' \u2014 r';
   invalidate(4);
   try { localStorage.setItem('ws-motion', on ? '1' : '0'); } catch (err) {}
+}
+
+/* How fast that one movement goes. The sun and moon keep the angle they have
+   reached: a pace is a change of speed, not a return to the east. */
+const paceButtons = [...document.querySelectorAll('[data-speed]')];
+function setMotionPace(next) {
+  motionPace = MOTION_PACE[next] ? next : 'slow';
+  ctr.autoRotateSpeed = MOTION_PACE[motionPace].turn;
+  paceButtons.forEach((b) =>
+    b.setAttribute('aria-pressed', String(b.dataset.speed === motionPace)));
+  lastFrame = performance.now();
+  try { localStorage.setItem('ws-motion-pace', motionPace); } catch (err) {}
+  invalidate(2);
 }
 
 /* ── reset: enabled only when there is something to undo ─────────────── */
@@ -6931,9 +6983,17 @@ setOpen(saved === '1');
 let savedNight = null;
 try { savedNight = localStorage.getItem('ws-night'); } catch (err) {}
 applyTheme(savedNight === '1');
-let savedMotion = null;
-try { savedMotion = localStorage.getItem('ws-motion'); } catch (err) {}
-setMotion(savedMotion === '1');
+/* The model turns by itself when it is first opened, slowly, and holds still
+   only for a reader who has said so — or for one whose system asks for less
+   movement. The pace is restored before the switch, so the first frame runs at
+   the pace that was left. */
+let savedMotion = null, savedPace = null;
+try {
+  savedMotion = localStorage.getItem('ws-motion');
+  savedPace = localStorage.getItem('ws-motion-pace');
+} catch (err) {}
+setMotionPace(savedPace || 'slow');
+setMotion(savedMotion === null ? !reducedMotion() : savedMotion === '1');
 let savedGameView = null, savedTibetan = null;
 try {
   savedGameView = localStorage.getItem('ws-game-view');

@@ -338,6 +338,42 @@ app.setMotion(true); advance(100);
 assert.equal(q('[data-act="motion"] .g').textContent,'❙❙');
 app.ctr.dispatchEvent({type:'start'}); assert.equal(app.ctr.autoRotate,false);
 app.ctr.dispatchEvent({type:'end'}); assert.equal(app.ctr.autoRotate,true,'Motion resumes after a gesture');
+
+/* The circuit runs the way the sun is seen to run, and at one of three paces.
+   The angle is measured from the south, east a quarter turn on from it, so a
+   sun leaving the east for the south is a falling angle: clockwise, seen from
+   above with north at the top. */
+const sunAngle = () => {
+  const p = app.LUMINARIES[0].objs[0].position;
+  return Math.atan2(p.x, p.z);
+};
+app.setMotion(true); advance(50);
+const wasEast = sunAngle();
+advance(4000);
+assert.ok(sunAngle() < wasEast, 'the sun leaves the east for the south, not the north');
+assert.equal(q('[data-speed="slow"]').getAttribute('aria-pressed'),'true',
+  'and does it slowly until it is asked to hurry');
+const slowFrom = app.state().lumSpin; advance(4000);
+const slowStep = app.state().lumSpin - slowFrom;
+q('[data-speed="fast"]').click();
+assert.equal(q('[data-speed="fast"]').getAttribute('aria-pressed'),'true');
+assert.equal(q('[data-speed="slow"]').getAttribute('aria-pressed'),'false','one pace at a time');
+assert.equal(app.state().motion,true,'a change of pace is not a change of mind');
+const fastFrom = app.state().lumSpin; advance(4000);
+assert.ok(app.state().lumSpin - fastFrom > slowStep * 3.5, 'fast is four circuits to the slow one');
+q('[data-speed="slow"]').click();
+
+/* The names the model gives follow the interface: Polish against Tibetan once
+   the interface is Polish, English against Tibetan while it is English. */
+window.WorldSystemLocale = {language:'pl'};
+window.dispatchEvent(new window.CustomEvent('ws-language-change',{detail:{lang:'pl'}}));
+assert.equal(q('[data-lang="en"]').textContent,'PL','the switch offers Polish, not English');
+assert.match(q('[data-lang="en"]').title,/^Polish names/);
+delete window.WorldSystemLocale;
+window.dispatchEvent(new window.CustomEvent('ws-language-change',{detail:{lang:'en'}}));
+assert.equal(q('[data-lang="en"]').textContent,'Eng');
+assert.match(q('[data-lang="en"]').title,/^English names/);
+
 app.setMotion(false); app.setMandala(false); advance(1000);
 app.setMotion(false); app.applyTheme(true); app.applyTheme(false);
 app.ORIGINAL_VISIBILITY.forEach((visible,obj)=>assert.equal(obj.visible,visible,'Original world restored'));
@@ -705,7 +741,7 @@ assert.equal(q('.bv-ask-warn').hidden,true,'with nothing to lose before a throw'
 assert.equal(q('.bv-names').querySelectorAll('input').length,2,'a field per player');
 q('[data-game="cancel-new"]').click();
 assert.equal(q('.bv-ask').hidden,true,'Keep playing shuts it again');
-assert.equal(q('#g-sound').checked,false,'The page stays silent until asked');
+assert.equal(q('#g-sound').checked,true,'The board answers aloud unless it has been hushed');
 newGame(1);
 assert.equal(app.rbGame().players.length,1);
 assert.equal(app.rbGame().players[0].pos,rbBoard.START);
@@ -1191,13 +1227,13 @@ console.log(JSON.stringify({result:'PASS',heaps:37,illustrations:24,triangles,at
  squares:app.rbBoard.nodes.size,anchoredSquares:anchoredSquares.length,boardCells:cells.length,
  squareNotes:Object.keys(SQUARE_NOTES).length, fullEntries:Object.keys(SQUARE_FULL).length,
  artSlotsProved:rbIcons.SQUARE_ART.size,
- checks:'Terrain overlay priority, independent motion/mandala switches and gesture resume, numbers toggle, '
+ checks:'Terrain overlay priority, independent motion/mandala switches and gesture resume, a clockwise circuit at three paces, the names switch following the interface, numbers toggle, '
    + 'billboards from 16 angles, 84% tour image fit at three viewport sizes, all 37 stops, playback, isolation, '
    + 'exclusive panels, image failure/retry, keyboard controls, reduced motion and visibility restoration. '
    + 'The board of rebirth: the three-way mode switch, 104 cells in the board\'s own order with their names and zones, a write-up on every '
    + 'square, the world framed clear of the board, all 21 anchored squares over the geometry drawn for them, the printed '
    + 'first move, the karmic trail, selection shared between cell, entry and marker, reading a player without taking their '
-   + 'turn, the counter trap end to end, victory and its rite, the board/world swap, silence until asked, pointer events on '
+   + 'turn, the counter trap end to end, victory and its rite, the board/world swap, a board that answers aloud until it is hushed, pointer events on '
    + 'every overlay panel, and the Escape cascade. Three controls on the model and no more, the view menu naming the '
    + 'view, every option under Options, the title at the head of the index, and no legend or export buttons left to '
    + 'lay out around. A voice for all 104 squares — the hells, the pretas, the animals, the human world, the other '
