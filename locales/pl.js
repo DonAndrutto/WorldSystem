@@ -864,7 +864,758 @@ const BOARD_NAMES={
   'Interface language': 'Język interfejsu',
   'The language names are given in': 'Język, w którym podawane są nazwy'
 });
-const PATTERNS=[[/^Player (\d+)$/, 'Gracz $1'],[/^player (\d+)$/,'gracz $1'],[/^(.+) wins$/, '$1 wygrywa'],[/^([A-Za-z][A-Za-z ]*) has the die\.$/, '$1 ma kostkę.'],[/^([A-Za-z][A-Za-z ]*) reached Nirvana\.$/, '$1 osiągnął Nirwanę.'],[/^Die (\d+) → (.*)$/, 'Kostka $1 → $2'],[/^Throw for (.*)$/, 'Rzut dla $1'],[/^Next turn: (.*)$/, 'Następna tura: $1'],[/^Square (\d+) lists no move on a (\d+), so the token stays and the die passes\.$/, 'Pole $1 nie ma ruchu dla wyniku $2, więc pionek zostaje, a kolejka przechodzi dalej.'],[/^The die names a destination; it does not count spaces\.$/, 'Kostka wskazuje cel, nie liczbę pól do przejścia.'],[/^Every token starts on 24, the Heavenly Highway\. /, 'Każdy pionek zaczyna na polu 24, Niebiańskiej Drodze. '],[/^(.+) threw a (\d+): /, '$1 wyrzucił $2: '],[/^([0-9]+) of 104$/, '$1 ze 104'],[/^row (\d+), column (\d+) from the right$/, 'rząd $1, kolumna $2 od prawej'],[/^(.+) — square (\d+)$/, (all, name, n) => tr(name) + ' — pole ' + n],[/^Heap (\d+) of 37$/, 'Kopczyk $1 z 37'],[/^(.+) · (\d+) throws, (\d+) journeys$/, '$1 · $2 rzutów, $3 podróży']];
+/* ── the composed strings ────────────────────────────────────────────────
+   Each entry is matched against a whole text node or attribute, so the shape
+   has to be the one the page composes, not a plausible one. A replacement may
+   be a function, and a function may put a capture back through tr(): a square
+   named inside a caption is a square whose Polish name the table already
+   holds, and a player's name is "Gracz 1" wherever it appears.
+
+   Nothing here says what the player did. The game lets each player be
+   Mężczyzna or Kobieta, and Polish verbs in the past tense would have to
+   choose; "wyrzucił" for a woman is not a smaller error for being a common
+   one. The die's result is a noun — wynik — and where a person must be the
+   subject the verb is present tense, which does not inflect for gender. */
+const plural = (n, one, few, many) => {
+  const tens = Math.abs(n) % 100, unit = tens % 10;
+  if (Math.abs(n) === 1) return one;
+  if (unit >= 2 && unit <= 4 && !(tens >= 12 && tens <= 14)) return few;
+  return many;
+};
+const RESUMED = { 'reached Nirvana': 'osiąga Nirwanę', 'has the die': 'ma kostkę' };
+/* ── written by scripts/build-locale.cjs — do not edit below ───────── */
+Object.assign(T, {
+  "Tantra, Path of Application: “Receptivity”": "Tantra, ścieżka zastosowania — cierpliwość",
+  "Tantra, Path of Application: “Highest Teachings”": "Tantra, ścieżka zastosowania — najwyższe nauki",
+  "Hindu Wisdom-Holder (Vidyādhara)": "Hinduski Trzymający Wiedzę (Vidyādhara)",
+  "Mahāyāna, Path of Application: “Receptivity” (Kṣānti)": "Mahajana, ścieżka zastosowania — cierpliwość",
+  "Mahāyāna, Path of Application: “Highest Teachings” (Laukikāgra-Dharma)": "Mahajana, ścieżka zastosowania — najwyższe nauki",
+  "Wisdom-Holder of the Bön Tradition (*Bön Vidyādhara)": "Trzymający Wiedzę Tradycji Bön (*Bön Vidyādhara)",
+  "First Tantra Stage": "Pierwszy stopień tantryczny",
+  "Wisdom-Holder Among the Gods of Sense Desire (*Kāmadeva-Vidyādhara)": "Trzymający Wiedzę wśród Bogów Sfery Pragnienia (*Kāmadeva-Vidyādhara)",
+  "Wisdom-Holder of the Realm of Form (*Rūpa-Dhātu-Vidyādhara)": "Trzymający Wiedzę Sfery Formy (*Rūpa-Dhātu-Vidyādhara)",
+  "Tantric Wheel-Turning King (*Mantra-Cakravartin)": "Tantryczny Władca Obracający Kołem (*Mantra-Cakravartin)",
+  "Realm of Action-Completion (*Karma-Paripūraṇa)": "Kraina Spełnionego Działania (*Karma-Paripūraṇa)",
+  "First Sutra Stage (Bhūmi)": "Pierwszy stopień sutrowy (bhūmi)",
+  "Wisdom-Holder of the Eight Siddhis": "Trzymający Wiedzę Ośmiu Siddhi",
+  "Second Tantra Stage": "Drugi stopień tantryczny",
+  "Third Tantra Stage": "Trzeci stopień tantryczny",
+  "Fourth Tantra Stage": "Czwarty stopień tantryczny",
+  "Realm of Jeweled Peaks (Ratna-Kūṭa)": "Kraina Klejnotowych Szczytów (Ratna-Kūṭa)",
+  "Land of Bliss (Sukhāvatī)": "Kraina Szczęśliwości (Sukhāvatī)",
+  "Fourth Sutra Stage": "Czwarty stopień sutrowy",
+  "Third Sutra Stage": "Trzeci stopień sutrowy",
+  "Second Sutra Stage": "Drugi stopień sutrowy",
+  "Fifth Tantra Stage": "Piąty stopień tantryczny",
+  "Sixth Tantra Stage": "Szósty stopień tantryczny",
+  "Seventh Tantra Stage": "Siódmy stopień tantryczny",
+  "Supreme Heaven (Akaniṣṭha)": "Niebo Najwyższe (Akaniṣṭha)",
+  "Realm of Superjoy (Abhirati)": "Kraina Wielkiej Radości (Abhirati)",
+  "Seventh Sutra Stage": "Siódmy stopień sutrowy",
+  "Sixth Sutra Stage": "Szósty stopień sutrowy",
+  "Fifth Sutra Stage": "Piąty stopień sutrowy",
+  "Eighth Tantra Stage": "Ósmy stopień tantryczny",
+  "Ninth Tantra Stage": "Dziewiąty stopień tantryczny",
+  "Tenth Tantra Stage": "Dziesiąty stopień tantryczny",
+  "Great Enjoyment Body (Sambhoga-Kāya)": "Wielka Sambhogakāja",
+  "Great Dharma Body (Dharma-Kāya)": "Wielka Dharmakāja",
+  "Tenth Sutra Stage": "Dziesiąty stopień sutrowy",
+  "Ninth Sutra Stage": "Dziewiąty stopień sutrowy",
+  "Eighth Sutra Stage": "Ósmy stopień sutrowy",
+  "Adopting a Physical Form": "Przyjęcie fizycznego ciała",
+  "The Setting Forth (Pravrajita)": "Odejście z domu (Pravrajita)",
+  "Ascetic Practices (Tapas)": "Praktyki ascetyczne (Tapas)",
+  "Conquest of Māra": "Pokonanie Māry",
+  "Buddhahood": "Stan Buddy",
+  "Turning the Wheel of Dharma": "Obrócenie Koła Dharmy",
+  "Demonstration of Miracles": "Demonstracja cudów",
+  "Nirvana": "Nirwana",
+  "Explorer e · Mandala m · Game g": "Eksplorator e · Mandala m · Gra g",
+  "Motion, night, full screen, reset": "Ruch, noc, pełny ekran, reset",
+  "Sound — the voice each square answers in": "Dźwięk — głos, jakim odpowiada każde pole",
+  "Eng": "Ang",
+  "The board alone — a diagram of positions": "Sama plansza — schemat pozycji",
+  "Board and world together": "Plansza i świat razem",
+  "The world alone, in three dimensions": "Sam świat, w trzech wymiarach",
+  "The six possible destinations for this turn": "Sześć możliwych celów tej kolejki",
+  "Start a new game — asks first": "Rozpocznij nową grę — najpierw pyta o potwierdzenie",
+  "Every throw of this game, in order": "Wszystkie rzuty tej gry, w kolejności",
+  "Back one": "Wstecz o jeden kopczyk",
+  "Forward one": "Naprzód o jeden kopczyk",
+  "Go to an offering": "Przejdź do wybranego ofiarowania",
+  "Filter the index": "Filtruj indeks według nazwy lub znaczenia",
+  "Notes on the drawing": "Uwagi o rysunku",
+  "Eastern face — crystal": "Ściana wschodnia — kryształ",
+  "Southern face — lapis": "Ściana południowa — lapis lazuli",
+  "Western face — ruby": "Ściana zachodnia — rubin",
+  "Northern face — emerald": "Ściana północna — szmaragd",
+  "First terrace": "Pierwszy taras",
+  "Second terrace": "Drugi taras",
+  "Third terrace": "Trzeci taras",
+  "Fourth terrace — the Four Kings": "Czwarty taras — Czterej Wielcy Królowie",
+  "Vaijayanta palace": "Pałac Vaijayanta",
+  "The four parks": "Cztery ogrody",
+  "on the summit": "na szczycie",
+  "The seven golden ranges": "Siedem złotych pasm",
+  "40,000 high": "wysokość 40 000",
+  "20,000 high": "wysokość 20 000",
+  "10,000 high": "wysokość 10 000",
+  "5,000 high": "wysokość 5000",
+  "2,500 high": "wysokość 2500",
+  "1,250 high": "wysokość 1250",
+  "625 high": "wysokość 625",
+  "The waters": "Wody",
+  "The foundation": "Podłoże",
+  "The four continents": "Cztery kontynenty",
+  "Lake Anavatapta": "Jezioro Anavatapta",
+  "50 square": "bok 50",
+  "The Vajrāsana": "Vajrāsana",
+  "the centre": "środek",
+  "The eight subcontinents": "Osiem mniejszych kontynentów",
+  "Sun and moon": "Słońce i księżyc",
+  "The six desire heavens": "Sześć niebios pragnienia",
+  "The life of a god": "Życie boga",
+  "the desire gods": "bogowie pragnienia",
+  "Cāturmahārājika — the terrace": "Cāturmahārājika — taras",
+  "144 million": "144 mln",
+  "576 million": "576 mln",
+  "2.304 billion": "2,304 mld",
+  "9.216 billion": "9,216 mld",
+  "The seventeen heavens of form": "Siedemnaście niebios formy",
+  "First dhyāna": "Pierwsza dhjana",
+  "Second dhyāna": "Druga dhjana",
+  "Third dhyāna": "Trzecia dhjana",
+  "Fourth dhyāna": "Czwarta dhjana",
+  "The five pure abodes": "Pięć czystych siedzib",
+  "The four formless absorptions": "Cztery bezforemne skupienia",
+  "The eight hot hells": "Osiem gorących piekieł",
+  "1.62 tyr": "1,62 bln lat",
+  "12.96 tyr": "12,96 bln lat",
+  "103.7 tyr": "103,7 bln lat",
+  "829.4 tyr": "829,4 bln lat",
+  "6.64 qyr": "6,64 bld lat",
+  "53.1 qyr": "53,1 bld lat",
+  "The eight cold hells": "Osiem zimnych piekieł",
+  "20× the last": "20× ostatnie",
+  "The other destinies": "Pozostałe sfery odrodzenia",
+  "The mandala of thirty-seven": "Mandala trzydziestu siedmiu kopczyków",
+  "37 heaps": "37 kopczyków",
+  "heap 18": "kopczyk 18",
+  "heap 19": "kopczyk 19",
+  "heap 20": "kopczyk 20",
+  "heap 21": "kopczyk 21",
+  "heap 22": "kopczyk 22",
+  "heap 23": "kopczyk 23",
+  "heap 24": "kopczyk 24",
+  "heap 25": "kopczyk 25",
+  "heap 26": "kopczyk 26",
+  "heap 27": "kopczyk 27",
+  "heap 28": "kopczyk 28",
+  "heap 29": "kopczyk 29",
+  "heap 30": "kopczyk 30",
+  "heap 31": "kopczyk 31",
+  "heap 32": "kopczyk 32",
+  "heap 33": "kopczyk 33",
+  "heap 36": "kopczyk 36",
+  "heap 37": "kopczyk 37",
+  "The game of rebirth": "Gra odrodzenia",
+  "Below the ground": "Pod ziemią",
+  "In the world system": "W Systemie Świata",
+  "The human condition": "Kondycja ludzka",
+  "Tantric route": "Droga tantry",
+  "Sutra route": "Droga sutry",
+  "Sacred land": "Święta kraina",
+  "Buddha field": "Pole buddy",
+  "Body and act of a Buddha": "Ciało i czyn buddy",
+  "Sources: Vasubandhu,": "Źródła: Vasubandhu,",
+  "· the king of mountains": "· król gór",
+  "See also": "Zobacz też",
+  "Tour from here": "Zwiedzaj stąd",
+  "The precious mountain": "Góra klejnotów",
+  "The wish-fulfilling tree": "Drzewo spełniające życzenia",
+  "The wish-fulfilling cow": "Krowa spełniająca życzenia",
+  "The unsown harvest": "Zboże rosnące bez zasiewu",
+  "The precious wheel": "Drogocenne koło",
+  "The precious jewel": "Drogocenny klejnot",
+  "The precious queen": "Drogocenna królowa",
+  "The precious minister": "Drogocenny minister",
+  "The precious elephant": "Drogocenny słoń",
+  "The precious horse": "Drogocenny koń",
+  "The precious general": "Drogocenny generał",
+  "The vase of great treasure": "Waza wielkiego skarbu",
+  "The precious parasol": "Drogocenny parasol",
+  "The banner of victory": "Sztandar zwycięstwa",
+  "Placement follows": "Rozmieszczenie jest zgodne z",
+  "Lama Sonam Rinpoche’s 2017 diagram": "diagramem Lamy Sonama Rinpocze z 2017 roku,",
+  "from Pema Ösel Ling. In the reference view, north is at the top and south at the bottom. The compass follows the view as it turns. For a physical offering, orient the plate according to your practice instructions. The outer numbered rings show offering positions.": "pochodzącym z Pema Ösel Ling. Na widoku odniesienia północ jest u góry, a południe u dołu. Kompas podąża za obracającym się widokiem. W przypadku fizycznego ofiarowania ułóż talerz zgodnie ze wskazówkami swojej praktyki. Zewnętrzne numerowane pierścienie pokazują pozycje ofiarowania.",
+  "ri rab lhun po · the king of mountains": "ri rab lhun po · król gór",
+  "Begin at Meru, the central mountain. Look at its four coloured faces, terraces and summit. Everything else in the offering is arranged in relation to this centre.": "Zacznij od Meru, centralnej góry. Przyjrzyj się jej czterem kolorowym ścianom, tarasom i szczytowi. Wszystko inne w ofiarowaniu jest ułożone w odniesieniu do tego centrum.",
+  "Read entry & sources": "Czytaj hasło i źródła",
+  "Re-centre": "Wyśrodkuj",
+  "Take your time. Drag to look around and scroll or pinch to zoom. Use the arrows to visit the next heap.": "Nie spiesz się. Przeciągaj, aby się rozejrzeć, i przewijaj lub uszczypnij, aby powiększyć. Użyj strzałek, aby przejść do następnego kopczyka.",
+  "Previous": "Poprzedni",
+  "Return to whole mandala": "Wróć do całej mandali",
+  "Rebirth Board Game": "Gra planszowa odrodzenia",
+  "Throw the die to follow its destination. A missing destination means stay and pass. In a trap, collect the required faces; a needed face gives another throw. Reach 104 to win.": "Rzuć kostką, aby podążyć do wskazanego celu. Brak celu oznacza, że pionek zostaje, a kolejka przechodzi dalej. W pułapce zbieraj wymagane wyniki; potrzebny wynik daje dodatkowy rzut. Osiągnij 104, aby wygrać.",
+  "Choose a name, character and colour for each player. Everyone starts on 24. The die names a destination, not a number of steps.": "Wybierz imię, postać i kolor dla każdego gracza. Wszyscy zaczynają na polu 24. Kostka wskazuje cel, a nie liczbę kroków.",
+  "Bhutanese · Male": "Bhutański · Mężczyzna",
+  "Bhutanese · Female": "Bhutańska · Kobieta",
+  "Note 64 trap quotas": "Pule pułapek według przypisu 64",
+  "threw a 5: 24 → 10, Hungry Ghosts (Preta).": "— wynik 5: 24 → 10, Głodne duchy (prety).",
+  "Driven by greed, hungry ghosts experience insatiable hunger and thirst in a world where nourishment becomes inaccessible or revolting. Offerings dedicated to them provide relief from their distorted experience.": "Napędzane chciwością głodne duchy doświadczają nienasyconego głodu i pragnienia w świecie, w którym pożywienie staje się niedostępne lub odrażające. Dedykowane im ofiarowania przynoszą ulgę w tym zniekształconym doświadczeniu.",
+  "A Buddha field. The sources hold that these lie outside the Meru world system altogether, so it floats clear of the rim.": "Pole buddy. Źródła podają, że pola takie leżą całkowicie poza systemem świata Meru — to pole unosi się swobodnie poza jego obrzeżem.",
+  "A board of 104 squares laid over the world system": "Plansza stu czterech pól, nałożona na system świata.",
+  "A game attributed to Sakya Pandita, in which a die names the square you go to rather than a number of steps to travel. A face with no listed move is dead: you stay where you are and pass.": "Gra przypisywana Sakya Pandicie, w której kostka wskazuje pole, na które się przechodzi, zamiast liczby kroków do przebycia. Wynik bez przypisanego ruchu jest martwy: pionek zostaje, a kolejka przechodzi dalej.",
+  "A land the sources describe as lying on the earth, though no account of the world system fixes where. It stands out beyond the rim.": "Kraina, którą źródła opisują jako leżącą na ziemi, choć żaden opis systemu świata nie precyzuje, gdzie dokładnie. Wykracza poza obrzeże.",
+  "A station on the tantric route. It marks an attainment rather than a place, and stands on the right-hand ascent the board itself arranges.": "Przystanek na drodze tantry. Oznacza osiągnięcie, a nie miejsce, i znajduje się na prawej, wznoszącej się ścieżce, którą układa sama plansza.",
+  "A trap. Throws that are still needed let you keep going in the same turn; a throw you no longer need ends it, and the counts are kept until the next. Twenty-one useful throws in all.": "Pułapka. Rzuty, które są jeszcze potrzebne, pozwalają kontynuować w tej samej kolejce; rzut, który nie jest już potrzebny, kończy ją, a wyniki pozostają zapisane do następnej. W sumie dwadzieścia jeden przydatnych rzutów.",
+  "Already in the model": "Już w modelu",
+  "Drawn as": "Przedstawione jako",
+  "Game over": "Koniec gry",
+  "Given a place by the board": "Ma pole na planszy",
+  "Nirvana. Beyond the round the rest of the board draws.": "Nirwana. Poza kręgiem, który przedstawia reszta planszy.",
+  "Not needed": "Niepotrzebne",
+  "Numbering": "Numeracja",
+  "On the board": "Na planszy",
+  "One ceremonial stupa throw remains.": "Pozostał jeden ceremonialny rzut stupy.",
+  "Square": "Pole",
+  "Squares": "Pola",
+  "Stands": "Ma własne pole",
+  "The full entry": "Pełne hasło",
+  "The game is complete. Start a new game to play again.": "Gra jest zakończona. Rozpocznij nową grę, aby zagrać ponownie.",
+  "The game is over": "Gra się zakończyła",
+  "The saved game could not be read. Start a new game.": "Nie udało się odczytać zapisanej gry. Rozpocznij nową grę.",
+  "The stupa throw": "Rzut stupy",
+  "The token stays.": "Pionek zostaje.",
+  "This Buddha field rises above the tenth stages in the game’s symbolic ascent. The samsaric heaven of the same name remains in the world below.": "To pole buddy wznosi się ponad dziesiąte stopnie w symbolicznym wznoszeniu gry. Samsaryczne niebo o tej samej nazwie pozostaje w świecie poniżej.",
+  "Throw (trapped)": "Rzuć (w pułapce)",
+  "Variant reading": "Wariant odczytu",
+  "Victory": "Zwycięstwo",
+  "76. Realm of Jeweled Peaks (Ratna-Kūṭa)": "76. Kraina Klejnotowych Szczytów (Ratna-Kūṭa)",
+  "92. Great Enjoyment Body (Sambhoga-Kāya)": "92. Wielka Sambhogakāja",
+  "94. Tenth Sutra Stage": "94. Dziesiąty stopień sutry",
+  "· crystal · white": "kryształ · biel",
+  "· lapis lazuli · blue": "lapis lazuli · błękit",
+  "· ruby · red": "rubin · czerwień",
+  "· emerald · green": "szmaragd · zieleń",
+  "· the heaven of the Four Great Kings": "niebo Czterech Wielkich Królów",
+  "· he who upholds the realm": "podtrzymujący królestwo",
+  "· the grown one": "wyrosły",
+  "· he of unlovely eyes": "o niepięknych oczach",
+  "· he who is well heard of": "cieszący się dobrą sławą",
+  "· the Thirty-Three": "Trzydziestu Trzech",
+  "· lovely to look upon": "miłe dla oka",
+  "· the victorious": "zwycięski",
+  "· not-gods": "nie-bogowie",
+  "· yoke-holder": "noszące jarzmo",
+  "· plough-shaft holder": "noszące dyszel pługa",
+  "· acacia-forested": "porośnięte akacjami",
+  "· pleasing to behold": "miłe dla oka",
+  "· horse's ear": "końskie ucho",
+  "· bent down": "pochylone",
+  "· holder of the wheel-rim": "noszące obręcz koła",
+  "· the fresh waters": "wody słodkie",
+  "· the eighth sea · salt water": "ósme morze · słona woda",
+  "· the encircling rim": "otaczająca obręcz",
+  "· the earth element": "żywioł ziemi",
+  "· the water element": "żywioł wody",
+  "· the wind element": "żywioł wiatru",
+  "· the rose-apple continent": "kontynent drzewa dźambu",
+  "· the continent of tall bodies": "kontynent wysokich ciał",
+  "· the continent of cattle-wealth": "kontynent bogactwa bydła",
+  "· unpleasant sound": "nieprzyjemny dźwięk",
+  "· jambu · the tree that names Jambudvīpa": "dźambu: drzewo, od którego nazwano Jambudvīpę",
+  "· the unheated lake": "· nieogrzewane jezioro",
+  "· the diamond seat": "· diamentowe siedzisko",
+  "· free of strife": "wolne od walk",
+  "· the joyful": "radosne",
+  "· delighting in emanation": "radujący się emanacjami",
+  "· wielding power over others' emanations": "władający emanacjami innych",
+  "· Brahmā's retinue": "orszaki Brahmy",
+  "· Brahmā's ministers": "ministrowie Brahmy",
+  "· great Brahmā": "wielki Brahma",
+  "· limited light": "ograniczone światło",
+  "· measureless light": "niezmierzone światło",
+  "· streaming radiance": "promieniujący blask",
+  "· limited virtue": "ograniczone dobro",
+  "· measureless virtue": "niezmierzone dobro",
+  "· perfect virtue": "pełnia dobra",
+  "· cloudless": "bezchmurne",
+  "· born of merit": "zrodzone z zasługi",
+  "· vast fruit": "rozległy owoc",
+  "· not falling away": "nieupadające",
+  "· without torment": "bez udręki",
+  "· clear-sighted": "jasno widzące",
+  "· well-seeing": "dobrze widzące",
+  "· none higher": "nic wyższego",
+  "· the sphere of infinite space": "sfera nieskończonej przestrzeni",
+  "· the sphere of infinite consciousness": "sfera nieskończonej świadomości",
+  "· the sphere of nothing whatever": "sfera nicości",
+  "· neither perception nor non-perception": "ani postrzeganie, ani niepostrzeganie",
+  "· reviving": "ożywanie",
+  "· black line": "czarna linia",
+  "· crushing": "miażdżenie",
+  "· howling": "wycie",
+  "· great howling": "wielkie wycie",
+  "· heat": "żar",
+  "· intense heat": "wielki żar",
+  "· without interval": "bez przerwy",
+  "· utsada · the four gates": "utsada · cztery bramy",
+  "· blistering": "pęcherze",
+  "· bursting blisters": "pękające pęcherze",
+  "· chattering": "szczękanie",
+  "· the cry hahava": "okrzyk hahava",
+  "· the groan huhuva": "jęk huhuva",
+  "· split like a blue lotus": "pękanie jak niebieski lotos",
+  "· split like a lotus": "pękanie jak lotos",
+  "· split like a great lotus": "pękanie jak wielki lotos",
+  "· the hungry ghosts": "głodne duchy",
+  "· tiryagyoni · those who go crosswise": "tiryagyoni · poruszające się poziomo",
+  "· the four continents": "cztery kontynenty",
+  "· thousand-spoked, of gold": "· o tysiącu szprych, złote",
+  "· eight-faceted, lighting the night": "· ośmiościenny, rozświetlający noc",
+  "· faultless in conduct and counsel": "· nienaganna w postępowaniu i radzie",
+  "· who knows what is needed": "· znający potrzeby",
+  "· white, with seven limbs": "· biały, o siedmiu kończynach",
+  "· swift, circling the world in a day": "· szybki, okrążający świat w ciągu dnia",
+  "· who wins without harm": "· zwyciężający bez krzywdy",
+  "· the goddess of beauty": "· bogini piękna",
+  "· the goddess of garlands": "· bogini girland",
+  "· the goddess of song": "· bogini śpiewu",
+  "· the goddess of dance": "· bogini tańca",
+  "· the goddess of flowers": "· bogini kwiatów",
+  "· the goddess of incense": "· bogini kadzidła",
+  "· the goddess of light": "· bogini światła",
+  "· the goddess of perfume": "· bogini wonności",
+  "· victory over the three worlds": "· zwycięstwo nad trzema światami",
+  "Outside the walls of Sudarśana": "Poza murami Sudarśany",
+  "First of the seven golden ranges": "Pierwsze z siedmiu złotych pasm",
+  "Second of the seven golden ranges": "Drugie z siedmiu złotych pasm",
+  "Third of the seven golden ranges": "Trzecie z siedmiu złotych pasm",
+  "Fourth of the seven golden ranges": "Czwarte z siedmiu złotych pasm",
+  "Fifth of the seven golden ranges": "Piąte z siedmiu złotych pasm",
+  "Sixth of the seven golden ranges": "Szóste z siedmiu złotych pasm",
+  "Seventh of the seven golden ranges": "Siódme z siedmiu złotych pasm",
+  "Beyond the northern mountains of Jambudvīpa": "Za północnymi górami Jambudvīpy",
+  "At the middle of Jambudvīpa": "Pośrodku Jambudvīpy",
+  "South · subcontinent": "Południe · mniejszy kontynent",
+  "East · subcontinent": "Wschód · mniejszy kontynent",
+  "West · subcontinent": "Zachód · mniejszy kontynent",
+  "North · subcontinent": "Północ · mniejszy kontynent",
+  "Birth, union, and the five signs": "Narodziny, zjednoczenie i pięć oznak",
+  "Form realm · 1st dhyāna": "Sfera formy · 1. dhjana",
+  "Form realm · 2nd dhyāna": "Sfera formy · 2. dhjana",
+  "Form realm · 3rd dhyāna": "Sfera formy · 3. dhjana",
+  "Form realm · 4th dhyāna": "Sfera formy · 4. dhjana",
+  "Form realm · 4th · pure dhyāna": "Sfera formy · 4. · czysta dhjana",
+  "Hot hell · 8 from the bottom": "Gorące piekło · 8. od dna",
+  "Hot hell · 7 from the bottom": "Gorące piekło · 7. od dna",
+  "Hot hell · 6 from the bottom": "Gorące piekło · 6. od dna",
+  "Hot hell · 5 from the bottom": "Gorące piekło · 5. od dna",
+  "Hot hell · 4 from the bottom": "Gorące piekło · 4. od dna",
+  "Hot hell · 3 from the bottom": "Gorące piekło · 3. od dna",
+  "Hot hell · 2 from the bottom": "Gorące piekło · 2. od dna",
+  "Hot hell · 1 from the bottom": "Gorące piekło · 1. od dna",
+  "Cold hell · 1 of eight": "Zimne piekło · 1. z ośmiu",
+  "Cold hell · 2 of eight": "Zimne piekło · 2. z ośmiu",
+  "Cold hell · 3 of eight": "Zimne piekło · 3. z ośmiu",
+  "Cold hell · 4 of eight": "Zimne piekło · 4. z ośmiu",
+  "Cold hell · 5 of eight": "Zimne piekło · 5. z ośmiu",
+  "Cold hell · 6 of eight": "Zimne piekło · 6. z ośmiu",
+  "Cold hell · 7 of eight": "Zimne piekło · 7. z ośmiu",
+  "Cold hell · 8 of eight": "Zimne piekło · 8. z ośmiu",
+  "The world system, offered": "System Świata, ofiarowany",
+  "A treasure of the continents · Pūrvavideha, east": "Skarb kontynentów · Pūrvavideha, wschód",
+  "A treasure of the continents · Jambudvīpa, south": "Skarb kontynentów · Jambudvīpa, południe",
+  "A treasure of the continents · Aparagodānīya, west": "Skarb kontynentów · Aparagodānīya, zachód",
+  "A treasure of the continents · Uttarakuru, north": "Skarb kontynentów · Uttarakuru, północ",
+  "The seven emblems of a universal monarch": "Siedem emblematów władcy uniwersalnego",
+  "The eighth of the precious things": "Ósma z drogocennych rzeczy",
+  "The eight offering goddesses": "Osiem bogiń ofiarowania",
+  "The shelter held above": "Osłona trzymana nad głową",
+  "Victorious in every direction": "Zwycięski we wszystkich kierunkach",
+  "Hell states": "Stany piekielne",
+  "Underworld beings and spirits": "Istoty i duchy podziemi",
+  "Hungry ghosts": "Głodne duchy",
+  "Human continents": "Kontynenty ludzkie",
+  "Non-Buddhist traditions as represented in the book": "Tradycje niebuddyjskie przedstawione w książce",
+  "Starting position": "Pozycja startowa",
+  "Tantric path": "Ścieżka tantry",
+  "Universal sovereignty": "Władza uniwersalna",
+  "Heavens of sense desire": "Niebiosa sfery pragnienia",
+  "Dharma protector": "Obrońca Dharmy",
+  "Realm of Form": "Sfera formy",
+  "Formless Realm": "Sfera bezforemna",
+  "Vehicle of Disciples": "Pojazd Śrawaków",
+  "Independent Buddha path": "Ścieżka Pratjekabuddhy",
+  "Mahāyāna sutra path": "Ścieżka sutry Mahajany",
+  "Mythic and sacred lands": "Mityczne i święte krainy",
+  "Wisdom-holder attainments": "Osiągnięcia widjadharów",
+  "Buddha fields": "Pola buddy",
+  "Buddha bodies": "Ciała buddy",
+  "Acts of the Emanation body": "Czyny Nirmāṇakāji",
+  "One to each side": "Po jednym z każdej strony",
+  "Each": "Każdy",
+  "Pārijāta tree": "Drzewo Pārijāta",
+  "Sudharmā hall": "Sala Sudharmā",
+  "Rivers": "Rzeki",
+  "Their mouths": "Ich ujścia",
+  "On its bank": "Nad jego brzegiem",
+  "Reaches": "Zasięg",
+  "Why here": "Dlaczego tutaj",
+  "Who sits here": "Kto tu zasiada",
+  "Growth": "Wzrost",
+  "Bodies": "Ciała",
+  "Clothing": "Odzienie",
+  "The five signs of death": "Pięć oznak śmierci",
+  "Heaps": "Kopczyki",
+  "18–25 directions": "Kierunki 18–25",
+  "26–33 directions": "Kierunki 26–33",
+  "34–37 directions": "Kierunki 34–37",
+  "Continent": "Kontynent",
+  "In the offering": "W ofiarowaniu",
+  "Placed": "Umiejscowienie",
+  "Drawn": "Przedstawienie",
+  "Belongs to": "Należy do",
+  "Read as": "Odczytywane jako",
+  "Form": "Kształt",
+  "Contents": "Zawartość",
+  "Buried": "Zakopanie",
+  "Offers": "Oferuje",
+  "Held above": "Trzymany nad",
+  "Shelters from": "Chroni przed",
+  "Stands for": "Oznacza",
+  "Placed on": "Umieszczony na",
+  "Traps": "Pułapki",
+  "Trap": "Pułapka",
+  "of the city, on Meru's summit": "miasta, na szczycie Meru",
+  "a hundred yojanas square, with a pond at its centre": "kwadrat o boku stu jodźan, ze stawem pośrodku",
+  "north-east of the city; its scent carries a hundred yojanas": "na północny wschód od miasta; jego zapach niesie się na sto jodźan",
+  "south-west, where Śakra and the thirty-two take counsel": "na południowy zachód, gdzie Śakra i trzydziestu dwóch bogów obradują",
+  "gardens where gods of different heavens meet": "ogrody, w których spotykają się bogowie różnych niebios",
+  "40,000 yojanas — height and width are equal": "40 000 jodźan — wysokość i szerokość są równe",
+  "80,000 yojanas wide": "szerokość 80 000 jodźan",
+  "40,000 yojanas wide": "szerokość 40 000 jodźan",
+  "20,000 yojanas — height and width are equal": "20 000 jodźan — wysokość i szerokość są równe",
+  "20,000 yojanas wide": "szerokość 20 000 jodźan",
+  "10,000 yojanas — height and width are equal": "10 000 jodźan — wysokość i szerokość są równe",
+  "10,000 yojanas wide": "szerokość 10 000 jodźan",
+  "5,000 yojanas above the water": "5000 jodźan ponad wodą",
+  "5,000 yojanas — height and width are equal": "5000 jodźan — wysokość i szerokość są równe",
+  "5,000 yojanas wide": "szerokość 5000 jodźan",
+  "2,500 yojanas above the water": "2500 jodźan ponad wodą",
+  "2,500 yojanas — height and width are equal": "2500 jodźan — wysokość i szerokość są równe",
+  "2,500 yojanas wide": "szerokość 2500 jodźan",
+  "1,250 yojanas above the water": "1250 jodźan ponad wodą",
+  "1,250 yojanas — height and width are equal": "1250 jodźan — wysokość i szerokość są równe",
+  "1,250 yojanas wide": "szerokość 1250 jodźan",
+  "625 yojanas above the water": "625 jodźan ponad wodą",
+  "625 yojanas — height and width are equal": "625 jodźan — wysokość i szerokość są równe",
+  "fifty yojanas square": "kwadrat o boku pięćdziesięciu jodźan",
+  "between Himavat and Gandhamādana, past nine black mountains": "między Himavatem a Gandhamādaną, za dziewięcioma czarnymi górami",
+  "Gaṅgā east, Sindhu south, Vakṣu west, Sītā north": "Gaṅgā na wschodzie, Sindhu na południu, Vakṣu na zachodzie, Sītā na północy",
+  "a lion, an elephant, a horse and an ox — the assignments differ between accounts": "lew, słoń, koń i wół — przypisania różnią się między źródłami",
+  "Anavatapta, held to be a bodhisattva in nāga form": "Anavatapta, uważany za bodhisattwę w postaci nagi",
+  "the rose-apple tree that names the continent": "drzewo dźambu, od którego nazwano kontynent",
+  "Bodh Gayā, held to be the centre of the southern continent": "Bodh Gayā, uważana za centrum kontynentu południowego",
+  "down through the earth to the golden ground": "w głąb ziemi, aż do złotego podłoża",
+  "of the nature of vajra — unbreakable": "mający naturę wadżry — niezniszczalny",
+  "no other ground can bear the moment of full awakening": "żadne inne podłoże nie zniosłoby chwili pełnego przebudzenia",
+  "every buddha of this world system, a thousand in this kalpa": "każdy budda tego systemu świata, tysiąc w tej kalpie",
+  "A radiant red and gold solar disc": "Promienista czerwono-złota tarcza słoneczna",
+  "A luminous white lunar disc": "Świetlista biała tarcza księżycowa",
+  "apparitional — a god appears on the lap of another, a child of five years in the lowest heaven and ten in the highest": "spontaniczne — bóg pojawia się na kolanach innego, jako pięcioletnie dziecko w najniższym niebie i dziesięcioletnie w najwyższym",
+  "immediate; there is no infancy": "natychmiastowe; nie ma niemowlęctwa",
+  "as human beings do in the two lowest heavens; above, by embrace, by taking hands, by a smile, by a look": "tak jak u ludzi w dwóch najniższych niebiosach; wyżej — przez objęcie, przez ujęcie za ręce, przez uśmiech, przez spojrzenie",
+  "a quarter krośa in the lowest heaven, doubling upward": "ćwierć krośa w najniższym niebie, podwajająca się ku górze",
+  "appears with the body and is never soiled — until the end": "pojawia się wraz z ciałem i nigdy się nie brudzi — aż do samego końca",
+  "160,000 yojanas above the water": "160 000 jodźan ponad wodą",
+  "200 human years to one day": "200 ludzkich lat na jeden dzień",
+  "2,000 of its own years — 144 million human years": "2000 własnych lat, czyli 144 mln ludzkich lat",
+  "320,000 yojanas above the water": "320 000 jodźan ponad wodą",
+  "400 human years to one day": "400 ludzkich lat na jeden dzień",
+  "4,000 of its own years — 576 million human years": "4000 własnych lat, czyli 576 mln ludzkich lat",
+  "640,000 yojanas above the water": "640 000 jodźan ponad wodą",
+  "800 human years to one day": "800 ludzkich lat na jeden dzień",
+  "8,000 of its own years — 2.304 billion human years": "8000 własnych lat, czyli 2,304 mld ludzkich lat",
+  "1,280,000 yojanas above the water": "1 280 000 jodźan ponad wodą",
+  "1,600 human years to one day": "1600 ludzkich lat na jeden dzień",
+  "16,000 of its own years — 9.216 billion human years": "16 000 własnych lat, czyli 9,216 mld ludzkich lat",
+  "½ kalpa": "½ kalpy",
+  "20,000 great kalpas": "20 000 wielkich kalp",
+  "40,000 great kalpas": "40 000 wielkich kalp",
+  "60,000 great kalpas": "60 000 wielkich kalp",
+  "80,000 great kalpas": "80 000 wielkich kalp",
+  "1st of the eight, counting down": "1. z ośmiu, licząc od góry",
+  "the whole life of a Cāturmahārājika god — 9 million human years": "całe życie boga Cāturmahārājiki — 9 mln ludzkich lat",
+  "500 of its own years — some 1.62 trillion human years": "500 własnych lat, czyli około 1,62 biliona ludzkich lat",
+  "2nd of the eight, counting down": "2. z ośmiu, licząc od góry",
+  "the whole life of a Trāyastriṃśa god — 36 million human years": "całe życie boga Trāyastriṃśy — 36 mln ludzkich lat",
+  "1,000 of its own years — some 12.96 trillion human years": "1000 własnych lat, czyli około 12,96 biliona ludzkich lat",
+  "3rd of the eight, counting down": "3. z ośmiu, licząc od góry",
+  "the whole life of a Yāma god — 144 million human years": "całe życie boga Yāmy — 144 mln ludzkich lat",
+  "2,000 of its own years — some 103.7 trillion human years": "2000 własnych lat, czyli około 103,7 biliona ludzkich lat",
+  "4th of the eight, counting down": "4. z ośmiu, licząc od góry",
+  "the whole life of a Tuṣita god — 576 million human years": "całe życie boga Tuṣity — 576 mln ludzkich lat",
+  "4,000 of its own years — some 829.4 trillion human years": "4000 własnych lat, czyli około 829,4 biliona ludzkich lat",
+  "5th of the eight, counting down": "5. z ośmiu, licząc od góry",
+  "the whole life of a Nirmāṇarati god — 2.304 billion human years": "całe życie boga Nirmāṇarati — 2,304 mld ludzkich lat",
+  "8,000 of its own years — some 6.64 quadrillion human years": "8000 własnych lat, czyli około 6,64 biliarda ludzkich lat",
+  "6th of the eight, counting down": "6. z ośmiu, licząc od góry",
+  "the whole life of a Paranirmitavaśavartin god — 9.216 billion human years": "całe życie boga Paranirmitavaśavartin — 9,216 mld ludzkich lat",
+  "16,000 of its own years — some 53.1 quadrillion human years": "16 000 własnych lat, czyli około 53,1 biliarda ludzkich lat",
+  "7th of the eight, counting down": "7. z ośmiu, licząc od góry",
+  "twenty times the hell above it — 1 such multiples beyond Arbuda": "dwadzieścia razy więcej niż piekło powyżej — 1. taka wielokrotność powyżej Arbudy",
+  "twenty times the hell above it — 2 such multiples beyond Arbuda": "dwadzieścia razy więcej niż piekło powyżej — 2. taka wielokrotność powyżej Arbudy",
+  "twenty times the hell above it — 3 such multiples beyond Arbuda": "dwadzieścia razy więcej niż piekło powyżej — 3. taka wielokrotność powyżej Arbudy",
+  "twenty times the hell above it — 4 such multiples beyond Arbuda": "dwadzieścia razy więcej niż piekło powyżej — 4. taka wielokrotność powyżej Arbudy",
+  "twenty times the hell above it — 5 such multiples beyond Arbuda": "dwadzieścia razy więcej niż piekło powyżej — 5. taka wielokrotność powyżej Arbudy",
+  "twenty times the hell above it — 6 such multiples beyond Arbuda": "dwadzieścia razy więcej niż piekło powyżej — 6. taka wielokrotność powyżej Arbudy",
+  "twenty times the hell above it — 7 such multiples beyond Arbuda": "dwadzieścia razy więcej niż piekło powyżej — 7. taka wielokrotność powyżej Arbudy",
+  "37, laid in a fixed order from the centre outward": "37, ułożonych w ustalonym porządku od środka na zewnątrz",
+  "the eight subcontinents": "osiem mniejszych kontynentów",
+  "the four treasures, one to each continent": "cztery skarby, po jednym na każdy kontynent",
+  "the seven emblems of a universal monarch": "siedem emblematów władcy uniwersalnego",
+  "the vase of inexhaustible treasure": "waza niewyczerpanego skarbu",
+  "the eight offering goddesses": "osiem bogiń ofiarowania",
+  "east, south, west, north, south-east, south-west, north-west, north-east": "wschód, południe, zachód, północ, południowy wschód, południowy zachód, północny zachód, północny wschód",
+  "south-east, south-west, north-west, north-east, east, south, west, north": "południowy wschód, południowy zachód, północny zachód, północny wschód, wschód, południe, zachód, północ",
+  "sun, moon, parasol, and banner": "słońce, księżyc, parasol i sztandar",
+  "east, west, south, north": "wschód, zachód, południe, północ",
+  "the whole is given away, and the giving is the point": "całość zostaje oddana, a istotą jest samo dawanie",
+  "heaps 14–17, one to each continent": "kopczyki 14–17, po jednym na każdy kontynent",
+  "on its own continent, between the ring of land and the emblems": "na swoim własnym kontynencie, między pierścieniem lądu a emblematami",
+  "as an emblem; at true measure it would not be visible": "jako emblemat; w rzeczywistej skali byłaby niewidoczna",
+  "A craggy mountain of gold, silver, crystal and lapis": "Skalista góra ze złota, srebra, kryształu i lapis lazuli",
+  "A wish-fulfilling tree hung with jewels and silks": "Drzewo spełniające życzenia, obwieszone klejnotami i jedwabiami",
+  "A white cow with a jewelled collar": "Biała krowa z klejnotową obrożą",
+  "Ripe grain growing without cultivation": "Dojrzałe zboże rosnące bez uprawy",
+  "one of the seven precious emblems (saptaratna)": "jeden z siedmiu drogocennych emblematów (saptaratna)",
+  "on the ring beyond the continents, to the east": "na pierścieniu za kontynentami, na wschodzie",
+  "a cakravartin — a monarch whose wheel turns unopposed": "cakravartin — władca, którego koło toczy się bez przeszkód",
+  "heap 18 of thirty-seven": "kopczyk 18 z trzydziestu siedmiu",
+  "a quality of an awakened mind, not a possession": "cecha przebudzonego umysłu, a nie własność",
+  "A radiant golden royal wheel with an elaborate stand": "Promienne złote królewskie koło na misternej podstawie",
+  "on the ring beyond the continents, to the south": "na pierścieniu za kontynentami, na południu",
+  "heap 19 of thirty-seven": "kopczyk 19 z trzydziestu siedmiu",
+  "A blue wish-fulfilling jewel surrounded by coloured radiance": "Błękitny klejnot spełniający życzenia, otoczony kolorową poświatą",
+  "on the ring beyond the continents, to the west": "na pierścieniu za kontynentami, na zachodzie",
+  "heap 20 of thirty-seven": "kopczyk 20 z trzydziestu siedmiu",
+  "A queen in silk and jewels holding a lotus": "Królowa w jedwabiach i klejnotach, trzymająca lotos",
+  "on the ring beyond the continents, to the north": "na pierścieniu za kontynentami, na północy",
+  "heap 21 of thirty-seven": "kopczyk 21 z trzydziestu siedmiu",
+  "A royal minister holding a treasure casket": "Królewski minister trzymający szkatułę ze skarbem",
+  "on the ring beyond the continents, to the south-east": "na pierścieniu za kontynentami, na południowym wschodzie",
+  "heap 22 of thirty-seven": "kopczyk 22 z trzydziestu siedmiu",
+  "A white elephant with two tusks and a jewelled harness": "Biały słoń z dwoma kłami i klejnotową uprzężą",
+  "on the ring beyond the continents, to the south-west": "na pierścieniu za kontynentami, na południowym zachodzie",
+  "heap 23 of thirty-seven": "kopczyk 23 z trzydziestu siedmiu",
+  "A white horse with a flowing mane and brocade saddle cloth": "Biały koń z powiewającą grzywą i czaprakiem z brokatu",
+  "on the ring beyond the continents, to the north-west": "na pierścieniu za kontynentami, na północnym zachodzie",
+  "heap 24 of thirty-seven": "kopczyk 24 z trzydziestu siedmiu",
+  "A commander in lamellar armour with sword and shield": "Dowódca w zbroi lamelkowej, z mieczem i tarczą",
+  "a treasure vase; the illustration uses a jewel finial": "waza skarbu; ilustracja przedstawia ją z klejnotowym zwieńczeniem",
+  "never exhausted, however much is drawn out": "nigdy się nie wyczerpuje, bez względu na to, ile z niej zaczerpnięto",
+  "on the ring beyond the continents, to the north-east — the eighth place": "na pierścieniu za kontynentami, na północnym wschodzie — miejsce ósme",
+  "in Tibetan practice, vases are set in the ground for the prosperity of a place": "w tybetańskiej praktyce wazy zakopuje się w ziemi dla pomyślności danego miejsca",
+  "heap 25, closing the emblems of the monarch": "kopczyk 25, zamykający emblematy władcy",
+  "A golden treasure vase with jewels and silk ribbons": "Złota waza skarbu z klejnotami i jedwabnymi wstęgami",
+  "one of the eight goddesses of offering": "jedna z ośmiu bogiń ofiarowania",
+  "on the ring beyond the emblems, to the south-east": "na pierścieniu za emblematami, na południowym wschodzie",
+  "heap 26 of thirty-seven": "kopczyk 26 z trzydziestu siedmiu",
+  "Graceful bearing, expressed through posture and empty hands": "Pełen wdzięku sposób bycia, wyrażony przez postawę i puste dłonie",
+  "adornment": "ozdoba",
+  "on the ring beyond the emblems, to the south-west": "na pierścieniu za emblematami, na południowym zachodzie",
+  "heap 27 of thirty-seven": "kopczyk 27 z trzydziestu siedmiu",
+  "A garland offered in both hands": "Girlanda ofiarowywana w obu dłoniach",
+  "sound": "dźwięk",
+  "on the ring beyond the emblems, to the north-west": "na pierścieniu za emblematami, na północnym zachodzie",
+  "heap 28 of thirty-seven": "kopczyk 28 z trzydziestu siedmiu",
+  "Song, expressed by a singing figure": "Śpiew, wyrażony przez śpiewającą postać",
+  "movement": "ruch",
+  "on the ring beyond the emblems, to the north-east": "na pierścieniu za emblematami, na północnym wschodzie",
+  "heap 29 of thirty-seven": "kopczyk 29 z trzydziestu siedmiu",
+  "Dance, with a raised leg and expressive gestures": "Taniec, z uniesioną nogą i wyrazistymi gestami",
+  "flowers": "kwiaty",
+  "on the ring beyond the emblems, to the east": "na pierścieniu za emblematami, na wschodzie",
+  "heap 30 of thirty-seven": "kopczyk 30 z trzydziestu siedmiu",
+  "A bowl of fresh blossoms": "Misa świeżych kwiatów",
+  "scent": "zapach",
+  "on the ring beyond the emblems, to the south": "na pierścieniu za emblematami, na południu",
+  "heap 31 of thirty-seven": "kopczyk 31 z trzydziestu siedmiu",
+  "An incense censer with rising smoke": "Kadzielnica z unoszącym się dymem",
+  "light": "światło",
+  "on the ring beyond the emblems, to the west": "na pierścieniu za emblematami, na zachodzie",
+  "heap 32 of thirty-seven": "kopczyk 32 z trzydziestu siedmiu",
+  "A golden butter lamp with a single flame": "Złota lampka maślana z pojedynczym płomieniem",
+  "anointing": "namaszczanie",
+  "on the ring beyond the emblems, to the north": "na pierścieniu za emblematami, na północy",
+  "heap 33 of thirty-seven": "kopczyk 33 z trzydziestu siedmiu",
+  "Scented water offered in a conch shell": "Woda zapachowa ofiarowywana w muszli konchy",
+  "a white parasol, its ribs of gold, hung with silk": "biały parasol, którego żebra są ze złota, obwieszony jedwabiem",
+  "a monarch, a teacher, or an image, never above oneself": "monarchę, nauczyciela lub wizerunek, nigdy nad sobą samym",
+  "heat, and from the harm that follows wrongdoing": "żaru, a także przed szkodą, jaka następuje po złym czynie",
+  "heap 36; south in the diagram used here": "kopczyk 36; południe na użytym tu diagramie",
+  "A white silk parasol with pearl festoons and a jewel finial": "Biały jedwabny parasol z perłowymi festonami i klejnotowym zwieńczeniem",
+  "a cylindrical banner of silk, in tiers, on a staff": "cylindryczny jedwabny sztandar, piętrowy, na drzewcu",
+  "the teaching prevailing over what obstructs it": "nauczanie zwyciężające to, co je ogranicza",
+  "the roofs of temples, at the four corners": "dachy świątyń, na czterech narożnikach",
+  "heap 37; north in the diagram used here": "kopczyk 37; północ na użytym tu diagramie",
+  "A cylindrical victory standard with layered silks and streamers": "Cylindryczny sztandar zwycięstwa z warstwowymi jedwabiami i wstęgami",
+  "104, in 13 rows of 8": "104, w 13 rzędach po 8",
+  "right to left, rising from the bottom": "od prawej do lewej, wznosząc się od dołu",
+  "24, the Heavenly Highway": "24, Niebiańska Droga",
+  "104, Nirvana": "104, Nirwana",
+  "21 squares": "21 pól",
+  "83 squares": "83 pola",
+  "one 1, two 2s, and so on through six 6s, then out to 9": "jedna jedynka, dwie dwójki, i tak dalej aż do sześciu szóstek, a potem do dziewiątki",
+  "62. Hindu Wisdom-Holder (Vidyādhara)": "62. Hinduski widjadhara (Vidyādhara)",
+  "65. Wisdom-Holder of the Bön Tradition (*Bön Vidyādhara)": "65. Widjadhara tradycji Bön (*Bön Vidyādhara)",
+  "every token begins here": "każdy pionek zaczyna tutaj",
+  "72. Wisdom-Holder of the Eight Siddhis": "72. Widjadhara ośmiu siddhi",
+  "64. Mahāyāna, Path of Application: “Highest Teachings” (Laukikāgra-Dharma)": "64. Mahajana, ścieżka zastosowania — najwyższe nauki",
+  "63. Mahāyāna, Path of Application: “Receptivity” (Kṣānti)": "63. Mahajana, ścieżka zastosowania — receptywność",
+  "81. Fifth Tantra Stage": "81. Piąty stopień tantry",
+  "70. Realm of Action-Completion (*Karma-Paripūraṇa)": "70. Kraina Spełnienia Działania (*Karma-Paripūraṇa)",
+  "67. Wisdom-Holder Among the Gods of Sense Desire (*Kāmadeva-Vidyādhara)": "67. Widjadhara wśród bogów sfery pragnienia (*Kāmadeva-Vidyādhara)",
+  "one 1, two 2s, and so on through six 6s, then out to 52": "jedna jedynka, dwie dwójki, i tak dalej aż do sześciu szóstek, a potem do pięćdziesięciu dwóch",
+  "57. Tantra, Path of Application: “Receptivity”": "57. Tantra, ścieżka zastosowania — receptywność",
+  "66. First Tantra Stage": "66. Pierwszy stopień tantry",
+  "73. Second Tantra Stage": "73. Drugi stopień tantry",
+  "58. Tantra, Path of Application: “Highest Teachings”": "58. Tantra, ścieżka zastosowania — najwyższe nauki",
+  "77. Land of Bliss (Sukhāvatī)": "77. Kraina Szczęśliwości (Sukhāvatī)",
+  "74. Third Tantra Stage": "74. Trzeci stopień tantry",
+  "85. Realm of Superjoy (Abhirati)": "85. Kraina Najwyższej Radości (Abhirati)",
+  "89. Eighth Tantra Stage": "89. Ósmy stopień tantry",
+  "84. Supreme Heaven (Akaniṣṭha)": "84. Niebo Najwyższe (Akaniṣṭha)",
+  "83. Seventh Tantra Stage": "83. Siódmy stopień tantry",
+  "71. First Sutra Stage (Bhūmi)": "71. Pierwszy stopień sutry (Bhūmi)",
+  "75. Fourth Tantra Stage": "75. Czwarty stopień tantry",
+  "68. Wisdom-Holder of the Realm of Form (*Rūpa-Dhātu-Vidyādhara)": "68. Widjadhara sfery formy (*Rūpa-Dhātu-Vidyādhara)",
+  "69. Tantric Wheel-Turning King (*Mantra-Cakravartin)": "69. Tantryczny Władca Obracający Kołem (*Mantra-Cakravartin)",
+  "86. Seventh Sutra Stage": "86. Siódmy stopień sutry",
+  "79. Third Sutra Stage": "79. Trzeci stopień sutry",
+  "80. Second Sutra Stage": "80. Drugi stopień sutry",
+  "82. Sixth Tantra Stage": "82. Szósty stopień tantry",
+  "78. Fourth Sutra Stage": "78. Czwarty stopień sutry",
+  "87. Sixth Sutra Stage": "87. Szósty stopień sutry",
+  "88. Fifth Sutra Stage": "88. Piąty stopień sutry",
+  "90. Ninth Tantra Stage": "90. Dziewiąty stopień tantry",
+  "91. Tenth Tantra Stage": "91. Dziesiąty stopień tantry",
+  "93. Great Dharma Body (Dharma-Kāya)": "93. Wielka Dharmakāja",
+  "a 1 to 73. Second Tantra Stage, in another witness": "a1 do 73. Drugi stopień tantry, w innym świadectwie tekstu",
+  "95. Ninth Sutra Stage": "95. Dziewiąty stopień sutry",
+  "96. Eighth Sutra Stage": "96. Ósmy stopień sutry",
+  "97. Adopting a Physical Form": "97. Przyjęcie fizycznej postaci",
+  "98. The Setting Forth (Pravrajita)": "98. Wyruszenie (Pravrajita)",
+  "99. Ascetic Practices (Tapas)": "99. Praktyki ascetyczne (Tapas)",
+  "100. Conquest of Māra": "100. Pokonanie Māry",
+  "101. Buddhahood": "101. Stan buddy",
+  "102. Turning the Wheel of Dharma": "102. Wprawienie w ruch Koła Dharmy",
+  "103. Demonstration of Miracles": "103. Okazanie cudów",
+  "declared on arrival; the stupa throw that follows is a ceremony": "ogłaszane po przybyciu; następujący po nim rzut stupy jest ceremonią",
+  ", the view is from above and the offerings appear in the order the verse names them.": ", widok jest z góry, a dary pojawiają się w kolejności, w jakiej wymienia je strofa.",
+  "Choose": "Wybierz",
+  "for the sources and remaining questions.": ", gdzie znajdziesz źródła i pozostałe pytania.",
+  "In the offering it is placed after the general, closing the monarch's heaps before the goddesses begin.": "W ofiarowaniu umieszcza się ją po generale, zamykając kopczyki władcy, zanim zaczną się boginie.",
+  "She offers beauty and grace of body. In this illustration her posture and empty hands express graceful bearing.": "Ofiarowuje piękno i wdzięk ciała. Na tej ilustracji jej postawa i puste dłonie wyrażają pełen wdzięku sposób bycia.",
+  "She strings flowers and offers the garland. Hers is the offering of ornament — the world made pleasing on purpose.": "Nawleka kwiaty i ofiarowuje girlandę. Jej ofiarowaniem jest ozdoba — świat uczyniony przyjemnym z rozmysłem.",
+  "She offers motion. In the mandala she stands for the whole of bodily action given over to the offering.": "Ofiarowuje ruch. W mandali reprezentuje całość cielesnego działania oddanego ofiarowaniu.",
+  "She scatters blossom. The first of the four outer offerings, and the plainest: what is grown, given.": "Rozrzuca kwiecie. Pierwsza z czterech ofiarowań zewnętrznych i najprostsza: to, co wyrosło, zostaje oddane.",
+  "She carries the censer and offers everything smelt.": "Niesie kadzielnicę i ofiarowuje wszystko, co pachnie.",
+  "She offers scented water, closing the eight. This illustration presents it in a conch shell.": "Ofiarowuje wodę zapachową, zamykając osiem bogiń. Ta ilustracja przedstawia ją w muszli konchy.",
+  "A destination beneath the golden ground, among the states the board reaches by its lowest throws.": "Cel położony pod złotym podłożem, wśród stanów, do których plansza dociera najniższymi rzutami.",
+  "This square names something the world system already builds. Its marker floats above whatever the model draws for it.": "To pole nazywa coś, co system świata już zbudował. Jego pionek unosi się nad tym, co model dla niego przedstawia.",
+  "A human condition rather than a region: the board counts ways of living where the world system counts places.": "Stan ludzki, a nie obszar: plansza liczy sposoby życia tam, gdzie system świata liczy miejsca.",
+  "104. Nirvana": "104. Nirwana",
+  "visual sources and adaptations": "wizualne źródła i adaptacje",
+  "artwork notes and references": "uwagi i odniesienia dotyczące ilustracji",
+  "Lama Sonam Rinpoche, diagram of the mandala with thirty-seven features": "Lama Sonam Rinpoche, diagram mandali z trzydziestoma siedmioma elementami",
+  "diagram and key": "diagram i legenda",
+  "II. Board, names and move graph: Tatz and Kent,": "II. Plansza, nazwy i graf ruchów: Tatz and Kent,",
+  "Abhidharmakośa III.45–74, with the bhāṣya; the field for square 28 on the board of liberation": "Abhidharmakośa III.45–74 wraz z bhāṣyą; przedstawienie pola 28 na planszy gry wyzwolenia",
+  "Abhidharmakośa III.45–74, with the bhāṣya; lifespans AK III.78": "Abhidharmakośa III.45–74 wraz z bhāṣyą; długości życia AK III.78",
+  "Kongtrul, Myriad Worlds; the Abhidharma commentaries": "Kongtrul, Myriad Worlds; komentarze do Abhidharmy",
+  "Abhidharmakośa III.60–64 Artwork: contemporary AI-assisted illustration;": "Abhidharmakośa III.60–64 Ilustracja: współczesna ilustracja wykonana z pomocą sztucznej inteligencji;",
+  ". Background: Patrul Rinpoche, Words of My Perfect Teacher V; Kongtrul, Myriad Worlds. Placement:": ". Tło: Patrul Rinpoche, Words of My Perfect Teacher V; Kongtrul, Myriad Worlds. Rozmieszczenie:",
+  ", 2017 Ngöndro retreat, Pema Ösel Ling;": ", odosobnienie Ngöndro z 2017 roku, Pema Ösel Ling;",
+  ". Artwork: contemporary AI-assisted illustration;": ". Ilustracja: współczesna ilustracja wykonana z pomocą sztucznej inteligencji;",
+  "The board this square sits on, the edition it is reconstructed from, and the write-ups here are credited in": "Plansza, na której znajduje się to pole, edycja, na podstawie której ją zrekonstruowano, oraz zamieszczone tu opisy są przypisane w",
+});
+/* ── end of the generated table ─────────────────────────────────────── */
+const PATTERNS=[
+  [/^Player (\d+)$/, 'Gracz $1'],
+  [/^player (\d+)$/, 'gracz $1'],
+
+  /* whose turn it is, and the throw itself */
+  [/^Throw for (.+)$/, (all, who) => tr(who) + ' rzuca'],
+  [/^Continue — throw for (.+)$/, (all, who) => 'Dalej — ' + tr(who) + ' rzuca'],
+  [/^(.+)’s turn$/, (all, who) => 'Kolej: ' + tr(who)],
+  [/^(.+) threw a (\d+)$/, (all, who, face) => tr(who) + ' — wynik ' + face],
+  [/^ threw a (\d+): (\d+) → (\d+), (.+)\.$/,
+    (all, face, from, to, square) => ' — wynik ' + face + ': ' + from + ' → ' + to + ', ' + tr(square) + '.'],
+
+  /* arrival at 104, and the log line under it */
+  [/^(.+) reaches Nirvana\.$/, (all, who) => tr(who) + ' osiąga Nirwanę.'],
+  [/^(.+) wins at 104$/, (all, who) => tr(who) + ' wygrywa na polu 104'],
+  [/^(.+) wins$/, (all, who) => tr(who) + ' wygrywa'],
+
+  /* a game picked up where it was left */
+  [/^Game resumed\. (.+?) (reached Nirvana|has the die)\.(.*)$/,
+    (all, who, state, tail) => 'Gra wznowiona. ' + tr(who) + ' ' + RESUMED[state] + '.' + tr(tail)],
+  [/^ The interrupted throw has been completed\.$/, ' Przerwany rzut został dokończony.'],
+
+  /* the die's offer, and the six destinations under it. rbNamed() writes a
+     square as "27 Heaven of the Four Great Kings", so the name inside goes
+     back through the table; when the table does not hold it the string is
+     returned untouched and nothing is written */
+  [/^Die (\d+) → (.+)$/, (all, face, dest) => 'Kostka ' + face + ' → ' + tr(dest)],
+  [/^(\d) → (\d{1,3}) (.+)$/, (all, face, n, name) => face + ' → ' + n + ' ' + tr(name)],
+  [/^dead — stay and pass$/, 'brak ruchu — pionek zostaje'],
+
+  /* where each token stands */
+  [/^(.+) on (\d{1,3}) (.+)$/, (all, who, n, square) => tr(who) + ' · pole ' + n + ' · ' + tr(square)],
+  [/^(.+) · (\d{1,3})$/, (all, who, n) => tr(who) + ' · ' + n],
+  [/^(.+) — square (\d+)$/, (all, square, n) => tr(square) + ' — pole ' + n],
+
+  /* the closing tally, joined by " · " across the players. Polish counts in
+     three: 1 rzut, 2–4 rzuty, 5 rzutów — and 12–14 go with the many */
+  [/([^·\s][^·]*?): (\d+) throws, (\d+) journeys/g,
+    (all, who, throws, journeys) => tr(who) + ': ' + throws + ' '
+      + plural(+throws, 'rzut', 'rzuty', 'rzutów') + ', ' + journeys + ' '
+      + plural(+journeys, 'podróż', 'podróże', 'podróży')],
+
+  [/^Square (\d+) lists no move on a (\d+), so the token stays and the die passes\.$/, 'Pole $1 nie ma ruchu dla wyniku $2, więc pionek zostaje, a kolejka przechodzi dalej.'],
+  [/^The die names a destination; it does not count spaces\.$/, 'Kostka wskazuje cel, nie liczbę pól do przejścia.'],
+  [/^Every token starts on 24, the Heavenly Highway\. /, 'Każdy pionek zaczyna na polu 24, Niebiańskiej Drodze. '],
+  [/^([0-9]+) of 104$/, '$1 ze 104'],
+  [/^row (\d+), column (\d+) from the right$/, 'rząd $1, kolumna $2 od prawej'],
+  [/^Heap (\d+) of 37$/, 'Kopczyk $1 z 37'],
+  [/^Character for player (\d+)$/, 'Postać gracza $1'],
+
+  /* A menu's tooltip carries the key that reaches it: "Index — i", "Reset view
+     — Esc". Only the words before the dash are ours; the key stays as struck */
+  [/^(.+) — (Esc|[A-Za-z,.])$/, (all, label, key) => tr(label) + ' — ' + key],
+
+  /* a square's hover, which names it three ways before saying what it is */
+  [/^(\d{1,3}) · (.+) · (.+) · The field this square is drawn as on the board of liberation$/,
+    (all, n, name, tib) => n + ' · ' + tr(name) + ' · ' + tib
+      + ' · Pole przedstawiające to miejsce na planszy gry wyzwolenia'],
+  [/^(\d{1,3})\. (.+)$/, (all, n, name) => n + '. ' + tr(name)],
+
+  /* the log, line by line. Nothing here is a verb in the past tense */
+  [/^(.+) counts it — (\d+) left$/, (all, who, left) => tr(who) + ' — zaliczone, zostało ' + left],
+  [/^(.+) passes$/, (all, who) => tr(who) + ' — pasuje'],
+  [/^(.+) dead at (\d{1,3})$/, (all, who, n) => tr(who) + ' — martwy wynik na ' + n],
+  [/^(.+) leaves (\d{1,3})$/, (all, who, n) => tr(who) + ' — opuszcza ' + n],
+  [/^No move on a (\d)\. The token stays\.$/, 'Brak ruchu przy wyniku $1. Pionek zostaje.'],
+  [/^ (.+) (\d{1,3}) → (\d{1,3})$/, (all, who, from, to) => ' ' + tr(who) + ' ' + from + ' → ' + to],
+
+  /* "27 Heaven of the Four Great Kings" — a square written with its number in
+     front. Last, and only when the tail is a name the table holds, so it
+     cannot swallow a phrase that merely starts with a figure */
+  [/^(\d{1,3}) (.+)$/, (all, n, name) => has(T, name) ? n + ' ' + T[name] : all]
+];
 
 /* ── the runtime ─────────────────────────────────────────────────────────
    Three rules keep the page answering while it is being translated.
@@ -892,14 +1643,57 @@ function tr(s) {
   if (depth > 2) return s;                    // a replacement may translate its own captures
   depth++;
   try {
-    for (const [re, to] of PATTERNS) if (re.test(s)) return s.replace(re, to);
+    for (const [re, to] of PATTERNS) {
+      if (re.global) re.lastIndex = 0;        // test() on a /g/ leaves it where it stopped
+      if (re.test(s)) return s.replace(re, to);
+    }
   } finally { depth--; }
   return s;
 }
 
-const MARKUP = new Set(Object.keys(T).filter(k => k.includes('<')));
-const MARKUP_MAX = Math.max(0, ...[...MARKUP].map(k => k.length));
-const INLINE = new Set(['A', 'B', 'I', 'EM', 'STRONG', 'SPAN', 'SUB', 'SUP', 'SMALL', 'CODE', 'BR', 'U']);
+/* A phrase written across several lines of source arrives with the newlines
+   and the indentation still in it, as a text node and as innerHTML alike.
+   HTML collapses that whitespace when it draws, so the table matches on the
+   collapsed form and writes the Polish back between the same margins. A form
+   two different phrases collapse to is no use and is dropped. */
+const collapse = str => str.replace(/\s+/g, ' ').trim();
+const spaced = value => /\s\s|\n/.test(value);
+
+let MARKUP = new Set(), MARKUP_MAX = 0, LOOSE = new Map(), LOOSE_MARKUP = new Map();
+
+/* A verse or a list reaches the page as one string and becomes a block of its
+   own, so the table's key is the whole <blockquote> while the page only ever
+   offers the <p> inside it for matching. Register the inner shapes as well,
+   from the pair the table already holds. */
+function registerFragments() {
+  for (const key of Object.keys(T)) {
+    if (!/^<(?:blockquote|ul|ol)\b/i.test(key)) continue;
+    const from = document.createElement('div'), to = document.createElement('div');
+    from.innerHTML = key; to.innerHTML = T[key];
+    const before = from.querySelectorAll('p, li'), after = to.querySelectorAll('p, li');
+    if (before.length !== after.length) continue;      // a translation that lost a line
+    for (let i = 0; i < before.length; i++) {
+      if (!has(T, before[i].innerHTML)) T[before[i].innerHTML] = after[i].innerHTML;
+    }
+  }
+}
+
+function reindex() {
+  registerFragments();
+  MARKUP = new Set(Object.keys(T).filter(k => k.includes('<')));
+  MARKUP_MAX = Math.max(0, ...[...MARKUP].map(k => k.length));
+  const loose = keys => {
+    const map = new Map();
+    for (const key of keys) {
+      const flat = collapse(key);
+      if (map.has(flat)) map.set(flat, null); else map.set(flat, T[key]);
+    }
+    return map;
+  };
+  LOOSE = loose(Object.keys(T)); LOOSE_MARKUP = loose(MARKUP);
+}
+reindex();
+const INLINE = new Set(['A', 'B', 'I', 'EM', 'STRONG', 'SPAN', 'SUB', 'SUP', 'SMALL', 'CODE', 'CITE', 'BR', 'U']);
 const OPAQUE = new Set(['SCRIPT', 'STYLE', 'NOSCRIPT', 'TEXTAREA', 'CANVAS']);
 const ATTRS = ['title', 'aria-label', 'placeholder'];
 
@@ -929,15 +1723,24 @@ function markupCandidate(el) {
 function translateMarkup(el) {
   if (!MARKUP.size || !markupCandidate(el)) return;
   const html = el.innerHTML;
-  if (html.length > MARKUP_MAX || !MARKUP.has(html)) return;
-  if (T[html] !== html) el.innerHTML = T[html];          // rule 1
+  if (MARKUP.has(html)) { if (T[html] !== html) el.innerHTML = T[html]; return; }   // rule 1
+  if (!spaced(html)) return;
+  const flat = collapse(html);
+  if (flat.length > MARKUP_MAX) return;
+  const found = LOOSE_MARKUP.get(flat);
+  if (found && found !== html) el.innerHTML = found;
 }
 
 function translateText(node) {
   const parent = node.parentElement;
   if (parent && (OPAQUE.has(parent.tagName) || parent.closest('[data-no-localize]'))) return;
-  const next = tr(node.nodeValue);
-  if (next !== node.nodeValue) node.nodeValue = next;
+  const value = node.nodeValue;
+  const next = tr(value);
+  if (next !== value) { node.nodeValue = next; return; }
+  if (!spaced(value)) return;
+  const found = LOOSE.get(collapse(value));
+  if (!found) return;
+  node.nodeValue = value.match(/^\s*/)[0] + found + value.match(/\s*$/)[0];
 }
 
 /* one walk of one subtree: elements for their attributes and their markup,
@@ -973,6 +1776,7 @@ function setLanguage(next) {
   if (target === 'en') { location.reload(); return; }
   lang = target;
   apply();
+  loadTexts();
   window.dispatchEvent(new CustomEvent('ws-language-change', { detail: { lang } }));
 }
 
@@ -990,13 +1794,39 @@ const observer = new MutationObserver(records => {
   observer.takeRecords();
 });
 
+/* The square write-ups and the cosmology entries are most of the weight of a
+   language pack and none of its use to a reader in English, who is served this
+   file all the same. They sit in pl-texts.js, fetched only once Polish is the
+   language in hand, and folded in when they arrive. */
+const HERE = document.currentScript && document.currentScript.src;
+let asked = false;
+function add(more) {
+  let added = 0;
+  for (const key of Object.keys(more || {})) if (!has(T, key)) { T[key] = more[key]; added++; }
+  if (!added) return added;
+  reindex();
+  if (lang === 'pl') apply();
+  return added;
+}
+function loadTexts() {
+  if (asked || lang !== 'pl' || !HERE) return;
+  asked = true;
+  const el = document.createElement('script');
+  el.src = new URL('pl-texts.js', HERE).href;
+  el.async = true;
+  el.addEventListener('error', () => { asked = false; });   // offline, or not served yet
+  document.head.appendChild(el);
+}
+
 function boot() {
   try { lang = localStorage.getItem('ws-language') === 'pl' ? 'pl' : 'en'; } catch {}
   apply();
+  loadTexts();
   observer.observe(document.body,
     { subtree: true, childList: true, characterData: true, attributes: true, attributeFilter: ATTRS });
 }
 
-window.WorldSystemLocale = { translations: T, translate: tr, apply, setLanguage, get language() { return lang; } };
+window.WorldSystemLocale = { translations: T, translate: tr, apply, setLanguage, add,
+  get language() { return lang; } };
 if (document.body) boot(); else document.addEventListener('DOMContentLoaded', boot);
 })();

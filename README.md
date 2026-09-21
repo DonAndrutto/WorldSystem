@@ -624,6 +624,7 @@ none of them needs a development dependency:
 | --- | --- |
 | `node scripts/vendor-three.cjs` | moving to another three.js — change the version and the hashes in the import map in `index.html` first, and the script refuses to vendor anything that does not match them |
 | `node scripts/build-fonts.cjs` | changing which cuts of EB Garamond or IBM Plex Mono the page sets |
+| `node scripts/build-locale.cjs <dir>` | folding a translator's worksheets into `locales/pl.js` and `locales/pl-texts.js` — it checks the markup, the square numbers and the names against the sources, and reports what it left out |
 | `node scripts/build-sw.cjs` | **anything the page serves itself**: the page, a module, a painted sheet, an icon, the fonts, the library |
 
 The last one is the one that is easy to forget. `node tests/offline.mjs` fails

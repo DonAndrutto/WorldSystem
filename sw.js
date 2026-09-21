@@ -25,7 +25,7 @@
    current shelf or the runtime one, so old versions do not accumulate. */
 
 /* ── written by scripts/build-sw.cjs — do not edit below ─────────────── */
-const VERSION = 'd5cc72ed97ca4be8';
+const VERSION = 'ad86424d010da5b4';
 const SHELL = [
   "apple-touch-icon.png",
   "assets/fonts/eb-garamond-400-italic-latin-ext.woff2",
@@ -57,6 +57,7 @@ const SHELL = [
   "icon-512.png",
   "icon-maskable-512.png",
   "index.html",
+  "locales/pl-texts.js",
   "locales/pl.js",
   "mandala-offerings.js",
   "mandala-tour.js",
