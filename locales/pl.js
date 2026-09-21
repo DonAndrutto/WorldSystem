@@ -864,7 +864,132 @@ const BOARD_NAMES={
   'Interface language': 'Język interfejsu',
   'The language names are given in': 'Język, w którym podawane są nazwy'
 });
-const PATTERNS=[[/^Player (\d+)$/, 'Gracz $1'],[/^player (\d+)$/,'gracz $1'],[/^(.+) wins$/, '$1 wygrywa'],[/^([A-Za-z][A-Za-z ]*) has the die\.$/, '$1 ma kostkę.'],[/^([A-Za-z][A-Za-z ]*) reached Nirvana\.$/, '$1 osiągnął Nirwanę.'],[/^Die (\d+) → (.*)$/, 'Kostka $1 → $2'],[/^Throw for (.*)$/, 'Rzut dla $1'],[/^Next turn: (.*)$/, 'Następna tura: $1'],[/^Square (\d+) lists no move on a (\d+), so the token stays and the die passes\.$/, 'Pole $1 nie ma ruchu dla wyniku $2, więc pionek zostaje, a kolejka przechodzi dalej.'],[/^The die names a destination; it does not count spaces\.$/, 'Kostka wskazuje cel, nie liczbę pól do przejścia.'],[/^Every token starts on 24, the Heavenly Highway\. /, 'Każdy pionek zaczyna na polu 24, Niebiańskiej Drodze. '],[/^(.+) threw a (\d+): /, '$1 wyrzucił $2: '],[/^([0-9]+) of 104$/, '$1 ze 104'],[/^row (\d+), column (\d+) from the right$/, 'rząd $1, kolumna $2 od prawej'],[/^(.+) — square (\d+)$/, (all, name, n) => tr(name) + ' — pole ' + n],[/^Heap (\d+) of 37$/, 'Kopczyk $1 z 37'],[/^(.+) · (\d+) throws, (\d+) journeys$/, '$1 · $2 rzutów, $3 podróży']];
+/* ── the composed strings ────────────────────────────────────────────────
+   Each entry is matched against a whole text node or attribute, so the shape
+   has to be the one the page composes, not a plausible one. A replacement may
+   be a function, and a function may put a capture back through tr(): a square
+   named inside a caption is a square whose Polish name the table already
+   holds, and a player's name is "Gracz 1" wherever it appears.
+
+   Nothing here says what the player did. The game lets each player be
+   Mężczyzna or Kobieta, and Polish verbs in the past tense would have to
+   choose; "wyrzucił" for a woman is not a smaller error for being a common
+   one. The die's result is a noun — wynik — and where a person must be the
+   subject the verb is present tense, which does not inflect for gender. */
+const plural = (n, one, few, many) => {
+  const tens = Math.abs(n) % 100, unit = tens % 10;
+  if (Math.abs(n) === 1) return one;
+  if (unit >= 2 && unit <= 4 && !(tens >= 12 && tens <= 14)) return few;
+  return many;
+};
+const RESUMED = { 'reached Nirvana': 'osiąga Nirwanę', 'has the die': 'ma kostkę' };
+/* ── written by scripts/build-locale.cjs — do not edit below ───────── */
+Object.assign(T, {
+  "Tantra, Path of Application: “Receptivity”": "Tantra, ścieżka zastosowania — cierpliwość",
+  "Tantra, Path of Application: “Highest Teachings”": "Tantra, ścieżka zastosowania — najwyższe nauki",
+  "Shambhala": "Shambhala",
+  "Potāla": "Potāla",
+  "Urgyan (Uḍḍiyāna)": "Urgyan (Uḍḍiyāna)",
+  "Hindu Wisdom-Holder (Vidyādhara)": "Hinduski Trzymający Wiedzę (Vidyādhara)",
+  "Mahāyāna, Path of Application: “Receptivity” (Kṣānti)": "Mahajana, ścieżka zastosowania — cierpliwość",
+  "Mahāyāna, Path of Application: “Highest Teachings” (Laukikāgra-Dharma)": "Mahajana, ścieżka zastosowania — najwyższe nauki",
+  "Wisdom-Holder of the Bön Tradition (*Bön Vidyādhara)": "Trzymający Wiedzę Tradycji Bön (*Bön Vidyādhara)",
+  "First Tantra Stage": "Pierwszy stopień tantryczny",
+  "Wisdom-Holder Among the Gods of Sense Desire (*Kāmadeva-Vidyādhara)": "Trzymający Wiedzę wśród Bogów Sfery Pragnienia (*Kāmadeva-Vidyādhara)",
+  "Wisdom-Holder of the Realm of Form (*Rūpa-Dhātu-Vidyādhara)": "Trzymający Wiedzę Sfery Formy (*Rūpa-Dhātu-Vidyādhara)",
+  "Tantric Wheel-Turning King (*Mantra-Cakravartin)": "Tantryczny Władca Obracający Kołem (*Mantra-Cakravartin)",
+  "Realm of Action-Completion (*Karma-Paripūraṇa)": "Kraina Spełnionego Działania (*Karma-Paripūraṇa)",
+  "First Sutra Stage (Bhūmi)": "Pierwszy stopień sutrowy (bhūmi)",
+  "Wisdom-Holder of the Eight Siddhis": "Trzymający Wiedzę Ośmiu Siddhi",
+  "Second Tantra Stage": "Drugi stopień tantryczny",
+  "Third Tantra Stage": "Trzeci stopień tantryczny",
+  "Fourth Tantra Stage": "Czwarty stopień tantryczny",
+  "Realm of Jeweled Peaks (Ratna-Kūṭa)": "Kraina Klejnotowych Szczytów (Ratna-Kūṭa)",
+  "Land of Bliss (Sukhāvatī)": "Kraina Szczęśliwości (Sukhāvatī)",
+  "Fourth Sutra Stage": "Czwarty stopień sutrowy",
+  "Third Sutra Stage": "Trzeci stopień sutrowy",
+  "Second Sutra Stage": "Drugi stopień sutrowy",
+  "Fifth Tantra Stage": "Piąty stopień tantryczny",
+  "Sixth Tantra Stage": "Szósty stopień tantryczny",
+  "Seventh Tantra Stage": "Siódmy stopień tantryczny",
+  "Supreme Heaven (Akaniṣṭha)": "Niebo Najwyższe (Akaniṣṭha)",
+  "Realm of Superjoy (Abhirati)": "Kraina Wielkiej Radości (Abhirati)",
+  "Seventh Sutra Stage": "Siódmy stopień sutrowy",
+  "Sixth Sutra Stage": "Szósty stopień sutrowy",
+  "Fifth Sutra Stage": "Piąty stopień sutrowy",
+  "Eighth Tantra Stage": "Ósmy stopień tantryczny",
+  "Ninth Tantra Stage": "Dziewiąty stopień tantryczny",
+  "Tenth Tantra Stage": "Dziesiąty stopień tantryczny",
+  "Great Enjoyment Body (Sambhoga-Kāya)": "Wielkie Ciało Rozkoszy (Sambhoga-Kāya)",
+  "Great Dharma Body (Dharma-Kāya)": "Wielkie Ciało Prawdy (Dharma-Kāya)",
+  "Tenth Sutra Stage": "Dziesiąty stopień sutrowy",
+  "Ninth Sutra Stage": "Dziewiąty stopień sutrowy",
+  "Eighth Sutra Stage": "Ósmy stopień sutrowy",
+  "Adopting a Physical Form": "Przyjęcie fizycznego ciała",
+  "The Setting Forth (Pravrajita)": "Odejście z domu (Pravrajita)",
+  "Ascetic Practices (Tapas)": "Praktyki ascetyczne (Tapas)",
+  "Conquest of Māra": "Pokonanie Māry",
+  "Buddhahood": "Stan Buddy",
+  "Turning the Wheel of Dharma": "Obrócenie Koła Dharmy",
+  "Demonstration of Miracles": "Demonstracja cudów",
+  "Nirvana": "Nirwana",
+});
+/* ── end of the generated table ─────────────────────────────────────── */
+const PATTERNS=[
+  [/^Player (\d+)$/, 'Gracz $1'],
+  [/^player (\d+)$/, 'gracz $1'],
+
+  /* whose turn it is, and the throw itself */
+  [/^Throw for (.+)$/, (all, who) => tr(who) + ' rzuca'],
+  [/^Continue — throw for (.+)$/, (all, who) => 'Dalej — ' + tr(who) + ' rzuca'],
+  [/^(.+)’s turn$/, (all, who) => 'Kolej: ' + tr(who)],
+  [/^(.+) threw a (\d+)$/, (all, who, face) => tr(who) + ' — wynik ' + face],
+  [/^ threw a (\d+): (\d+) → (\d+), (.+)\.$/,
+    (all, face, from, to, square) => ' — wynik ' + face + ': ' + from + ' → ' + to + ', ' + tr(square) + '.'],
+
+  /* arrival at 104, and the log line under it */
+  [/^(.+) reaches Nirvana\.$/, (all, who) => tr(who) + ' osiąga Nirwanę.'],
+  [/^(.+) wins at 104$/, (all, who) => tr(who) + ' wygrywa na polu 104'],
+  [/^(.+) wins$/, (all, who) => tr(who) + ' wygrywa'],
+
+  /* a game picked up where it was left */
+  [/^Game resumed\. (.+?) (reached Nirvana|has the die)\.(.*)$/,
+    (all, who, state, tail) => 'Gra wznowiona. ' + tr(who) + ' ' + RESUMED[state] + '.' + tr(tail)],
+  [/^ The interrupted throw has been completed\.$/, ' Przerwany rzut został dokończony.'],
+
+  /* the die's offer, and the six destinations under it. rbNamed() writes a
+     square as "27 Heaven of the Four Great Kings", so the name inside goes
+     back through the table; when the table does not hold it the string is
+     returned untouched and nothing is written */
+  [/^Die (\d+) → (.+)$/, (all, face, dest) => 'Kostka ' + face + ' → ' + tr(dest)],
+  [/^(\d) → (\d{1,3}) (.+)$/, (all, face, n, name) => face + ' → ' + n + ' ' + tr(name)],
+  [/^dead — stay and pass$/, 'brak ruchu — pionek zostaje'],
+
+  /* where each token stands */
+  [/^(.+) on (\d{1,3}) (.+)$/, (all, who, n, square) => tr(who) + ' · pole ' + n + ' · ' + tr(square)],
+  [/^(.+) · (\d{1,3})$/, (all, who, n) => tr(who) + ' · ' + n],
+  [/^(.+) — square (\d+)$/, (all, square, n) => tr(square) + ' — pole ' + n],
+
+  /* the closing tally, joined by " · " across the players. Polish counts in
+     three: 1 rzut, 2–4 rzuty, 5 rzutów — and 12–14 go with the many */
+  [/([^·\s][^·]*?): (\d+) throws, (\d+) journeys/g,
+    (all, who, throws, journeys) => tr(who) + ': ' + throws + ' '
+      + plural(+throws, 'rzut', 'rzuty', 'rzutów') + ', ' + journeys + ' '
+      + plural(+journeys, 'podróż', 'podróże', 'podróży')],
+
+  [/^Square (\d+) lists no move on a (\d+), so the token stays and the die passes\.$/, 'Pole $1 nie ma ruchu dla wyniku $2, więc pionek zostaje, a kolejka przechodzi dalej.'],
+  [/^The die names a destination; it does not count spaces\.$/, 'Kostka wskazuje cel, nie liczbę pól do przejścia.'],
+  [/^Every token starts on 24, the Heavenly Highway\. /, 'Każdy pionek zaczyna na polu 24, Niebiańskiej Drodze. '],
+  [/^([0-9]+) of 104$/, '$1 ze 104'],
+  [/^row (\d+), column (\d+) from the right$/, 'rząd $1, kolumna $2 od prawej'],
+  [/^Heap (\d+) of 37$/, 'Kopczyk $1 z 37'],
+  [/^Character for player (\d+)$/, 'Postać gracza $1'],
+
+  /* "27 Heaven of the Four Great Kings" — a square written with its number in
+     front. Last, and only when the tail is a name the table holds, so it
+     cannot swallow a phrase that merely starts with a figure */
+  [/^(\d{1,3}) (.+)$/, (all, n, name) => has(T, name) ? n + ' ' + T[name] : all]
+];
 
 /* ── the runtime ─────────────────────────────────────────────────────────
    Three rules keep the page answering while it is being translated.
@@ -892,14 +1017,57 @@ function tr(s) {
   if (depth > 2) return s;                    // a replacement may translate its own captures
   depth++;
   try {
-    for (const [re, to] of PATTERNS) if (re.test(s)) return s.replace(re, to);
+    for (const [re, to] of PATTERNS) {
+      if (re.global) re.lastIndex = 0;        // test() on a /g/ leaves it where it stopped
+      if (re.test(s)) return s.replace(re, to);
+    }
   } finally { depth--; }
   return s;
 }
 
-const MARKUP = new Set(Object.keys(T).filter(k => k.includes('<')));
-const MARKUP_MAX = Math.max(0, ...[...MARKUP].map(k => k.length));
-const INLINE = new Set(['A', 'B', 'I', 'EM', 'STRONG', 'SPAN', 'SUB', 'SUP', 'SMALL', 'CODE', 'BR', 'U']);
+/* A phrase written across several lines of source arrives with the newlines
+   and the indentation still in it, as a text node and as innerHTML alike.
+   HTML collapses that whitespace when it draws, so the table matches on the
+   collapsed form and writes the Polish back between the same margins. A form
+   two different phrases collapse to is no use and is dropped. */
+const collapse = str => str.replace(/\s+/g, ' ').trim();
+const spaced = value => /\s\s|\n/.test(value);
+
+let MARKUP = new Set(), MARKUP_MAX = 0, LOOSE = new Map(), LOOSE_MARKUP = new Map();
+
+/* A verse or a list reaches the page as one string and becomes a block of its
+   own, so the table's key is the whole <blockquote> while the page only ever
+   offers the <p> inside it for matching. Register the inner shapes as well,
+   from the pair the table already holds. */
+function registerFragments() {
+  for (const key of Object.keys(T)) {
+    if (!/^<(?:blockquote|ul|ol)\b/i.test(key)) continue;
+    const from = document.createElement('div'), to = document.createElement('div');
+    from.innerHTML = key; to.innerHTML = T[key];
+    const before = from.querySelectorAll('p, li'), after = to.querySelectorAll('p, li');
+    if (before.length !== after.length) continue;      // a translation that lost a line
+    for (let i = 0; i < before.length; i++) {
+      if (!has(T, before[i].innerHTML)) T[before[i].innerHTML] = after[i].innerHTML;
+    }
+  }
+}
+
+function reindex() {
+  registerFragments();
+  MARKUP = new Set(Object.keys(T).filter(k => k.includes('<')));
+  MARKUP_MAX = Math.max(0, ...[...MARKUP].map(k => k.length));
+  const loose = keys => {
+    const map = new Map();
+    for (const key of keys) {
+      const flat = collapse(key);
+      if (map.has(flat)) map.set(flat, null); else map.set(flat, T[key]);
+    }
+    return map;
+  };
+  LOOSE = loose(Object.keys(T)); LOOSE_MARKUP = loose(MARKUP);
+}
+reindex();
+const INLINE = new Set(['A', 'B', 'I', 'EM', 'STRONG', 'SPAN', 'SUB', 'SUP', 'SMALL', 'CODE', 'CITE', 'BR', 'U']);
 const OPAQUE = new Set(['SCRIPT', 'STYLE', 'NOSCRIPT', 'TEXTAREA', 'CANVAS']);
 const ATTRS = ['title', 'aria-label', 'placeholder'];
 
@@ -929,15 +1097,24 @@ function markupCandidate(el) {
 function translateMarkup(el) {
   if (!MARKUP.size || !markupCandidate(el)) return;
   const html = el.innerHTML;
-  if (html.length > MARKUP_MAX || !MARKUP.has(html)) return;
-  if (T[html] !== html) el.innerHTML = T[html];          // rule 1
+  if (MARKUP.has(html)) { if (T[html] !== html) el.innerHTML = T[html]; return; }   // rule 1
+  if (!spaced(html)) return;
+  const flat = collapse(html);
+  if (flat.length > MARKUP_MAX) return;
+  const found = LOOSE_MARKUP.get(flat);
+  if (found && found !== html) el.innerHTML = found;
 }
 
 function translateText(node) {
   const parent = node.parentElement;
   if (parent && (OPAQUE.has(parent.tagName) || parent.closest('[data-no-localize]'))) return;
-  const next = tr(node.nodeValue);
-  if (next !== node.nodeValue) node.nodeValue = next;
+  const value = node.nodeValue;
+  const next = tr(value);
+  if (next !== value) { node.nodeValue = next; return; }
+  if (!spaced(value)) return;
+  const found = LOOSE.get(collapse(value));
+  if (!found) return;
+  node.nodeValue = value.match(/^\s*/)[0] + found + value.match(/\s*$/)[0];
 }
 
 /* one walk of one subtree: elements for their attributes and their markup,
@@ -973,6 +1150,7 @@ function setLanguage(next) {
   if (target === 'en') { location.reload(); return; }
   lang = target;
   apply();
+  loadTexts();
   window.dispatchEvent(new CustomEvent('ws-language-change', { detail: { lang } }));
 }
 
@@ -990,13 +1168,39 @@ const observer = new MutationObserver(records => {
   observer.takeRecords();
 });
 
+/* The square write-ups and the cosmology entries are most of the weight of a
+   language pack and none of its use to a reader in English, who is served this
+   file all the same. They sit in pl-texts.js, fetched only once Polish is the
+   language in hand, and folded in when they arrive. */
+const HERE = document.currentScript && document.currentScript.src;
+let asked = false;
+function add(more) {
+  let added = 0;
+  for (const key of Object.keys(more || {})) if (!has(T, key)) { T[key] = more[key]; added++; }
+  if (!added) return added;
+  reindex();
+  if (lang === 'pl') apply();
+  return added;
+}
+function loadTexts() {
+  if (asked || lang !== 'pl' || !HERE) return;
+  asked = true;
+  const el = document.createElement('script');
+  el.src = new URL('pl-texts.js', HERE).href;
+  el.async = true;
+  el.addEventListener('error', () => { asked = false; });   // offline, or not served yet
+  document.head.appendChild(el);
+}
+
 function boot() {
   try { lang = localStorage.getItem('ws-language') === 'pl' ? 'pl' : 'en'; } catch {}
   apply();
+  loadTexts();
   observer.observe(document.body,
     { subtree: true, childList: true, characterData: true, attributes: true, attributeFilter: ATTRS });
 }
 
-window.WorldSystemLocale = { translations: T, translate: tr, apply, setLanguage, get language() { return lang; } };
+window.WorldSystemLocale = { translations: T, translate: tr, apply, setLanguage, add,
+  get language() { return lang; } };
 if (document.body) boot(); else document.addEventListener('DOMContentLoaded', boot);
 })();

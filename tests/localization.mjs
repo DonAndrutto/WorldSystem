@@ -108,6 +108,56 @@ const settle = async win => { for (let i = 0; i < 30; i++) await new Promise(r =
   assert.equal(doc.body.innerHTML, once, 'a second pass is a no-op');
 }
 
+// ── a second pack, folded in after the page is already up ────────────────────
+{
+  const { doc, win } = open('pl');
+  await settle(win);
+  const line = doc.createElement('p');
+  line.textContent = 'A phrase no pack has yet';
+  doc.body.appendChild(line);
+  await settle(win);
+  assert.equal(line.textContent, 'A phrase no pack has yet', 'nothing to say about it yet');
+  win.WorldSystemLocale.add({ 'A phrase no pack has yet': 'Zdanie, kt\u00f3rego pakiet jeszcze nie zna' });
+  await settle(win);
+  assert.equal(line.textContent, 'Zdanie, kt\u00f3rego pakiet jeszcze nie zna',
+    'add() reaches what is already on the page');
+  assert.equal(win.WorldSystemLocale.add({ 'A phrase no pack has yet': 'inne' }), 0,
+    'and never overwrites a phrase the pack already holds');
+}
+
+// ── a verse arrives as one block and is matched on the <p> inside it ─────────
+{
+  const { doc, win } = open('pl');
+  await settle(win);
+  win.WorldSystemLocale.add({
+    '<blockquote class="verse"><p>One line.<br>Two lines.</p></blockquote>':
+      '<blockquote class="verse"><p>Pierwszy wers.<br>Drugi wers.</p></blockquote>'
+  });
+  const host = doc.createElement('div');
+  host.innerHTML = '<blockquote class="verse"><p>One line.<br>Two lines.</p></blockquote>';
+  doc.body.appendChild(host);
+  await settle(win);
+  assert.equal(host.querySelector('p').innerHTML, 'Pierwszy wers.<br>Drugi wers.',
+    'the page only ever offers the <p>, so the <p> has to be a key too');
+}
+
+// ── a phrase broken across lines of source still matches ─────────────────────
+{
+  const { doc, win } = open('pl');
+  await settle(win);
+  const p = doc.createElement('p');
+  p.innerHTML = '\n      The model is the work of <b>Andrzej R. Rybszleger</b>, built from\n'
+    + '      the sources named below.\n    ';
+  doc.body.appendChild(p);
+  const plain = doc.createElement('p');
+  plain.textContent = '\n   Full verse\n  ';
+  doc.body.appendChild(plain);
+  await settle(win);
+  assert.match(p.innerHTML, /^\s*Autorem modelu.*<b>Andrzej R\. Rybszleger<\/b>/,
+    'markup, collapsed');
+  assert.equal(plain.textContent, '\n   Pe\u0142na strofa\n  ', 'text, collapsed, margins kept');
+}
+
 // ── the table ────────────────────────────────────────────────────────────────
 {
   const { win } = open('pl');
@@ -149,9 +199,39 @@ const settle = async win => { for (let i = 0; i < 30; i++) await new Promise(r =
     'the caption, and the square named in it');
   assert.equal(tr('Shambhala \u2014 square 59'), 'Shambhala \u2014 pole 59',
     'a square with no Polish name keeps the English one');
-  assert.match(tr('Player 1 wins'), /wygrywa/);
-  assert.match(tr('Anna wins'), /^Anna wygrywa$/);
-  assert.equal(tr('Throw for Anna'), 'Rzut dla Anna');
+  assert.equal(tr('Player 1 wins'), 'Gracz 1 wygrywa', 'the name inside is translated too');
+  assert.equal(tr('Anna wins'), 'Anna wygrywa', 'and a name the table does not know is left alone');
+
+  // Nothing says what the player did in a tense that would have to pick a
+  // gender. The die's result is a noun; a person is the subject only of a
+  // present-tense verb, which does not inflect.
+  assert.equal(tr('Throw for Anna'), 'Anna rzuca');
+  assert.equal(tr('Continue \u2014 throw for Player 2'), 'Dalej \u2014 Gracz 2 rzuca');
+  assert.equal(tr('Anna\u2019s turn'), 'Kolej: Anna');
+  assert.equal(tr('Player 1 threw a 5'), 'Gracz 1 \u2014 wynik 5');
+  assert.equal(tr(' threw a 5: 24 \u2192 10, Hungry Ghosts (Preta).'),
+    ' \u2014 wynik 5: 24 \u2192 10, G\u0142odne duchy (prety).');
+  assert.equal(tr('Anna reaches Nirvana.'), 'Anna osi\u0105ga Nirwan\u0119.');
+  assert.equal(tr('Game resumed. Player 2 has the die.'), 'Gra wznowiona. Gracz 2 ma kostk\u0119.');
+  assert.equal(tr('Game resumed. Anna reached Nirvana. The interrupted throw has been completed.'),
+    'Gra wznowiona. Anna osi\u0105ga Nirwan\u0119. Przerwany rzut zosta\u0142 doko\u0144czony.');
+  for (const s of ['Anna wins', 'Anna reaches Nirvana.', 'Kolej: Anna', 'Anna rzuca'])
+    assert.doesNotMatch(tr(s), /wyrzuci[\u0142a]|osi\u0105gn[\u0105e]/, 'no past tense about a player: ' + s);
+
+  // Polish counts in three, and 12\u201314 go with the many.
+  assert.equal(tr('Anna: 1 throws, 1 journeys'), 'Anna: 1 rzut, 1 podr\u00f3\u017c');
+  assert.equal(tr('Anna: 3 throws, 4 journeys'), 'Anna: 3 rzuty, 4 podr\u00f3\u017ce');
+  assert.equal(tr('Anna: 7 throws, 22 journeys'), 'Anna: 7 rzut\u00f3w, 22 podr\u00f3\u017ce');
+  assert.equal(tr('Anna: 13 throws, 14 journeys'), 'Anna: 13 rzut\u00f3w, 14 podr\u00f3\u017cy');
+  assert.equal(tr('Player 1: 5 throws, 2 journeys \u00b7 Player 2: 1 throws, 1 journeys'),
+    'Gracz 1: 5 rzut\u00f3w, 2 podr\u00f3\u017ce \u00b7 Gracz 2: 1 rzut, 1 podr\u00f3\u017c',
+    'every player in the joined tally, not just the first');
+  // a /g/ pattern must not carry its lastIndex into the next call
+  assert.equal(tr('Anna: 3 throws, 4 journeys'), 'Anna: 3 rzuty, 4 podr\u00f3\u017ce', 'twice running');
+
+  assert.equal(tr('Player 1 on 24 The Heavenly Highway'),
+    'Gracz 1 \u00b7 pole 24 \u00b7 Niebia\u0144ska Droga');
+  assert.equal(tr('Player 1 \u00b7 24'), 'Gracz 1 \u00b7 24');
   assert.equal(tr('constructor'), 'constructor', 'the table is asked for its own keys only');
   assert.equal(tr('toString'), 'toString');
   for (const [english, pl] of Object.entries(T)) assert.equal(tr(pl), pl, 'already Polish: ' + english);
