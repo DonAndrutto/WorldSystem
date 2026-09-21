@@ -21,10 +21,10 @@ Angielski pozostaje językiem domyślnym i źródłowym. Nazwy sanskryckie, tybe
 Przekład jest kompletny: interfejs, indeks kosmologii, nazwy wszystkich 104 pól
 oraz opisy pól wraz z cytowanymi strofami. Do decyzji tłumacza pozostają:
 
-- **Złożenia z *kāya***. W prożie oddano je spolszczone i odmieniane
-  (dharmakāja, dharmakāji), tak jak słownik postępuje z mahajaną; w nazwach pól
-  92 i 93 zachowano postać źródłową (Sambhoga-Kāya, Dharma-Kāya). To dwie różne
-  konwencje w jednym tekście.
+- **Złożenia z *kāya***. Oddane w formie spolszczonej i odmienianej, pisanej
+  wielką literą: Dharmakāja, Sambhogakāja, Nirmāṇakāja — z odmianą według
+  przypadka (Dharmakāji, Sambhogakāją, Nirmāṇakāję). Pola 92 i 93 noszą
+  nazwy Wielka Sambhogakāja i Wielka Dharmakāja.
 - **Vidyādhara**. W nazwach pól „Trzymający Wiedzę”, w opisach „widjadhara”.
 - **Nazwy 34 pól**, dla których powstały dwa równie możliwe warianty.
 - **Kṣānti** — „cierpliwość” (pola 57, 63) wobec „receptywności” w opisach.
