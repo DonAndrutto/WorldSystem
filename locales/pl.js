@@ -1543,6 +1543,114 @@ Object.assign(T, {
   "The board this square sits on, the edition it is reconstructed from, and the write-ups here are credited in": "Plansza, na której znajduje się to pole, edycja, na podstawie której ją zrekonstruowano, oraz zamieszczone tu opisy są przypisane w",
 });
 /* ── end of the generated table ─────────────────────────────────────── */
+
+/* ── what the maṇḍala, the liturgy and the settings had not been given ────
+   The offering's own surfaces — the tour of the thirty-seven heaps, the
+   glosses under each heading, what the painted cards show — together with the
+   lines of the verse the table had not reached, and the settings that came
+   with the three paces of the motion. The long prose of the tour is in
+   pl-texts.js with the rest of the weight.
+
+   It stands after the generated table and so has the last word over it, and
+   the build drops a worksheet row for any phrase held here. Only one phrase
+   here was in that table already, and it is marked where it stands. */
+Object.assign(T, {
+  /* a gloss standing on its own: under the heading in the tour of the heaps,
+     and in the list that jumps between them. The same glosses written after a
+     middle dot are in the table above; the pattern that composes the two puts
+     what follows the dot through these */
+  "the unheated lake": "nieogrzewane jezioro",
+  "the diamond seat": "diamentowe siedzisko",
+  "thousand-spoked, of gold": "o tysiącu szprych, złote",
+  "eight-faceted, lighting the night": "ośmiościenny, rozświetlający noc",
+  "faultless in conduct and counsel": "nienaganna w postępowaniu i radzie",
+  "who knows what is needed": "znający potrzeby",
+  "white, with seven limbs": "biały, o siedmiu kończynach",
+  "swift, circling the world in a day": "szybki, okrążający świat w ciągu dnia",
+  "who wins without harm": "zwyciężający bez krzywdy",
+  "the goddess of beauty": "bogini piękna",
+  "the goddess of garlands": "bogini girland",
+  "the goddess of song": "bogini śpiewu",
+  "the goddess of dance": "bogini tańca",
+  "the goddess of flowers": "bogini kwiatów",
+  "the goddess of incense": "bogini kadzidła",
+  "the goddess of light": "bogini światła",
+  "the goddess of perfume": "bogini wonności",
+  "victory over the three worlds": "zwycięstwo nad trzema światami",
+
+  /* the rows of an entry the maṇḍala fills in */
+  "Set": "Grupa",
+  "form": "forma",
+  "Its nāga": "Jego nāga",
+  "1 and 48": "1 i 48",
+  ". Background: Patrul Rinpoche, Words of My Perfect Teacher V; Kongtrul, Myriad Worlds.": ". Tło: Patrul Rinpoche, Words of My Perfect Teacher V; Kongtrul, Myriad Worlds.",
+  "The summit — Trāyastriṃśa": "Szczyt — Trāyastriṃśa",
+  "Trāyastriṃśa — the summit": "Trāyastriṃśa — szczyt",
+
+  /* the thirty-seven-point offering, line by line. The Sanskrit of the two
+     mantra lines is left as it is said, and so is the phonetic Tibetan under
+     every line; what is translated is what the line means */
+  "The earth is the golden ground, completely pure, full of beauty and power.": "Ziemia jest złotym podłożem, całkowicie czystym, pełnym piękna i mocy.",
+  "The circular iron mountain wall completely surrounds it; in the centre is the letter hūṃ—": "Zewsząd otacza je okrężny mur żelaznych gór; pośrodku stoi litera hūṃ —",
+  "Meru, the king of mountains;": "Meru, król gór;",
+  "In the East is Pūrvavideha, in the South is Jambudvīpa,": "Na wschodzie Pūrvavideha, na południu Jambudvīpa,",
+  "In the West is Aparagodānīya, in the North is Uttarakuru.": "Na zachodzie Aparagodānīya, na północy Uttarakuru.",
+  "Beside them are Deha and Videha, Cāmara and Aparacāmara,": "Obok nich Deha i Videha, Cāmara i Aparacāmara,",
+  "Śāthā and Uttaramantriṇa,": "Śāthā i Uttaramantriṇa,",
+  "Kurava and Kaurava.": "Kurava i Kaurava.",
+
+  /* A face the board reads differently in another witness — the one row of
+     the kind, and the only phrase here the table already held. It is written
+     "a 1 to 73. <name>, in another witness", and the worksheet came back with
+     the English article still in front of the figure and no space behind it,
+     so this stands in its place. */
+  "a 1 to 73. Second Tantra Stage, in another witness":
+    "wynik 1 do 73. Drugi stopień tantry, w innym świadectwie tekstu",
+  "Modern painted interpretation. Colours, dress and poses are illustrative.": "Współczesna interpretacja malarska. Barwy, stroje i pozy mają charakter ilustracyjny.",
+  "The field this square is drawn as on the board of liberation": "Pole przedstawiające to miejsce na planszy gry wyzwolenia",
+  "Amitābha, the stupa and the Guru — the end of the game": "Amitābha, stupa i Guru — koniec gry",
+
+  /* the settings, and the words the switches take when they are thrown. The
+     sun and moon now go round at one of three paces, and the names the model
+     gives are Polish while the interface is */
+  "Slow": "Wolno",
+  "Medium": "Średnio",
+  "Fast": "Szybko",
+  "How fast the sun and moon go round": "Jak szybko krążą słońce i księżyc",
+  "Polish names": "Nazwy polskie",
+  "Hold still": "Zatrzymaj",
+  "Set it turning": "Wpraw w ruch",
+  "Game of rebirth": "Gra o odrodzenie",
+  "The whole verse": "Cała strofa",
+  "Exit full screen": "Zamknij pełny ekran",
+  "Leave full screen": "Opuść pełny ekran",
+  "Zoom out": "Pomniejsz",
+  "Retry images": "Wczytaj ilustracje ponownie",
+  "The drawing lost its place on the graphics card. It usually comes back on its own.": "Rysunek stracił swoje miejsce na karcie graficznej. Zwykle wraca sam.",
+  "A newer drawing is ready. It opens on the next start, or now.": "Nowsza wersja jest gotowa. Otworzy się przy następnym uruchomieniu albo teraz.",
+
+  /* the game, where the board still answered in English */
+  "The game in play will be lost.": "Trwająca gra zostanie utracona.",
+  "Show the board": "Pokaż planszę",
+  "Selected location": "Wybrane miejsce",
+  "World overview · choose Focus here to return to this location.": "Przegląd świata · wybierz „Skup się tutaj”, aby wrócić do tego miejsca.",
+  "Below the world · the side view keeps the location and Meru together.": "Pod światem · widok z boku trzyma razem to miejsce i Meru.",
+  "Meru stays in view · drag to explore, or choose Focus here to return.": "Meru pozostaje w polu widzenia · przeciągaj, aby zwiedzać, albo wybierz „Skup się tutaj”, aby wrócić.",
+  "Place relics": "Złóż relikwie",
+  "Victory stands": "Zwycięstwo pozostaje",
+  "Count needed · throw again": "Potrzebny wynik · rzuć ponownie",
+  "Already counted · pass": "Już zaliczone · pas",
+  "Stay here · pass": "Zostań tutaj · pas",
+  "Leave the trap": "Opuść pułapkę",
+  "Throw the stupa throw": "Wykonaj rzut stupy",
+  "Continue — throw the stupa throw": "Dalej — wykonaj rzut stupy",
+  "Victory is declared on arrival. A further 1 or 2 passes the relics into the stupa.": "Zwycięstwo zostaje ogłoszone w chwili przybycia. Kolejna 1 lub 2 przenosi relikwie do stupy.",
+  "A trap. Counting begins next turn.": "Pułapka. Liczenie zaczyna się w następnej turze.",
+  "A dead face.": "Martwy wynik.",
+  "Some square artwork did not load.": "Nie udało się wczytać części ilustracji pól.",
+  "The board is unaffected.": "Plansza działa bez zmian."
+});
+
 const PATTERNS=[
   [/^Player (\d+)$/, 'Gracz $1'],
   [/^player (\d+)$/, 'gracz $1'],
@@ -1611,6 +1719,34 @@ const PATTERNS=[
   [/^No move on a (\d)\. The token stays\.$/, 'Brak ruchu przy wyniku $1. Pionek zostaje.'],
   [/^ (.+) (\d{1,3}) → (\d{1,3})$/, (all, who, from, to) => ' ' + tr(who) + ' ' + from + ' → ' + to],
 
+  /* A gloss standing after a name that is not ours to touch: the entry's
+     subtitle is written "<i>sgeg mo ma</i> &middot; the goddess of beauty",
+     and only what follows the dot reaches this. */
+  [/^(\s*)· ([^·\n]+)$/, (all, pad, gloss) => pad + '· ' + tr(gloss)],
+
+  /* A name and its gloss, joined by that same dot: "ri rab lhun po · the king
+     of mountains", the line under every heading in the tour of the heaps. The
+     Wylie in front comes back as it went in; the gloss after it is ours.
+     Either side may be unknown, and then the string is rebuilt identical to
+     itself and nothing is written. */
+  [/^([^·\n]+) · ([^·\n]+)$/, (all, name, gloss) => tr(name) + ' · ' + tr(gloss)],
+
+  /* what a heap is called in the corner of an entry, and what a trap still
+     wants before it lets a token out */
+  [/^heap (\d{1,2})$/, 'kopczyk $1'],
+  [/^(\d+) throws still outstanding\.$/,
+    (all, left) => left + ' ' + plural(+left, 'rzut', 'rzuty', 'rzutów') + ' do zebrania.'],
+  [/^(\d+) throws still outstanding\. Throw again\.$/,
+    (all, left) => left + ' ' + plural(+left, 'rzut', 'rzuty', 'rzutów') + ' do zebrania. Rzuć ponownie.'],
+
+  /* where a trap lets a token out, and a square named with a full stop after
+     it — the bold word at the head of what the board says has happened. As
+     with the numbered form below, the square is only taken when the table
+     holds the name, so an ordinary sentence ending in a full stop is left
+     where it is */
+  [/^Out to (\d{1,3}) (.+)\.$/, (all, n, name) => 'Wyjście do ' + n + ' ' + tr(name) + '.'],
+  [/^(.+)\.$/, (all, name) => has(T, name) ? T[name] + '.' : all],
+
   /* "27 Heaven of the Four Great Kings" — a square written with its number in
      front. Last, and only when the tail is a name the table holds, so it
      cannot swallow a phrase that merely starts with a figure */
@@ -1657,7 +1793,12 @@ function tr(s) {
    collapsed form and writes the Polish back between the same margins. A form
    two different phrases collapse to is no use and is dropped. */
 const collapse = str => str.replace(/\s+/g, ' ').trim();
-const spaced = value => /\s\s|\n/.test(value);
+/* Worth collapsing: any value the table can only hold in its collapsed form.
+   One broken across lines of source is such a value, and so is one that is
+   merely padded — a gloss is written "<i>sgeg mo ma</i> &middot; the goddess
+   of beauty", and the gloss reaches the page as a text node with a space
+   standing in front of it. */
+const spaced = value => /\s\s|\n|^\s|\s$/.test(value);
 
 let MARKUP = new Set(), MARKUP_MAX = 0, LOOSE = new Map(), LOOSE_MARKUP = new Map();
 
@@ -1738,8 +1879,14 @@ function translateText(node) {
   const next = tr(value);
   if (next !== value) { node.nodeValue = next; return; }
   if (!spaced(value)) return;
-  const found = LOOSE.get(collapse(value));
-  if (!found) return;
+  /* The same phrase with the margins of the page taken off, put to the table
+     and to the patterns alike: a sentence following a <b> arrives with the
+     space that stood between them in front of it, and neither "Square 24
+     lists no move…" nor any other pattern is written with that space. The
+     Polish goes back between the margins it was found between. */
+  const flat = collapse(value);
+  const found = LOOSE.get(flat) || tr(flat);
+  if (!found || found === flat) return;
   node.nodeValue = value.match(/^\s*/)[0] + found + value.match(/\s*$/)[0];
 }
 

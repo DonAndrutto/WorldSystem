@@ -346,9 +346,9 @@ which keep working on the first click.
 
 ### What the board sounds like
 
-Off until asked for, under the board's options, and built from oscillators and
-filtered noise at the moment it sounds — the page still loads no audio and works
-offline. The die clatters as it runs down and settles with the table under it.
+On unless it has been hushed, under the board's options, and built from
+oscillators and filtered noise at the moment it sounds — the page still loads
+no audio and works offline. The die clatters as it runs down and settles with the table under it.
 Where a throw ends has a voice, taken from the company the square keeps on the
 board: a drone under the hells, a thin reed for the pretas, a hollow knock for
 the animals, an open fifth for the human world, small bells for the heavens of
@@ -407,12 +407,13 @@ the entries the legend sat beside.
 | **Index** `i` | The drawer of explanatory entries, with a filter, headed by the title and the way into *About this model*. Closed until it is asked for, at every width, so the world and not a panel is the first thing on the screen; once asked for, whether it stands open is kept between visits. |
 | **View** `e` `m` `g` | Explorer, Maṇḍala, Game. Explorer is the model and its index; Maṇḍala is the thirty-seven heaps, in the order the offering names them; Game sets the board of rebirth beside the world. |
 | **Board, both or world** `b` | In game mode, what is on the screen: the board alone, the board beside the world (or, where they cannot sit side by side, above it), or the world alone. Kept between visits, and only while the game is on the screen — the arrangement is the game's dress and comes off with it. Asked for on its own the board takes the whole page as a printed board rather than a panel: a painted sky of the model's own clouds, the wordmark over it, the throw, the players, the square in hand and the karmic trail on one card, the hundred and four named fields under that, and the three controls docked along the foot. It has a night palette of its own, gold on ink. |
-| **Names** `t` | Which language the squares are named in, in passing, wherever they are named — English or Tibetan. Under Options, as a selector of two with the one in force held down. The entry always gives both. |
+| **Names** `t` | Which language the squares are named in, in passing, wherever they are named — Tibetan, or whatever the interface is in. Under Options, as a selector of two with the one in force held down; the side that is not Tibetan says Eng while the interface is English and PL while it is Polish, because that is what the names are then. The entry always gives both. |
 | **Board or world** `w` | In game mode on a narrow window, hands the screen from the board to the world and back. Where both fit, they are both already there. |
-| **Options** | Motion, night, sound, the language of the names, full screen and reset view, under one control. |
-| **Motion** `r` | Sets the sun and moon on their circuit around Meru — forty seconds to the day — and lets the view turn slowly with them. The sun is what lights the world, so Meru's shadow walks round the continents with it. The moon does not stand opposite it — directly behind Meru it would sit in the mountain's own shadow and never be lit at all — so it runs a little under a half-turn away. Off until asked for, so the model holds still while it is being read. |
+| **Options** | Motion and its pace, night, sound, the language of the names, full screen and reset view, under one control. |
+| **Motion** `r` | Sets the sun and moon on their circuit around Meru and lets the view turn slowly with them. They go east, then south — clockwise, seen from above with north at the top, the way the sun is seen to go from Jambudvīpa. The sun is what lights the world, so Meru's shadow walks round the continents with it. The moon does not stand opposite it — directly behind Meru it would sit in the mountain's own shadow and never be lit at all — so it runs a little under a half-turn away. On when the model is first opened, unless the system asks for less movement; whether it stays on is kept between visits. |
+| **Speed** | Three paces for that one movement: slow, medium and fast — a circuit in 160, 80 or 40 seconds, the last of them the pace the model used to hold. Slow to begin with, so the world turns gently enough to be read against, and kept between visits. Changing the pace does not stop the circuit or send the sun back to the east. |
 | **Night** `n` | Paper or dark. At night the moon takes over the lighting, and the clouds stand against a faint field of stars. |
-| **Sound** | The voice each square answers in, under Options with the rest of the settings that belong to no view. Off until asked for, like motion. |
+| **Sound** | The voice each square answers in, under Options with the rest of the settings that belong to no view. On unless it has been hushed. |
 | **Full screen** `f` | Hidden where the platform has none to give: iOS Safari, and any window already running as an installed app. |
 | **Reset view** `Esc` | Disabled when there is nothing to undo. |
 

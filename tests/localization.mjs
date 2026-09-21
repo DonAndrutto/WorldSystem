@@ -16,6 +16,7 @@
 import fs from 'node:fs';
 import assert from 'node:assert/strict';
 import { fileURLToPath } from 'node:url';
+import vm from 'node:vm';
 import { JSDOM } from 'jsdom';
 
 const repo = process.env.WORLDSYSTEM_REPO || fileURLToPath(new URL('../', import.meta.url));
@@ -255,4 +256,66 @@ const settle = async win => { for (let i = 0; i < 30; i++) await new Promise(r =
   for (const [english, pl] of Object.entries(T)) assert.equal(tr(pl), pl, 'already Polish: ' + english);
 }
 
-console.log('localization: the pack settles, translates what it should, and names each square once.');
+// ── the maṇḍala and the liturgy ─────────────────────────────────────
+// The offering has surfaces of its own — the tour of the thirty-seven heaps,
+// the gloss under each heading, the verse itself — and they were the last of
+// the page still answering in English. The tour's prose is in pl-texts.js, so
+// it is folded in here the way the page folds it in.
+{
+  const { doc, win } = open('pl');
+  win.eval(fs.readFileSync(repo + 'locales/pl-texts.js', 'utf8'));
+  await settle(win);
+  const T = win.WorldSystemLocale.translations;
+  const tr = win.WorldSystemLocale.translate;
+  const has = k => Object.prototype.hasOwnProperty.call(T, k);
+
+  // every looking prompt of the tour, one per heap
+  const notes = [...fs.readFileSync(repo + 'mandala-tour.js', 'utf8')
+    .matchAll(/^  '((?:[^'\\]|\\.)*)',?$/gm)].map(m => m[1].replace(/\\'/g, "'"));
+  assert.equal(notes.length, 37, 'a prompt for each of the thirty-seven heaps');
+  for (const note of notes) assert.ok(has(note), 'the tour says it in Polish: ' + note.slice(0, 48));
+
+  // every line of the verse that says something. The two mantras are said as
+  // they are written, and so is the phonetic Tibetan under every line.
+  const page = fs.readFileSync(repo + 'index.html', 'utf8').split('\n');
+  const at = needle => page.findIndex(line => line.startsWith(needle));
+  const box = {};
+  vm.runInContext(page.slice(at('const VERSE = ['), at('const CREDIT =')).join('\n')
+    + '\nbox.VERSE = VERSE;', vm.createContext({ box }));
+  assert.equal(box.VERSE.length, 27, 'the whole offering, line by line');
+  for (const [, , english] of box.VERSE) {
+    if (/^o\u1e43 /.test(english)) continue;              // a mantra is not translated
+    assert.ok(has(english), 'the verse says it in Polish: ' + english.slice(0, 48));
+  }
+
+  // the composed shapes the offering writes: a gloss after a name that is not
+  // ours to touch, the same pair whole, and a heap in the corner of an entry
+  assert.equal(tr(' \u00b7 the goddess of beauty'), ' \u00b7 bogini pi\u0119kna',
+    'the gloss under a heading, with the space the page puts in front of it');
+  assert.equal(tr('sgeg mo ma \u00b7 the goddess of beauty'), 'sgeg mo ma \u00b7 bogini pi\u0119kna',
+    'the Wylie comes back as it went in');
+  assert.equal(tr('26. the goddess of beauty'), '26. bogini pi\u0119kna', 'and in the list of heaps');
+  assert.equal(tr('heap 14'), 'kopczyk 14');
+  assert.equal(tr('Out to 52 M\u0101h\u0101y\u0101na'), 'Out to 52 M\u0101h\u0101y\u0101na',
+    'a square the table does not hold is left in English');
+
+  /* What the board says it has done is written as one element: a bold head,
+     and after it a sentence that arrives with the space between them still in
+     front of it. Neither half is written with that space in the table. */
+  const say = doc.createElement('p');
+  say.innerHTML = '<b>A dead face.</b> Square 24 lists no move on a 3, '
+    + 'so the token stays and the die passes.';
+  doc.body.appendChild(say);
+  await settle(win);
+  assert.match(say.innerHTML, /^<b>Martwy wynik\.<\/b> Pole 24 nie ma ruchu dla wyniku 3/,
+    'the head and the sentence after it, both in Polish');
+
+  const sub = doc.createElement('p');
+  sub.innerHTML = '<i>sgeg mo ma</i> \u00b7 the goddess of beauty';
+  doc.body.appendChild(sub);
+  await settle(win);
+  assert.equal(sub.innerHTML, '<i>sgeg mo ma</i> \u00b7 bogini pi\u0119kna');
+}
+
+console.log('localization: the pack settles, translates what it should, names each square once,\n'
+  + '              and answers for the ma\u1e47\u1e0dala, its tour and the verse.');
