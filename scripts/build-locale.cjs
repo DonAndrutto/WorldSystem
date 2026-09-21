@@ -129,6 +129,9 @@ function collect(dirs) {
   let pack = fs.readFileSync(path.join(root, 'locales/pl.js'), 'utf8');
   const from = pack.indexOf(MARK_OPEN), until = pack.indexOf(MARK_CLOSE);
   if (from >= 0 && until > from) pack = pack.slice(0, from) + pack.slice(until);
+  /* and the half of pl-texts.js that is kept by hand counts as settled too */
+  const texts = fs.readFileSync(path.join(root, 'locales/pl-texts.js'), 'utf8');
+  pack += '\n' + texts.slice(0, Math.max(0, texts.indexOf(MARK_OPEN)));
 
   /* A sweep of the running page cannot tell a phrase from one appearance of a
      phrase, so a worksheet comes back with rows like "Continue — throw for
@@ -182,8 +185,14 @@ function main() {
   else pack = pack.replace(/\nconst PATTERNS=\[/, '\n' + generated + '\nconst PATTERNS=[');
   fs.writeFileSync(packFile, pack);
 
+  /* pl-texts.js is in two halves as well. Everything above the marker is kept
+     by hand — the tour's looking prompts live in mandala-tour.js rather than
+     in any worksheet — and only what follows it is this script's to write. */
   const textsFile = path.join(root, 'locales/pl-texts.js');
-  const head = fs.readFileSync(textsFile, 'utf8').split('window.WorldSystemLocale')[0];
+  const texts = fs.readFileSync(textsFile, 'utf8');
+  const mark = texts.indexOf(MARK_OPEN);
+  const head = mark >= 0 ? texts.slice(0, mark + MARK_OPEN.length) + '\n'
+    : texts.split('window.WorldSystemLocale')[0];
   fs.writeFileSync(textsFile, head + 'window.WorldSystemLocale && window.WorldSystemLocale.add({\n'
     + block(long) + '\n});\n');
 

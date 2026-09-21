@@ -4,13 +4,15 @@ Polska lokalizacja aplikacji WorldSystem: interaktywnego modelu kosmologii Abhid
 
 ## Język interfejsu
 
-Otwórz **Opcje → Język → Polski**. Wybór jest zapisywany lokalnie na urządzeniu. Nazwy tybetańskie pozostają osobnym przełącznikiem, więc można używać polskiego interfejsu razem z nazwami tybetańskimi.
+Otwórz **Opcje → Język → Polski**. Wybór jest zapisywany lokalnie na urządzeniu. Nazwy tybetańskie pozostają osobnym przełącznikiem, więc można używać polskiego interfejsu razem z nazwami tybetańskimi. Przy polskim interfejsie przełącznik **Nazwy** przestawia się między **PL** a **བོད**, bo nazwy podawane mimochodem są wtedy polskie.
 
 Polska warstwa obejmuje:
 
 - menu, podpowiedzi, ustawienia, nawigację i komunikaty dostępności;
 - indeks kosmologii, opisy elementów modelu i nazwy wszystkich 104 pól planszy;
-- sterowanie mandalą, recytacją i zwiedzaniem 37 kopczyków;
+- sterowanie mandalą, recytacją i zwiedzaniem 37 kopczyków wraz z opisami wszystkich
+  trzydziestu siedmiu ofiarowań, podpowiedziami zwiedzania i opisami malowanych ilustracji;
+- tekst trzydziestosiedmioczęściowego ofiarowania — każdy wers, który coś znaczy;
 - planszę gry, konfigurację graczy, rzuty, pułapki, dziennik ruchów i komunikaty zwycięstwa;
 - działanie offline: pakiet językowy jest dołączany do pamięci podręcznej service workera.
 
@@ -28,6 +30,10 @@ oraz opisy pól wraz z cytowanymi strofami. Do decyzji tłumacza pozostają:
 - **Vidyādhara**. W nazwach pól „Trzymający Wiedzę”, w opisach „widjadhara”.
 - **Nazwy 34 pól**, dla których powstały dwa równie możliwe warianty.
 - **Kṣānti** — „cierpliwość” (pola 57, 63) wobec „receptywności” w opisach.
+- **Zapis fonetyczny tybetańskiego** pod wersami ofiarowania pozostaje w konwencji
+  angielskiej („zhi yongsu dakpa…”). Polska transkrypcja byłaby osobną decyzją
+  redakcyjną i nie została tu podjęta. Mantry sanskryckie i transliteracja Wyliego
+  zostają bez zmian.
 
 Wcześniejsza wersja pakietu podawała dla pól 57–104 nazwy przesunięte względem
 planszy: pole 59 (Shambhala) nosiło nazwę „Mahajana, stan arhata”, a pole 97 —
@@ -41,9 +47,15 @@ Przekład używa m.in. „sfery pragnienia”, „sfery formy”, „sfery bezfo
 
 Pakiet dzieli się na dwa pliki. `locales/pl.js` zawiera interfejs, nazwy pól
 i wzorce zdań składanych z fragmentów; wczytuje się zawsze. `locales/pl-texts.js`
-zawiera długie teksty — opisy 104 pól i haseł kosmologii — i pobierany jest
-dopiero po wybraniu polskiego, żeby czytający po angielsku nie ściągał kilkuset
-kilobajtów, których nie zobaczy.
+zawiera długie teksty — opisy 104 pól, haseł kosmologii i podpowiedzi zwiedzania
+mandali — i pobierany jest dopiero po wybraniu polskiego, żeby czytający po
+angielsku nie ściągał kilkuset kilobajtów, których nie zobaczy.
+
+Oba pliki dzielą się na część pisaną ręcznie i część składaną z arkuszy. Skrypt
+budujący zapisuje tylko to, co stoi między oznaczonymi liniami; reszta — między
+innymi podpowiedzi zwiedzania, które żyją w `mandala-tour.js`, a nie w arkuszu —
+zostaje nienaruszona. W `locales/pl.js` ręczna tabela stoi po tabeli składanej
+i ma nad nią pierwszeństwo.
 
 Arkusze tłumacza (trzy kolumny rozdzielone tabulatorem: rodzaj, angielski,
 polski) scala się do pakietu poleceniem:
