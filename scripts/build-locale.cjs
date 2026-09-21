@@ -1,4 +1,4 @@
-// Run with `node scripts/build-locale.cjs <dir>` (no development dependencies).
+// Run with `node scripts/build-locale.cjs <dir> [dir...]` (no dev dependencies).
 //
 // Folds a translator's worksheets into the Polish pack. The short strings —
 // board names and interface — go into locales/pl.js between its marked lines;
@@ -6,7 +6,7 @@
 // — goes into locales/pl-texts.js, which the pack fetches only once Polish is
 // the language in hand, so a reader in English is not served 300 KB of it.
 //
-// It reads, in <dir>:
+// It reads, in the directories named (a worksheet may live in any of them):
 //   names-57-104.tsv      number <TAB> English <TAB> Polish
 //   squares-NN.pl.json    [{square, name?, note, full: [...]}]
 //   terms-ui.pl.tsv       kind <TAB> English <TAB> Polish
@@ -19,6 +19,7 @@
 // Run `node scripts/build-sw.cjs` afterwards: the pack is part of the shelf.
 const fs = require('node:fs');
 const path = require('node:path');
+const vm = require('node:vm');
 
 const root = path.resolve(__dirname, '..');
 const MARK_OPEN = '/* ── written by scripts/build-locale.cjs — do not edit below ───────── */';
@@ -45,12 +46,26 @@ function readTsv(file, warn) {
   return rows;
 }
 
-function collect(dir) {
+function collect(dirs) {
   const warn = [], short = new Map(), long = new Map();
+  // a worksheet may sit in any of the directories named; the first wins
+  const at = name => dirs.map(d => path.join(d, name)).find(f => fs.existsSync(f))
+    || path.join(dirs[0], name);
   const put = (into, english, polish, where) => {
     if (!english || !polish) return;
+    // A worksheet row can come back saying the English again — a phrase the
+    // sweep picked up that was already Polish, or one that reads the same in
+    // both. There is nothing for the table to do with it.
+    if (english === polish) return;
+    // Two worksheets can name the same thing. The first to claim it keeps it,
+    // so the order of the reads above is the order of authority: the board's
+    // own name file before the interface sheet before the entries.
     const had = into.get(english);
-    if (had !== undefined && had !== polish) { warn.push(where + ': two Polish forms for ' + JSON.stringify(english.slice(0, 60))); return; }
+    if (had !== undefined && had !== polish) {
+      warn.push(where + ': ' + JSON.stringify(english.slice(0, 48)) + ' is already '
+        + JSON.stringify(had) + ', so ' + JSON.stringify(polish) + ' was not taken');
+      return;
+    }
     into.set(english, polish);
   };
 
@@ -63,8 +78,8 @@ function collect(dir) {
   const square = new Map(board.squares.map(s => [s.n, s.name]));
   const bare = str => str.replace(/[\u2018\u2019]/g, "'").replace(/[\u201c\u201d]/g, '"')
     .replace(/[\u2010-\u2015]/g, '-').replace(/\s+/g, ' ').trim();
-  if (!fs.existsSync(path.join(dir, 'names-57-104.tsv'))) warn.push('missing: names-57-104.tsv');
-  else fs.readFileSync(path.join(dir, 'names-57-104.tsv'), 'utf8').split('\n').forEach((line, i) => {
+  if (!fs.existsSync(at('names-57-104.tsv'))) warn.push('missing: names-57-104.tsv');
+  else fs.readFileSync(at('names-57-104.tsv'), 'utf8').split('\n').forEach((line, i) => {
     if (!line.trim() || line.startsWith('#')) return;
     const cell = line.split('\t');
     if (cell.length < 3 || !cell[2].trim()) return;
@@ -81,7 +96,7 @@ function collect(dir) {
   // the write-ups, checked paragraph by paragraph against their source
   for (let n = 1; n <= 8; n++) {
     const stem = 'squares-' + String(n).padStart(2, '0');
-    const from = path.join(dir, stem + '.json'), to = path.join(dir, stem + '.pl.json');
+    const from = at(stem + '.json'), to = at(stem + '.pl.json');
     if (!fs.existsSync(to)) { warn.push('missing: ' + stem + '.pl.json'); continue; }
     const source = JSON.parse(fs.readFileSync(from, 'utf8'));
     const done = JSON.parse(fs.readFileSync(to, 'utf8'));
@@ -101,10 +116,10 @@ function collect(dir) {
   }
 
   for (const file of ['terms-ui.pl.tsv', 'game-states.pl.tsv']) {
-    for (const [english, polish] of readTsv(path.join(dir, file), warn)) put(short, english, polish, file);
+    for (const [english, polish] of readTsv(at(file), warn)) put(short, english, polish, file);
   }
   // the cosmology entries are prose and belong with the long file
-  for (const [english, polish] of readTsv(path.join(dir, 'entries-todo.pl.tsv'), warn)) {
+  for (const [english, polish] of readTsv(at('entries-todo.pl.tsv'), warn)) {
     put(english.length > 120 ? long : short, english, polish, 'entries-todo.pl.tsv');
   }
 
@@ -114,6 +129,34 @@ function collect(dir) {
   let pack = fs.readFileSync(path.join(root, 'locales/pl.js'), 'utf8');
   const from = pack.indexOf(MARK_OPEN), until = pack.indexOf(MARK_CLOSE);
   if (from >= 0 && until > from) pack = pack.slice(0, from) + pack.slice(until);
+
+  /* A sweep of the running page cannot tell a phrase from one appearance of a
+     phrase, so a worksheet comes back with rows like "Continue — throw for
+     Player 2" translated word for word. The pack composes that from a pattern,
+     which knows what to do for a player called anything at all; a key matching
+     one instance of it would be found first and shadow the pattern for that
+     one player and no other. The patterns decide, and such a row is dropped. */
+  const shadow = (() => {
+    const sandbox = {
+      window: {}, localStorage: { getItem: () => null, setItem() {} },
+      MutationObserver: function () { this.observe = () => {}; this.takeRecords = () => []; },
+      NodeFilter: { SHOW_TEXT: 4, SHOW_ELEMENT: 1 },
+      document: { addEventListener() {}, body: null, currentScript: null,
+        createElement: () => ({ set innerHTML(v) {}, querySelectorAll: () => [] }) }
+    };
+    try {
+      vm.runInContext(pack, vm.createContext(sandbox));
+      const locale = sandbox.window.WorldSystemLocale;
+      return phrase => !Object.prototype.hasOwnProperty.call(locale.translations, phrase)
+        && locale.translate(phrase) !== phrase;
+    } catch { return () => false; }
+  })();
+  for (const map of [short, long]) for (const key of [...map.keys()]) {
+    if (!shadow(key)) continue;
+    warn.push('a pattern already composes ' + JSON.stringify(key.slice(0, 60)) + ', so the row was dropped');
+    map.delete(key);
+  }
+
   const held = new Set();
   for (const m of pack.matchAll(/^\s*(?:"((?:[^"\\]|\\.)*)"|'((?:[^'\\]|\\.)*)')\s*:/gm)) held.add(m[1] !== undefined ? m[1] : m[2]);
   for (const map of [short, long]) for (const key of [...map.keys()]) {
@@ -127,9 +170,9 @@ const block = map => [...map.entries()]
   .join('\n');
 
 function main() {
-  const dir = process.argv[2];
-  if (!dir) { console.error('usage: node scripts/build-locale.cjs <worksheet dir>'); process.exitCode = 1; return; }
-  const { short, long, warn } = collect(path.resolve(dir));
+  const dirs = process.argv.slice(2).map(d => path.resolve(d));
+  if (!dirs.length) { console.error('usage: node scripts/build-locale.cjs <worksheet dir> [dir...]'); process.exitCode = 1; return; }
+  const { short, long, warn } = collect(dirs);
 
   const packFile = path.join(root, 'locales/pl.js');
   let pack = fs.readFileSync(packFile, 'utf8');

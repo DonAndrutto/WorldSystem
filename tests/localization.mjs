@@ -229,6 +229,24 @@ const settle = async win => { for (let i = 0; i < 30; i++) await new Promise(r =
   // a /g/ pattern must not carry its lastIndex into the next call
   assert.equal(tr('Anna: 3 throws, 4 journeys'), 'Anna: 3 rzuty, 4 podr\u00f3\u017ce', 'twice running');
 
+  // The composed shapes, each matched against a whole node or attribute. A
+  // menu's tooltip keeps the key that reaches it; a square keeps its number
+  // and its Tibetan; the log never puts a player in the past tense.
+  assert.equal(tr('Index \u2014 i'), 'Indeks \u2014 i');
+  assert.equal(tr('Reset view \u2014 Esc'), 'Resetuj widok \u2014 Esc');
+  assert.equal(tr('1. Mount Meru'), '1. G\u00f3ra Meru');
+  assert.equal(tr('28 \u00b7 Sudar\u015bana \u00b7 lta na sdug \u00b7 The field this square is drawn as on the board of liberation'),
+    '28 \u00b7 Sudar\u015bana \u00b7 lta na sdug \u00b7 Pole przedstawiaj\u0105ce to miejsce na planszy gry wyzwolenia');
+  assert.equal(tr('Player 1 counts it \u2014 3 left'), 'Gracz 1 \u2014 zaliczone, zosta\u0142o 3');
+  assert.equal(tr('Player 1 passes'), 'Gracz 1 \u2014 pasuje');
+  assert.equal(tr('Player 1 dead at 24'), 'Gracz 1 \u2014 martwy wynik na 24');
+  assert.equal(tr('Player 1 leaves 24'), 'Gracz 1 \u2014 opuszcza 24');
+  assert.equal(tr('No move on a 6. The token stays.'), 'Brak ruchu przy wyniku 6. Pionek zostaje.');
+  assert.equal(tr('Die 1 \u2192 27 Heaven of the Four Great Kings'),
+    'Kostka 1 \u2192 27 Niebo Czterech Wielkich Kr\u00f3l\u00f3w', 'the square inside the offer, too');
+  // the caption pattern is the more specific one and has to be reached first
+  assert.match(tr('Mount Meru \u2014 square 12'), /^G\u00f3ra Meru \u2014 pole 12$/);
+
   assert.equal(tr('Player 1 on 24 The Heavenly Highway'),
     'Gracz 1 \u00b7 pole 24 \u00b7 Niebia\u0144ska Droga');
   assert.equal(tr('Player 1 \u00b7 24'), 'Gracz 1 \u00b7 24');
