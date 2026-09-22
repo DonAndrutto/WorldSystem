@@ -6,7 +6,7 @@ Built on main after the stage 1 camera and popup-navigation change (#26).
 
 - The first visit to Game opens traveler setup. Choose 1–4 players, names, one of twelve characters (male and female Bhutanese, Tibetan, Indian, Chinese, Thai and Western travelers), and independent player colours. Duplicate characters are allowed. Appearance does not change the rules.
 - The selected artwork appears in setup, player tabs, board tokens and camera-facing 3D figures. If the world texture fails, coloured markers remain; entering Game again retries it.
-- Board is the default for new visitors. Existing view and language preferences still apply. Board, Both and World now have visible labels.
+- Board is the default for new visitors. Existing view and language preferences still apply. Board and World have visible labels.
 - Destinations previews all six outcomes for the player holding the die, including dead faces and trap counts. Its entries open the corresponding descriptions.
 - A throw highlights possible destinations alongside the die, holds the final result, then moves the traveler directly to the destination. It never counts intervening squares. The arrival card gives the short description, next player's throw, world focus and full entry.
 - The Game menu contains New game, Move log, animation pace (Calm, Quick, Instant), a larger-square scrolling board, save status and rules. Skip animation finishes the already chosen result. Reduced-motion preference bypasses dice, movement and board-transition animation.
@@ -15,9 +15,9 @@ Built on main after the stage 1 camera and popup-navigation change (#26).
 
 ## The phone pass
 
-- The rail is three short rows in all three arrangements: the die with the
-  throw across the rest of the first, the three-way view switch with
-  Destinations and Game on the second, and the turn's own words on the third.
+- The rail is three short rows in both arrangements: the die with the
+  throw across the rest of the first, the view switch with Destinations and
+  Game on the second, and the turn's own words on the third.
   Nothing below the rail belongs to the rail, so the grid keeps the rest of the
   height. Each row is written against `.bv-rail`, once, rather than three times
   over by each arrangement.
@@ -67,6 +67,25 @@ world's own arrangement of the game keep landscape; the board's notice offers
 that arrangement rather than leaving the turn of the phone as the only answer.
 The full-screen portrait lock is taken out for the board alone, and the
 manifest still opens the installed app upright.
+
+## Two arrangements, not three
+
+Both — the board set beside the world it is a section through — is gone. It
+asked for a screen wide enough to read a hundred and four named squares and a
+turning model at once, and gave each of them the half the other did not want;
+on a phone it gave them a third each and the rail the rest. Board and World are
+what remain, each of them the whole screen, either one press or one key (`b`,
+`w`) away, sharing one selection — so nothing Both did is lost, only the halves
+it did it in. A remembered `ws-game-view` of `both` opens on the board. The
+hidden swap control the `w` key was named for goes with it: the switch in the
+rail says the same thing and is on the screen.
+
+## The clouds
+
+Drawn at about half their former weight, day and night, in the one place both
+skies are painted (`sky-clouds.js`). They are the backdrop the world stands in
+front of; at their old weight the spirals competed with it, and on the printed
+board they competed with the hundred and four fields.
 
 ## Saving and interruption
 

@@ -25,7 +25,7 @@
    current shelf or the runtime one, so old versions do not accumulate. */
 
 /* ── written by scripts/build-sw.cjs — do not edit below ─────────────── */
-const VERSION = 'aa3d894226b8c577';
+const VERSION = 'bac4ebf93596b219';
 const SHELL = [
   "apple-touch-icon.png",
   "assets/fonts/eb-garamond-400-italic-latin-ext.woff2",

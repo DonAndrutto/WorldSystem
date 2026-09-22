@@ -912,13 +912,13 @@
   .seg button[aria-pressed="true"] { background: var(--hi-2); color: var(--ink); }
 
   /* ── the board of rebirth ─────────────────────────────────────────────
-     A whole board, not a readout: thirteen rows of eight filling the left
-     of the screen, with the world it is a section through still turning on
-     the right. The grid takes its height from the column, so all 104
-     squares are always on screen and the board never scrolls. */
+     A whole board, not a readout: thirteen rows of eight. The grid takes its
+     height from the column it stands in, so all 104 squares are always on
+     screen and the board never scrolls. Asked for, it takes the screen; the
+     two arrangements below dress it for the one it is in. */
   .board-view {
-    position: absolute; left: 22px; top: 82px; bottom: 84px;
-    width: min(56vw, calc(100vw - var(--panel) - 88px)); min-width: 300px;
+    position: absolute; left: 22px; right: 22px; top: 82px; bottom: 84px;
+    width: auto; min-width: 300px;
     display: flex; flex-direction: column; gap: 9px; z-index: 5;
     pointer-events: auto;
   }
@@ -1048,7 +1048,7 @@
   .bv-tok.turn { outline: 1px solid var(--ink); outline-offset: 1px; }
 
   .bv-rail { display: flex; flex-wrap: wrap; gap: 8px; align-items: flex-start; padding: 7px 9px; flex: none; }
-  /* what is on the screen: the board alone, both, or the world alone */
+  /* what is on the screen: the board alone, or the world alone */
   .bv-views { flex: none; align-self: flex-start; }
   .bv-views .btn { padding: 6px 8px 5px; }
   .bv-views .btn .g { font-size: 13px; letter-spacing: 0; }
@@ -1197,6 +1197,8 @@
       display: flex; flex-direction: column; align-items: stretch; gap: 3px;
     }
     body.game-view:not(.board-only) .bv-rail .bv-act .go { width: 100%; min-width: 0; }
+    /* what is shown, and the two folded menus, at the far end of the strip */
+    body.game-view:not(.board-only) .bv-rail > .bv-views { margin-left: auto; }
     body.game-view:not(.board-only) .bv-rail > .bv-views { order: 2; }
     body.game-view:not(.board-only) .bv-rail > .bv-options { order: 3; }
     body.game-view:not(.board-only) .bv-rail > .bv-tools { order: 4; }
@@ -1253,35 +1255,21 @@
   }
   .board-view .feed li { font-size: 12px; color: var(--ink-2); padding: 4px 0; border-top: 1px solid var(--rule); }
   .board-view .feed li .mono { color: var(--ink); }
-  /* the board and the world trade places only where they cannot sit side by side */
-  /* The three-way switch in the rail says all this and more, at every width;
-     the swap control it replaced is kept only for the w key it was named for. */
-  .bv-swap { display: none !important; }
-
   body.game-view .compass { display: none; }
-  /* An open drawer wants the same screen. Where there is room for both, the
-     board yields width to it so the world keeps a strip worth looking at
-     rather than a slot; where there is not, they take turns instead. */
-  @media (min-width: 1081px) {
-    body.index-open .board-view { width: min(56vw, calc(100vw - var(--panel) * 2 - 88px)); }
-    body.panel-open .board-view { width: min(46vw, calc(100vw - 496px)); }
-  }
-  /* Board, panel and world, all three at once. Once the screen is wide enough
-     to pay for all three, the board takes the width it needs rather than the
-     width it can, so the world is left a strip worth looking at instead of the
-     slot nothing else wanted. It never drops below the grid it needs. */
-  @media (min-width: 1200px) {
-    body.panel-open .board-view { width: clamp(552px, calc(100vw - 800px), 46vw); }
-  }
 
   /* ── what the game shows ───────────────────────────────────────────────
-     Three arrangements of the same game, switched from the rail. Both is the
-     board beside the world it is a section through. World hands the whole
-     screen to the model, keeping only the throw. Board is the game as a plain
-     diagram of positions — the 2D reading, with no model behind it at all. */
+     Two arrangements of the same game, switched from the rail, and each of
+     them is the whole screen. World hands it to the model and keeps only the
+     throw. Board is the game as a plain diagram of positions — the 2D
+     reading, with no model behind it at all. */
   body.world-only .bv-grid { display: none; }
+  /* The rail spans the width and the model has everything under it. Kept to
+     the width of its own controls it sat in a corner, and the framing — which
+     charges each panel to whichever edge leaves the largest square — charged
+     a corner the whole of the left half and pushed the world off to one side
+     of its own arrangement. A strip along the top costs it the strip. */
   body.world-only .board-view,
-  body.world-only.index-open .board-view { bottom: auto; width: auto; right: auto; max-width: calc(100vw - 44px); }
+  body.world-only.index-open .board-view { bottom: auto; width: auto; }
   body.world-only .bv-rail { flex-wrap: wrap; }
   body.world-only .bv-mid { display: none; }
   /* The world alone keeps only the throw, so the board's own box shrinks to
@@ -1327,7 +1315,6 @@
     .board-view { left: 14px; right: 14px; width: auto; }
     /* a dialog that says a game will be lost is the whole screen's business */
     .bv-ask { position: fixed; }
-    body.index-open .board-view { width: auto; right: calc(var(--panel) + 30px); }
     body.world-only .die-face { display: none; }
   }
   @media (max-width: 820px) {
@@ -1349,10 +1336,10 @@
      arrangement laid it out its own way, each of them let it grow, and it
      ended up holding half the screen with the hundred and four squares it
      introduces sharing the other half. It is three short rows now, and the
-     same three in all three arrangements — the die and the throw, then what
-     is shown and the two things the game keeps folded, then whatever this
-     turn has to say. A control is where it was in the view you came from,
-     and everything left over is the board's. */
+     same three in both arrangements — the die and the throw, then what is
+     shown and the two things the game keeps folded, then whatever this turn
+     has to say. A control is where it was in the view you came from, and
+     everything left over is the board's. */
   @media (max-width: 700px) {
     .board-view, body.index-open .board-view {
       left: 9px; right: 9px; width: auto; top: calc(9px + var(--sa-t));
@@ -1364,8 +1351,8 @@
 
     /* one: the die, and the throw across the rest of the row. These are
        written against the rail rather than against the body, so that they
-       outrank the three arrangements — each of which lays this same strip
-       out its own way at the widths it was drawn for, and did so here too. */
+       outrank the arrangements — each of which lays this same strip out its
+       own way at the widths it was drawn for, and did so here too. */
     body.game-view .bv-rail > .die-face { order: 0; }
     body.game-view .bv-rail > .bv-act {
       order: 1; flex: 1 1 calc(100% - 60px); min-width: 0; align-self: center;
@@ -1427,16 +1414,6 @@
       left: 9px; right: 9px; max-width: none; top: calc(9px + var(--sa-t)); bottom: auto;
     }
 
-    /* ── the middle arrangement, on a phone ──────────────────────────────
-       A phone has no room to set the board beside the world, and stacking
-       the board over the whole of it left two arrangements where there are
-       three: the board with the screen, and the world with the screen. So
-       here the two share it along the other axis — the world above, on the
-       page's own sky, and the board under it with the throw between them.
-       The card keeps to what a turn needs; who is where is already said over
-       the model in each player's own colour, and the rest is in the move log. */
-    body.game-view:not(.board-only):not(.world-only) .bv-who,
-    body.game-view:not(.board-only):not(.world-only) .bv-trail { display: none; }
   }
 
   /* ══ The board, given the whole screen ═══════════════════════════════════
@@ -1568,7 +1545,6 @@
   body.board-only .bv-new { order: 3; align-self: center; }
   body.board-only .bv-more { order: 4; align-self: center; }
   body.board-only .bv-rail > .bv-mid { order: 6; }
-  body.board-only .bv-swap { display: none; }
 
   /* the squares themselves: a field apiece, edged in its zone's colour */
   body.board-only .bv-grid {
@@ -1669,18 +1645,6 @@
     body.board-only .bv-mid { gap: 5px; }
     body.board-only .bv-trail::before { display: none; }
   }
-  /* Wherever the two cannot sit side by side, they share the screen along the
-     other axis instead — as long as there is height to give each of them a
-     share worth having. Without this the middle arrangement was the board
-     over the whole of the world, which is the board's own arrangement with
-     none of its dress: three controls, two things to see. */
-  @media (max-width: 1080px) and (min-height: 620px) {
-    body.game-view:not(.board-only):not(.world-only) .board-view,
-    body.game-view:not(.board-only):not(.world-only).index-open .board-view {
-      top: auto; height: min(60dvh, calc(100dvh - 240px - var(--sa-t)));
-    }
-  }
-
   /* A short row, wherever it comes from: the number tucks into the corner and
      the letters come down a size, so that two lines of the name still clear
      it. Last in the sheet because it has to outrank the widths and the
@@ -1861,8 +1825,7 @@
         <div class="bv-trail" aria-label="The karmic trail"></div>
       </div>
       <div class="bv-views seg" role="group" aria-label="What is shown">
-        <button class="btn" type="button" data-layout="board" aria-pressed="false" title="The board alone — a diagram of positions"><span class="g">▦</span><span class="t">Board</span></button>
-        <button class="btn" type="button" data-layout="both" aria-pressed="true" title="Board and world together"><span class="g">◫</span><span class="t">Both</span></button>
+        <button class="btn" type="button" data-layout="board" aria-pressed="true" title="The board alone — a diagram of positions"><span class="g">▦</span><span class="t">Board</span></button>
         <button class="btn" type="button" data-layout="world" aria-pressed="false" title="The world alone, in three dimensions"><span class="g">◉</span><span class="t">World</span></button>
       </div>
       <button class="btn bv-skip" type="button" data-game="skip" hidden>Skip animation</button>
@@ -1880,7 +1843,6 @@
         </div>
       </details>
       </div></details>
-      <button class="btn bv-swap" type="button" data-game="swap" title="Show the world — w">Show the world</button>
     </div>
 
     <div class="bv-ask" role="dialog" aria-modal="true" aria-labelledby="bv-ask-title" hidden>
@@ -6527,7 +6489,6 @@ boardEl.addEventListener('click', (ev) => {
   if (b.dataset.game === 'throw') rbThrow();
   if (b.dataset.game === 'ask-new') rbAskNew();
   if (b.dataset.game === 'cancel-new') rbCloseAsk();
-  if (b.dataset.game === 'swap') rbSwap();
   if (b.dataset.game === 'card-close') rbHideCard(true);
   if (b.dataset.game === 'card-throw') rbThrow();
   if (b.dataset.game === 'card-world' && rbCardSquare !== null) rbFocusWorld('rebirth_sq_' + rbCardSquare);
@@ -6550,21 +6511,11 @@ rbPlayerCount.addEventListener('change', () => {
   rbNameFields([...rbNames.querySelectorAll('input')].map((i) => i.value));
 });
 
-/* Where the board and the world cannot sit side by side, they take turns.
-   Where they can, there is nothing to hand over and the control is not shown,
-   so the key that works it does nothing either. */
-const rbCanSwap = () => window.matchMedia('(max-width: 1080px)').matches;
-function rbSwap(to) {
-  if (!rbCanSwap()) return;
-  rbLayout(document.body.classList.contains('world-only') === (to === undefined ? true : to)
-    ? 'both' : 'world');
-}
-
 /* ── what the game shows ────────────────────────────────────────────────
-   Both is the board beside the world it is a section through. World hands the
-   whole screen to the model and keeps only the throw. Board is the game as a
-   plain diagram of positions, with no model behind it — the same game read in
-   two dimensions instead of three. The choice is kept between visits. */
+   World hands the whole screen to the model and keeps only the throw. Board is
+   the game as a plain diagram of positions, with no model behind it — the same
+   game read in two dimensions instead of three. Either takes the screen, and
+   the choice is kept between visits. */
 // Presentation never chooses a second result. Skip, navigation and backgrounding
 // all finish the one durable pending throw before clearing visual state.
 const rbPace = boardEl.querySelector('#g-pace');
@@ -6704,8 +6655,15 @@ rbAsk.addEventListener('keydown', ev => {
   if (!ev.shiftKey && document.activeElement === last) { ev.preventDefault(); first.focus(); }
 });
 
-const RB_LAYOUTS = ['both', 'board', 'world'];
-let rbView3D = 'both';
+/* Two arrangements, not three. Both — the board set beside the world it is a
+   section through — asked for a screen wide enough to read a hundred and four
+   named squares and a turning model at once, and gave each of them the half
+   the other did not want; on a phone it gave them a third each and the rail
+   the rest. Either of the two is the whole screen and one press away, and the
+   square in hand is the same square in both of them, so nothing it did is
+   gone. A saved 'both' falls through to the board, which is what it was. */
+const RB_LAYOUTS = ['board', 'world'];
+let rbView3D = 'board';
 /* Two of the three take the whole screen, and they do it by dressing the
    page: board hides the canvas the world is drawn on, world folds the board
    away. Neither means anything outside the game. Written straight onto the
@@ -6728,8 +6686,6 @@ function rbLayout(next, remember = true, reframeView = true) {
   if (to !== 'world' && gameFocus) rbClearFocus();
   rbView3D = to;
   rbApplyLayout();
-  boardEl.querySelector('[data-game="swap"]').textContent =
-    to === 'world' ? 'Show the board' : 'Show the world';
   if (remember) { try { localStorage.setItem('ws-game-view', to); } catch (err) {} }
   paintBoardSky();
   syncChrome();
@@ -6823,7 +6779,7 @@ function rbFocusWorld(id) {
   const previous = gameFocus;
   gameFocus = {
     id, anchor, view: 'focus',
-    returnLayout: previous?.returnLayout || (rbView3D === 'world' ? 'board' : rbView3D),
+    returnLayout: previous?.returnLayout || 'board',
     camera: previous?.camera || { p: cam.position.clone(), t: ctr.target.clone() }
   };
   rbHideCard();
@@ -7246,8 +7202,9 @@ window.addEventListener('keydown', (e) => {
   if (e.key === 'f' || e.key === 'F') { e.preventDefault(); toggleFullScreen(); }
   if (e.key === 'm' || e.key === 'M') setMode(mode === 'mandala' ? 'explore' : 'mandala');
   if (e.key === 'g' || e.key === 'G') { e.preventDefault(); setMode(mode === 'game' ? 'explore' : 'game'); }
-  if ((e.key === 'w' || e.key === 'W') && mode === 'game') rbSwap();
-  if ((e.key === 'b' || e.key === 'B') && mode === 'game') rbCycleLayout();
+  // two arrangements and two keys that were named for them; with Both gone
+  // they hand the screen over in the same direction, so they do it together
+  if (/^[wbWB]$/.test(e.key) && mode === 'game') rbCycleLayout();
   if ((e.key === 't' || e.key === 'T') && mode === 'game') rbSetTibetan();
   if (e.key === 'e' || e.key === 'E') setMode('explore');
   if (e.key === 'ArrowDown' && !sheet.hidden) { e.preventDefault(); step(1); }

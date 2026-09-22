@@ -96,8 +96,9 @@ export function paintClouds(ctx, width, height, dark, makeCanvas = () => documen
       const naturalWidth = size * 400 / 96 / Math.max(0.72, Math.sin(v * Math.PI));
       const fit = Math.min(1, width / count * 0.80 / naturalWidth);
       const w = naturalWidth * fit * variation, h = size * 220 / 96 * fit * variation;
-      // thinner than the world under them, and no two the same weight
-      ctx.globalAlpha = opacity * (dark ? 0.42 : 0.62) * (0.72 + random() * 0.5);
+      // A backdrop, not a subject: thin enough that the eye passes over them
+      // to the world in front of them, and no two the same weight.
+      ctx.globalAlpha = opacity * (dark ? 0.24 : 0.30) * (0.72 + random() * 0.5);
       // Draw each copy once: no overlapping wrap passes at the seam.
       for (const offset of [-width, 0, width]) {
         ctx.save(); ctx.translate(x + offset, y); ctx.scale(flip, 1);

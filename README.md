@@ -61,7 +61,10 @@ night's stars are all drawn onto canvases at runtime.
 
 The daytime sky grades from clear blue overhead to pale cyan at the horizon.
 Clouds use mainly ivory and periwinkle, with occasional jade, ochre and rose;
-night uses the same placement with muted blue-grey pigments and stars.
+night uses the same placement with muted blue-grey pigments and stars. They are
+laid on thinly — a backdrop is a thing the eye passes over on its way to the
+world in front of it, and drawn at any weight of their own these ones asked to
+be looked at.
 Clouds continue below the horizon for elevated mandala views. Both sky textures
 are painted once and cached, with no additional image downloads or animated work.
 
@@ -219,7 +222,7 @@ board assembly transitions, pace controls and automatic local resume are
 described in [GAME-UI.md](GAME-UI.md). The Game menu also offers larger,
 scrollable squares and the move log.
 
-The third mode is a whole board of 104 squares beside the world it is a section
+The third mode is a whole board of 104 squares, and the world it is a section
 through. It is the game attributed to Sakya Paṇḍita, from the 1977 English
 edition: the die names the square you go to rather than a number of steps, a
 face with no listed move is dead and costs the turn, and squares 1 and 48 are
@@ -238,20 +241,22 @@ read in — where the row is too short for the whole name, the beginning of it.
 language in force held down; the entry in the drawer always gives both. See
 [ARTWORK.md](ARTWORK.md) for how the paintings are served.
 
-Three arrangements of the same game, switched from the rail or cycled with `b`:
+Two arrangements of the same game, switched from the rail or handed over with
+`b` or `w`, and each of them is the whole screen:
 
-- **Both** — the board beside the world it is a section through.
-- **World** — the model alone, with only the throw kept, framed to hold the
-  whole ascent from the hells below the ground to Nirvana above the realization spire.
 - **Board** — the game as a plain diagram of positions, with no model behind it:
   the same board read in two dimensions instead of three.
+- **World** — the model alone, with only the throw kept, framed to hold the
+  whole ascent from the hells below the ground to Nirvana above the realization spire.
 
 They share one selection: the lit square, the open entry and the tinted marker
-in the model are the same square. Where the board cannot be set beside the world
-— a narrow window, a phone — **Both** divides the screen the other way instead:
-the world above, the board below, and the throw on the bar between them. `w`
-hands the whole screen from one to the other, and the throw stays reachable from
-either.
+in the model are the same square, so the switch is a change of reading and never
+of place. A third arrangement used to stand between them, the board set beside
+the world; it asked for a screen wide enough to read a hundred and four named
+squares and a turning model at once, gave each of them the half the other did
+not want, and on a phone gave them a third each with the rail taking the rest.
+The throw is reachable from either of the two that are left, and the arrival
+card's **Show in world** still hands the screen over on its own.
 
 Wherever somebody is standing, the square takes their colour: on a board of a
 hundred and four fields the size of a thumbnail, a counter in the corner of a
@@ -416,10 +421,9 @@ the entries the legend sat beside.
 | | |
 | --- | --- |
 | **Index** `i` | The drawer of explanatory entries, with a filter, headed by the title and the way into *About this model*. Closed until it is asked for, at every width, so the world and not a panel is the first thing on the screen; once asked for, whether it stands open is kept between visits. |
-| **View** `e` `m` `g` | Explorer, Maṇḍala, Game. Explorer is the model and its index; Maṇḍala is the thirty-seven heaps, in the order the offering names them; Game sets the board of rebirth beside the world. |
-| **Board, both or world** `b` | In game mode, what is on the screen: the board alone, the board beside the world (or, where they cannot sit side by side, above it), or the world alone. Kept between visits, and only while the game is on the screen — the arrangement is the game's dress and comes off with it. Asked for on its own the board takes the whole page as a printed board rather than a panel: a painted sky of the model's own clouds, the wordmark over it, the throw, the players, the square in hand and the karmic trail on one card, the hundred and four named fields under that, and the three controls docked along the foot. It has a night palette of its own, gold on ink. |
+| **View** `e` `m` `g` | Explorer, Maṇḍala, Game. Explorer is the model and its index; Maṇḍala is the thirty-seven heaps, in the order the offering names them; Game is the board of rebirth, and the world it is a section through. |
+| **Board or world** `b` `w` | In game mode, which of the two has the screen: the board alone, or the world alone. Kept between visits, and only while the game is on the screen — the arrangement is the game's dress and comes off with it. A preference remembered from the Both that used to stand between them opens on the board. The board takes the whole page as a printed board rather than a panel: a painted sky of the model's own clouds, the wordmark over it, the throw, the players, the square in hand and the karmic trail on one card, the hundred and four named fields under that, and the three controls docked along the foot. It has a night palette of its own, gold on ink. |
 | **Names** `t` | Which language the squares are named in, in passing, wherever they are named — Tibetan, or whatever the interface is in. Under Options, as a selector of two with the one in force held down; the side that is not Tibetan says Eng while the interface is English and PL while it is Polish, because that is what the names are then. The entry always gives both. |
-| **Board or world** `w` | In game mode on a narrow window, hands the screen from the board to the world and back. Where both fit, they are both already there. |
 | **Options** | Motion and its pace, night, sound, the language of the names, full screen and reset view, under one control. |
 | **Motion** `r` | Sets the sun and moon on their circuit around Meru and lets the view turn slowly with them. They go east, then south — clockwise, seen from above with north at the top, the way the sun is seen to go from Jambudvīpa. The sun is what lights the world, so Meru's shadow walks round the continents with it. The moon does not stand opposite it — directly behind Meru it would sit in the mountain's own shadow and never be lit at all — so it runs a little under a half-turn away. On when the model is first opened, unless the system asks for less movement; whether it stays on is kept between visits. |
 | **Speed** | Three paces for that one movement: slow, medium and fast — a circuit in 160, 80 or 40 seconds, the last of them the pace the model used to hold. Slow to begin with, so the world turns gently enough to be read against, and kept between visits. Changing the pace does not stop the circuit or send the sun back to the east. |
