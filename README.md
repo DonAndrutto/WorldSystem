@@ -77,11 +77,22 @@ already carries a phone layout, with the controls docked along the bottom edge.
 Chrome and Edge read the same details from `manifest.webmanifest` and offer to
 install it the same way.
 
-The phone layouts are drawn for one orientation. Thirteen rows of eight, a card
-and a head make a board upright and a letterbox on its side, so the manifest
-asks the installed app for portrait, the page asks the browser for a portrait
-lock when it goes full screen, and a phone turned on its side anyway is asked
-for the phone back rather than served a layout nothing was measured for.
+One thing here is drawn for one orientation, and it is the board. Thirteen rows
+of eight, a card and a head make a board upright and a letterbox on its side, so
+the manifest asks the installed app to open portrait, full screen asks the
+browser for a portrait lock while the board is the thing on screen, and a phone
+turned on its side over the board is asked for the phone back — with the world's
+own arrangement of the game offered on the same notice, since that one wants a
+wide screen. Everything else keeps the landscape it is good in: the model fills
+a phone held sideways far better than it fills one held upright, and the explorer
+and the maṇḍala are served there rather than covered over.
+
+On a phone the controls are three thumb-wide shares of a strip along the bottom
+edge, and a menu opened from that strip is a sheet the width of it. Panels — the
+index, an entry, the offering, the tour — are sheets along the same edge, and
+the game's rail is three short rows in every arrangement: the die and the throw,
+then what is shown and the two things the game keeps folded, then whatever the
+turn has to say. The throw itself is gold wherever it stands.
 
 ### With no network
 

@@ -70,7 +70,22 @@
     --menu: rgba(247, 243, 234, .98);
     --mark: rgba(252, 249, 242, .97);
     --mark-lift: 0 1px 3px rgba(35, 32, 26, .26);
+    /* The board's own two names for a hairline and for the paper a control
+       is printed on. The printed board redefines them for its palette; they
+       are set here as well because the same controls — the setup dialog, the
+       list of destinations, the game menu — are also shown in the other two
+       arrangements, where nothing used to define them at all and every rule
+       that named them was dropped: fieldsets with no edge, list rows with no
+       separator, and a sticky dialog footer the form scrolled through. */
+    --line: var(--rule-2);
+    --card: var(--menu);
+    /* The throw is the one act every arrangement of the game is built around,
+       so it is gold in all three rather than only on the printed board — the
+       same leaf, whether it is a pill on a card or a button on a strip. */
+    --gold-1: #f0dba6; --gold-2: #d9bd79; --gold-ink: #5d431c;
     --panel: 342px;
+    /* the smallest thing a finger should have to hit */
+    --tap: 44px;
     --sa-t: env(safe-area-inset-top, 0px);
     --sa-b: env(safe-area-inset-bottom, 0px);
     --bl: 0px;          /* height of whatever sits in the bottom-left corner */
@@ -95,6 +110,11 @@
     --menu: rgba(22, 25, 32, .98);
     --mark: rgba(26, 30, 39, .97);
     --mark-lift: 0 0 0 1px rgba(0, 0, 0, .55), 0 2px 7px rgba(0, 0, 0, .62);
+    /* said again here: a custom property is substituted where it is declared,
+       so the two above would otherwise carry the day's hairline into the night */
+    --line: rgba(236, 230, 215, .42);
+    --card: rgba(22, 25, 32, .98);
+    --gold-1: #d8b978; --gold-2: #b7924a; --gold-ink: #1a1408;
   }
   html, body { margin: 0; height: 100%; overflow: hidden; touch-action: pan-x pan-y; }
   body {
@@ -249,7 +269,8 @@
      Tibetan, which reads as a label and not as a switch: two options, and the
      one in force is the one held down. */
   .menu-body .menu-row {
-    display: flex; align-items: center; gap: 9px; padding: 7px 11px 6px;
+    display: flex; align-items: center; gap: 6px 9px; padding: 7px 11px 6px;
+    flex-wrap: wrap;
     font-family: "IBM Plex Mono", ui-monospace, monospace;
     font-size: 10px; letter-spacing: .13em; text-transform: uppercase; color: var(--ink-2);
   }
@@ -257,8 +278,14 @@
     width: 1.2em; text-align: center; font-size: 12px; letter-spacing: 0;
   }
   .menu-body .menu-row .t { margin-right: auto; }
-  .menu-body .menu-row .seg { flex: none; }
-  .menu-body .menu-row .seg .btn { padding: 5px 9px 4px; }
+  /* The switch gives way before the menu does. Held at its natural width it
+     pushed the last of its three options past the edge of a narrow menu and
+     off the screen with it; allowed to shrink, and to drop to a line of its
+     own where even that is not enough, the whole row is always in view. */
+  .menu-body .menu-row .seg { flex: 0 1 auto; min-width: 0; margin-left: auto; }
+  .menu-body .menu-row .seg .btn {
+    padding: 5px 9px 4px; min-width: 0; overflow: hidden; text-overflow: ellipsis;
+  }
   .menu-body .menu-row .seg .btn[lang="bo"] {
     font-family: inherit; font-size: 13px; letter-spacing: 0;
     text-transform: none; padding: 2px 9px;
@@ -692,14 +719,22 @@
     .controls > .btn, .controls .menu > .btn { padding: 13px 0 12px; justify-content: center; }
     .controls > .btn .t, .controls .menu > .btn .t { display: inline; }
     .controls > .btn .g, .controls .menu > .btn .g { margin-right: 6px; font-size: 12px; }
-    /* Anchored to the control's right edge and opening leftward: anchored to
-       its left, the widest menu of the three ran off the side of the screen
-       and took the switch on its widest row with it. */
+    /* A menu anchored to its own control is anchored to a third of the bar,
+       and a row carrying a three-way switch is wider than a third of a phone:
+       Speed lost Fast off the right edge and Language lost Polski. Here the
+       menus are not hung on their controls at all. The bar is the strip along
+       the foot of the screen, so a menu opened from it is a sheet the width of
+       that strip, standing on it — every row has the whole width to sit in,
+       and both menus open in the same place whichever control was pressed. */
+    .controls .menu { position: static; }
     .menu-body {
-      top: auto; bottom: calc(100% + 7px); right: 0; left: auto;
-      min-width: 0; width: max(100%, 50vw); max-width: calc(100vw - 18px);
+      top: auto; bottom: calc(100% + 7px); left: 0; right: 0;
+      min-width: 0; width: auto; max-width: none; border-radius: 12px;
+      max-height: min(66dvh, calc(100dvh - 120px - var(--sa-b) - var(--sa-t)));
+      overflow-y: auto; overscroll-behavior: contain;
     }
-    .menu-body .btn { padding: 12px 13px 11px; font-size: 11px; }
+    .menu-body .btn { padding: 12px 13px 11px; font-size: 11px; min-height: var(--tap); }
+    .menu-body .menu-row { padding: 9px 13px 8px; }
     .index { padding-bottom: calc(66px + var(--sa-b)); }
     .sheet {
       left: 9px; right: 9px; width: auto; top: auto;
@@ -714,6 +749,21 @@
       max-height: 60dvh; overflow-y: auto; overscroll-behavior: contain;
     }
     .off-full { max-height: 24dvh; }
+    .off-now { min-height: 0; }
+    /* Thirty-seven marks drawn at the size a finger wants, on a plate the
+       width of a phone, cover the plate. They come down to the smallest
+       disc a thumb can still find, and only the heap being spoken of — or
+       the one just touched — says its name; the rest hold their number and
+       let the maṇḍala they stand on be seen. */
+    .mk .n { width: 26px; height: 26px; font-size: 11px; }
+    .mk.roomy .lb { opacity: 0; }
+    .mk:hover .lb, .mk[aria-current="true"] .lb, .mk.now .lb { opacity: 1; }
+    .mk .lb { font-size: 11.5px; }
+    /* the offering's own controls, two to a row rather than three to two */
+    .off-foot { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 9px; }
+    .off-foot .btn { min-height: 40px; }
+    .off-player { gap: 4px; }
+    .mandala-note h3 { margin-bottom: 5px; }
   }
   /* touch: bigger targets */
   @media (pointer: coarse) {
@@ -790,10 +840,14 @@
      then a scroll away from its own name. It keeps its place, at the size the
      panel can pay for. */
   @media (max-width: 700px) {
-    .entry-art { margin: 11px 0; }
-    .entry-art > div { width: min(64%, 168px); }
-    .entry-art.field > div { width: min(46%, 122px); }
-    .entry-art figcaption { font-size: 11.5px; }
+    .entry-art { margin: 9px 0; }
+    .entry-art > div { width: min(52%, 136px); }
+    .entry-art.field > div { width: min(34%, 96px); }
+    .entry-art figcaption { font-size: 11px; margin-top: 4px; }
+    /* the head of a sheet is a label and a way out, not a band */
+    .grip { padding: 7px 8px 6px 13px; }
+    .grip .eyebrow { margin-top: 7px; }
+    .sheet-scroll { padding: 10px 14px 12px; }
   }
   .art-status { flex-shrink: 0; padding: 9px 12px; margin: 0; font-size: 14px; line-height: 1.4; pointer-events: auto; }
   .art-status .btn { margin-top: 6px; }
@@ -804,14 +858,41 @@
   @media (max-width: 700px) {
     .controls, body.index-open .controls { top: auto; bottom: calc(9px + var(--sa-b)); left: 9px; right: 9px; max-width: none; }
     .controls .btn { min-height: 44px; }
+    /* Every panel on a phone is a sheet along the foot. Half the screen was
+       the model's share of it, but a panel is only ever open because
+       something is being read in it — and the model behind it is still a
+       third of the screen, still turning, still there to go back to. */
     .panel-dock { left: 9px; right: 9px; top: auto; bottom: calc(66px + var(--sa-b));
-      width: auto; max-height: min(54dvh, calc(100dvh - 126px - var(--sa-b) - var(--sa-t))); }
+      width: auto; max-height: min(62dvh, calc(100dvh - 126px - var(--sa-b) - var(--sa-t))); }
     .panel-dock > .sheet, .panel-dock > .mandala-note, .panel-dock > .index, .panel-dock > .tour-panel { max-height: inherit; }
     .tour-panel { padding: 12px; }
-    .tour-panel .mode-tabs { margin-bottom: 10px; }
+    /* Two placards the height of a thumb, to say which of two views is open,
+       at the head of a panel that has half a phone to say everything else in.
+       It is the same two-way switch the rest of the page uses. */
+    .mode-tabs {
+      gap: 0; margin-bottom: 10px; border: 1px solid var(--rule-2);
+      border-radius: 7px; overflow: hidden;
+    }
+    .mode-tabs .btn { border: 0; border-radius: 0; min-height: 38px; font-size: 10px; }
+    .mode-tabs .btn + .btn { border-left: 1px solid var(--rule); }
     .tour-title { font-size: 25px; }
     .tour-copy { font-size: 16px; }
     .tour-help { display: none; }
+    .tour-jump-label { font-size: 13px; margin: 11px 0 4px; }
+    /* three to a row, so the last of them is not left hanging over the fold
+       of the panel's own scroll */
+    .tour-links {
+      display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 6px; margin-top: 9px;
+    }
+    .tour-links .btn {
+      min-height: 40px; font-size: 9px; padding: 6px 4px;
+      white-space: normal; line-height: 1.35; letter-spacing: .06em;
+    }
+    .tour-foot { gap: 6px; margin-top: 9px; padding-top: 9px; }
+    .tour-foot .btn { min-height: 42px; font-size: 10px; padding: 7px 6px; }
+    /* the way back out, kept to the line it needs and no more */
+    .tour-overview { min-height: 34px; font-size: 9.5px; padding: 6px 8px; margin-top: 6px; }
     body.tour-view .compass { top: calc(9px + var(--sa-t)); left: 9px; }
   }
   @media (max-height: 480px) and (min-width: 701px) {
@@ -875,6 +956,24 @@
     position: absolute; left: 2px; top: 1px; z-index: 2;
     font-family: "IBM Plex Mono", monospace; font-size: 9px; color: var(--ink-2);
     letter-spacing: .04em; text-shadow: 0 0 3px var(--paper), 0 0 3px var(--paper);
+  }
+  /* On a phone a cell is forty-five pixels across and the field painted on
+     it is bright: a number set over that in the page's own ink, haloed in
+     paper, was the one thing on the board that could not be read — and the
+     number is what the die names. It gets a corner of the cell to itself. */
+  @media (max-width: 700px) {
+    body.game-view .bv-sq .n, body.board-only .bv-sq .n {
+      left: 0; top: 0; padding: 0 3px 1px 2px; border-radius: 0 0 5px 0;
+      line-height: 1.3; background: color-mix(in srgb, var(--paper) 80%, transparent);
+      font-size: 10px; font-weight: 500; color: var(--ink); text-shadow: none;
+    }
+    /* where the row is short the corner it takes is smaller still, so the
+       field keeps as much of its own cell as the number leaves it */
+    @container (max-height: 34px) {
+      body.game-view .bv-sq .n, body.board-only .bv-sq .n {
+        font-size: 8.5px; padding: 0 2px 1px 1px; border-radius: 0 0 4px 0;
+      }
+    }
   }
   /* the field, square and centred, since its cell on the sheet is square */
   .bv-icon {
@@ -1010,7 +1109,6 @@
      the next throw without going back to the rail for it */
   .bv-card-acts { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 9px; }
   .bv-card-acts[hidden] { display: none !important; }
-  .bv-card-go { border-color: var(--accent); color: var(--ink); }
   .bv-card.out .bv-card-in { animation: card-out .3s ease both; }
   @keyframes card-in  { from { opacity: 0; transform: scale(.88) translateY(7px); } to { opacity: 1; transform: none; } }
   @keyframes card-out { to { opacity: 0; transform: scale(.97); } }
@@ -1036,6 +1134,16 @@
     .bv-card .nm { font-size: 20px; }
   }
   .bv-rail .go { flex: none; min-width: 116px; align-self: stretch; }
+  /* The throw and the card's own "throw for the next player" are the same
+     act and now read as it everywhere. Beside the world they were an outline
+     among four other outlines, and on a phone the one thing a turn consists
+     of was the hardest control on the screen to pick out. */
+  .bv-rail .go, .bv-card-go, .bv-ask-act .go {
+    border-color: var(--gold-2); color: var(--gold-ink); font-weight: 500;
+    background: linear-gradient(180deg, var(--gold-1), var(--gold-2));
+  }
+  .bv-rail .go:hover, .bv-card-go:hover, .bv-ask-act .go:hover { filter: brightness(1.05); }
+  .bv-rail .go:disabled { filter: grayscale(.5); }
   /* The running commentary keeps a width it can be read at; where the board
      is too narrow to give it one, the controls beside it wrap instead. */
   .bv-mid { flex: 1 1 210px; min-width: 190px; display: flex; flex-direction: column; gap: 5px; }
@@ -1073,6 +1181,28 @@
   .bv-chip .t { font-size: 10px; color: var(--ink-2); }
   .bv-chip.last { border-color: var(--accent); background: var(--hi-2); }
   .bv-chip.last .t { color: var(--ink); }
+
+  /* ── the rail beside the world ──────────────────────────────────────────
+     The printed board sets this strip out as a card of its own. The other
+     two arrangements let it wrap where it fell: the commentary grew into
+     the middle of the row, pushed Destinations to the far edge and left
+     Game alone on a line below, with a hand's width of nothing between
+     them. Here it is what it is on a phone — a row of controls, and the
+     turn's own words under them, across the whole width. */
+  @media (min-width: 701px) {
+    body.game-view:not(.board-only) .bv-rail { align-items: center; }
+    body.game-view:not(.board-only) .bv-rail > .die-face { order: 0; }
+    body.game-view:not(.board-only) .bv-rail > .bv-act {
+      order: 1; flex: 1 1 auto; min-width: 0; max-width: 360px;
+      display: flex; flex-direction: column; align-items: stretch; gap: 3px;
+    }
+    body.game-view:not(.board-only) .bv-rail .bv-act .go { width: 100%; min-width: 0; }
+    body.game-view:not(.board-only) .bv-rail > .bv-views { order: 2; }
+    body.game-view:not(.board-only) .bv-rail > .bv-options { order: 3; }
+    body.game-view:not(.board-only) .bv-rail > .bv-tools { order: 4; }
+    body.game-view:not(.board-only) .bv-rail > .bv-skip { order: 5; }
+    body.game-view:not(.board-only) .bv-rail > .bv-mid { order: 6; flex: 1 1 100%; }
+  }
 
   .bv-new { flex: none; align-self: flex-start; }
   /* Asking before a game is thrown away, and somewhere to put the names. */
@@ -1210,25 +1340,76 @@
     .bv-pt .full { display: none; }
     .bv-who, .bv-tally { flex-wrap: nowrap; overflow-x: auto; overscroll-behavior-x: contain; }
   }
-  /* On a phone the entry is a bottom sheet over the board, as it is over the
-     canvas everywhere else, so the throw and the trail move to the top where
-     the sheet cannot cover them and the grid keeps its full height. */
+  /* ── the board and its rail on a phone ──────────────────────────────────
+     The entry is a bottom sheet over the board, as it is over the canvas
+     everywhere else, so the rail moves to the top where the sheet cannot
+     cover it and the grid keeps the rest of the height.
+
+     That rail was a strip beside the world and a stack here: every
+     arrangement laid it out its own way, each of them let it grow, and it
+     ended up holding half the screen with the hundred and four squares it
+     introduces sharing the other half. It is three short rows now, and the
+     same three in all three arrangements — the die and the throw, then what
+     is shown and the two things the game keeps folded, then whatever this
+     turn has to say. A control is where it was in the view you came from,
+     and everything left over is the board's. */
   @media (max-width: 700px) {
     .board-view, body.index-open .board-view {
       left: 9px; right: 9px; width: auto; top: calc(9px + var(--sa-t));
       bottom: calc(66px + var(--sa-b)); flex-direction: column-reverse;
     }
-    /* the rail is a strip, not a stack: the grid wants every row it can get */
-    .bv-rail { padding: 6px 8px; gap: 6px; align-items: center; }
-    .bv-rail .go { align-self: stretch; }
-    .bv-new, .bv-more { align-self: center; }
-    .bv-rail .go { min-width: 78px; }
-    .die-face { width: 40px; height: 40px; padding: 5px; }
+    .bv-rail { padding: 7px 8px; gap: 6px; align-items: center; }
+    .die-face { width: 38px; height: 38px; padding: 5px; }
     .die-face i { width: 6px; height: 6px; }
-    /* Two lines cut the one thing the board has to say before a game starts
-       off in the middle of its second sentence. The running line is short
-       enough the rest of the time; let it have the room it needs. */
+
+    /* one: the die, and the throw across the rest of the row. These are
+       written against the rail rather than against the body, so that they
+       outrank the three arrangements — each of which lays this same strip
+       out its own way at the widths it was drawn for, and did so here too. */
+    body.game-view .bv-rail > .die-face { order: 0; }
+    body.game-view .bv-rail > .bv-act {
+      order: 1; flex: 1 1 calc(100% - 60px); min-width: 0; align-self: center;
+      display: flex; flex-direction: column; align-items: stretch; gap: 3px;
+    }
+    /* A name is as long as a player cares to make it, and the label carries
+       one: held at its natural width the button printed "Throw for Player 2"
+       straight out through its own gold edge. It takes the row, and gives up
+       the end of a long name instead. */
+    body.game-view .bv-rail .bv-act .go {
+      align-self: auto; width: 100%; min-width: 0; flex: 1 1 auto;
+      overflow: hidden; text-overflow: ellipsis;
+      padding: 12px 10px 11px; letter-spacing: .07em; min-height: var(--tap);
+    }
+    /* the button names the player it is throwing for, so the line over it
+       saying the same thing is a row of the board's height spent twice */
+    body.game-view .bv-rail .bv-turn { display: none; }
+    body.game-view .bv-rail > .bv-skip { order: 2; flex: 1 1 100%; min-height: 38px; }
+
+    /* two: what is shown, and the two menus the game keeps folded. None of
+       the three may hold its natural width — one long word and the row folds
+       into two, and the two cost more of the board than the row does. */
+    body.game-view .bv-rail > .bv-views { order: 3; flex: 1 1 40%; min-width: 0; align-self: stretch; }
+    body.game-view .bv-rail > .bv-views .btn { flex: 1 1 0; min-width: 0; }
+    body.game-view .bv-rail > .bv-options { order: 4; flex: 1 1 32%; min-width: 0; align-self: stretch; }
+    body.game-view .bv-rail > .bv-tools { order: 5; flex: 1 1 22%; min-width: 0; align-self: stretch; }
+    body.game-view .bv-rail > .bv-options > summary,
+    body.game-view .bv-rail > .bv-tools > summary {
+      width: 100%; text-align: center; min-height: 36px;
+      overflow: hidden; text-overflow: ellipsis;
+    }
+
+    /* three: whatever the turn has to say */
+    body.game-view .bv-rail > .bv-mid { order: 6; flex: 1 1 100%; min-width: 0; gap: 4px; }
+    body.game-view .bv-rail .bv-who .pip-dot.player-art { width: 15px; height: 30px; }
+    body.game-view .bv-rail .bv-pt { padding: 2px 8px; }
     .bv-say { font-size: 12px; }
+    /* The opening line is two sentences long and every later one is short.
+       Two lines carry the second sentence and still leave the board its
+       rows; the whole of it is in the game menu, where the rules are. */
+    body.game-view .bv-say {
+      overflow: hidden; display: -webkit-box;
+      -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+    }
     /* Opened from a control standing near the middle of the card, a panel
        anchored to that control's right edge and given a fixed width started
        a hundred pixels off the left of the screen. Given the card's own width
@@ -1239,7 +1420,12 @@
       top: calc(100% + 7px); bottom: auto;
       max-height: 46dvh; overflow-y: auto; overscroll-behavior: contain;
     }
-    body.world-only .board-view { top: calc(54px + var(--sa-t)); bottom: auto; }
+    /* the world alone: the rail is the only thing standing on it, so it
+       stands square across the top rather than off to one side */
+    body.world-only .board-view,
+    body.world-only.index-open .board-view {
+      left: 9px; right: 9px; max-width: none; top: calc(9px + var(--sa-t)); bottom: auto;
+    }
 
     /* ── the middle arrangement, on a phone ──────────────────────────────
        A phone has no room to set the board beside the world, and stacking
@@ -1247,22 +1433,10 @@
        three: the board with the screen, and the world with the screen. So
        here the two share it along the other axis — the world above, on the
        page's own sky, and the board under it with the throw between them.
-       The card keeps to what a turn needs; everything that is not part of a
-       turn is in the board's own view and in the move log. */
+       The card keeps to what a turn needs; who is where is already said over
+       the model in each player's own colour, and the rest is in the move log. */
     body.game-view:not(.board-only):not(.world-only) .bv-who,
-    body.game-view:not(.board-only):not(.world-only) .bv-trail,
-    body.game-view:not(.board-only):not(.world-only) .bv-new,
-    body.game-view:not(.board-only):not(.world-only) .bv-more { display: none; }
-    body.game-view:not(.board-only):not(.world-only) .die-face { order: 0; }
-    body.game-view:not(.board-only):not(.world-only) .bv-act { order: 1; flex: 1 1 110px; }
-    body.game-view:not(.board-only):not(.world-only) .bv-views { order: 2; align-self: center; }
-    body.game-view:not(.board-only):not(.world-only) .bv-mid {
-      order: 3; flex: 1 1 100%; min-width: 0;
-    }
-    body.game-view:not(.board-only):not(.world-only) .bv-say {
-      overflow: hidden; display: -webkit-box;
-      -webkit-line-clamp: 3; -webkit-box-orient: vertical;
-    }
+    body.game-view:not(.board-only):not(.world-only) .bv-trail { display: none; }
   }
 
   /* ══ The board, given the whole screen ═══════════════════════════════════
@@ -1288,13 +1462,11 @@
     --cell: rgba(255, 255, 255, .74);
     --cell-edge: rgba(35, 32, 26, .13);
     --card: rgba(253, 251, 245, .93);
-    --gold-1: #f0dba6; --gold-2: #d9bd79; --gold-ink: #5d431c;
   }
   body.board-only.night {
     --cell: rgba(233, 224, 199, .055);
     --cell-edge: rgba(228, 189, 112, .26);
     --card: rgba(11, 20, 38, .9);
-    --gold-1: #d8b978; --gold-2: #b7924a; --gold-ink: #1a1408;
   }
 
   body.board-only .board-view,
@@ -1367,11 +1539,8 @@
   }
   body.board-only .bv-rail .go {
     align-self: stretch; min-width: 0; border-radius: 999px; padding: 11px 18px 10px;
-    border-color: var(--gold-2); color: var(--gold-ink); font-size: 11px; letter-spacing: .16em;
-    background: linear-gradient(180deg, var(--gold-1), var(--gold-2));
+    font-size: 11px; letter-spacing: .16em;
   }
-  body.board-only .bv-rail .go:hover { filter: brightness(1.05); }
-  body.board-only .bv-rail .go:disabled { filter: grayscale(.5); }
   body.board-only .bv-views {
     order: 2; align-self: center; padding-left: 14px; border-left: 1px solid var(--rule);
   }
@@ -1446,12 +1615,6 @@
   body.board-only .bv-card-more, body.board-only .bv-card-go {
     border-radius: 999px; padding: 11px 22px 10px; letter-spacing: .16em;
   }
-  /* the throw is the card's own act and takes the gold the rail gives it */
-  body.board-only .bv-card-go {
-    border-color: var(--gold-2); color: var(--gold-ink);
-    background: linear-gradient(180deg, var(--gold-1), var(--gold-2));
-  }
-  body.board-only .bv-card-go:hover { filter: brightness(1.05); }
 
   /* the three controls, docked along the foot as the board's own */
   body.board-only .controls,
@@ -1472,7 +1635,7 @@
   body.board-only .controls .menu > .btn .chev { display: none; }
   body.board-only .controls .menu-body { top: auto; bottom: calc(100% + 8px); }
 
-  @media (max-width: 820px) {
+  @media (min-width: 701px) and (max-width: 820px) {
     body.board-only .bv-act { flex-basis: 160px; padding-left: 10px; }
     body.board-only .bv-views { padding-left: 10px; }
     body.board-only .bv-new, body.board-only .bv-more { align-self: center; }
@@ -1494,8 +1657,9 @@
     .bv-mark span { margin-top: 2px; font-size: 7px; letter-spacing: .26em; }
     .bv-orb { width: 42px; height: 42px; top: -9px; }
     body.board-only .bv-rail { padding: 8px 9px; border-radius: 11px; gap: 7px 9px; }
-    body.board-only .bv-act { flex: 1 1 150px; padding-left: 9px; gap: 3px; }
-    body.board-only .bv-rail .go { padding: 9px 12px 8px; letter-spacing: .1em; }
+    /* the rail's phone layout is written once, above, for all three
+       arrangements; the printed board keeps only its dress here */
+    body.board-only .bv-act { padding-left: 9px; border-left: 1px solid var(--rule); }
     body.board-only .bv-views { padding-left: 0; border-left: 0; }
     body.board-only .bv-where { font-size: 14px; }
     body.board-only .bv-say { font-size: 12px; }
@@ -1528,13 +1692,17 @@
   }
 
   /* ── neither rotated nor stretched ──────────────────────────────────────
-     Thirteen rows of eight, a card and a head: upright this is a board, and
-     turned on its side it is a letterbox with two rows in it. The phone
-     layouts are drawn for one orientation, so the page asks for the phone
-     back rather than pretending to serve the other. The installed app takes
-     the same lock from the manifest. */
+     Thirteen rows of eight, a card and a head: upright that is a board, and
+     turned on its side it is a letterbox with two rows in it. So the board
+     asks for the phone back — and only the board does. A model of the world
+     is the one thing on this page a wide, short screen suits, and the whole
+     page used to go behind this notice with it: turn the phone while looking
+     at Meru and Meru went away. Explorer and the maṇḍala keep the landscape
+     they are good in, the world's own arrangement of the game keeps it too,
+     and the notice carries the way into that arrangement rather than only
+     asking. The installed app still opens upright, from the manifest. */
   @media (orientation: landscape) and (max-height: 500px) and (max-width: 940px) and (pointer: coarse) {
-    .upright {
+    body.game-view:not(.world-only) .upright {
       position: fixed; inset: 0; z-index: 30; display: flex;
       flex-direction: column; align-items: center; justify-content: center;
       gap: 14px; padding: 24px; text-align: center;
@@ -1549,6 +1717,7 @@
       font-family: "IBM Plex Mono", monospace; font-size: 9.5px;
       letter-spacing: .14em; text-transform: uppercase; color: var(--ink-3);
     }
+    .upright .btn { min-height: var(--tap); padding: 10px 18px; }
   }
   @keyframes upright-turn {
     0%, 42% { transform: rotate(0deg); }
@@ -1563,6 +1732,7 @@
   <i class="turn" aria-hidden="true"></i>
   <p>Turn the phone upright to read the board.</p>
   <small>Thirteen rows of eight want a tall screen</small>
+  <button class="btn" type="button" data-upright="world">Show the world</button>
 </div>
 
 <three-d-stage name="buddhist-world-system" background="#efe8da"></three-d-stage>
@@ -6838,6 +7008,11 @@ controlsEl.addEventListener('click', (ev) => {
 });
 document.querySelector('.glnote [data-act="reload"]')
   .addEventListener('click', () => location.reload());
+/* The notice a phone on its side gets over the board is shown for the board
+   alone, and offers the one arrangement of the game that wants the screen
+   that way rather than leaving the turn of the phone as the only answer. */
+document.querySelector('.upright [data-upright="world"]')
+  .addEventListener('click', () => rbLayout('world'));
 
 /* ── the motion switch ───────────────────────────────────────────────── */
 const motionBtn = document.querySelector('[data-act="motion"]');
@@ -6933,13 +7108,18 @@ function toggleFullScreen() {
     : (root.requestFullscreen
         ? root.requestFullscreen({ navigationUI: 'hide' })
         : root.webkitRequestFullscreen());
-  /* The layouts are drawn upright. Full screen is the one moment a page is
-     allowed to ask a phone to stay that way, so it asks; where the browser
-     will not, the landscape notice says so instead. */
+  /* The board is drawn upright, and full screen is the one moment a page is
+     allowed to ask a phone to stay that way — so it asks for the board and
+     for nothing else. The model is at its best across a wide screen, and a
+     lock taken out on its behalf was a lock against looking at it. Where the
+     browser will not lock, the landscape notice says so for the board. */
   Promise.resolve(p).then(() => {
     if (!isFull() || !coarse) return;
     const o = window.screen && window.screen.orientation;
-    if (o && o.lock) Promise.resolve(o.lock('portrait')).catch(() => {});
+    if (!o || !o.lock) return;
+    const boardShown = mode === 'game' && !document.body.classList.contains('world-only');
+    if (boardShown) Promise.resolve(o.lock('portrait')).catch(() => {});
+    else if (o.unlock) { try { o.unlock(); } catch (err) {} }
   }).catch(() => {});
 }
 document.addEventListener('fullscreenchange', syncFull);

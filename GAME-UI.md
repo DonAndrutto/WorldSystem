@@ -13,6 +13,61 @@ Built on main after the stage 1 camera and popup-navigation change (#26).
 - Switching between the board and world plays a short, staggered assembly/disassembly of the board tiles. This is a presentation transition, not a morph of the physical world or a change to the board's mapping.
 - Reaching Nirvana shows each player's throw and journey totals and Play again. The ceremonial stupa throw cannot change the winner.
 
+## The phone pass
+
+- The rail is three short rows in all three arrangements: the die with the
+  throw across the rest of the first, the three-way view switch with
+  Destinations and Game on the second, and the turn's own words on the third.
+  Nothing below the rail belongs to the rail, so the grid keeps the rest of the
+  height. Each row is written against `.bv-rail`, once, rather than three times
+  over by each arrangement.
+- The throw is gold in every arrangement, not only on the printed board, and so
+  are the card's "throw for the next player" and the setup dialog's Start. It
+  never prints past its own edge: a long player name is cut, not spilled.
+- The turn line over the throw is dropped on a phone — the button carries the
+  same name — and the middle arrangement drops the player row as well, which the
+  model already gives in each player's own colour.
+- A square's number is set in a corner of its own on a phone, on the page's
+  paper rather than haloed by it, since the field painted behind it is bright
+  and the number is what the die names.
+- Destinations and the game menu fold out as sheets across the foot of the
+  screen. At night they used to open off the top: night gives every card back
+  its backdrop filter, the rail is a card, and a filtered element is where a
+  fixed child is measured from.
+- The game menu lists New game and Move log as rows rather than as chips set
+  beside each other, and the log opens under them.
+
+## The rest of the interface on a phone
+
+- Both control menus open as a sheet the width of the control bar rather than
+  hanging off one third of it. Speed lost Fast off the right edge of the screen
+  and Language lost Polski; every row of every menu is now in view, and a row
+  whose switch still will not fit drops it to a line of its own.
+- Panels take 62% of the height rather than 54%: a panel is only open because
+  something is being read in it, and the model behind it keeps a third of the
+  screen. The entry's picture and the sheet's head come down to match.
+- Recitation and Tour are one two-way switch at the head of the offering panels
+  instead of two placards, and the tour's own three links sit three to a row.
+- The maṇḍala's heap marks come down to 26px and hold their number alone; only
+  the heap being recited, or the one just touched, says its name, so the plate
+  under them can be seen. Every mark still carries its full name as its
+  accessible label.
+- `--line` and `--card` are defined for the page, not only for the printed
+  board. Outside that one arrangement every rule naming them was dropped, which
+  left the setup dialog's fieldsets with no edge, the list of destinations with
+  no separators, and the dialog's sticky footer transparent with the form
+  running under it.
+
+## Orientation
+
+Only the board asks for the phone upright. The model is better across a wide
+screen than a tall one, and the notice used to cover the whole page: turning the
+phone while looking at Meru took Meru away. Explorer, the maṇḍala and the
+world's own arrangement of the game keep landscape; the board's notice offers
+that arrangement rather than leaving the turn of the phone as the only answer.
+The full-screen portrait lock is taken out for the board alone, and the
+manifest still opens the installed app upright.
+
 ## Saving and interruption
 
 `game-session.js` stores initial player choices, quota variant, committed dice and a pending die under `ws-game-session-v1`. Restore replays the rules engine; it never trusts arbitrary saved player positions. The pending die is written before animation starts. Reloading finishes that same result once. Skip, view changes, mode exit and page backgrounding finish pending presentation safely. Invalid saves are rejected and unavailable storage is reported in the Game menu. Saves are local to this browser/device.
