@@ -561,23 +561,27 @@ for (const sq of [1, 24, 104]) {
   assert.ok(cellOf(sq).querySelector('.nm').textContent.length,'square '+sq+' is named');
 }
 
-/* Three arrangements of the same game: the board beside the world, the world
-   alone, and the board alone — the 2D reading, with no model behind it. */
+/* Two arrangements of the same game: the board alone — the 2D reading, with
+   no model behind it — and the world alone. Each is the whole screen. Both,
+   which set them side by side, is gone, and a preference remembered from it
+   falls through to the board rather than to nothing: this document opened
+   with 'ws-game-view' set to 'both'. */
 const layoutOf = () => document.body.classList.contains('board-only') ? 'board'
-  : document.body.classList.contains('world-only') ? 'world' : 'both';
-assert.equal(layoutOf(),'both','both to begin with');
-assert.equal(q('[data-layout="both"]').getAttribute('aria-pressed'),'true');
-q('[data-layout="board"]').click(); advance(600);
-assert.equal(layoutOf(),'board','the board alone, as a diagram of positions');
+  : document.body.classList.contains('world-only') ? 'world' : 'none';
+assert.equal(q('[data-layout="both"]'),null,'Both is not offered');
+assert.equal(layoutOf(),'board','a remembered Both opens on the board');
 assert.equal(q('[data-layout="board"]').getAttribute('aria-pressed'),'true');
 assert.equal(q('.rb-players').hidden,true,'nothing is named over a model that is not shown');
 q('[data-layout="world"]').click(); advance(600);
 assert.equal(layoutOf(),'world','and the world alone, at any width');
-key('b'); advance(600);
-assert.equal(layoutOf(),'both','b cycles round');
+assert.equal(q('[data-layout="world"]').getAttribute('aria-pressed'),'true');
 assert.equal(q('.rb-players').hidden,false);
+key('b'); advance(600);
+assert.equal(layoutOf(),'board','b hands the screen back');
+key('w'); advance(600);
+assert.equal(layoutOf(),'world','and w does the same, the key it was named for');
 
-/* Two of the three dress the whole page — board hides the canvas the world is
+/* Both of them dress the whole page — board hides the canvas the world is
    drawn on, world folds the board away — and neither means anything outside
    the game. Written onto the body they outlived the game that asked for them:
    the explorer opened onto an empty sky with the model still there behind a
@@ -596,8 +600,7 @@ key('e'); advance(600);
 assert.equal(document.body.classList.contains('world-only'),false,
   'nor does the world alone');
 key('g'); advance(600);
-q('[data-layout="both"]').click(); advance(600);
-assert.equal(layoutOf(),'both');
+assert.equal(layoutOf(),'world');
 assert.equal(q('.rb-players').hidden,false);
 
 // Every player stands in the world, in their own colour, and the one holding
@@ -824,16 +827,19 @@ assert.ok(!cellOf(1).classList.contains('reached'),'and a square it cannot reach
 assert.match(q('.rb-label').textContent,/^30/,'the label names the square');
 assert.match(q('.rb-label').textContent,new RegExp(rbBoard.BY_N.get(30).name.slice(0,9)));
 /* It stands over the world, never over the board, which names the square
-   already — so it shows once the world has the screen to itself. */
-viewport={w:900,h:800}; window.dispatchEvent(new window.Event('resize')); advance(600);
-key('w'); advance(900);
-assert.ok(document.body.classList.contains('world-only'));
-assert.equal(q('.rb-label').hidden,false,'named where it stands, once the world has the screen');
-key('w'); advance(900);
+   already — so it shows once the world has the screen to itself. The key
+   hands the screen over at any width now that there are two arrangements
+   rather than three, so the same round trip holds narrow and wide. */
+for (const w of [900, 1280]) {
+  viewport={w,h:800}; window.dispatchEvent(new window.Event('resize')); advance(600);
+  q('[data-layout="board"]').click(); advance(600);
+  key('w'); advance(900);
+  assert.ok(document.body.classList.contains('world-only'),'w hands the screen over at '+w);
+  assert.equal(q('.rb-label').hidden,false,'named where it stands, once the world has the screen');
+  key('w'); advance(900);
+  assert.ok(!document.body.classList.contains('world-only'),'and hands it back at '+w);
+}
 viewport={w:1280,h:900}; window.dispatchEvent(new window.Event('resize')); advance(600);
-key('w'); advance(600);
-assert.ok(!document.body.classList.contains('world-only'),
-  'and where both fit there is nothing to hand over');
 // a trap lists no moves of its own, so it draws nothing. The drawer is open on
 // square 30, so the first tap on the board closes it and the second opens 48.
 cellOf(48).click(); advance(400);
@@ -940,13 +946,15 @@ assert.deepEqual(rbBoard.VARIANTS['85'],{one:73});
 assert.ok(app.E.rebirth_sq_85.f.some(([k,v])=>k==='Variant reading' && /73/.test(v)),
   'the disagreement is in the entry');
 
-// Where the two cannot share the screen they take turns.
+// The two take turns, and the switch says which of them has the screen.
 viewport={w:900,h:800}; window.dispatchEvent(new window.Event('resize')); advance(600);
 key('w'); advance(600);
 assert.ok(document.body.classList.contains('world-only'),'w hands the screen to the world');
-assert.equal(q('[data-game="swap"]').textContent,'Show the board');
+assert.equal(q('[data-layout="world"]').getAttribute('aria-pressed'),'true');
+assert.equal(q('[data-layout="board"]').getAttribute('aria-pressed'),'false');
 key('w'); advance(600);
 assert.ok(!document.body.classList.contains('world-only'));
+assert.equal(q('[data-layout="board"]').getAttribute('aria-pressed'),'true');
 viewport={w:1280,h:900}; window.dispatchEvent(new window.Event('resize')); advance(600);
 
 // The index drawer wants the same side of the screen, and gets it.
@@ -995,6 +1003,11 @@ app.world.traverse(mesh => {
     intactTerrain.set(mesh, { material: mesh.material, visible: mesh.visible });
 });
 reduced = true;
+/* The overview and every focused visit belong to the world's arrangement —
+   the one a card's "show in world" hands the screen to. Asked for from the
+   board, where the canvas is not drawn at all, the camera is framed into
+   whatever sliver the board leaves and the checks below measure nothing. */
+q('[data-layout="world"]').click(); advance(600);
 for (const size of [{w:1440,h:1000}, {w:390,h:844}, {w:844,h:390}]) {
   viewport = size; app.cam.aspect = size.w / size.h; app.cam.updateProjectionMatrix();
   window.dispatchEvent(new window.Event('resize')); advance(700);
@@ -1245,8 +1258,9 @@ console.log(JSON.stringify({result:'PASS',heaps:37,illustrations:24,triangles,at
    + 'stand in their own colour. All 104 fields: the painting as the cell\'s own ground, and as a billboard in the world for every square the world does not already build in three dimensions, '
    + 'four sheets fetched once and only in game mode, one failing and retried alone, and the cell arithmetic that a '
    + 'sheet of seven rows and a sheet of five both have to answer to. A Tibetan name on every square — in the cell, the '
-   + 'card and the entry — and the switch that puts them in place of the English. Three arrangements of the game: board '
-   + 'and world, the world alone, and the board alone as a diagram of positions. A card that carries the field, both '
+   + 'card and the entry — and the switch that puts them in place of the English. Two arrangements of the game, each '
+   + 'of them the whole screen: the board alone as a diagram of positions, and the world alone, with a preference '
+   + 'remembered from the Both that stood between them opening on the board. A card that carries the field, both '
    + 'names and the way into the whole passage, and waits while it is read. Nirvana on the axis above the whole world '
    + 'system, drawn as open rings rather than as somewhere to stand. One rising spiral in the '
    + 'board\'s own order, each square on a plinth; the squares a selected one reaches lit on the board and drawn as '

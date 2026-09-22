@@ -6,12 +6,86 @@ Built on main after the stage 1 camera and popup-navigation change (#26).
 
 - The first visit to Game opens traveler setup. Choose 1–4 players, names, one of twelve characters (male and female Bhutanese, Tibetan, Indian, Chinese, Thai and Western travelers), and independent player colours. Duplicate characters are allowed. Appearance does not change the rules.
 - The selected artwork appears in setup, player tabs, board tokens and camera-facing 3D figures. If the world texture fails, coloured markers remain; entering Game again retries it.
-- Board is the default for new visitors. Existing view and language preferences still apply. Board, Both and World now have visible labels.
+- Board is the default for new visitors. Existing view and language preferences still apply. Board and World have visible labels.
 - Destinations previews all six outcomes for the player holding the die, including dead faces and trap counts. Its entries open the corresponding descriptions.
 - A throw highlights possible destinations alongside the die, holds the final result, then moves the traveler directly to the destination. It never counts intervening squares. The arrival card gives the short description, next player's throw, world focus and full entry.
 - The Game menu contains New game, Move log, animation pace (Calm, Quick, Instant), a larger-square scrolling board, save status and rules. Skip animation finishes the already chosen result. Reduced-motion preference bypasses dice, movement and board-transition animation.
 - Switching between the board and world plays a short, staggered assembly/disassembly of the board tiles. This is a presentation transition, not a morph of the physical world or a change to the board's mapping.
 - Reaching Nirvana shows each player's throw and journey totals and Play again. The ceremonial stupa throw cannot change the winner.
+
+## The phone pass
+
+- The rail is three short rows in both arrangements: the die with the
+  throw across the rest of the first, the view switch with Destinations and
+  Game on the second, and the turn's own words on the third.
+  Nothing below the rail belongs to the rail, so the grid keeps the rest of the
+  height. Each row is written against `.bv-rail`, once, rather than three times
+  over by each arrangement.
+- The throw is gold in every arrangement, not only on the printed board, and so
+  are the card's "throw for the next player" and the setup dialog's Start. It
+  never prints past its own edge: a long player name is cut, not spilled.
+- The turn line over the throw is dropped on a phone — the button carries the
+  same name — and the middle arrangement drops the player row as well, which the
+  model already gives in each player's own colour.
+- A square's number is set in a corner of its own on a phone, on the page's
+  paper rather than haloed by it, since the field painted behind it is bright
+  and the number is what the die names.
+- Destinations and the game menu fold out as sheets across the foot of the
+  screen. At night they used to open off the top: night gives every card back
+  its backdrop filter, the rail is a card, and a filtered element is where a
+  fixed child is measured from.
+- The game menu lists New game and Move log as rows rather than as chips set
+  beside each other, and the log opens under them.
+
+## The rest of the interface on a phone
+
+- Both control menus open as a sheet the width of the control bar rather than
+  hanging off one third of it. Speed lost Fast off the right edge of the screen
+  and Language lost Polski; every row of every menu is now in view, and a row
+  whose switch still will not fit drops it to a line of its own.
+- Panels take 62% of the height rather than 54%: a panel is only open because
+  something is being read in it, and the model behind it keeps a third of the
+  screen. The entry's picture and the sheet's head come down to match.
+- Recitation and Tour are one two-way switch at the head of the offering panels
+  instead of two placards, and the tour's own three links sit three to a row.
+- The maṇḍala's heap marks come down to 26px and hold their number alone; only
+  the heap being recited, or the one just touched, says its name, so the plate
+  under them can be seen. Every mark still carries its full name as its
+  accessible label.
+- `--line` and `--card` are defined for the page, not only for the printed
+  board. Outside that one arrangement every rule naming them was dropped, which
+  left the setup dialog's fieldsets with no edge, the list of destinations with
+  no separators, and the dialog's sticky footer transparent with the form
+  running under it.
+
+## Orientation
+
+Only the board asks for the phone upright. The model is better across a wide
+screen than a tall one, and the notice used to cover the whole page: turning the
+phone while looking at Meru took Meru away. Explorer, the maṇḍala and the
+world's own arrangement of the game keep landscape; the board's notice offers
+that arrangement rather than leaving the turn of the phone as the only answer.
+The full-screen portrait lock is taken out for the board alone, and the
+manifest still opens the installed app upright.
+
+## Two arrangements, not three
+
+Both — the board set beside the world it is a section through — is gone. It
+asked for a screen wide enough to read a hundred and four named squares and a
+turning model at once, and gave each of them the half the other did not want;
+on a phone it gave them a third each and the rail the rest. Board and World are
+what remain, each of them the whole screen, either one press or one key (`b`,
+`w`) away, sharing one selection — so nothing Both did is lost, only the halves
+it did it in. A remembered `ws-game-view` of `both` opens on the board. The
+hidden swap control the `w` key was named for goes with it: the switch in the
+rail says the same thing and is on the screen.
+
+## The clouds
+
+Drawn at about half their former weight, day and night, in the one place both
+skies are painted (`sky-clouds.js`). They are the backdrop the world stands in
+front of; at their old weight the spirals competed with it, and on the printed
+board they competed with the hundred and four fields.
 
 ## Saving and interruption
 
