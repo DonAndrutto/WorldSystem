@@ -21,6 +21,9 @@ const gameSession = await import(pathToFileURL(repo + '/game-session.js'));
 const gameCamera = await import(pathToFileURL(repo + '/game-camera.js'));
 const summitDetail = await import(pathToFileURL(repo + '/summit-detail.js'));
 const continentModels = await import(pathToFileURL(repo + '/continent-models.js'));
+const wheelArt = await import(pathToFileURL(repo + '/wheel-art.js'));
+const wheelView = await import(pathToFileURL(repo + '/wheel-view.js'));
+const wheelNotes = await import(pathToFileURL(repo + '/wheel-notes.js'));
 // Every square is painted: the field it is drawn as on the board, served as
 // four atlas sheets that the module lays out from the square numbers alone.
 assert.equal(rbIcons.SQUARE_ART.size, 104, 'every square has its field');
@@ -51,7 +54,7 @@ const textureRequests = [];
 const THREE = {...RealThree, TextureLoader: class {
   load(url, success, progress, failure) { textureRequests.push({url, success, failure}); }
 }};
-Object.assign(window, {createOfferingModels, OFFERING_ART, TOUR_NOTES, installViewportGestures}, surfaces, skyClouds, gameCamera, gamePlayers, gameSession, summitDetail, continentModels, {
+Object.assign(window, {createOfferingModels, OFFERING_ART, TOUR_NOTES, installViewportGestures}, surfaces, skyClouds, gameCamera, gamePlayers, gameSession, summitDetail, continentModels, wheelView, wheelNotes, {drawWheel: wheelArt.drawWheel}, {
   RB_SQUARES: rbBoard.SQUARES, RB_SPECIAL: rbBoard.SPECIAL, RB_START: rbBoard.START,
   RB_VICTORY: rbBoard.VICTORY, TRAP_QUOTA: rbBoard.TRAP_QUOTA, TRAP_QUOTA_NOTE64: rbBoard.TRAP_QUOTA_NOTE64,
   DIE_FACES: rbBoard.FACES, RB_BY_N: rbBoard.BY_N, createBoardLayer: rbBoard.createBoardLayer,
@@ -127,7 +130,7 @@ const app = await window.eval(`(async()=>{${source}\nreturn {
  setMandala, setMode, show, close, setOpen, startTour, visitHeap, endTour, orientOfferingCards,
  applyStep, playToggle, stepBy, pausePlay, resetPlay, applyTheme, setMotion,
  rbBoard, rbArt, rbGame:()=>rbGame, rbFocusWorld, rbFrameFocus, rbClearFocus,
- gameFocus:()=>gameFocus, reframeGame, rbOverviewBounds, SAMSARA_TOP,
+ gameFocus:()=>gameFocus, reframeGame, rbOverviewBounds, SAMSARA_TOP, wheelView:()=>wheelView,
  state:()=>({mandala,mode,touring,tourIndex,pStep,playing,current,motion,showHeapNumbers,lumSpin})
 };})()`);
 advance(1200);
@@ -1235,6 +1238,78 @@ q('#g-pace').value = 'instant'; q('#g-pace').dispatchEvent(new window.Event('cha
 face = 4; q('[data-game="throw"]').click();
 assert.equal(q('[data-game="throw"]').disabled, false); assert.equal(q('.bv-card').hidden, false);
 assert.equal(JSON.parse(window.localStorage.getItem(gameSession.SESSION_KEY)).rolls.length, 4);
+
+/* ── the wheel of life ─────────────────────────────────────────────────
+   The fourth view: a relief on a wall, every part of it an entry, sharing the
+   dock, the index and the Escape cascade with everything else. */
+app.setMode('explore'); advance(1200);
+assert.equal(document.querySelectorAll('.wheel-stage .wl-layer').length, 0, 'the relief is not built until it is asked for');
+app.setMode('wheel'); advance(1200);
+assert.equal(app.state().mode, 'wheel');
+assert.ok(document.body.classList.contains('wheel-on'), 'the page knows the wheel is up');
+assert.equal(q('.wheel-stage').hidden, false);
+assert.equal(q('.board-view').hidden, true, 'and nothing of the game stands over it');
+assert.equal(document.querySelectorAll('.wheel-stage .wl-layer').length, 7, 'seven layers of relief, wall to fangs');
+assert.equal(modeFace.querySelector('.t').textContent, 'Wheel', 'the view menu names the view');
+assert.equal(q('[data-mode="wheel"]').getAttribute('aria-pressed'), 'true');
+const wheelParts = [...new Set([...document.querySelectorAll('.wheel-stage [data-wl]')].map(el => el.getAttribute('data-wl')))];
+assert.equal(wheelParts.length, 88, 'every part of the relief is drawn');
+for (const id of wheelParts) {
+  assert.ok(app.E[id], id + ' has an entry');
+  const stops = document.querySelectorAll('.wheel-stage [data-wl="' + id + '"][tabindex="0"]');
+  assert.equal(stops.length, 1, id + ' is one stop for the keyboard, however many layers draw it');
+  assert.equal(stops[0].getAttribute('aria-label'), app.E[id].t, id + ' is named');
+}
+for (const id of Object.keys(wheelNotes.WHEEL_ENTRIES))
+  for (const r of app.E[id].rel || []) assert.ok(app.E[r], id + ' points to ' + r + ', which exists');
+const wheelIndex = [...document.querySelectorAll('.index .row')].filter(r => /^wl_/.test(r.dataset.id));
+assert.equal(wheelIndex.length, Object.keys(wheelNotes.WHEEL_ENTRIES).length, 'every entry of the wheel is in the index');
+// a tap on a part opens its entry, where it is, and marks it
+const tapOn = (el) => {
+  for (const type of ['pointerdown', 'pointerup']) el.dispatchEvent(new window.MouseEvent(type, {bubbles: true, clientX: 10, clientY: 10, button: 0}));
+};
+tapOn(q('.wheel-stage .wl-relief [data-wl="wl_hub_pig"] path'));
+assert.equal(app.state().current, 'wl_hub_pig', 'the innermost part is the one tapped');
+assert.equal(q('.sheet').hidden, false); assert.equal(app.state().mode, 'wheel');
+assert.ok(q('.wheel-stage .wl-relief [data-wl="wl_hub_pig"]').classList.contains('wl-sel'), 'and it is marked');
+assert.equal(q('.wheel-stage [data-wl="wl_hub"]').classList.contains('wl-sel'), false, 'but not the hub around it');
+assert.equal(q('.sheet .zoom').textContent, 'Zoom in');
+// the hells of the model, opened from the index while the wheel is up, are framed on the wheel
+const avichi = [...document.querySelectorAll('.index .row')].find(r => r.dataset.id === 'hell_avichi');
+avichi.click(); advance(1200);
+assert.equal(app.state().mode, 'wheel', 'the model\'s own entry does not take the wheel away');
+const box = app.wheelView().boxOf('wl_hell_avichi'), seen = app.wheelView().state().view;
+assert.ok(Math.abs(seen.x - (box[0] + box[2] / 2)) < 1 && Math.abs(seen.y - (box[1] + box[3] / 2)) < 1, 'the view is on Avīci');
+assert.ok(q('.wheel-stage [data-wl="wl_hell_avichi"]').classList.contains('wl-sel'));
+// a square of the game read from the wheel is read on the wheel
+app.show('rebirth_sq_9', true); advance(600);
+assert.equal(app.state().mode, 'wheel'); assert.equal(q('.bv-ask').hidden, true, 'no game is set up behind it');
+// Escape puts the entry away, then the wall back, then the wheel
+key('Escape'); assert.equal(q('.sheet').hidden, true);
+assert.equal(app.wheelView().isHome(), false);
+key('Escape'); advance(1200); assert.equal(app.wheelView().isHome(), true, 'the wall comes back to where it began');
+assert.equal(app.state().mode, 'wheel');
+key('Escape'); advance(1200); assert.equal(app.state().mode, 'explore');
+assert.equal(q('.wheel-stage').hidden, true); assert.ok(!document.body.classList.contains('wheel-on'));
+// the turn is bounded: the wall never turns far enough to see behind it
+app.setMode('wheel'); advance(1200);
+app.wheelView().turnBy(400, -400);
+const turned = app.wheelView().state().turn;
+assert.deepEqual([turned.x, turned.y], [-wheelView.TILT.x, wheelView.TILT.y], 'the turn stops at its limits');
+assert.ok(wheelView.TILT.x < 30 && wheelView.TILT.y < 30, 'and the limits are well short of edge-on');
+q('[data-act="home"]').click(); advance(1200);
+assert.equal(app.wheelView().isHome(), true, 'Reset view straightens and frames the wall');
+assert.equal(app.state().mode, 'wheel', 'without leaving it');
+// the wheel's entries bring the wheel with them, from anywhere
+app.setMode('mandala'); advance(1200);
+assert.equal(q('.wheel-stage').hidden, true);
+app.show('wl_realm_hells', true); advance(1200);
+assert.equal(app.state().mode, 'wheel'); assert.equal(app.state().mandala, false, 'the maṇḍala is put away');
+app.show('emblem_wheel', true); advance(1200);
+assert.equal(app.state().mode, 'mandala', 'and a heap of the maṇḍala takes it away again');
+assert.ok(!document.body.classList.contains('wheel-on'));
+key('l'); advance(1200); assert.equal(app.state().mode, 'wheel', 'l for the wheel');
+key('l'); advance(1200); assert.equal(app.state().mode, 'explore', 'and l again for the world');
 
 console.log(JSON.stringify({result:'PASS',heaps:37,illustrations:24,triangles,atlasRequests:3,
  squares:app.rbBoard.nodes.size,anchoredSquares:anchoredSquares.length,boardCells:cells.length,

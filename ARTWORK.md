@@ -140,3 +140,32 @@ Chinese, Thai and Western travelers. The CSS and Three.js billboards use the sam
 figures. These contemporary game illustrations are separate from the historical
 board fields. See [GAME-UI.md](GAME-UI.md#character-artwork) for provenance and
 the full generation prompt.
+
+## The wheel of life
+
+The wheel of life is drawn in SVG by `wheel-art.js`, at run time; it loads no
+image. Its reference is five photographs the author supplied of one painted clay
+relief of the wheel on a blue wall: the whole, and close views of the hub and
+karma ring, the upper wheel under Yama's head, the human realm, and the pretas'
+realm with the cold hells. The drawing keeps the relief's arrangement — the
+spokes where the relief sets them, the asuras upper left and the humans upper
+right, the hot hells left of the judge and the cold right of him, the twelve
+panels in the order and with the pictures the relief gives them — and its
+palette: the blue wall, the dark red Lord of Death, jade and dark green scarves,
+pink feet, gold rims.
+
+What it does not keep is the photograph. The figures, animals, buildings,
+clouds and flames are this project's own vector drawing, built from a small
+number of shapes and bent into poses: a clay relief's figures, not a copy of
+this one's. Two things are adjusted on purpose. The photograph was taken from
+below, which draws the top of the wheel in and swells the bottom; the drawing
+puts the wheel back in the round, and reads positions off the photograph through
+that correction. And the hot and cold hells are ruled into eight cells each, one
+for each hell, so that each can be pointed at; the relief paints them as one
+field of torments.
+
+The figures at the edges of the wall — a flying figure in red at the upper
+right, the edge of a white face at the upper left — belong to the painting that
+continues beyond the photograph. They are drawn as they are seen and are not
+identified.
+

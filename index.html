@@ -1279,6 +1279,40 @@
      nowhere near the screen it was meant to cover. Both belong to the page. */
   body.world-only .bv-card, body.world-only .bv-ask { position: fixed; }
   body.game-view.board-only three-d-stage { visibility: hidden; }
+  /* ── the wheel of life ──────────────────────────────────────────────
+     The relief is the whole screen: the wall it hangs on is the page. The
+     model behind it is neither shown nor drawn, as under the printed board. */
+  .wheel-stage {
+    position: fixed; inset: 0; z-index: 1; overflow: hidden;
+    background: #2c5f9e; perspective: 1800px;
+    touch-action: none; user-select: none; -webkit-user-select: none;
+    cursor: grab;
+  }
+  .wheel-stage[hidden] { display: none; }
+  .wheel-stage:active { cursor: grabbing; }
+  body.night .wheel-stage { background: #10213a; }
+  /* at night the wall goes dark and the relief keeps its colour, as under a lamp */
+  body.night .wl-wall { filter: brightness(.45) saturate(.8); }
+  body.wheel-on three-d-stage, body.wheel-on .compass, body.wheel-on .underwater { visibility: hidden; }
+  .wl-defs { position: absolute; width: 0; height: 0; overflow: hidden; }
+  .wl-tilt { position: absolute; inset: 0; transform-style: preserve-3d; }
+  .wl-layer { position: absolute; left: 0; top: 0; overflow: visible; pointer-events: none; backface-visibility: hidden; }
+  .wl-layer * { pointer-events: visiblePainted; }
+  /* each layer throws a shadow on the one behind it, as a relief does on
+     its wall; how far is set with the zoom, from wheel-view.js */
+  .wheel-stage [data-wl] { cursor: pointer; }
+  .wheel-stage [data-wl]:focus { outline: none; }
+  .wheel-stage .wl-hover { filter: url(#wl-hover); }
+  .wheel-stage .wl-sel, .wheel-stage [data-wl]:focus-visible { filter: url(#wl-glow); }
+  .wl-tip {
+    position: absolute; z-index: 5; margin: 0; padding: 5px 10px 6px;
+    background: var(--menu); color: var(--ink); border: 1px solid var(--rule-2);
+    border-radius: 7px; box-shadow: var(--shadow); pointer-events: none;
+    font-size: 14px; line-height: 1.25; white-space: nowrap;
+    transform: translate(-50%, calc(-100% - 16px));
+  }
+  .wl-tip[hidden] { display: none; }
+  .wl-tip i { display: block; font-style: normal; font-size: 12px; color: var(--ink-2); }
   body.board-only .rb-label { display: none; }
   .game-focus {
     position: fixed; z-index: 4; left: 22px; bottom: 22px;
@@ -1702,6 +1736,11 @@
 <three-d-stage name="buddhist-world-system" background="#efe8da"></three-d-stage>
 <div class="underwater" aria-hidden="true"></div>
 <canvas class="bv-sky" aria-hidden="true"></canvas>
+<!-- The wheel of life: a relief on a wall, drawn in layers and set up by
+     wheel-view.js the first time it is asked for. -->
+<section class="wheel-stage" aria-label="The wheel of life" hidden>
+  <p class="wl-tip" aria-hidden="true" hidden></p>
+</section>
 
 <div class="overlay">
   <!-- Three controls, and every one of them opens onto the rest. The index,
@@ -1709,11 +1748,12 @@
   <div class="controls card">
     <button class="btn" data-act="index" type="button" aria-pressed="false" title="Index — i"><span class="g">☰</span><span class="t">Index</span></button>
     <details class="menu" data-menu="mode">
-      <summary class="btn" title="Explorer e · Mandala m · Game g"><span class="g">✦</span><span class="t">Explorer</span><span class="chev">▾</span></summary>
+      <summary class="btn" title="Explorer e · Mandala m · Game g · Wheel l"><span class="g">✦</span><span class="t">Explorer</span><span class="chev">▾</span></summary>
       <div class="menu-body card" role="group" aria-label="View">
         <button class="btn" data-mode="explore" type="button" aria-pressed="true" title="Explorer — e"><span class="g">✦</span><span class="t">Explorer</span></button>
         <button class="btn" data-mode="mandala" type="button" aria-pressed="false" title="Mandala — m"><span class="g">◎</span><span class="t">Mandala</span></button>
         <button class="btn" data-mode="game" type="button" aria-pressed="false" title="Game of rebirth — g"><span class="g">☸</span><span class="t">Game</span></button>
+        <button class="btn" data-mode="wheel" type="button" aria-pressed="false" title="Wheel of life — l"><span class="g">❂</span><span class="t">Wheel</span></button>
       </div>
     </details>
     <details class="menu" data-menu="options">
@@ -1988,6 +2028,9 @@ import { SQUARE_ART, cellBackground, createSquareArt, LIBERATION_ART } from './r
 import { createSoundKit, voiceFor as rbVoice } from './rebirth-sound.js';
 import { PLAYER_SKINS, PLAYER_CULTURES, normalizeSkin, PLAYER_PALETTE, paintPlayer, createPlayerArt } from './game-players.js';
 import { SESSION_KEY, makeSession, restoreSession, possibleThrows } from './game-session.js';
+import { drawWheel } from './wheel-art.js';
+import { createWheelView } from './wheel-view.js';
+import { WHEEL_ENTRIES, WHEEL_TREE, WHEEL_ALSO } from './wheel-notes.js';
 import { composeGameFocus, composeGameOverview, orbitFlightPoint } from './game-camera.js';
 const stage = document.querySelector('three-d-stage');
 /* Everything below this line is built on three.js, and three.js arrives over
@@ -3344,10 +3387,11 @@ def('about', {
   b: ['Mount Meru, the seven golden ranges, the four continents, the heavens, formless absorptions, and other realms of existence, after Vasubandhu\'s <i>Abhidharmakośa</i> III and Jamgön Kongtrul\'s <i>Myriad Worlds</i>.',
       'A visual study aid for practitioners learning and visualizing mandala offerings, and for anyone studying Buddhist cosmology.',
       'Every part of the model is a click away from its entry: its name in Sanskrit and Tibetan, its measure, and what the texts say stands there. The index lists all of them, and takes a filter. <b>Mandala view</b> lays the world out heap by heap in the order the thirty-seven-point offering names it. <b>Motion</b> sets the sun and moon on their circuit and lets the view turn. The light follows the sun around Meru, or the moon in night mode, from a higher angle chosen for visibility. The small compass rose turns with the view; in the mandala view the four directions are lettered in English and Tibetan at the edge of the plate.',
+      'The <b>Wheel</b> view is the wheel of life, the bhavacakra, as a painted relief: the three poisons at the hub, the paths of karma, the six realms, the twelve links on the rim, and Yama holding the whole of it. Every part of it is an entry. It can be brought close and turned a little on its wall, but not around.',
       'Each continent takes its colour and shape from the face of Meru it stands opposite, and is flanked by two subcontinents of the same shape and half the size.',
       'The model uses schematic changes of scale, shape, placement, and lighting to make its features readable. <b>The scale of this drawing</b> describes the principal adaptations.',
       'The model is the work of <b>Andrzej R. Rybszleger</b>, built from the sources named below.'],
-  rel: ['about_scale', 'meru_core', 'about_mandala'],
+  rel: ['about_scale', 'meru_core', 'about_mandala', 'wl_wheel'],
   src: 'Vasubandhu, <i>Abhidharmakośa</i> &amp; <i>bhāṣya</i> III.45–102 (La Vallée Poussin / Pruden); Chim Jampaiyang, <i>Ornament of Abhidharma</i>; Jamgön Kongtrul, <i>Myriad Worlds</i>; Mipham, <i>Gateway to Knowledge</i> II. '
      + 'Board, names and move graph: Tatz and Kent, <i>Rebirth: The Tibetan Game of Liberation</i> (1977), reconstructed from the printed chart, the square entries and the reverse index and cross-checked cell by cell. The write-ups on the 104 squares are a revised English edition of the square texts. '
      + 'The model, and the write-ups with it, are by <b>Andrzej R. Rybszleger</b>.'
@@ -4304,6 +4348,11 @@ def('rebirth_game', {
   rel: ['rebirth_sq_24', 'rebirth_sq_1', 'rebirth_sq_48', 'rebirth_sq_104']
 });
 
+/* — the wheel of life ———————————————————————————————————————————————
+   Its entries are written in wheel-notes.js, with the parts of the relief
+   they belong to; they join the index here like any other. */
+Object.entries(WHEEL_ENTRIES).forEach(([id, o]) => def(id, o));
+
 const TREE = [
   ['Notes on the drawing', [
     ['about'], ['about_scale'], ['about_yojana'], ['about_time'],
@@ -4352,6 +4401,8 @@ const TREE = [
     HEAPS.map(([n, id]) => [id, n + '. ' + (E[id] ? E[id].t : id)])
   )]
 ];
+
+TREE.push(WHEEL_TREE);
 
 /* aliases: several meshes share one entry */
 const ALIAS = {
@@ -4472,10 +4523,18 @@ const sheetBack = sheet.querySelector('[data-sheet="back"]');
 const sheetTour = sheet.querySelector('[data-sheet="tour"]');
 const entryArt = sheet.querySelector('.entry-art');
 
+/* the wheel of life's view, made once the page is built (below) */
+let wheelView = null;
+function wheelPart(id) {
+  if (!wheelView || !id) return null;
+  if (wheelView.has(id)) return id;
+  return WHEEL_ALSO[id] && wheelView.has(WHEEL_ALSO[id]) ? WHEEL_ALSO[id] : null;
+}
 function close() {
   if (touring) { visitHeap(tourIndex, false); return; }
   invalidate(3);
   clearPick();
+  if (wheelView) wheelView.select(null);
   current = null;
   sheet.hidden = true;
   document.querySelectorAll('.index .row[aria-current]').forEach((r) => r.removeAttribute('aria-current'));
@@ -4494,7 +4553,10 @@ function show(id, reveal) {
   // from the ordinary index, including before mandala mode has been opened.
   if (/^(emblem_|goddess_|mandala_)/.test(id) && !mandala) setMandala(true);
   // A square of the board stands nowhere unless the board is laid out.
-  if (/^rebirth_sq_/.test(id) && mode !== 'game') setMode('game');
+  // The wheel's parts are on the wheel. A square of the game opened from the
+  // wheel is read there, not carried off to the board.
+  if (/^wl_/.test(id) && mode !== 'wheel') setMode('wheel');
+  if (/^rebirth_sq_/.test(id) && mode !== 'game' && mode !== 'wheel') setMode('game');
   if (/^rebirth_sq_/.test(id) && mode === 'game') rbSelect(Number(id.slice(11)), false);
   if (mandala && HEAP_NUMBERS.has(id)) {
     pausePlay();
@@ -4503,6 +4565,7 @@ function show(id, reveal) {
   invalidate(3);
   clearPick();
   current = id;
+  if (mode === 'wheel') wheelView.select(wheelPart(id));
   const ms = meshesFor(id);
   ms.forEach((m) => {
     if (!tintable(m)) return;
@@ -4541,7 +4604,7 @@ function show(id, reveal) {
   // Source entries are authored with the app, including linked text and licence credits.
   sSrc.innerHTML = e.src || '';
   sSrc.hidden = !e.src;
-  zoomBtn.disabled = !ms.length;
+  zoomBtn.disabled = !ms.length && !(mode === 'wheel' && wheelPart(id));
   syncZoom();
   sheet.hidden = false;
   sScroll.scrollTop = 0;
@@ -4587,6 +4650,12 @@ const step = (d) => {
 /* In the game the entry opens a contextual world visit, even from the 2D
    board. The explorer retains its ordinary object inspection control. */
 function syncZoom() {
+  if (mode === 'wheel') {
+    // on the wheel a part is zoomed to; anything else is shown in the world
+    zoomBtn.hidden = false;
+    zoomBtn.textContent = current && !wheelPart(current) ? 'Show in world' : 'Zoom in';
+    return;
+  }
   const inGame = mode === 'game';
   zoomBtn.hidden = !inGame && document.body.classList.contains('board-only');
   zoomBtn.textContent = inGame ? 'Show in world' : 'Zoom in';
@@ -4603,6 +4672,15 @@ sheet.addEventListener('click', (ev) => {
 sheet.querySelector('.x').addEventListener('click', close);
 zoomBtn.addEventListener('click', () => {
   if (!current) return;
+  if (mode === 'wheel') {
+    const part = wheelPart(current);
+    if (part) { wheelView.focus(part); return; }
+    const id = current;
+    setMode('explore');
+    show(id, false);
+    focus(id, null, 1.3);
+    return;
+  }
   if (mode === 'game') rbFocusWorld(current);
   else focus(current);
 });
@@ -4852,7 +4930,7 @@ glCanvas.addEventListener('webglcontextrestored', () => {
 /* The board given the whole screen stands in front of the canvas and hides
    it. Drawing a world nobody can see is the most expensive thing a phone can
    be asked to do for no reason, so it is not asked. */
-const worldHidden = () => document.body.classList.contains('board-only');
+const worldHidden = () => document.body.classList.contains('board-only') || mode === 'wheel';
 const drawLoop = () => {
   if (glLost) return;
   if (motion) stepMotion();
@@ -5108,12 +5186,13 @@ const MARKS = HEAPS.map(([n, id]) => {
 });
 
 let mandala = false;
-let mode = 'explore';            // 'explore' | 'mandala' | 'game'
+let mode = 'explore';            // 'explore' | 'mandala' | 'game' | 'wheel'
 /* the board's rectangle, measured when the chrome changes and read by the
    floating label every frame rather than measured there */
 let rbLabelClip = null, rbLabelEdge = Infinity;
 const rbPlayersEl = document.querySelector('.rb-players');
 let minPlay = false, framePut = null;
+const wheelEl = document.querySelector('.wheel-stage');
 /* Panels settle a frame after the classes change, so the framing waits for
    them; one timer, whatever asked for it. */
 let panelReframe = null;
@@ -5132,7 +5211,11 @@ function syncChrome() {
   noteEl.hidden = !mandala || touring || !sheet.hidden || indexOpen;
   tourEl.hidden = !touring || !sheet.hidden || indexOpen;
   boardEl.hidden = mode !== 'game';
+  wheelEl.hidden = mode !== 'wheel';
+  document.body.classList.toggle('wheel-on', mode === 'wheel');
   dock.hidden = sheet.hidden && noteEl.hidden && tourEl.hidden && !indexOpen;
+  // the wheel is framed in what the panels leave of the screen, as the world is
+  if (mode === 'wheel' && dock.hidden !== dockWas && wheelView) setTimeout(() => wheelView.resize(), 90);
   /* the board yields width to an open panel, so the world it leaves changes
      shape as well as size: frame it again whenever the dock comes or goes */
   if (dock.hidden !== dockWas && (mode === 'game' || tightScreen())) reframeAfterPanels();
@@ -5327,7 +5410,8 @@ function setMandala(on) {
   mandala = on;
   // show() and the offering controls force mandala mode without going through
   // setMode, so the board has to be put away here as well.
-  const leavingGame = on && mode === 'game';
+  const leavingGame = on && mode === 'game', leavingWheel = on && mode === 'wheel';
+  if (leavingWheel) leaveWheel();
   mode = on ? 'mandala' : (mode === 'mandala' ? 'explore' : mode);
   if (leavingGame) leaveGame();
   document.querySelectorAll('[data-mode]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.mode === mode)));
@@ -5570,6 +5654,7 @@ noteEl.querySelector('[data-p="overview"]').addEventListener('click', () => {
 resetPlay();
 /* while the mandala is shown, selecting an entry must not fly the camera */
 const goTo = (id) => {
+  if (mode === 'wheel') { const part = wheelPart(id); if (part) wheelView.focus(part); return; }
   if (touring && HEAP_NUMBERS.has(id)) visitHeap(HEAP_NUMBERS.get(id) - 1);
   // a square is framed with the world it stands over, not flown into
   else if (mode === 'game' && /^rebirth_sq_/.test(id)) {
@@ -5742,6 +5827,47 @@ const setOpen = (open, reframeView = true) => {
   if (reframeView) reframeAfterPanels(340);
   try { localStorage.setItem('ws-index', open ? '1' : '0'); } catch (err) {}
 };
+
+/* ── the wheel of life ──────────────────────────────────────────────────
+   The fourth view is not a view of the model at all but a thing on a wall:
+   the bhavacakra as a painted relief, every part of it an entry. It shares
+   the dock, the index and the entries with the rest of the page, and it has
+   a camera of its own that can bring the wall close and turn it a little,
+   but not around. */
+const wheelTip = wheelEl.querySelector('.wl-tip');
+wheelView = createWheelView({
+  host: wheelEl, art: drawWheel, freeRect,
+  reducedMotion: () => window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+  titleOf: (id) => (E[id] ? E[id].t : id)
+});
+// A tap on a part opens its entry, where it is: the wheel does not fly to
+// what it was tapped on. A tap on the bare wall puts the entry away.
+wheelView.on('pick', (id) => {
+  if (id && E[id]) show(id, true);
+  else if (!sheet.hidden) close();
+});
+wheelView.on('hover', (id, p) => {
+  const e = id && E[id];
+  if (!e || !p) { wheelTip.hidden = true; return; }
+  const bo = rbTib && /[\u0F00-\u0FFF]/.test(e.tib || '');
+  wheelTip.innerHTML = bo ? '<span lang="bo">' + e.tib + '</span><i>' + e.t + '</i>' : e.t + (e.k ? '<i>' + e.k + '</i>' : '');
+  wheelTip.style.left = p.x + 'px';
+  wheelTip.style.top = p.y + 'px';
+  wheelTip.hidden = false;
+});
+wheelView.on('change', () => setTimeout(syncHome, 0));
+function enterWheel() {
+  syncChrome();
+  wheelView.build();
+  // framed once the stage has its size, and without a flight: it is arriving
+  requestAnimationFrame(() => wheelView.home(0));
+}
+function leaveWheel() {
+  wheelTip.hidden = true;
+  close();
+  wheelView.select(null);
+}
+window.addEventListener('resize', () => { if (mode === 'wheel') wheelView.resize(); });
 
 /* ── the game of rebirth ────────────────────────────────────────────────
    A board laid over the world system. Squares that name a region bind to the
@@ -6908,7 +7034,7 @@ function leaveGame() {
 const controlsEl = document.querySelector('.controls');
 const MENUS = [...controlsEl.querySelectorAll('.menu')];
 const closeMenus = (except) => MENUS.forEach((m) => { if (m !== except) m.open = false; });
-const MODE_FACE = { explore: ['\u2726', 'Explorer'], mandala: ['\u25ce', 'Mandala'], game: ['\u2638', 'Game'] };
+const MODE_FACE = { explore: ['\u2726', 'Explorer'], mandala: ['\u25ce', 'Mandala'], game: ['\u2638', 'Game'], wheel: ['\u2742', 'Wheel'] };
 function syncModeButtons() {
   document.querySelectorAll('[data-mode]').forEach(b =>
     b.setAttribute('aria-pressed', String(b.dataset.mode === mode)));
@@ -6921,12 +7047,14 @@ function syncModeButtons() {
 function setMode(next) {
   if (next === mode) return;
   if (mode === 'game') leaveGame();
+  if (mode === 'wheel') leaveWheel();
   if (next === 'mandala') setMandala(true);
   else {
     if (mandala) setMandala(false);
     mode = next;
   }
   if (next === 'game') enterGame();
+  else if (next === 'wheel') enterWheel();
   else if (next === 'explore' && !mandala) home();
   syncModeButtons();
   syncChrome();
@@ -6959,7 +7087,7 @@ controlsEl.addEventListener('click', (ev) => {
   if (act.dataset.mode) setMode(act.dataset.mode);
   if (act.dataset.act === 'motion') setMotion(!motion);
   if (act.dataset.act === 'night') applyTheme(!night);
-  if (act.dataset.act === 'home') { close(); if (mode !== 'explore') setMode('explore'); else home(); }
+  if (act.dataset.act === 'home') { close(); if (mode === 'wheel') wheelView.home(); else if (mode !== 'explore') setMode('explore'); else home(); }
   if (act.dataset.act === 'full') toggleFullScreen();
 });
 document.querySelector('.glnote [data-act="reload"]')
@@ -7004,7 +7132,7 @@ const homeBtn = document.querySelector('[data-act="home"]');
 function syncHome() {
   const moved = cam.position.distanceToSquared(HOME.p) > 1e-7
              || ctr.target.distanceToSquared(HOME.t) > 1e-7;
-  homeBtn.disabled = !(moved || !sheet.hidden || mandala || mode === 'game');
+  homeBtn.disabled = !(moved || !sheet.hidden || mandala || mode === 'game' || mode === 'wheel');
 }
 ctr.addEventListener('change', syncHome);
 window.addEventListener('resize', () => {
@@ -7195,6 +7323,7 @@ window.addEventListener('keydown', (e) => {
     else if (document.body.classList.contains('index-open')) setOpen(false);
     else if (!sheet.hidden) close();
     else if (touring) endTour();
+    else if (mode === 'wheel' && !wheelView.isHome()) wheelView.home();
     else if (mode !== 'explore') setMode('explore');
     else if (isFull() || document.body.classList.contains('immersive')) toggleFullScreen();
     else home();
@@ -7207,6 +7336,14 @@ window.addEventListener('keydown', (e) => {
   if (/^[wbWB]$/.test(e.key) && mode === 'game') rbCycleLayout();
   if ((e.key === 't' || e.key === 'T') && mode === 'game') rbSetTibetan();
   if (e.key === 'e' || e.key === 'E') setMode('explore');
+  if (e.key === 'l' || e.key === 'L') setMode(mode === 'wheel' ? 'explore' : 'wheel');
+  // on the wheel, the keys that zoom and pan a map do the same to the wall
+  if (mode === 'wheel' && sheet.hidden && !document.body.classList.contains('index-open')) {
+    if (e.key === '+' || e.key === '=') wheelView.zoomBy(1.25);
+    if (e.key === '-' || e.key === '_') wheelView.zoomBy(0.8);
+    const pan = { ArrowLeft: [-80, 0], ArrowRight: [80, 0], ArrowUp: [0, -80], ArrowDown: [0, 80] }[e.key];
+    if (pan) { e.preventDefault(); wheelView.panBy(pan[0], pan[1]); }
+  }
   if (e.key === 'ArrowDown' && !sheet.hidden) { e.preventDefault(); step(1); }
   if (e.key === 'ArrowUp' && !sheet.hidden) { e.preventDefault(); step(-1); }
   if (e.key === 'i' || e.key === 'I') setOpen(!document.body.classList.contains('index-open'));

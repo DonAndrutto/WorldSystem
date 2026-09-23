@@ -46,6 +46,10 @@ Click any part to open its entry; drag to orbit, scroll to zoom.
 | `scripts/build-fonts.cjs` | Rebuilds the font sheet and its woff2 files from Google Fonts. |
 | `scripts/build-sw.cjs` | Writes the worker's list of files and the version it holds them under. |
 | `tests/offline.mjs` | Checks that nothing is asked of another origin, that the pinned hashes still hold, and that the worker's shelf matches the tree. |
+| `wheel-art.js` | The wheel of life, drawn: the relief as seven SVG layers, wall to fangs, with every part that has an entry named and boxed. |
+| `wheel-view.js` | The wheel on its wall: zoom, pan, a turn that stops well short of edge-on, picking, and framing a part. |
+| `wheel-notes.js` | The entries for the wheel's 88 parts and three index-only entries, the wheel's share of the index, and which of the model's own entries it can frame. |
+| `tests/wheel-of-life.mjs` | The drawing, its entries and its view, without the rest of the page. |
 
 Serve the directory over HTTP and open it (not `file://` — the page uses ES
 modules, and no service worker will register from a file). It is published with
@@ -102,8 +106,8 @@ turn has to say. The throw itself is gold wherever it stands.
 It works offline. Everything the page draws with is in this repository, the
 library among it, and the service worker in `sw.js` puts the whole of it by on
 the first visit: the page, its modules, three.js, the two typefaces, the three
-offering sheets and the board's four painted fields. Thirty-nine files, about
-7 MB, fetched once. From the second visit on, the network is never asked for any
+offering sheets and the board's four painted fields. Fifty-one files, about
+10 MB, fetched once. From the second visit on, the network is never asked for any
 of them — only ever whether there is a newer world.
 
 So: open it once with a connection, add it to the home screen, turn the network
@@ -421,7 +425,7 @@ the entries the legend sat beside.
 | | |
 | --- | --- |
 | **Index** `i` | The drawer of explanatory entries, with a filter, headed by the title and the way into *About this model*. Closed until it is asked for, at every width, so the world and not a panel is the first thing on the screen; once asked for, whether it stands open is kept between visits. |
-| **View** `e` `m` `g` | Explorer, Maṇḍala, Game. Explorer is the model and its index; Maṇḍala is the thirty-seven heaps, in the order the offering names them; Game is the board of rebirth, and the world it is a section through. |
+| **View** `e` `m` `g` `l` | Explorer, Maṇḍala, Game, Wheel. Explorer is the model and its index; Maṇḍala is the thirty-seven heaps, in the order the offering names them; Game is the board of rebirth, and the world it is a section through; Wheel is the wheel of life, a relief on a wall. |
 | **Board or world** `b` `w` | In game mode, which of the two has the screen: the board alone, or the world alone. Kept between visits, and only while the game is on the screen — the arrangement is the game's dress and comes off with it. A preference remembered from the Both that used to stand between them opens on the board. The board takes the whole page as a printed board rather than a panel: a painted sky of the model's own clouds, the wordmark over it, the throw, the players, the square in hand and the karmic trail on one card, the hundred and four named fields under that, and the three controls docked along the foot. It has a night palette of its own, gold on ink. |
 | **Names** `t` | Which language the squares are named in, in passing, wherever they are named — Tibetan, or whatever the interface is in. Under Options, as a selector of two with the one in force held down; the side that is not Tibetan says Eng while the interface is English and PL while it is Polish, because that is what the names are then. The entry always gives both. |
 | **Options** | Motion and its pace, night, sound, the language of the names, full screen and reset view, under one control. |
@@ -449,6 +453,50 @@ turns with the view so that north can be found without turning the world to look
 for it. In the maṇḍala view, seen from straight above with north at the top, the
 four directions are lettered at the edge of the plate instead, with the Tibetan the
 offering names them by.
+
+## The wheel of life
+
+The fourth view is not a view of the model. It is the bhavacakra — the wheel of
+existence — as a painted clay relief on a blue wall, drawn after the author's
+photographs of one: the three poisons at the hub, the white and black paths of
+karma around them, the six realms in the body of the wheel, the twelve links in
+their panels on the rim, and Yama gripping the whole of it with his fangs, hands
+and feet. In the upper corners, outside his reach, a buddha points the way out
+and a rainbow road climbs from the rim to the realm beyond.
+
+Every part of it opens an entry: 88 of them on the wall, each realm and each
+thing in it, each of the six sages, the eight hot hells and the eight cold in
+their cells, the neighbouring and the ephemeral hells, the judge and his mirror,
+all twelve links, and each of Yama's attributes. The index has a group for the
+wheel in the order it is read, from the hub outward, with three entries that
+stand there alone: the twelve links as a chain, the six sages together, and the
+verse the Vinaya has written beneath the wheel. Where the model or the board
+already has an entry on the same thing — a hot hell, the pretas, a square of
+the game — the wheel's entry names it rather than repeating it, and an entry of
+the model opened while the wheel is up frames that part of the wheel.
+
+It is a thing on a wall, and it moves like one. Scroll or pinch to come closer;
+close in, a drag slides the wall under the hand. Seen whole, a drag turns the
+wall — a right button or Shift turns it at any distance — up to 22° across and
+14° up or down, and no further: far enough to see the wheel stand off the wall,
+the figures stand off the wheel and Yama's head and hands stand off both, never
+far enough to see behind it. Reset view (`Esc`) straightens and frames it; `+`,
+`-` and the arrow keys zoom and pan; every part is a stop for Tab and opens with
+Enter.
+
+The relief is drawn as seven SVG layers, each at its own depth, and zooming
+rewrites their viewBoxes rather than scaling pixels, so a figure a few units
+tall is as sharp at sixteen times as at one. During a gesture the change is
+carried by a CSS transform and written into the viewBoxes a moment after it
+stops. Nothing is built until the view is first asked for, and the model behind
+it is neither shown nor drawn while it is up.
+
+The drawing is the photograph's own frame, 1320 by 1740, so that a place read
+off the photograph is a place in the drawing. The spokes are where the relief
+puts them, measured from the hub, which gives the hells nearly a quarter of the
+wheel. The photograph was taken from below; the wheel here is round again. The
+figures, animals and buildings are this project's own vector drawing, in the
+relief's arrangement and colours; see [ARTWORK.md](ARTWORK.md#the-wheel-of-life).
 
 ## Maṇḍala mode
 
@@ -582,6 +630,7 @@ node tests/continent-models.mjs
 node tests/game-session.mjs
 node tests/localization.mjs
 node tests/offline.mjs
+node tests/wheel-of-life.mjs
 ```
 
 The maṇḍala suite runs the complete app script with real Three.js geometry and
