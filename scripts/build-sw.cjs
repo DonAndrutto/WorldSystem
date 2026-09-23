@@ -17,8 +17,9 @@ const crypto = require('node:crypto');
 const root = path.resolve(__dirname, '..');
 
 // Everything the running page asks for. The source artwork under
-// assets/Game of Liberation English titles/ and assets/app-icon/, and the flat
-// sky previews, are the material the build scripts eat — no visitor fetches
+// assets/Game of Liberation English titles/, assets/app-icon/ and
+// assets/wheel-reference/, and the flat sky previews, are the material the
+// build scripts eat — no visitor fetches
 // them, and an installed app has no use for the 28 MB.
 const SHELL = [
   'index.html', 'game-ui.css',
@@ -29,6 +30,7 @@ const SHELL = [
   ['assets/fonts', /\.(css|woff2)$/],
   ['assets/offerings', /\.webp$/],            // the three offering sheets
   ['assets/rebirth', /\.(webp|png)$/],              // the board's four field sheets
+  ['assets/wheel', /\.webp$/],                // the wheel of life, in its layers
   'apple-touch-icon.png', 'favicon.ico', 'favicon-32.png',
   'icon-192.png', 'icon-512.png', 'icon-maskable-512.png'
 ];

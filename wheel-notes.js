@@ -27,7 +27,7 @@ export const WHEEL_ENTRIES = {
         ['Held by', 'Yama, Lord of Death — impermanence'],
         ['Outside it', 'a buddha pointing the way out, and the realm beyond'],
         ['First painted', 'at the gateway of a monastery, on the Buddha\'s instruction, in the Vinaya\'s account'],
-        ['This one', 'a painted clay relief on a blue wall, drawn here after the author\'s photographs']],
+        ['This one', 'a painted clay relief on a blue wall, shown from the author\'s photographs, the camera\'s angle corrected']],
     b: ['The whole of saṃsāra on one wall: what drives it at the hub, where it goes in the ring of karma, the six kinds of birth it goes to in the body of the wheel, and on the rim the twelve links by which one life hands itself on to the next. The whole wheel is gripped in the jaws, hands and feet of the Lord of Death, and outside his reach, in the upper corners, a buddha points the way out of it.',
         'The Vinaya of the Mūlasarvāstivādins, retold in the <i>Divyāvadāna</i>, has the Buddha himself give the design: a wheel of five spokes at the gateway of the vihāra, with the hells, animals and pretas below and gods and humans above; a dove, a snake and a pig at the centre; the twelve links on the rim; the whole held by impermanence; and a verse written beneath it. Tibetan painters added the realm of the asuras, making six, and the ring of beings rising and falling between the hub and the realms.',
         'Tibetan tradition also tells of the wheel as a gift: King Bimbisāra, owing King Rudrāyaṇa a return for a jewelled armour, sent him this picture on the Buddha\'s advice, and Rudrāyaṇa, studying it, saw the truth it shows.',
@@ -51,13 +51,13 @@ export const WHEEL_ENTRIES = {
   /* ── the hub ──────────────────────────────────────────────────────── */
   wl_hub: {
     t: 'The three poisons', tib: 'དུག་གསུམ།', en: '<i>dug gsum</i> · triviṣa', k: 'the hub',
-    meta: 'At the centre, three animals biting one another\'s tails',
+    meta: 'At the centre, three animals chasing one another\'s tails',
     f: [['The bird', 'attachment, desire — <span lang="bo">འདོད་ཆགས།</span>'],
         ['The snake', 'aversion, anger — <span lang="bo">ཞེ་སྡང་།</span>'],
         ['The pig', 'ignorance, delusion — <span lang="bo">གཏི་མུག</span>'],
         ['Ground', 'dark blue'],
         ['In the Vinaya', 'a dove, a snake and a pig']],
-    b: ['The hub the whole wheel turns on. Three animals chase round a dark blue disc, each with the tail of the next in its mouth: the bird of attachment, the snake of aversion and the pig of ignorance. They are drawn biting because they feed one another — not seeing clearly, a mind reaches for what pleases and pushes away what does not, and each reaching and pushing clouds the seeing again.',
+    b: ['The hub the whole wheel turns on. Three animals chase round a dark blue disc, each at the tail of the next: the bird of attachment, the snake of aversion and the pig of ignorance. They are drawn in a round because they feed one another — not seeing clearly, a mind reaches for what pleases and pushes away what does not, and each reaching and pushing clouds the seeing again.',
         'Everything further out on the wheel is what these three do. The ring of karma is their acts; the six realms are where those acts ripen; the twelve links on the rim are the same process followed from one life into the next.'],
     rel: ['wl_hub_bird', 'wl_hub_snake', 'wl_hub_pig', 'wl_karma_white'],
     src: DIV + '. ' + PATRUL + '.'
@@ -68,8 +68,8 @@ export const WHEEL_ENTRIES = {
     f: [['Animal', 'a bird: in the Vinaya a dove, in many Tibetan paintings a cock'],
         ['Poison', 'attachment, desire, craving'],
         ['Ripens chiefly as', 'birth among the pretas, in most Tibetan accounts'],
-        ['In this relief', 'rose-grey, pale wings raised, its tail in the pig\'s mouth']],
-    b: ['Attachment is the pull toward whatever seems able to satisfy — a pleasure, a person, a position, one\'s own body. The bird is its animal because it is never still, flitting after whatever catches the eye. In the relief it holds the snake\'s tail in its beak, while the pig has its own tail: desire grows out of not seeing, and turns into anger the moment it is thwarted.',
+        ['In this relief', 'rose and white, wings raised, facing right, the pig\'s snout at its tail']],
+    b: ['Attachment is the pull toward whatever seems able to satisfy — a pleasure, a person, a position, one\'s own body. The bird is its animal because it is never still, flitting after whatever catches the eye. In the relief the pig\'s snout is at its tail and the snake coils beneath it: desire grows out of not seeing, and turns into anger the moment it is thwarted.',
         'The Vinaya\'s bird is the dove, proverbial in India for its lust; Tibetan painters often make it a cock. The meaning stays the same.'],
     rel: ['wl_hub', 'wl_hub_snake', 'wl_hub_pig', 'wl_nidana_craving'],
     src: DIV + '. ' + PATRUL + '.'
@@ -80,7 +80,7 @@ export const WHEEL_ENTRIES = {
     f: [['Animal', 'a snake'],
         ['Poison', 'aversion, anger, hatred'],
         ['Ripens chiefly as', 'birth in the hells'],
-        ['In this relief', 'green and banded, stretched between the bird\'s beak and the pig\'s tail']],
+        ['In this relief', 'dark green and banded, coiled in an S between the bird and the pig']],
     b: ['Aversion is the push away from whatever threatens what one holds to. The snake strikes without warning and its bite poisons; anger, the commentaries say, destroys in an instant the merit of kalpas. Of the three, it is the one most directly tied to the hells: the burning and freezing of the lower third of the wheel are its ripening.'],
     rel: ['wl_hub', 'wl_realm_hells', 'wl_hub_bird', 'wl_hub_pig'],
     src: DIV + '. ' + PATRUL + '.'
@@ -91,7 +91,7 @@ export const WHEEL_ENTRIES = {
     f: [['Animal', 'a pig'],
         ['Poison', 'ignorance, delusion, bewilderment'],
         ['Ripens chiefly as', 'birth among the animals'],
-        ['In this relief', 'grey and heavy, its snout at the bird\'s tail']],
+        ['In this relief', 'grey, with a pink ear, stretched out with its snout at the bird\'s tail']],
     b: ['Ignorance is not a lack of information but a misreading of what is there — above all, taking a self where there is none. The pig roots with its eyes on the ground and never looks up. It is the root the other two grow from, which is why it is the first of the twelve links as well: the blind man at the top of the rim is this pig again, walking.'],
     rel: ['wl_hub', 'wl_nidana_ignorance', 'wl_realm_animals'],
     src: DIV + '. ' + KOSA + '.'
@@ -114,10 +114,10 @@ export const WHEEL_ENTRIES = {
     t: 'The black path — falling', tib: 'ངན་སོང་དུ་ལྷུང་བ།', en: '<i>nag po\'i las</i> · the karma of non-virtue', k: 'descent',
     meta: 'The dark half of the ring around the hub',
     f: [['Ground', 'black'],
-        ['Figures', 'naked beings falling head first, bound with rope and weighted, dragged down by a demon'],
+        ['Figures', 'naked beings falling, bound with rope and hanging head down, hauled by a dark figure'],
         ['Leads to', 'the lower rebirths: animals, pretas, hells'],
         ['Cause', 'the ten non-virtues']],
-    b: ['On the dark half of the ring the same beings go the other way: naked, upside down, tied with ropes and hung with weights, hauled by a dark figure at the bottom. Nobody on this side is climbing. Non-virtuous action is its own gravity; the rope in the demon\'s hand is the karma that has already been done.'],
+    b: ['On the dark half of the ring the same beings go the other way: naked, upside down, tied with ropes, hauled by a dark figure at the bottom. Nobody on this side is climbing. Non-virtuous action is its own gravity; the rope in the demon\'s hand is the karma that has already been done.'],
     rel: ['wl_karma_demon', 'wl_karma_white', 'wl_realm_hells'],
     src: PATRUL + '. ' + RELIEF + '.'
   },
@@ -139,9 +139,9 @@ export const WHEEL_ENTRIES = {
         ['Poison', 'pride, and a long forgetting'],
         ['Suffering', 'the fall: the five signs of a god\'s death, and the sight of where one goes next'],
         ['Sage', 'white, playing a lute'],
-        ['In this relief', 'Meru in white terraces rising from the sea, the gods\' palace on cloud, the fruit of the wish-granting tree, and the gods riding out to war']],
+        ['In this relief', 'Meru in stepped white terraces rising from the sea, the gods\' palace on cloud, the fruit of the wish-granting tree, and the gods riding out to war']],
     b: ['At the top of the wheel, the gods: long lives of pleasure in palaces on Meru and above it. The wheel gives them the best place and no exemption. Their pleasures use up the merit that made them, and at the end, the texts say, a god sees his garlands wither, his clothes take on dust and his body lose its light, and sees too where he is going. That knowledge is called worse than the pains of the hells.',
-        'In the relief Meru rises out of the ocean in four white terraces, its sides coloured ochre and green, with the golden ranges standing in the sea around its foot. The palace sits on a bank of cloud at its top. To the left, the branches of the wish-granting tree bear fruit for the gods, and gods in gold helmets ride out on an elephant to defend it from the asuras, whose realm it grows from. On the right a white buddha plays a lute.'],
+        'In the relief Meru rises out of the ocean in stepped white terraces, its sides coloured ochre and green, with the golden ranges standing in the sea around its foot. The palace sits on a bank of cloud at its top. To the left, the branches of the wish-granting tree bear fruit for the gods, and gods in gold helmets ride out on an elephant to defend it from the asuras, whose realm it grows from. On the right a white buddha plays a lute.'],
     rel: ['gods_ways', 'wl_gods_meru', 'wl_gods_palace', 'wl_wish_tree', 'wl_muni_gods', 'rebirth_sq_28'],
     src: PATRUL + '. ' + RELIEF + '.'
   },
@@ -166,9 +166,9 @@ export const WHEEL_ENTRIES = {
         ['Poison', 'desire, doubt, busyness'],
         ['Suffering', 'birth, aging, sickness and death; meeting what is hated, losing what is loved, not getting what is wanted'],
         ['Sage', 'Śākyamuni, with begging bowl and staff'],
-        ['In this relief', 'a buddha on cloud, a stūpa, lamas teaching, a walled monastery, a nomad tent under prayer flags, herds and a ploughman']],
+        ['In this relief', 'a buddha on cloud, a stūpa, lamas teaching in two temples, a red monastery behind its fence, a nomad tent under prayer flags, herds and a ploughman']],
     b: ['The human realm is the one the wheel was painted for. It suffers enough to want a way out, and not so much that it cannot look for one; it is where the teaching is heard and can be practised. The Tibetan teachers call such a birth, with the freedoms and the good circumstances to use it, precious and rare.',
-        'The relief is a Himalayan valley: a white stūpa on a hill, lamas teaching in two gold-roofed temples with people kneeling before them, a red monastery behind its fence where a woman carries a load and a child runs, a black yak-hair tent with a fire, a woman churning, pigs, yaks and cattle, and a man ploughing behind two oxen. Work, devotion and the herd, side by side.'],
+        'The relief is a Himalayan valley: a white stūpa on a hill, lamas teaching in two gold-roofed temples with people kneeling before them, a red monastery behind its fence where a woman carries a load and a child runs, a black yak-hair tent with a fire, a woman churning, yaks, sheep and goats, and a man in a straw hat ploughing behind two oxen. Work, devotion and the herd, side by side.'],
     rel: ['humans', 'wl_muni_humans', 'wl_human_teaching', 'wl_human_plough', 'rebirth_sq_17'],
     src: PATRUL + '. ' + RELIEF + '.'
   },
@@ -179,9 +179,9 @@ export const WHEEL_ENTRIES = {
         ['Poison', 'ignorance, dullness'],
         ['Suffering', 'being eaten by one another; being used — for burdens, milk, wool and meat; the darkness of the deep'],
         ['Sage', 'blue, holding a book'],
-        ['In this relief', 'deer, foxes, an elephant, a camel, horses, yaks and cattle on green hills; a river below with fish, a sea monster, swans and swimming beasts']],
+        ['In this relief', 'an elephant, deer, goats, foxes, buffalo and cattle on green hills among cypresses; a river below with a red sea monster, swimming beasts, small fish and two swans']],
     b: ['The animals\' suffering is that they cannot understand it. Wild ones live in fear of being eaten and eat others; tame ones are loaded, milked, shorn and slaughtered; those in the depths of the ocean, the Tibetan teachers say, live in darkness packed together, and many of them never see light at all.',
-        'The relief crowds its hills with herds — spotted deer, red deer, foxes, an elephant, a camel, horses white and red, yaks and cattle — and fills the river below with fish, a red sea monster, swimming beasts and two swans. Nothing in it is doing anything but living.'],
+        'The relief crowds its hills with herds — an elephant, deer brown, white and red, goats, foxes, grey buffalo and cattle — and fills the river below with a red sea monster, swimming beasts, small yellow fish and two swans. Nothing in it is doing anything but living.'],
     rel: ['animals', 'wl_muni_animals', 'wl_animals_land', 'wl_animals_sea', 'rebirth_sq_11'],
     src: PATRUL + '. ' + RELIEF + '.'
   },
@@ -207,9 +207,9 @@ export const WHEEL_ENTRIES = {
         ['Eighteen hells', 'eight hot, eight cold, the neighbouring and the ephemeral'],
         ['At the centre', 'Yama the judge, with the mirror'],
         ['Sage', 'dark, holding fire and water'],
-        ['In this relief', 'the hot hells in red cells on the left, the cold in ice on the right, the court in the middle, and the torments and the cauldron below it']],
+        ['In this relief', 'the hot hells in rows of red iron lattice on the left, the cold in rows of ice on the right, the court in the middle, and the torments and the cauldron below it']],
     b: ['Anger ripens as a world that is all weapon. The Tibetan teachers count eighteen hells: eight hot, eight cold, the neighbouring hells at the gates of the hot ones, and the ephemeral hells scattered in the world above. Life in them is long past reckoning, and it ends only when the karma that made it is spent.',
-        'The relief gives the hells more of the wheel than any other realm. On the left the hot hells stand in eight cells of burning iron; on the right the cold hells lie in eight fields of ice. Between them, in a gold pavilion, the Lord of Death sits in judgement with his mirror, and below his court are the rack, the iron pillar, the saw, the swamp, the tree of blades and the cauldron.'],
+        'The relief gives the hells more of the wheel than any other realm — nearly a third of it. On the left the hot hells are rows of burning iron lattice, crowded with the tormented; on the right the cold hells are rows of ice, each with its huddled, naked beings. Between them, in a gold pavilion, the Lord of Death sits in judgement with his mirror, and below his court are the rack, the iron pillar, the swamp of corpses, the trees of blades, a demon lifting a body over his head, and the cauldron.'],
     rel: ['wl_hell_judge', 'wl_hell_sanjiva', 'wl_cold_arbuda', 'wl_hell_neighbouring', 'wl_hell_ephemeral', 'wl_muni_hells'],
     src: PATRUL + '; ' + GAMPOPA + '. ' + RELIEF + '.'
   },
@@ -236,35 +236,35 @@ export const WHEEL_ENTRIES = {
     t: 'The sage of the asuras', tib: 'ཐགས་བཟང་རིས།', en: '<i>thags bzang ris</i> · Vemacitra', k: 'green · armour',
     meta: 'The six sages · in the realm of the asuras',
     f: [['Colour', 'green'], ['Holds', 'armour and a weapon'], ['Teaches', 'the armour of patience, and the weapon of wisdom']],
-    b: ['The asuras understand armour and weapons, and their buddha comes carrying both — to teach a different war. In the relief he sits on a green cloud above the fighting, green-bodied, in a red robe, a blade in his hand.'],
+    b: ['The asuras understand armour and weapons, and their buddha comes carrying both — to teach a different war. In the relief he is set on a cloud of green and white above the fighting, green-bodied, in a red robe.'],
     rel: ['wl_munis', 'wl_realm_asuras'], src: MUNIS + '. ' + RELIEF + '.'
   },
   wl_muni_humans: {
     t: 'The sage of humans', tib: 'ཤཱཀྱ་སེང་གེ།', en: '<i>shAkya seng ge</i> · Śākyamuni', k: 'yellow · bowl',
     meta: 'The six sages · in the realm of humans',
     f: [['Colour', 'yellow'], ['Holds', 'begging bowl and mendicant\'s staff'], ['Teaches', 'renunciation, and the path']],
-    b: ['In the human realm the buddha is the one history knows: Śākyamuni, the mendicant, with his bowl and his staff. He is the only one of the six drawn standing in this relief, in orange robes against a pink aureole, above the stūpa at the top of the realm.'],
+    b: ['In the human realm the buddha is the one history knows: Śākyamuni, the mendicant, with his bowl and his staff. In this relief he stands on cloud in orange robes against a pink aureole, above the stūpa at the top of the realm.'],
     rel: ['wl_munis', 'wl_realm_humans', 'wl_beyond_buddha'], src: MUNIS + '. ' + RELIEF + '.'
   },
   wl_muni_animals: {
     t: 'The sage of animals', tib: 'སེང་གེ་རབ་བརྟན།', en: '<i>seng ge rab brtan</i> · Sthirasiṃha', k: 'blue · book',
     meta: 'The six sages · in the realm of animals',
     f: [['Colour', 'blue'], ['Holds', 'a book'], ['Teaches', 'understanding, against dullness']],
-    b: ['The animals\' poison is ignorance, and their buddha carries the one thing that answers it: a book. In the relief he sits on a pink cloud at the top of the realm, blue-bodied in a red robe.'],
+    b: ['The animals\' poison is ignorance, and their buddha carries the one thing that answers it: a book. In the relief he is set on a cloud of pink and white at the top of the realm, blue-bodied in a red robe, against a pink aureole.'],
     rel: ['wl_munis', 'wl_realm_animals'], src: MUNIS + '. ' + RELIEF + '.'
   },
   wl_muni_pretas: {
     t: 'The sage of the pretas', tib: 'ཁ་འབར་མ།', en: '<i>kha \'bar ma</i> · Jvālamukha', k: 'red · vessel',
     meta: 'The six sages · in the realm of the pretas',
     f: [['Colour', 'red'], ['Holds', 'a vessel of food and drink'], ['Teaches', 'generosity, the remedy for avarice']],
-    b: ['To the hungry the buddha brings what they are dying for: a vessel of food and drink that does not turn to fire. In the relief he sits on a cloud at the top of the realm, red-bodied in a red robe, above the pretas and their flames.'],
+    b: ['To the hungry the buddha brings what they are dying for: a vessel of food and drink that does not turn to fire. In the relief he stands on cloud at the top of the realm, red-bodied in a red robe, a vessel raised in his hand, above the pretas and their flames.'],
     rel: ['wl_munis', 'wl_realm_pretas'], src: MUNIS + '. ' + RELIEF + '.'
   },
   wl_muni_hells: {
     t: 'The sage of the hells', tib: 'ཆོས་ཀྱི་རྒྱལ་པོ།', en: '<i>chos kyi rgyal po</i> · Dharmarāja', k: 'dark · fire and water',
     meta: 'The six sages · in the realm of the hells',
     f: [['Colour', 'dark, smoke-coloured'], ['Holds', 'fire and water'], ['Teaches', 'patience, against anger']],
-    b: ['The buddha of the hells carries water for the burning and fire for the frozen. He shares his name, King of Dharma, with the judge he sits beside — the one who shows what karma has made, and the other what can undo it. In the relief he sits on a cloud at the top of the realm near the hub, dark-bodied in a red robe.'],
+    b: ['The buddha of the hells carries water for the burning and fire for the frozen. He shares his name, King of Dharma, with the judge below him — the one shows what karma has made, the other what can undo it. In the relief he stands on cloud at the top of the realm near the hub, dark blue in a red robe, before a pale aureole.'],
     rel: ['wl_munis', 'wl_realm_hells', 'wl_hell_judge'], src: MUNIS + '. ' + RELIEF + '.'
   },
 
@@ -275,7 +275,7 @@ export const WHEEL_ENTRIES = {
     f: [['Drawn as', 'white terraces rising from the sea, their sides ochre and green'],
         ['Around its foot', 'the golden ranges, as gold mounds in the water'],
         ['On its summit', 'the palace of the Thirty-three']],
-    b: ['The wheel draws the world mountain in a few strokes: a stepped white pyramid standing out of the ocean with golden hills around it. The four terraces are the four the Kośa gives Meru, where the lower gods live; the palace on the cloud above is the Heaven of the Thirty-three on its summit. The whole of the model this wheel sits beside is compressed into this one tower.'],
+    b: ['The wheel draws the world mountain in a few strokes: a stepped white pyramid standing out of the ocean with golden hills around it. Its terraces recall the four the Kośa gives Meru, where the lower gods live; the palace on the cloud above is the Heaven of the Thirty-three on its summit. The whole of the model this wheel sits beside is compressed into this one tower.'],
     rel: ['meru_core', 'meru_terrace_1', 'wl_gods_palace', 'wl_realm_gods'],
     src: RELIEF + '.'
   },
@@ -351,14 +351,14 @@ export const WHEEL_ENTRIES = {
   wl_human_nomads: {
     t: 'The nomads\' tent', en: 'the herders\' life', k: 'yak-hair tent',
     meta: 'The realm of humans',
-    f: [['Drawn as', 'a black yak-hair tent under prayer flags, a fire, a woman churning, pigs, yaks and cattle']],
+    f: [['Drawn as', 'a black yak-hair tent under prayer flags, a figure at the fire, a woman churning, and yaks, sheep and goats lying beside them']],
     b: ['The other half of Himalayan life: the herders, with their black tent, their hearth, their churn and their animals. The animals grazing beside the tent belong to the human realm here, and to the animal realm too — what is a herd to one is a life of labour to the other.'],
     rel: ['wl_realm_humans', 'wl_realm_animals'], src: RELIEF + '.'
   },
   wl_human_plough: {
     t: 'The ploughman', en: 'the toil of the fields', k: 'two oxen',
     meta: 'The realm of humans',
-    f: [['Drawn as', 'a man in a brimmed hat behind a pair of oxen']],
+    f: [['Drawn as', 'a man in a straw hat behind a pair of oxen, at the foot of the realm']],
     b: ['A man ploughs with two oxen at the edge of the realm. Labour for food is one of the sufferings of humans in the Tibetan accounts, and the oxen\'s part in it is the suffering of animals: the pair of them sit exactly on the line between the two realms\' sorrows.'],
     rel: ['wl_realm_humans', 'wl_realm_animals'], src: RELIEF + '.'
   },
@@ -367,15 +367,15 @@ export const WHEEL_ENTRIES = {
   wl_animals_land: {
     t: 'The animals of the land', en: 'wild and tame', k: 'hills',
     meta: 'The realm of animals',
-    f: [['Drawn as', 'deer, foxes, an elephant, a camel, horses, yaks and cattle among green hills and cypresses']],
-    b: ['On the hills the wild and the tame together: the deer that are hunted, the fox that hunts, and the elephant, camel, horses, yaks and cattle that carry, pull and are eaten. Patrul lists both lives — the wild ones\' fear, and the tame ones\' labour and slaughter — as the animals\' suffering, along with the dullness that keeps them from understanding either.'],
+    f: [['Drawn as', 'an elephant, deer, goats, foxes, buffalo and cattle among green hills and cypresses']],
+    b: ['On the hills the wild and the tame together: the deer that are hunted, the fox that hunts, and the elephant, buffalo and cattle that carry, pull and are eaten. Patrul lists both lives — the wild ones\' fear, and the tame ones\' labour and slaughter — as the animals\' suffering, along with the dullness that keeps them from understanding either.'],
     rel: ['wl_realm_animals', 'wl_animals_sea', 'animals'], src: PATRUL + '. ' + RELIEF + '.'
   },
   wl_animals_sea: {
     t: 'The animals of the waters', en: 'the ocean\'s dwellers', k: 'river and sea',
     meta: 'The realm of animals',
-    f: [['Drawn as', 'a river of carved waves, with fish, a red sea monster, swimming beasts and a pair of swans']],
-    b: ['The Kośa places most animals in the ocean, and the Tibetan teachers describe the deep as dark and crowded, with beings eating and being eaten, never still. The relief\'s river keeps it lighter: fish, a red makara-like monster, a swimming horse, a hound and a pair of white swans.'],
+    f: [['Drawn as', 'a river of carved waves, with a red sea monster, swimming beasts, small yellow fish and a pair of swans']],
+    b: ['The Kośa places most animals in the ocean, and the Tibetan teachers describe the deep as dark and crowded, with beings eating and being eaten, never still. The relief\'s river keeps it lighter: a red dragon-headed monster, a swimming deer and other beasts, small yellow fish and a pair of white swans.'],
     rel: ['wl_realm_animals', 'wl_animals_land', 'animals'], src: PATRUL + '. ' + RELIEF + '.'
   },
 
@@ -426,25 +426,25 @@ export const WHEEL_ENTRIES = {
     meta: 'Before the judge',
     f: [['The white god', 'born with every being; counts its virtues in white pebbles'],
         ['The black demon', 'born with it too; counts its misdeeds in black pebbles']],
-    b: ['Two small figures sit at the foot of Yama\'s pavilion with their heaps of pebbles, one white, one black. They are born with each being, and have been with it all its life: the record is kept from inside. In the relief the white one sits on the left, the black one on the right, each with a row of stones.'],
+    b: ['They are born with each being, and have been with it all its life: the record is kept from inside. At the foot of the throne the relief sets a white figure kneeling at the left with a white bowl, a dark one at the right, and between them a small pink figure with a gold cup before it — to all appearances the white god and the black demon, with the dead one between them.'],
     rel: ['wl_hell_judge'], src: BARDO + '. ' + RELIEF + '.'
   },
   wl_hell_court: {
     t: 'The court of the dead', tib: 'གཤིན་རྗེའི་ལས་མཁན།', en: 'Yama\'s attendants, and those who wait', k: 'the queue',
     meta: 'Before the judge',
-    f: [['Attendants', 'fierce figures in tiger-skin, one holding a record'],
+    f: [['Attendants', 'fierce figures either side of the throne, one reading from an open book'],
         ['The dead', 'naked, in line, hands joined']],
-    b: ['Either side of the pavilion stand Yama\'s servants, and to the right the dead wait their turn, naked, one with hands joined in appeal. In many paintings the attendants have animal heads, and one keeps the record or holds the scales; here one carries a written page.'],
+    b: ['Either side of the pavilion stand Yama\'s servants, and to the right the dead wait their turn, naked, in a huddle. In many paintings the attendants have animal heads, and one keeps the record or holds the scales; here one, beside the throne, reads from an open book.'],
     rel: ['wl_hell_judge', 'wl_karma_demon'], src: BARDO + '. ' + RELIEF + '.'
   },
   wl_hell_torments: {
     t: 'The torments below the court', en: 'the rack, the pillar, the saw', k: 'below Yama',
     meta: 'The realm of the hells',
-    f: [['The rack', 'two bodies stretched between posts'],
-        ['The pillar', 'an iron pillar in flames'],
-        ['The saw', 'a body laid out and cut'],
+    f: [['The rack', 'two bodies stretched spread-eagled'],
+        ['The pillar', 'a blue iron pillar wrapped in flame'],
+        ['On the ground', 'bodies lying, struck and trampled; a flayed skin and scattered bones'],
         ['Carried', 'a demon with a body lifted over his head']],
-    b: ['Below the court the sentence is carried out. Bodies are stretched on a rack, as in the Black Line hell, where lines are marked on them to be cut along; an iron pillar burns; a figure is sawn; a demon carries off another bodily. The relief sets these out under the judge as one scene rather than placing each in its own hell.'],
+    b: ['Below the court the sentence is carried out. Bodies are stretched spread-eagled, as in the Black Line hell, where lines are marked on them to be cut along; an iron pillar burns; bodies lie struck on the ground among bones; a demon lifts another bodily over his head. The relief sets these out under the judge as one scene rather than placing each in its own hell.'],
     rel: ['wl_hell_kalasutra', 'wl_hell_cauldron', 'wl_hell_judge'], src: PATRUL + '. ' + RELIEF + '.'
   },
   wl_hell_cauldron: {
@@ -462,9 +462,9 @@ export const WHEEL_ENTRIES = {
         ['The swamp of corpses', 'rotting, with worms that bore to the bone'],
         ['The road of razors, the forest of blades', 'and the śālmali tree with iron thorns'],
         ['The river Vaitaraṇī', 'boiling, with guards on both banks'],
-        ['In this relief', 'the swamp with its heads, the tree of blades with a figure climbing, and the river along the edge']],
+        ['In this relief', 'the swamp with heads showing through it, left of the cauldron; the trees of blades with a figure among them, at the edge of the ice; the river along the edge']],
     b: ['Beings who come out of a hot hell, thinking themselves free, walk straight into the neighbouring ones. At the gate is a pit of embers; past it a swamp of rotting corpses; past that a road of blades, a forest whose leaves are swords, and the śālmali tree, which a being climbs because it hears the voices of those it loves at the top, and is cut to pieces going up and again coming down. Then the river.',
-        'The relief shows the swamp below the court with heads showing through it, the tree of blades at the edge of the ice with a figure reaching up, and the river running in from the pretas\' land.'],
+        'The relief shows the swamp left of the cauldron with heads showing through it, the trees of blades at the edge of the ice with a figure among them, and the river running in from the pretas\' land.'],
     rel: ['naraka_shaft', 'wl_preta_river', 'rebirth_sq_5'], src: PATRUL + '. ' + RELIEF + '.'
   },
   wl_hell_ephemeral: {
@@ -472,16 +472,24 @@ export const WHEEL_ENTRIES = {
     meta: 'The realm of the hells',
     f: [['Where', 'anywhere: in rocks, trees, pillars, doors, pots, rivers, even among humans'],
         ['How long', 'for a day, or a moment, or a lifetime; pain and pleasure may alternate'],
-        ['In this relief', 'beings caught inside a rock, a post and a stone beside the court']],
+        ['In this relief', 'no scene of their own that can be picked out']],
     b: ['The last of the eighteen are not in any one place. Beings are born trapped in rocks, tree trunks, pillars, door-posts, brooms and pots, suffering in them while the world goes on around them. Patrul tells how the monk Saṅgharakṣita, travelling, saw beings in the form of pillars, walls and ladles, and learned from the Buddha what they had done.'],
     rel: ['wl_realm_hells', 'rebirth_sq_8'], src: PATRUL + '. ' + RELIEF + '.'
+  },
+  wl_hell_stupa: {
+    t: 'The stūpa among the hells', tib: 'མཆོད་རྟེན།', en: '<i>mchod rten</i>', k: 'by the court',
+    meta: 'The realm of the hells',
+    f: [['Drawn as', 'a small white stūpa, and beside it a long pink figure lying on the ground'],
+        ['Where', 'right of the court, above the trees of blades']],
+    b: ['Among the torments, just right of Yama\'s court, stands a small white stūpa, and beside it a long pink figure lies stretched on the ground. The relief does not say what it is. A stūpa is the one thing in the hells that is not a torment, and painted wheels do sometimes set a sign of the teaching even here; but that reading is not the relief\'s own, and the scene is left as it is seen.'],
+    rel: ['wl_realm_hells', 'wl_hell_ephemeral', 'wl_human_stupa'], src: RELIEF + '.'
   },
   wl_hell_sanjiva: {
     t: 'Reviving', tib: 'ཡང་སོས།', en: '<i>yang sos</i> · Sañjīva', k: 'hot · 1',
     meta: 'The eight hot hells · the first',
     f: [['The torment', 'on ground of burning iron, beings kill one another with weapons that appear in their hands'],
         ['Revived by', 'a cool wind, or a voice that says “revive”'],
-        ['In this relief', 'two figures fighting with blades over a third, fallen']],
+        ['In this relief', 'the first of the eight red rows of iron lattice, counted from the spoke above them']],
     b: ['Here each being sees every other as an enemy, and weapons form in their hands. They fight until they fall, and then a cold wind blows, or a voice from the sky says “Revive!”, and they stand and begin again — until the karma that made the place runs out.'],
     rel: ['hell_sanjiva', 'wl_hell_kalasutra', 'rebirth_sq_6'], src: PATRUL + '. ' + RELIEF + '.'
   },
@@ -489,7 +497,7 @@ export const WHEEL_ENTRIES = {
     t: 'Black Line', tib: 'ཐིག་ནག', en: '<i>thig nag</i> · Kālasūtra', k: 'hot · 2',
     meta: 'The eight hot hells · the second',
     f: [['The torment', 'black lines are drawn on the body — four, eight, sixteen, more — and it is cut along them'],
-        ['In this relief', 'a body laid out and ruled with lines, an executioner bending over it with a blade']],
+        ['In this relief', 'the second of the eight red rows of iron lattice, counted from the spoke above them']],
     b: ['Yama\'s servants lay a body down on burning iron and mark it with black lines, in fours and eights and sixteens, and then cut along them with saws and axes. The pieces join again, and the lines are drawn again.'],
     rel: ['hell_kalasutra', 'wl_hell_samghata', 'rebirth_sq_5'], src: PATRUL + '. ' + RELIEF + '.'
   },
@@ -497,7 +505,7 @@ export const WHEEL_ENTRIES = {
     t: 'Crushing', tib: 'བསྡུས་འཇོམས།', en: '<i>bsdus \'joms</i> · Saṃghāta', k: 'hot · 3',
     meta: 'The eight hot hells · the third',
     f: [['The torment', 'crushed between iron mountains shaped like the heads of animals; pressed in iron mortars'],
-        ['In this relief', 'two horned mountains closing on a being with its arms raised']],
+        ['In this relief', 'the third of the eight red rows of iron lattice, counted from the spoke above them']],
     b: ['Two iron mountains with the faces of beasts close on one another and crush everything between them, until the blood runs out in rivers; then they part, and close again. Beings are also pounded in iron mortars, and pressed like sesame for oil.'],
     rel: ['hell_samghata', 'wl_hell_raurava', 'rebirth_sq_5'], src: PATRUL + '. ' + RELIEF + '.'
   },
@@ -505,7 +513,7 @@ export const WHEEL_ENTRIES = {
     t: 'Howling', tib: 'ངུ་འབོད།', en: '<i>ngu \'bod</i> · Raurava', k: 'hot · 4',
     meta: 'The eight hot hells · the fourth',
     f: [['The torment', 'shut in a burning iron house with no door, looking for shelter'],
-        ['In this relief', 'a dark iron house in flames, a being outside with its arms up']],
+        ['In this relief', 'the fourth of the eight red rows of iron lattice, counted from the spoke above them']],
     b: ['Beings look for somewhere to hide, and find an iron house; the door shuts behind them and the house begins to burn. The hell is named for the sound they make.'],
     rel: ['hell_raurava', 'wl_hell_maharaurava', 'rebirth_sq_4'], src: PATRUL + '. ' + RELIEF + '.'
   },
@@ -513,7 +521,7 @@ export const WHEEL_ENTRIES = {
     t: 'Great Howling', tib: 'ངུ་འབོད་ཆེན་པོ།', en: '<i>ngu \'bod chen po</i> · Mahāraurava', k: 'hot · 5',
     meta: 'The eight hot hells · the fifth',
     f: [['The torment', 'the same iron house, with a second wall around the first'],
-        ['In this relief', 'the house doubled, and the flames higher']],
+        ['In this relief', 'the fifth of the eight red rows of iron lattice, counted from the spoke above them']],
     b: ['As in Howling, but the house has two walls, and even if the first were passed there would be the second. The cry is louder, and the hope is less.'],
     rel: ['hell_maharaurava', 'wl_hell_raurava', 'rebirth_sq_4'], src: PATRUL + '. ' + RELIEF + '.'
   },
@@ -521,7 +529,7 @@ export const WHEEL_ENTRIES = {
     t: 'Hot', tib: 'ཚ་བ།', en: '<i>tsha ba</i> · Tapana', k: 'hot · 6',
     meta: 'The eight hot hells · the sixth',
     f: [['The torment', 'boiled in cauldrons of molten metal; skewered on a burning iron stake'],
-        ['In this relief', 'a being on a stake, and its guard']],
+        ['In this relief', 'the sixth of the eight red rows of iron lattice, counted from the spoke above them']],
     b: ['Beings are thrown into iron cauldrons of molten bronze and boiled, and skewered on burning stakes that come out at the crown of the head, so that flames pour from the eyes and mouth. The cauldron at the bottom of the wheel belongs here.'],
     rel: ['hell_tapana', 'wl_hell_cauldron', 'wl_hell_pratapana', 'rebirth_sq_3'], src: PATRUL + '. ' + RELIEF + '.'
   },
@@ -529,7 +537,7 @@ export const WHEEL_ENTRIES = {
     t: 'Intense Heat', tib: 'རབ་ཏུ་ཚ་བ།', en: '<i>rab tu tsha ba</i> · Pratāpana', k: 'hot · 7',
     meta: 'The eight hot hells · the seventh',
     f: [['The torment', 'pierced by a burning trident through the body; wrapped in sheets of burning iron'],
-        ['In this relief', 'a being raised on a trident, and a guard with a blade']],
+        ['In this relief', 'the seventh of the eight red rows of iron lattice, counted from the spoke above them']],
     b: ['Hotter again: a trident is driven up through the body until its prongs come out at the head and both shoulders, and the body is wrapped in sheets of red-hot iron. Half an intermediate kalpa, the texts say, before it ends.'],
     rel: ['hell_pratapana', 'wl_hell_avichi', 'rebirth_sq_3'], src: PATRUL + '. ' + RELIEF + '.'
   },
@@ -538,7 +546,7 @@ export const WHEEL_ENTRIES = {
     meta: 'The eight hot hells · the eighth and deepest',
     f: [['The torment', 'fire and body indistinguishable; nothing to tell a being is there but its cry'],
         ['Why the name', 'no gap in the suffering, in time or in the body'],
-        ['In this relief', 'bodies with raised arms inside a wall of flame']],
+        ['In this relief', 'the eighth of the eight red rows of iron lattice, counted from the spoke above them']],
     b: ['The deepest hell. The iron ground and walls burn so fiercely that the beings in them cannot be told from the fire; only their cries show where they are. Its name means that there is no interval — no pause in the pain, and nowhere in the body it does not reach. It is the ripening of the gravest acts.'],
     rel: ['hell_avichi', 'rebirth_sq_2', 'rebirth_sq_1'], src: PATRUL + '. ' + RELIEF + '.'
   },
@@ -546,35 +554,39 @@ export const WHEEL_ENTRIES = {
     t: 'Blisters', tib: 'ཆུ་བུར་ཅན།', en: '<i>chu bur can</i> · Arbuda', k: 'cold · 1',
     meta: 'The eight cold hells · the first',
     f: [['The torment', 'naked in an icy dark among snow mountains and blizzards; the body breaks out in blisters'],
-        ['In this relief', 'beings curled against the cold, blistered']],
+        ['In this relief', 'the first of the eight rows of ice, counted from the spoke above them']],
     b: ['The cold hells lie in a darkness without sun or moon, among glaciers, under snow and wind. In the first the cold raises blisters all over the body. The seven after it are each colder, and each lasts twenty times as long.'],
     rel: ['cold_arbuda', 'wl_cold_nirarbuda', 'rebirth_sq_7'], src: PATRUL + '. ' + RELIEF + '.'
   },
   wl_cold_nirarbuda: {
     t: 'Bursting Blisters', tib: 'ཆུ་བུར་རྡོལ་བ།', en: '<i>chu bur rdol ba</i> · Nirarbuda', k: 'cold · 2',
     meta: 'The eight cold hells · the second',
-    f: [['The torment', 'the blisters burst, and the sores freeze']],
+    f: [['The torment', 'the blisters burst, and the sores freeze'],
+        ['In this relief', 'the second of the eight rows of ice, counted from the spoke above them']],
     b: ['Colder: the blisters burst and run, and the wounds freeze over.'],
     rel: ['cold_nirarbuda', 'wl_cold_atata', 'rebirth_sq_7'], src: PATRUL + '. ' + RELIEF + '.'
   },
   wl_cold_atata: {
     t: 'Chattering Teeth', tib: 'སོ་ཐམ་ཐམ་པ།', en: '<i>so tham tham pa</i> · Aṭaṭa', k: 'cold · 3',
     meta: 'The eight cold hells · the third',
-    f: [['The torment', 'the jaw clenches and the teeth chatter; nothing else can move']],
+    f: [['The torment', 'the jaw clenches and the teeth chatter; nothing else can move'],
+        ['In this relief', 'the third of the eight rows of ice, counted from the spoke above them']],
     b: ['Named for the sound: the cold is such that the teeth clench and chatter and the being can do nothing else.'],
     rel: ['cold_atata', 'wl_cold_hahava', 'rebirth_sq_7'], src: PATRUL + '. ' + RELIEF + '.'
   },
   wl_cold_hahava: {
     t: 'Lamentation', tib: 'ཨ་ཆུ་ཟེར་བ།', en: '<i>a chu zer ba</i> · Hahava', k: 'cold · 4',
     meta: 'The eight cold hells · the fourth',
-    f: [['The torment', 'a cry of “achu!” is all the voice that is left']],
+    f: [['The torment', 'a cry of “achu!” is all the voice that is left'],
+        ['In this relief', 'the fourth of the eight rows of ice, counted from the spoke above them']],
     b: ['Named, like the one before, for a sound: the long cry of pain and cold, <i>a chu</i>, is all that can be made.'],
     rel: ['cold_hahava', 'wl_cold_huhuva', 'rebirth_sq_7'], src: PATRUL + '. ' + RELIEF + '.'
   },
   wl_cold_huhuva: {
     t: 'Groaning', tib: 'ཀྱི་ཧུད་ཟེར་བ།', en: '<i>kyi hud zer ba</i> · Huhuva', k: 'cold · 5',
     meta: 'The eight cold hells · the fifth',
-    f: [['The torment', 'the voice fails to a groan, “kyi hu”']],
+    f: [['The torment', 'the voice fails to a groan, “kyi hu”'],
+        ['In this relief', 'the fifth of the eight rows of ice, counted from the spoke above them']],
     b: ['Colder still: even the cry gives out, and there is only a groan, <i>kyi hu</i>.'],
     rel: ['cold_huhuva', 'wl_cold_utpala', 'rebirth_sq_7'], src: PATRUL + '. ' + RELIEF + '.'
   },
@@ -582,15 +594,15 @@ export const WHEEL_ENTRIES = {
     t: 'Split like a Blue Lotus', tib: 'ཨུཏྤལ་ལྟར་གས་པ།', en: '<i>utpal ltar gas pa</i> · Utpala', k: 'cold · 6',
     meta: 'The eight cold hells · the sixth',
     f: [['The torment', 'the skin turns blue and splits into four, like the petals of a blue lotus'],
-        ['In this relief', 'blue petals over the huddled bodies']],
-    b: ['The skin goes blue with cold and splits open in four, like an utpala flower opening. The relief marks the bodies here with blue petals.'],
+        ['In this relief', 'the sixth of the eight rows of ice, counted from the spoke above them']],
+    b: ['The skin goes blue with cold and splits open in four, like an utpala flower opening.'],
     rel: ['cold_utpala', 'wl_cold_padma', 'rebirth_sq_7'], src: PATRUL + '. ' + RELIEF + '.'
   },
   wl_cold_padma: {
     t: 'Split like a Lotus', tib: 'པདྨ་ལྟར་གས་པ།', en: '<i>padma ltar gas pa</i> · Padma', k: 'cold · 7',
     meta: 'The eight cold hells · the seventh',
     f: [['The torment', 'the flesh turns red and splits in eight, like a lotus'],
-        ['In this relief', 'red petals']],
+        ['In this relief', 'the seventh of the eight rows of ice, counted from the spoke above them']],
     b: ['From blue to red: the flesh is exposed and splits in eight, and more, like a lotus opening.'],
     rel: ['cold_padma', 'wl_cold_mahapadma', 'rebirth_sq_7'], src: PATRUL + '. ' + RELIEF + '.'
   },
@@ -598,7 +610,7 @@ export const WHEEL_ENTRIES = {
     t: 'Split like a Great Lotus', tib: 'པདྨ་ཆེན་པོ་ལྟར་གས་པ།', en: '<i>padma chen po ltar gas pa</i> · Mahāpadma', k: 'cold · 8',
     meta: 'The eight cold hells · the eighth and deepest',
     f: [['The torment', 'the flesh splits in a hundred, a thousand places, and creatures burrow into it'],
-        ['In this relief', 'dark red petals']],
+        ['In this relief', 'the eighth of the eight rows of ice, counted from the spoke above them']],
     b: ['The deepest of the cold hells. The body turns dark red and splits into countless pieces, and small creatures with iron mouths get into the wounds and eat.'],
     rel: ['cold_mahapadma', 'rebirth_sq_7'], src: PATRUL + '. ' + RELIEF + '.'
   },
@@ -621,7 +633,7 @@ export const WHEEL_ENTRIES = {
   wl_nidana_ignorance: {
     t: '1 · Ignorance', tib: 'མ་རིག་པ།', en: '<i>ma rig pa</i> · avidyā', k: 'a blind man',
     meta: 'The twelve links · the first',
-    f: [['Picture', 'a blind man feeling his way forward with a stick'], ['Where', 'just right of Yama\'s fangs'], ['In the three lives', 'a cause laid down in the past']],
+    f: [['Picture', 'an old blind man feeling his way forward with a stick, toward water, while a man behind him points'], ['Where', 'just right of Yama\'s fangs'], ['In the three lives', 'a cause laid down in the past']],
     b: ['A blind man goes forward with a stick, not knowing what is ahead — in this panel, toward water, while someone behind him points. Ignorance is not seeing how things are: above all, taking a self where there is none. Many wheels paint an old blind woman; the meaning is the same. It is the first link and the root of the others, and the one whose ending ends them.'],
     rel: ['wl_nidana_formations', 'wl_hub_pig', 'wl_nidanas'], src: KOSA + '. ' + RELIEF + '.'
   },
@@ -642,64 +654,64 @@ export const WHEEL_ENTRIES = {
   wl_nidana_namerupa: {
     t: '4 · Name and Form', tib: 'མིང་དང་གཟུགས།', en: '<i>ming dang gzugs</i> · nāmarūpa', k: 'a boat',
     meta: 'The twelve links · the fourth',
-    f: [['Picture', 'two people in a boat on the water'], ['The boat', 'form — the body'], ['The passengers', 'name — the four mental aggregates']],
-    b: ['Two people cross the water in a boat. Consciousness takes on a body and a mind together — form, and the feeling, perception, formation and consciousness that are called name — and neither crosses without the other. The boat and its passengers are one crossing.'],
+    f: [['Picture', 'a boat full of people crossing the water, a figure watching from the bank'], ['The boat', 'form — the body'], ['The passengers', 'name — the four mental aggregates']],
+    b: ['A boatload of people crosses the water. Consciousness takes on a body and a mind together — form, and the feeling, perception, formation and consciousness that are called name — and neither crosses without the other. The boat and its passengers are one crossing.'],
     rel: ['wl_nidana_consciousness', 'wl_nidana_senses'], src: KOSA + '. ' + RELIEF + '.'
   },
   wl_nidana_senses: {
     t: '5 · The Six Senses', tib: 'སྐྱེ་མཆེད་དྲུག', en: '<i>skye mched drug</i> · ṣaḍāyatana', k: 'a house',
     meta: 'The twelve links · the fifth',
-    f: [['Picture', 'a house with dark windows'], ['The windows', 'eye, ear, nose, tongue, body and mind']],
+    f: [['Picture', 'a pink-walled house of many windows, with a tall chimney'], ['The windows', 'eye, ear, nose, tongue, body and mind']],
     b: ['A house with windows, empty. The body in the womb develops its six doors — the five senses and the mind — through which the world will come in. The house stands ready; nothing has entered yet.'],
     rel: ['wl_nidana_namerupa', 'wl_nidana_contact'], src: KOSA + '. ' + RELIEF + '.'
   },
   wl_nidana_contact: {
     t: '6 · Contact', tib: 'རེག་པ།', en: '<i>reg pa</i> · sparśa', k: 'an embrace',
     meta: 'The twelve links · the sixth',
-    f: [['Picture', 'a man and a woman in an embrace'], ['Where', 'just right of the foot of the wheel']],
+    f: [['Picture', 'a man and a woman in an embrace on a pink mat, under trees'], ['Where', 'just right of the foot of the wheel']],
     b: ['A couple embrace. Contact is the meeting of three — a sense, its object and the consciousness of it — and the embrace is the image of things coming together. From here on the world is not only present but met.'],
     rel: ['wl_nidana_senses', 'wl_nidana_feeling'], src: KOSA + '. ' + RELIEF + '.'
   },
   wl_nidana_feeling: {
     t: '7 · Feeling', tib: 'ཚོར་བ།', en: '<i>tshor ba</i> · vedanā', k: 'an arrow',
     meta: 'The twelve links · the seventh',
-    f: [['Picture', 'a man struck in the eye by an arrow'], ['Where', 'just left of the foot of the wheel'], ['Its kinds', 'pleasant, painful, neither']],
+    f: [['Picture', 'a man seated on a pink mat, clutching his face: struck in the eye by an arrow'], ['Where', 'just left of the foot of the wheel'], ['Its kinds', 'pleasant, painful, neither']],
     b: ['A man sits clutching his face, an arrow in his eye. Out of contact comes feeling — pleasant, painful or neither — and it is as immediate and as impossible to ignore as an arrow in the eye. It is the last result of the past; what is done with it is the first cause of the future.'],
     rel: ['wl_nidana_contact', 'wl_nidana_craving'], src: KOSA + '. ' + RELIEF + '.'
   },
   wl_nidana_craving: {
     t: '8 · Craving', tib: 'སྲེད་པ།', en: '<i>sred pa</i> · tṛṣṇā', k: 'a drink',
     meta: 'The twelve links · the eighth',
-    f: [['Picture', 'a drink poured and served to someone seated'], ['In the three lives', 'the first cause laid down in this life']],
-    b: ['Someone is served a drink and takes it. The Sanskrit word is thirst: wanting the pleasant feeling to go on and the painful one to stop, and the more it is drunk the more there is of it. Here the wheel, which has only been turning, begins to be driven again.'],
+    f: [['Picture', 'a woman serving a drink to a man seated before a red house'], ['In the three lives', 'the first cause laid down in this life']],
+    b: ['A woman serves a drink to a man seated before a house, and he takes it. The Sanskrit word is thirst: wanting the pleasant feeling to go on and the painful one to stop, and the more it is drunk the more there is of it. Here the wheel, which has only been turning, begins to be driven again.'],
     rel: ['wl_nidana_feeling', 'wl_nidana_grasping', 'wl_hub_bird'], src: KOSA + '. ' + RELIEF + '.'
   },
   wl_nidana_grasping: {
     t: '9 · Grasping', tib: 'ལེན་པ།', en: '<i>len pa</i> · upādāna', k: 'picking fruit',
     meta: 'The twelve links · the ninth',
-    f: [['Picture', 'a figure reaching into a tree to pick its fruit, baskets beside'], ['Its four kinds', 'to pleasures, to views, to rules and rites, to a doctrine of self']],
+    f: [['Picture', 'a figure reaching into a tree to pick its fruit, baskets of fruit at its foot'], ['Its four kinds', 'to pleasures, to views, to rules and rites, to a doctrine of self']],
     b: ['Someone reaches up and picks fruit, with baskets already full beside them. Craving tightens into grasping: not wanting now but taking hold — of pleasures, of opinions, of observances, and above all of the idea of a self that owns them.'],
     rel: ['wl_nidana_craving', 'wl_nidana_becoming'], src: KOSA + '. ' + RELIEF + '.'
   },
   wl_nidana_becoming: {
     t: '10 · Becoming', tib: 'སྲིད་པ།', en: '<i>srid pa</i> · bhava', k: 'a pregnant woman',
     meta: 'The twelve links · the tenth',
-    f: [['Picture', 'a visibly pregnant woman walking forward'], ['In the three lives', 'the last cause: the karma of the next life complete']],
-    b: ['A woman walks, great with child. Grasping has done its work: the karma for the next existence is complete and waiting to be born, as a child is complete in the womb before anyone has seen it. <i>Srid pa</i>, becoming, is also the word in the wheel\'s own name.'],
+    f: [['Picture', 'a figure lying on its side under a grey canopy, a golden vase holding a lotus beneath — where most wheels paint a pregnant woman'], ['In the three lives', 'the last cause: the karma of the next life complete']],
+    b: ['Under a grey canopy a figure lies on its side, and beneath it stands a golden vase holding a lotus. Wheels commonly paint becoming as a pregnant woman, sometimes as a couple in union: grasping has done its work, and the karma for the next existence is complete and waiting to be born, as a child is complete in the womb before anyone has seen it. <i>Srid pa</i>, becoming, is also the word in the wheel\'s own name.'],
     rel: ['wl_nidana_grasping', 'wl_nidana_birth', 'wl_wheel'], src: KOSA + '. ' + RELIEF + '.'
   },
   wl_nidana_birth: {
     t: '11 · Birth', tib: 'སྐྱེ་བ།', en: '<i>skye ba</i> · jāti', k: 'childbirth',
     meta: 'The twelve links · the eleventh',
-    f: [['Picture', 'a woman giving birth, held from behind'], ['Where', 'below Yama\'s hand on the left']],
-    b: ['A woman gives birth, squatting, held by a helper behind her. The next life begins — and with it, already, everything the last link names. The Buddha\'s first noble truth begins here too: birth is suffering.'],
+    f: [['Picture', 'a woman lying in childbirth on a bed under a pink canopy, a helper beside her'], ['Where', 'below Yama\'s hand on the left']],
+    b: ['A woman lies in childbirth on a bed under a pink canopy, a helper beside her. The next life begins — and with it, already, everything the last link names. The Buddha\'s first noble truth begins here too: birth is suffering.'],
     rel: ['wl_nidana_becoming', 'wl_nidana_death'], src: KOSA + '. ' + RELIEF + '.'
   },
   wl_nidana_death: {
     t: '12 · Aging and Death', tib: 'རྒ་ཤི།', en: '<i>rga shi</i> · jarāmaraṇa', k: 'a corpse',
     meta: 'The twelve links · the twelfth',
-    f: [['Picture', 'a man carrying a wrapped corpse on his back toward a stūpa'], ['Where', 'just left of Yama\'s fangs']],
-    b: ['A man carries a body wrapped in white on his back, toward a stūpa, with a dog following. Whatever is born ages and dies. The panel sits right against the first, under the fangs: death hands the blind man his stick, and the wheel turns again.'],
+    f: [['Picture', 'a man carrying a wrapped corpse on his back toward a white stūpa, animals beside it'], ['Where', 'just left of Yama\'s fangs']],
+    b: ['A man carries a body wrapped in white on his back, toward a white stūpa where animals wait. Whatever is born ages and dies. The panel sits right against the first, under the fangs: death hands the blind man his stick, and the wheel turns again.'],
     rel: ['wl_nidana_birth', 'wl_nidana_ignorance', 'wl_yama'], src: KOSA + '. ' + RELIEF + '.'
   },
 
@@ -728,7 +740,7 @@ export const WHEEL_ENTRIES = {
   wl_yama_crown: {
     t: 'The crown of five skulls', tib: 'ཐོད་སྐམ་ལྔ་པའི་དབུ་རྒྱན།', en: '<i>thod skam lnga pa\'i dbu rgyan</i>', k: 'five skulls',
     meta: 'Yama',
-    f: [['Drawn as', 'five dry skulls on gold settings, over a band hung with festoons of bone beads'],
+    f: [['Drawn as', 'five dry skulls on gold settings with blue jewels between them, over a brow hung with festoons of beads'],
         ['Commonly read as', 'the five poisons, or the five aggregates, that death rules over']],
     b: ['Five white skulls crown the Lord of Death, each on its gold setting between gold flames, with festoons of bone beads hanging across his brow. Wrathful figures wear the five-skull crown throughout Tibetan art; on Yama it is read as the five poisons, or the five aggregates of which a person is made — all that death has dominion over.'],
     rel: ['wl_yama', 'wl_yama_head', 'wl_yama_bones'], src: RELIEF + '.'
@@ -743,9 +755,9 @@ export const WHEEL_ENTRIES = {
   wl_yama_hands: {
     t: 'The hands of death', en: 'the grip on the wheel', k: 'claws',
     meta: 'Yama',
-    f: [['Drawn as', 'dark hands at the upper sides of the wheel, the forefinger raised, the other fingers hooked over the rim with long white claws'],
+    f: [['Drawn as', 'dark red hands at the upper sides of the wheel, the forefinger and little finger raised, the middle fingers hooked over the rim with long white claws'],
         ['At the wrists', 'gold cuffs']],
-    b: ['The hands grip the wheel from both sides, claws curled over the gold. They do not turn it; they hold it. However the wheel turns, it turns in these hands.'],
+    b: ['The hands grip the wheel from both sides, the middle fingers curled over the gold with their claws, the forefinger and little finger raised — the threatening gesture the wrathful figures make. They do not turn the wheel; they hold it. However it turns, it turns in these hands.'],
     rel: ['wl_yama', 'wl_yama_feet'], src: RELIEF + '.'
   },
   wl_yama_feet: {
@@ -780,8 +792,8 @@ export const WHEEL_ENTRIES = {
   wl_offering_bowl: {
     t: 'The offering beneath the wheel', tib: 'མཆོད་པ།', en: '<i>mchod pa</i>', k: 'a jewel',
     meta: 'Below Yama\'s feet',
-    f: [['Drawn as', 'a gold footed bowl holding a flaming jewel on a heap of red, a conch shell on the left and fruit on the right']],
-    b: ['Below the wheel, between the coils of the scarves, a gold bowl on a foot holds an offering: a white jewel in a setting of gold flame on a heap of red, a white conch shell beside it and fruit on the other side. It is the offering the relief itself makes, set where a painted scroll would carry its inscription.'],
+    f: [['Drawn as', 'a gold footed bowl holding a white jewel in a setting of gold flame on a heap of red, a white offering on the left and fruit on the right, between pink and maroon scrolls']],
+    b: ['Below the wheel, between the coils of the scarves, a gold bowl on a foot holds an offering: a white jewel in a setting of gold flame on a heap of red, something white beside it and fruit on the other side, with pink and maroon scrolls either side of the bowl. It is the offering the relief itself makes, set where a painted scroll would carry its inscription.'],
     rel: ['wl_yama_feet', 'wl_verse'], src: RELIEF + '.'
   },
 
@@ -798,9 +810,9 @@ export const WHEEL_ENTRIES = {
   wl_beyond_pureland: {
     t: 'The realm beyond the wheel', tib: 'ཐར་པ།', en: '<i>thar pa</i> · liberation', k: 'upper left',
     meta: 'Outside the wheel',
-    f: [['Drawn as', 'a gilt-roofed palace on banks of cloud, a buddha seated at the door with attendants on either side'],
-        ['Reached by', 'the rainbow road climbing from the rim']],
-    b: ['In the upper left corner, on clouds of every colour, stands a palace with a buddha seated in its doorway: what is outside the wheel, painted as a place, since a picture has to paint it as something. It is what the Buddha in the other corner is pointing at, and what the people on the rainbow road below it are climbing toward.'],
+    f: [['Drawn as', 'a gilt-roofed palace on banks of cloud; a red buddha with a green halo seated in the doorway, a white figure in the side door at the viewer\'s left and a dark one at the right'],
+        ['Reached by', 'the rainbow road climbing from beside the rim']],
+    b: ['In the upper left corner, on clouds of every colour, stands a palace with a red buddha seated in its doorway, a white figure in the side door at his right hand and a dark one at his left. It is the arrangement in which Tibetan painters show Amitābha in his realm of Sukhāvatī, with Avalokiteśvara and Vajrapāṇi beside him; the relief does not name them. It is what is outside the wheel, painted as a place, since a picture has to paint it as something. It is what the Buddha in the other corner is pointing at, and what the people on the rainbow road below it are climbing toward.'],
     rel: ['wl_beyond_path', 'wl_beyond_buddha'], src: RELIEF + '.'
   },
   wl_beyond_path: {
@@ -848,7 +860,7 @@ export const WHEEL_TREE = ['The wheel of life', [
   ['—', 'Among humans and animals'], ['wl_human_stupa'], ['wl_human_teaching'], ['wl_human_village'],
   ['wl_human_nomads'], ['wl_human_plough'], ['wl_animals_land'], ['wl_animals_sea'],
   ['—', 'Among the pretas'], ['wl_preta_palace'], ['wl_preta_fire'], ['wl_preta_beaten'], ['wl_preta_river'],
-  ['—', 'The court of Yama'], ['wl_hell_judge'], ['wl_hell_pebbles'], ['wl_hell_court'], ['wl_hell_torments'], ['wl_hell_cauldron'],
+  ['—', 'The court of Yama'], ['wl_hell_judge'], ['wl_hell_pebbles'], ['wl_hell_court'], ['wl_hell_torments'], ['wl_hell_cauldron'], ['wl_hell_stupa'],
   ['—', 'The eight hot hells'], ['wl_hell_sanjiva'], ['wl_hell_kalasutra'], ['wl_hell_samghata'], ['wl_hell_raurava'],
   ['wl_hell_maharaurava'], ['wl_hell_tapana'], ['wl_hell_pratapana'], ['wl_hell_avichi'],
   ['—', 'The eight cold hells'], ['wl_cold_arbuda'], ['wl_cold_nirarbuda'], ['wl_cold_atata'], ['wl_cold_hahava'],

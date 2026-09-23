@@ -1292,18 +1292,23 @@
   .wheel-stage:active { cursor: grabbing; }
   body.night .wheel-stage { background: #10213a; }
   /* at night the wall goes dark and the relief keeps its colour, as under a lamp */
-  body.night .wl-wall { filter: brightness(.45) saturate(.8); }
+  body.night .wl-wall, body.night .wl-beyond { filter: brightness(.45) saturate(.8); }
   body.wheel-on three-d-stage, body.wheel-on .compass, body.wheel-on .underwater { visibility: hidden; }
   .wl-defs { position: absolute; width: 0; height: 0; overflow: hidden; }
   .wl-tilt { position: absolute; inset: 0; transform-style: preserve-3d; }
   .wl-layer { position: absolute; left: 0; top: 0; overflow: visible; pointer-events: none; backface-visibility: hidden; }
-  .wl-layer * { pointer-events: visiblePainted; }
+  .wl-layer image { pointer-events: none; }
   /* each layer throws a shadow on the one behind it, as a relief does on
-     its wall; how far is set with the zoom, from wheel-view.js */
-  .wheel-stage [data-wl] { cursor: pointer; }
-  .wheel-stage [data-wl]:focus { outline: none; }
-  .wheel-stage .wl-hover { filter: url(#wl-hover); }
-  .wheel-stage .wl-sel, .wheel-stage [data-wl]:focus-visible { filter: url(#wl-glow); }
+     its wall; how far is set with the zoom, from wheel-view.js. The parts
+     are outlines over the relief, seen only under the pointer or when picked. */
+  .wl-part {
+    fill: transparent; stroke: transparent; stroke-width: 2px; stroke-linejoin: round;
+    vector-effect: non-scaling-stroke; pointer-events: all; cursor: pointer;
+  }
+  .wl-part:focus { outline: none; }
+  .wl-part.wl-hover { stroke: rgba(255, 250, 232, .95); stroke-width: 1.5px; fill: rgba(255, 250, 232, .12); }
+  .wl-part.wl-sel, .wl-part:focus-visible { stroke: #ffd86b; stroke-width: 2.5px; fill: rgba(255, 216, 107, .06); }
+  .wl-veil { fill: rgba(12, 8, 6, .5); pointer-events: none; }
   .wl-tip {
     position: absolute; z-index: 5; margin: 0; padding: 5px 10px 6px;
     background: var(--menu); color: var(--ink); border: 1px solid var(--rule-2);

@@ -1249,7 +1249,7 @@ assert.equal(app.state().mode, 'wheel');
 assert.ok(document.body.classList.contains('wheel-on'), 'the page knows the wheel is up');
 assert.equal(q('.wheel-stage').hidden, false);
 assert.equal(q('.board-view').hidden, true, 'and nothing of the game stands over it');
-assert.equal(document.querySelectorAll('.wheel-stage .wl-layer').length, 7, 'seven layers of relief, wall to fangs');
+assert.equal(document.querySelectorAll('.wheel-stage .wl-layer').length, 7, 'six layers of relief, wall to fangs, and the veil');
 assert.equal(modeFace.querySelector('.t').textContent, 'Wheel', 'the view menu names the view');
 assert.equal(q('[data-mode="wheel"]').getAttribute('aria-pressed'), 'true');
 const wheelParts = [...new Set([...document.querySelectorAll('.wheel-stage [data-wl]')].map(el => el.getAttribute('data-wl')))];
@@ -1268,10 +1268,10 @@ assert.equal(wheelIndex.length, Object.keys(wheelNotes.WHEEL_ENTRIES).length, 'e
 const tapOn = (el) => {
   for (const type of ['pointerdown', 'pointerup']) el.dispatchEvent(new window.MouseEvent(type, {bubbles: true, clientX: 10, clientY: 10, button: 0}));
 };
-tapOn(q('.wheel-stage .wl-relief [data-wl="wl_hub_pig"] path'));
+tapOn(q('.wheel-stage .wl-wheel [data-wl="wl_hub_pig"]'));
 assert.equal(app.state().current, 'wl_hub_pig', 'the innermost part is the one tapped');
 assert.equal(q('.sheet').hidden, false); assert.equal(app.state().mode, 'wheel');
-assert.ok(q('.wheel-stage .wl-relief [data-wl="wl_hub_pig"]').classList.contains('wl-sel'), 'and it is marked');
+assert.ok(q('.wheel-stage .wl-wheel [data-wl="wl_hub_pig"]').classList.contains('wl-sel'), 'and it is marked');
 assert.equal(q('.wheel-stage [data-wl="wl_hub"]').classList.contains('wl-sel'), false, 'but not the hub around it');
 assert.equal(q('.sheet .zoom').textContent, 'Zoom in');
 // the hells of the model, opened from the index while the wheel is up, are framed on the wheel

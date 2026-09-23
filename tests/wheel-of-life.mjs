@@ -1,9 +1,11 @@
 // Run with Node and jsdom@26 installed for development.
-// The wheel of life on its own: the drawing, its entries and the view that
-// moves it, without the rest of the page. What the relief looks like on a
-// screen is not something this can say; what it can say is that every part it
-// draws is where the relief puts it, answers to an entry, and is reachable.
+// The wheel of life on its own: the relief's layers, its parts and entries, and
+// the view that moves it, without the rest of the page. What the relief looks
+// like on a screen is not something this can say; what it can say is that every
+// part is where the measured wheel puts it, answers to an entry, and is reachable,
+// and that every picture the layers name is here to be served.
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { JSDOM } from 'jsdom';
 
@@ -11,18 +13,35 @@ const repo = process.env.WORLDSYSTEM_REPO || fileURLToPath(new URL('../', import
 const art = await import(pathToFileURL(repo + '/wheel-art.js'));
 const notes = await import(pathToFileURL(repo + '/wheel-notes.js'));
 const viewMod = await import(pathToFileURL(repo + '/wheel-view.js'));
-const { drawWheel, REALMS, NIDANAS, nidanaSpan, HOT_CELLS, COLD_CELLS, R, C, ART_W, ART_H } = art;
+const { drawWheel, REALMS, NIDANAS, nidanaSpan, HOT_HELLS, COLD_HELLS, R, C, ART_W, ART_H } = art;
+const { RELIEF } = await import(pathToFileURL(repo + '/wheel-relief.js'));
 const { WHEEL_ENTRIES, WHEEL_TREE, WHEEL_ALSO } = notes;
 const ok = (msg) => console.log('  ok  ' + msg);
 
 // ── the drawing ─────────────────────────────────────────────────────────────
 const w = drawWheel();
-assert.deepEqual(w.layers.map((l) => l.name), ['wall', 'beyond', 'body', 'face', 'relief', 'frame', 'front'],
-  'wall to fangs, back to front');
+assert.deepEqual(w.layers.map((l) => l.name), ['wall', 'beyond', 'body', 'wheel', 'frame', 'front', 'shade'],
+  'wall to fangs, back to front, and the veil over them');
 assert.ok(w.layers.every((l, i) => i === 0 || l.depth > w.layers[i - 1].depth), 'each layer stands further off the wall');
 const again = drawWheel();
 assert.deepEqual(again.layers.map((l) => l.svg), w.layers.map((l) => l.svg), 'the same drawing every time');
 ok('seven layers, each further from the wall, drawn the same way twice');
+
+// the pictures: every one the layers name is in the tree, and the whole is not heavy
+let bytes = 0;
+for (const l of RELIEF.layers) for (const im of l.images) {
+  const file = repo + '/' + im.href;
+  assert.ok(fs.existsSync(file), im.href + ' is served');
+  bytes += fs.statSync(file).size;
+  const far = im.href.endsWith('wall-far.webp');     // the wall carried on past the photograph
+  assert.ok(im.w > 0 && im.h > 0 && (far ? im.x < -1000 && im.y < -1000 && im.x + im.w > ART_W + 1000 && im.y + im.h > ART_H + 1000
+    : im.x >= 0 && im.y >= 0 && im.x + im.w <= ART_W && im.y + im.h <= ART_H), im.href + ' lies on the wall');
+  assert.ok(w.layers.find((x) => x.name === l.name).svg.includes('href="' + im.href + '"'), im.href + ' is drawn in ' + l.name);
+}
+assert.ok(bytes < 4 * 1024 * 1024, 'the relief in all its layers is under 4 MB, not ' + (bytes >> 10) + ' KB');
+assert.equal(RELIEF.rings.length, 4, 'four rims measured');
+assert.ok(RELIEF.rings.every((r, i) => i === 0 || r > RELIEF.rings[i - 1]), 'from the hub outward');
+ok('every picture is served, lies on the wall and is drawn in its layer; ' + (bytes >> 10) + ' KB in all');
 
 // every layer is well-formed SVG
 const { window } = new JSDOM('');
@@ -39,13 +58,14 @@ ok('every layer parses as SVG, with no NaN or undefined in it');
 assert.equal(REALMS.length, 6);
 REALMS.forEach((r, i) => {
   const next = REALMS[(i + 1) % 6];
-  assert.equal(((next.a0 - r.a1) % 360 + 360) % 360, 0, r.id + ' meets ' + next.id + ' at a spoke');
+  const gap = ((next.a0 - r.a1) % 360 + 360) % 360;
+  assert.ok(Math.min(gap, 360 - gap) < 1e-9, r.id + ' meets ' + next.id + ' at a spoke');
 });
-assert.equal(REALMS.reduce((sum, r) => sum + r.a1 - r.a0, 0), 360, 'the six fill the wheel');
+assert.ok(Math.abs(REALMS.reduce((sum, r) => sum + r.a1 - r.a0, 0) - 360) < 1e-9, 'the six fill the wheel');
 const span = Object.fromEntries(REALMS.map((r) => [r.id, [r.a0, r.a1]]));
 const mid = (id) => (span[id][0] + span[id][1]) / 2;
 assert.ok(Math.abs(mid('wl_realm_gods') + 90) < 5, 'the gods at the top');
-assert.ok(Math.abs(mid('wl_realm_hells') - 93) < 5, 'the hells at the bottom');
+assert.ok(Math.abs(mid('wl_realm_hells') - 90) < 5, 'the hells at the bottom');
 assert.ok(mid('wl_realm_asuras') > 180 && mid('wl_realm_asuras') < 270, 'the asuras upper left, as the relief has them');
 assert.ok(mid('wl_realm_humans') > -90 && mid('wl_realm_humans') < 0, 'the humans upper right');
 assert.ok(mid('wl_realm_animals') > 90 && mid('wl_realm_animals') < 180, 'the animals lower left');
@@ -55,24 +75,39 @@ assert.equal(Math.max(...widths), span.wl_realm_hells[1] - span.wl_realm_hells[0
 ok('six realms fill the wheel where the relief puts them, the hells the widest');
 
 assert.equal(NIDANAS.length, 12);
-assert.deepEqual(nidanaSpan(0), [-90, -60], 'ignorance just right of the fangs');
-assert.deepEqual(nidanaSpan(11), [240, 270], 'aging and death just left of them');
+assert.ok(Math.abs(nidanaSpan(0)[0] + 90) < 1.5, 'ignorance just right of the fangs');
+assert.ok(Math.abs(nidanaSpan(11)[1] - 270) < 1.5, 'aging and death just left of them');
+assert.ok(Math.abs(nidanaSpan(11)[1] - 360 - nidanaSpan(0)[0]) < 1e-9, 'and the rim closes');
 NIDANAS.forEach((id, i) => {
-  assert.equal(nidanaSpan(i)[1] - nidanaSpan(i)[0], 30, id + ' is a twelfth of the rim');
+  const width = nidanaSpan(i)[1] - nidanaSpan(i)[0];
+  assert.ok(width > 25 && width < 35, id + ' is about a twelfth of the rim, as the relief divides it: ' + width.toFixed(1) + '°');
+  if (i) assert.equal(nidanaSpan(i)[0], nidanaSpan(i - 1)[1], id + ' begins where the last ends');
   assert.ok(WHEEL_ENTRIES[id].t.startsWith((i + 1) + ' · '), id + ' is numbered ' + (i + 1));
 });
 // the user's reading of the rim, panel by panel, clockwise
 const pictured = ['blind', 'potter', 'monkey', 'boat', 'house', 'embrace', 'arrow', 'drink', 'fruit', 'pregnant', 'birth', 'corpse'];
 NIDANAS.forEach((id, i) => assert.match(JSON.stringify(WHEEL_ENTRIES[id].f), new RegExp(pictured[i]), id + ' pictures a ' + pictured[i]));
 // contact and feeling either side of the foot of the wheel
-assert.ok(nidanaSpan(5)[1] === 90 && nidanaSpan(6)[0] === 90, 'contact right of the foot, feeling left of it');
+assert.ok(Math.abs(nidanaSpan(5)[1] - 90) < 1.5 && nidanaSpan(6)[0] === nidanaSpan(5)[1], 'contact right of the foot, feeling left of it');
 ok('twelve links, clockwise from the blind man, each with its picture');
 
-const inSector = ([, a0, a1, r0, r1], s) => a0 >= s[0] && a1 <= s[1] && r0 >= R.karmaRim && r1 <= R.realm;
-assert.equal(HOT_CELLS.length, 8); assert.equal(COLD_CELLS.length, 8);
-HOT_CELLS.forEach((c) => assert.ok(inSector(c, span.wl_realm_hells) && c[1] >= 90, c[0] + ' in the hells, on the left'));
-COLD_CELLS.forEach((c) => assert.ok(inSector(c, span.wl_realm_hells) && c[2] <= 90, c[0] + ' in the hells, on the right'));
-ok('eight hot hells on the left of the realm, eight cold on the right');
+assert.equal(HOT_HELLS.length, 8); assert.equal(COLD_HELLS.length, 8);
+const angleOf = (x, y) => Math.atan2(y - C.y, x - C.x) * 180 / Math.PI;
+const rows = (ids, spoke) => ids.map((id) => {
+  const [x, y, bw, bh] = w.boxes.get(id), cx = x + bw / 2, cy = y + bh / 2;
+  const t = spoke * Math.PI / 180;
+  return { id, cx, cy, off: Math.abs((cx - C.x) * -Math.sin(t) + (cy - C.y) * Math.cos(t)) };
+});
+for (const [ids, spoke, side] of [[HOT_HELLS, span.wl_realm_hells[1], -1], [COLD_HELLS, span.wl_realm_hells[0], 1]]) {
+  const r = rows(ids, spoke);
+  r.forEach((row) => {
+    const a = angleOf(row.cx, row.cy);
+    assert.ok(a > span.wl_realm_hells[0] && a < span.wl_realm_hells[1], row.id + ' is in the hells');
+    assert.ok(Math.sign(row.cx - C.x) === side, row.id + (side < 0 ? ' is on the left' : ' is on the right'));
+  });
+  r.forEach((row, k) => { if (k) assert.ok(row.off > r[k - 1].off, row.id + ' lies further from its spoke than the row before'); });
+}
+ok('eight hot hells in rows on the left of the realm, eight cold on the right, each further from its spoke');
 
 // ── parts and entries ───────────────────────────────────────────────────────
 const parts = [...w.boxes.keys()];
@@ -98,8 +133,9 @@ for (const [id, e] of Object.entries(WHEEL_ENTRIES)) {
 }
 for (const [from, to] of Object.entries(WHEEL_ALSO)) assert.ok(w.boxes.has(to), from + ' is framed on ' + to);
 const index = Object.keys(WHEEL_ENTRIES).filter((id) => !w.boxes.has(id));
-assert.deepEqual(index.sort(), ['wl_munis', 'wl_nidanas', 'wl_verse'], 'only three entries stand in the index alone');
-ok('88 parts on the wall, every one an entry; the index holds them all and three more');
+assert.deepEqual(index.sort(), ['wl_hell_ephemeral', 'wl_munis', 'wl_nidanas', 'wl_verse'], 'only four entries stand in the index alone');
+for (const [id] of w.shapes) assert.ok(w.where.has(id) && w.layers.find((l) => l.name === w.where.get(id)).svg.includes('data-wl="' + id + '"'), id + ' is outlined in its layer');
+ok('88 parts on the wall, every one an entry and an outline; the index holds them all and four more');
 
 // ── the view ────────────────────────────────────────────────────────────────
 const dom = new JSDOM('<!doctype html><section class="wheel-stage"></section>', { pretendToBeVisual: true });
@@ -113,6 +149,7 @@ assert.equal(view.has('wl_hub_pig'), true, 'it can say what is on the wall');
 assert.equal(host.querySelectorAll('.wl-layer').length, 0, 'without building it');
 view.build();
 assert.equal(host.querySelectorAll('.wl-layer').length, 7);
+assert.equal(host.querySelectorAll('.wl-layer image').length, RELIEF.layers.reduce((n, l) => n + l.images.length, 0), 'every picture is set up');
 assert.equal(drawnTimes, 1, 'the drawing is made once');
 view.home(0);
 const home = view.state().view;
@@ -141,13 +178,18 @@ const marked = [...host.querySelectorAll('.wl-sel')].map((el) => el.getAttribute
 assert.ok(marked.length >= 1 && marked.every((id) => id === 'wl_realm_hells'));
 view.select('wl_hell_judge');
 assert.deepEqual([...new Set([...host.querySelectorAll('.wl-sel')].map((el) => el.getAttribute('data-wl')))], ['wl_hell_judge']);
+const veil = host.querySelector('.wl-veil').getAttribute('d');
+assert.ok(veil.endsWith(w.shapes.get('wl_hell_judge')), 'everything else is veiled, with the judge cut out of the veil');
+const veilBox = /^M(-?\d+) (-?\d+)H(-?\d+)V(-?\d+)/.exec(veil).slice(1).map(Number);
+assert.ok(veilBox.every((v) => Math.abs(v) < 4000), 'and the veil is no larger than the screen and a margin, which the browser will composite');
 view.select(null);
 assert.equal(host.querySelectorAll('.wl-sel').length, 0);
+assert.equal(host.querySelector('.wl-veil').getAttribute('d'), '', 'and nothing is veiled when nothing is picked');
 // a tap names the innermost part; a drag is not a tap
 const picked = [];
 view.on('pick', (id) => picked.push(id));
 const at = (el, type, x, y, extra = {}) => el.dispatchEvent(new dom.window.MouseEvent(type, { bubbles: true, clientX: x, clientY: y, button: 0, ...extra }));
-const snake = host.querySelector('.wl-relief [data-wl="wl_hub_snake"] path');
+const snake = host.querySelector('.wl-wheel [data-wl="wl_hub_snake"]');
 at(snake, 'pointerdown', 100, 100); at(snake, 'pointerup', 100, 100);
 assert.deepEqual(picked, ['wl_hub_snake'], 'the snake, not the hub it is in');
 const wall = host.querySelector('.wl-wall rect');
@@ -177,4 +219,4 @@ host.querySelector('[data-wl="wl_nidana_birth"][tabindex="0"]').dispatchEvent(ne
 assert.equal(picked.at(-1), 'wl_nidana_birth', 'Enter picks the part in focus');
 ok('the view: fitted home, focus, a bounded turn, taps, drags, zoom about the pointer, and the keyboard');
 
-console.log('\nwheel-of-life: 88 parts, 12 links, 6 realms, 16 hells in their cells, and a wall that turns but not round.');
+console.log('\nwheel-of-life: the relief in six layers, 88 parts, 12 links, 6 realms, 16 hells in their rows, and a wall that turns but not round.');
