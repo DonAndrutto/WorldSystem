@@ -25,7 +25,7 @@
    current shelf or the runtime one, so old versions do not accumulate. */
 
 /* ── written by scripts/build-sw.cjs — do not edit below ─────────────── */
-const VERSION = 'bac4ebf93596b219';
+const VERSION = '0739ca3e5cc4bb71';
 const SHELL = [
   "apple-touch-icon.png",
   "assets/fonts/eb-garamond-400-italic-latin-ext.woff2",
@@ -74,6 +74,9 @@ const SHELL = [
   "vendor/three@0.184.0/build/three.module.js",
   "vendor/three@0.184.0/examples/jsm/controls/OrbitControls.js",
   "viewport-gestures.js",
+  "wheel-art.js",
+  "wheel-notes.js",
+  "wheel-view.js",
   "world-surfaces.js"
 ];
 /* ── end of the written part ─────────────────────────────────────────── */
