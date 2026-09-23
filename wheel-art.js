@@ -6,8 +6,8 @@
    cuts the relief into the layers it is built in. This module sets those
    layers back up, one SVG each, back to front:
 
-     wall     the blue ground: the photograph's own wall with the relief taken
-              off it, on a colour that runs on past the photograph's edges
+     wall     the blue ground: the wall beside the relief, filled in under it
+              and carried on past the photograph's edges in the fall of its light
      beyond   what is painted on the wall outside Yama's reach
      body     Yama behind the wheel: arms, knees, scarves, bone ornaments,
               tiger skin, and the offering bowl beneath him
@@ -108,18 +108,38 @@ const LAYERS = [
 ];
 const image = (im) => `<image href="${im.href}" x="${im.x}" y="${im.y}" width="${im.w}" height="${im.h}" preserveAspectRatio="none"/>`;
 
-/* The wall runs on well past the photograph in every direction (its far
-   image is the photograph's own wall, carried outward and softened), and past
-   that in the one colour its edge settles to, so that no edge of it is seen. */
+/* The wall runs on past the photograph in every direction. Its picture is the
+   blue beside the relief, filled in under it and carried out past the
+   photograph's edges until it settles to the fall of the light: one colour for
+   each height, dark at the head of the wall where the light does not reach.
+   Past the picture that fall runs on as a gradient, as far as the view can
+   ever show, so that no edge of the wall is seen at any zoom or turn. The
+   rectangle is only as large as the view's window lets it be drawn. */
+const FALL = RELIEF.fall;
 function wall() {
-  return `<rect x="-9000" y="-9000" width="${ART_W + 18000}" height="${ART_H + 18000}" fill="${RELIEF.wall}"/>`;
+  const y0 = FALL[0][0], y1 = FALL.at(-1)[0];
+  const stops = FALL.map(([y, c]) => `<stop offset="${((y - y0) / (y1 - y0)).toFixed(4)}" stop-color="${c}"/>`).join('');
+  return `<defs><linearGradient id="wl-fall" gradientUnits="userSpaceOnUse" x1="0" y1="${y0}" x2="0" y2="${y1}">${stops}</linearGradient></defs>`
+    + `<rect class="wl-ground" x="-9000" y="-9000" width="${ART_W + 18000}" height="${ART_H + 18000}" fill="url(#wl-fall)"/>`;
+}
+/* The colour of the wall at a height, past its picture: what the view shows
+   behind the layers, where a gesture has carried them past what is drawn. */
+export function wallAt(y) {
+  let i = 1;
+  while (i < FALL.length - 1 && FALL[i][0] < y) i++;
+  const [ya, ca] = FALL[i - 1], [yb, cb] = FALL[i];
+  const t = Math.min(1, Math.max(0, (y - ya) / ((yb - ya) || 1)));
+  const rgb = (c) => [1, 3, 5].map((k) => parseInt(c.slice(k, k + 2), 16));
+  const a = rgb(ca), b = rgb(cb);
+  return 'rgb(' + a.map((v, k) => Math.round(v + (b[k] - v) * t)).join(', ') + ')';
 }
 const defs = () => '';
 
 /* The whole relief, as the layers the view stacks. Each layer's `depth` is in
    drawing units, and says how far that layer stands off the wall; `shapes`
    holds each part's outline, for the veil the view draws round a picked part,
-   and `where` the layer each part stands in. */
+   `where` the layer each part stands in, and `ground` the wall's colour at a
+   height, for what is behind the layers. */
 export function drawWheel() {
   const boxes = new Map(), shapes = new Map(), where = new Map();
   const partsIn = new Map(LAYERS.map((l) => [l.name, '']));
@@ -139,5 +159,5 @@ export function drawWheel() {
     if (parts) svg += `<g class="wl-parts">${parts}</g>`;
     return { name: l.name, depth: l.depth, svg };
   });
-  return { width: ART_W, height: ART_H, defs: defs(), layers, boxes, shapes, where };
+  return { width: ART_W, height: ART_H, defs: defs(), layers, boxes, shapes, where, ground: wallAt };
 }

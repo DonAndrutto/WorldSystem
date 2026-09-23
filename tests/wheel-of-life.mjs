@@ -13,7 +13,8 @@ const repo = process.env.WORLDSYSTEM_REPO || fileURLToPath(new URL('../', import
 const art = await import(pathToFileURL(repo + '/wheel-art.js'));
 const notes = await import(pathToFileURL(repo + '/wheel-notes.js'));
 const viewMod = await import(pathToFileURL(repo + '/wheel-view.js'));
-const { drawWheel, REALMS, NIDANAS, nidanaSpan, HOT_HELLS, COLD_HELLS, R, C, ART_W, ART_H } = art;
+const { drawWheel, wallAt, REALMS, NIDANAS, nidanaSpan, HOT_HELLS, COLD_HELLS, R, C, ART_W, ART_H } = art;
+const { PARTS } = await import(pathToFileURL(repo + '/wheel-parts.js'));
 const { RELIEF } = await import(pathToFileURL(repo + '/wheel-relief.js'));
 const { WHEEL_ENTRIES, WHEEL_TREE, WHEEL_ALSO } = notes;
 const ok = (msg) => console.log('  ok  ' + msg);
@@ -33,8 +34,8 @@ for (const l of RELIEF.layers) for (const im of l.images) {
   const file = repo + '/' + im.href;
   assert.ok(fs.existsSync(file), im.href + ' is served');
   bytes += fs.statSync(file).size;
-  const far = im.href.endsWith('wall-far.webp');     // the wall carried on past the photograph
-  assert.ok(im.w > 0 && im.h > 0 && (far ? im.x < -1000 && im.y < -1000 && im.x + im.w > ART_W + 1000 && im.y + im.h > ART_H + 1000
+  const far = im.href.endsWith('/wall.webp');        // the wall carried on past the photograph
+  assert.ok(im.w > 0 && im.h > 0 && (far ? im.x <= -400 && im.y <= -400 && im.x + im.w >= ART_W + 400 && im.y + im.h >= ART_H + 400
     : im.x >= 0 && im.y >= 0 && im.x + im.w <= ART_W && im.y + im.h <= ART_H), im.href + ' lies on the wall');
   assert.ok(w.layers.find((x) => x.name === l.name).svg.includes('href="' + im.href + '"'), im.href + ' is drawn in ' + l.name);
 }
@@ -42,6 +43,44 @@ assert.ok(bytes < 4 * 1024 * 1024, 'the relief in all its layers is under 4 MB, 
 assert.equal(RELIEF.rings.length, 4, 'four rims measured');
 assert.ok(RELIEF.rings.every((r, i) => i === 0 || r > RELIEF.rings[i - 1]), 'from the hub outward');
 ok('every picture is served, lies on the wall and is drawn in its layer; ' + (bytes >> 10) + ' KB in all');
+
+// the wall past its picture: the fall of the light, a gradient from above the
+// picture to below it, which the picture itself settles to at its edges
+const fall = RELIEF.fall, wallPic = RELIEF.layers[0].images[0];
+assert.ok(fall.every(([y, c], i) => /^#[0-9a-f]{6}$/.test(c) && (i === 0 || y > fall[i - 1][0])), 'the fall runs down the wall, a colour at each height');
+assert.equal(fall[0][0], wallPic.y, 'from the top of the wall\'s picture');
+assert.ok(Math.abs(fall.at(-1)[0] - (wallPic.y + wallPic.h)) <= 4, 'to its foot');
+assert.match(w.layers[0].svg, /<linearGradient id="wl-fall"[^>]*gradientUnits="userSpaceOnUse"/, 'and is drawn as a gradient in wall units');
+assert.match(w.layers[0].svg, /<rect class="wl-ground"[^>]*fill="url\(#wl-fall\)"/, 'under the picture');
+const hex = (c) => [1, 3, 5].map((k) => parseInt(c.slice(k, k + 2), 16));
+const rgbOf = (c) => c.match(/\d+/g).map(Number);
+assert.deepEqual(rgbOf(wallAt(-5000)), hex(fall[0][1]), 'above it, the colour at its head');
+assert.deepEqual(rgbOf(wallAt(9000)), hex(fall.at(-1)[1]), 'below it, the colour at its foot');
+assert.ok(rgbOf(wallAt(C.y)).every((v, k) => Math.abs(v - hex(RELIEF.wall)[k]) <= 6), 'and beside the wheel, the blue beside the wheel');
+assert.ok(hex(fall[0][1]).reduce((a, b) => a + b) < hex(RELIEF.wall).reduce((a, b) => a + b), 'the head of the wall is darker than the blue beside the wheel');
+ok('the wall runs on past its picture in the fall of its light, ' + fall.length + ' stops');
+
+// nothing tapped on the wheel goes through it to Yama behind: every point of
+// the disc, rims included, is some part of the wheel or of its gold
+const D = Math.PI / 180;
+const inShape = (sh, r, a) => {
+  if (sh[0] === 'disc') return r <= sh[1];
+  if (sh[0] === 'ring') return r >= sh[1] && r <= sh[2];
+  if (sh[0] === 'sector') {
+    const [, r0, r1, a0, a1] = sh;
+    const t = ((a - a0) % 360 + 360) % 360;
+    return r >= r0 && r <= r1 && t <= a1 - a0;
+  }
+  return false;
+};
+const onWheel = PARTS.filter((p) => p.layer === 'wheel' || p.layer === 'frame');
+let holes = 0;
+for (let a = 0.25; a < 360; a += 1.5) for (let r = 0; r <= R.rim - 0.5; r += 0.5) {
+  if (!onWheel.some((p) => p.shapes.some((sh) => inShape(sh, r, a)))) holes++;
+}
+assert.equal(holes, 0, 'no point of the wheel falls through to what is behind it');
+assert.deepEqual(PARTS.find((p) => p.id === 'wl_wheel').shapes.map((sh) => sh[0]), ['ring', 'ring', 'ring', 'ring'], 'the four gold rims answer as the wheel');
+ok('every point of the wheel, its gold rims too, answers as a part of it');
 
 // every layer is well-formed SVG
 const { window } = new JSDOM('');
@@ -218,5 +257,71 @@ assert.equal(stops.length, 88); assert.equal(new Set(stops).size, 88);
 host.querySelector('[data-wl="wl_nidana_birth"][tabindex="0"]').dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
 assert.equal(picked.at(-1), 'wl_nidana_birth', 'Enter picks the part in focus');
 ok('the view: fitted home, focus, a bounded turn, taps, drags, zoom about the pointer, and the keyboard');
+
+// ── what is drawn is held to a window round the screen ──────────────────────
+const windows = () => [...host.querySelectorAll('.wl-window')].map((el) => ['x', 'y', 'width', 'height'].map((a) => Number(el.getAttribute(a))));
+assert.equal(windows().length, 7, 'each layer draws through a window');
+const sv = () => view.state();
+const wide = (s0) => windows().map(([, , ww, wh]) => [ww * s0, wh * s0]);
+view.home(0);
+for (let i = 0; i < 40; i++) view.zoomBy(1.25);
+view.commit();
+const close = sv();
+assert.ok(close.view.s >= 3.19, 'brought as close as it comes');
+for (const [pw, ph] of wide(close.shown.s)) assert.ok(pw <= 1200 + 2 * 0.3 * 1200 + 2 && ph <= 800 + 2 * 0.3 * 1200 + 2,
+  'close in, a layer is drawn no larger than the screen and its margin, not the whole relief at that size');
+const [vx, vy, vw, vh] = host.querySelector('.wl-layer').getAttribute('viewBox').split(' ').map(Number);
+for (const [x, y, ww, wh] of windows()) assert.ok(x < vx && y < vy && x + ww > vx + vw && y + wh > vy + vh, 'and the window holds the whole screen');
+// a slide further than the margin is drawn again at once, not after the hand stops
+const before2 = sv().shown.x;
+view.panBy(-400, 0); view.panBy(-400, 0);
+assert.ok(sv().shown.x < before2, 'a slide past the margin has the window drawn again round where the view now is');
+// a flight home from close in is drawn again on the way, rather than shrinking the close window
+view.home(0);
+assert.ok(windows().every(([, , ww]) => ww * sv().shown.s > 1200), 'home, the window is round the whole screen again');
+view.commit();
+
+// ── out of a pinch, the finger left on the glass goes on from where it is ───
+const pe = (type, id, x, y) => { const ev = new dom.window.MouseEvent(type, { bubbles: true, clientX: x, clientY: y, button: 0 }); Object.defineProperty(ev, 'pointerId', { value: id }); host.dispatchEvent(ev); };
+view.home(0);
+view.zoomBy(3); view.commit();
+pe('pointerdown', 1, 500, 400); pe('pointerdown', 2, 700, 400);
+const unpinched = { ...sv().view };
+pe('pointermove', 2, 900, 450);                          // spread: closer in
+pe('pointermove', 1, 400, 250);                          // and carried up and to the left
+const pinched = { ...sv().view };
+assert.ok(pinched.s > unpinched.s * 1.5, 'the pinch brings it closer');
+assert.ok(Math.hypot(pinched.x - unpinched.x, pinched.y - unpinched.y) > 20 / pinched.s, 'and carries it');
+pe('pointerup', 2, 900, 450);
+pe('pointermove', 1, 403, 251);                          // the finger left barely moves
+const after2 = sv().view;
+assert.ok(Math.abs(after2.x - pinched.x) < 10 / pinched.s && Math.abs(after2.y - pinched.y) < 10 / pinched.s,
+  'the wall does not jump back to where the pinch began');
+pe('pointerup', 1, 403, 251);
+assert.equal(picked.at(-1), 'wl_nidana_birth', 'and a pinch is not a tap');
+// the gestures Safari sends with a pinch of the fingers are not taken twice
+pe('pointerdown', 3, 500, 400); pe('pointerdown', 4, 700, 400);
+const s0 = sv().view.s;
+const gc = new dom.window.Event('gesturechange', { bubbles: true, cancelable: true });
+Object.assign(gc, { scale: 2, clientX: 600, clientY: 400 });
+host.dispatchEvent(gc);
+assert.equal(sv().view.s, s0, 'while fingers are down the pointers answer a pinch, not Safari\'s gesture events');
+pe('pointerup', 3, 500, 400); pe('pointerup', 4, 700, 400);
+ok('drawn through a window round the screen, drawn again when outrun; a pinch hands over to the finger left, and is taken once');
+
+// ── the focus: the keyboard brings a part onto the screen, a tap does not ───
+view.home(0);
+for (let i = 0; i < 12; i++) view.zoomBy(1.25);
+view.commit();
+const far = host.querySelector('[data-wl="wl_nidana_death"][tabindex="0"]');
+const offAt = { ...sv().view };
+pe('pointerdown', 9, 600, 400); pe('pointerup', 9, 600, 400);
+far.dispatchEvent(new dom.window.FocusEvent('focusin', { bubbles: true }));
+assert.deepEqual(sv().view, offAt, 'a part focused by a tap leaves the wall where it is');
+doc.dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'Tab', bubbles: true }));
+far.dispatchEvent(new dom.window.FocusEvent('focusin', { bubbles: true }));
+const fb = view.boxOf('wl_nidana_death');
+assert.ok(Math.abs(sv().view.x - (fb[0] + fb[2] / 2)) < 1 && Math.abs(sv().view.s - offAt.s) < 1e-9, 'one tabbed to off the screen is brought onto it, at the same distance');
+ok('a part tabbed to is brought onto the screen; a tap does not move the wall');
 
 console.log('\nwheel-of-life: the relief in six layers, 88 parts, 12 links, 6 realms, 16 hells in their rows, and a wall that turns but not round.');

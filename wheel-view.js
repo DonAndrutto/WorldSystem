@@ -14,11 +14,20 @@
    pixels rather than asking for the drawing to be painted again sixty times a
    second. The turn is a 3D rotation of the stack, and each layer stands out
    from the wall by its own depth, scaled with the zoom so that a relief seen
-   close stands out as far as it did from across the room. */
+   close stands out as far as it did from across the room.
+
+   What a layer draws is held to a window: the region on the screen and a
+   margin round it, wide enough for the turn and for a gesture to carry it a
+   way before it is drawn again. A layer left to draw all of itself is, close
+   in, tens of thousands of pixels across: a phone either drops it without a
+   word or runs out of memory holding it. A gesture or a flight that carries
+   the view near the window's edge has it drawn again round where it now is,
+   and past the window, for the moment that takes, is the wall's own colour. */
 
 const SVGNS = 'http://www.w3.org/2000/svg';
 export const TILT = { x: 14, y: 22 };            // how far the wall turns, in degrees
 const PERSPECTIVE = 1800;
+const MARGIN = 0.3;                              // the window past the screen, in screens
 
 export function createWheelView({ host, art, freeRect, reducedMotion = () => false, titleOf = (id) => id }) {
   const doc = host.ownerDocument, win = doc.defaultView;
@@ -26,6 +35,11 @@ export function createWheelView({ host, art, freeRect, reducedMotion = () => fal
   const emit = (type, ...a) => listeners[type].forEach((fn) => fn(...a));
 
   /* ── the stack ─────────────────────────────────────────────────────── */
+  // the wall's colour behind it all, where a gesture outruns what is drawn
+  const ground = doc.createElement('div');
+  ground.className = 'wl-back';
+  ground.setAttribute('aria-hidden', 'true');
+  host.appendChild(ground);
   const tilt = doc.createElement('div');
   tilt.className = 'wl-tilt';
   const defs = doc.createElementNS(SVGNS, 'svg');
@@ -51,10 +65,10 @@ export function createWheelView({ host, art, freeRect, reducedMotion = () => fal
       const svg = doc.createElementNS(SVGNS, 'svg');
       svg.setAttribute('class', 'wl-layer wl-' + l.name);
       svg.setAttribute('preserveAspectRatio', 'none');
-      svg.innerHTML = l.svg;
+      svg.innerHTML = '<svg class="wl-window" preserveAspectRatio="none">' + l.svg + '</svg>';
       if (l.name !== 'wall') svg.setAttribute('aria-hidden', 'true');
       tilt.appendChild(svg);
-      layers.push({ svg, depth: l.depth, name: l.name });
+      layers.push({ svg, pane: svg.firstChild, depth: l.depth, name: l.name });
     });
     ART.w = w.width; ART.h = w.height;
     // every part is a control: named, focusable, and answering to Enter
@@ -116,18 +130,37 @@ export function createWheelView({ host, art, freeRect, reducedMotion = () => fal
     const box = [shown.x - f.x / s, shown.y - f.y / s, w / s, h / s].map((n) => Math.round(n * 100) / 100);
     const vb = box.join(' ');
     seen = box;
+    const m = Math.max(w, h) * MARGIN / s;
+    pane = [box[0] - m, box[1] - m, box[2] + 2 * m, box[3] + 2 * m].map((n) => Math.round(n * 100) / 100);
+    const [px, py, pw, ph] = pane.map(String);
     layers.forEach((l, i) => {
       l.svg.setAttribute('viewBox', vb);
       l.svg.setAttribute('width', String(w));
       l.svg.setAttribute('height', String(h));
+      l.pane.setAttribute('x', px); l.pane.setAttribute('y', py);
+      l.pane.setAttribute('width', pw); l.pane.setAttribute('height', ph);
+      l.pane.setAttribute('viewBox', pane.join(' '));
       // the shadow a layer throws on the one behind it, as far as it stands off it
       const off = i > 1 && l.name !== 'shade' ? Math.min(16, (l.depth - layers[i - 1].depth) * s * 0.34) : 0;
       l.svg.style.filter = off > 0.4
         ? `drop-shadow(${(off * 0.55).toFixed(1)}px ${off.toFixed(1)}px ${(off * 0.7).toFixed(1)}px rgba(24, 12, 6, .42))` : '';
     });
+    const g = drawn().ground;
+    ground.style.backgroundColor = g ? g(shown.y) : '';
     if (selected) veil();
     place();
     host.classList.remove('wl-moving');
+  }
+  /* whether the view has been carried near the edge of the window drawn round
+     it, so that it has to be drawn again before the edge is seen */
+  function outrun() {
+    if (!built) return false;
+    const { w, h } = size(), f = centre();
+    const x0 = view.x - f.x / view.s, y0 = view.y - f.y / view.s;
+    const x1 = x0 + w / view.s, y1 = y0 + h / view.s;
+    const [px, py, pw, ph] = pane;
+    const keep = Math.max(w, h) * MARGIN / shown.s * 0.35;
+    return x0 < px + keep || y0 < py + keep || x1 > px + pw - keep || y1 > py + ph - keep;
   }
   /* the transform that carries what is shown to where the view now is */
   function place() {
@@ -153,7 +186,7 @@ export function createWheelView({ host, art, freeRect, reducedMotion = () => fal
      properly a moment after it stops. */
   function moved(settle = 140) {
     host.classList.add('wl-moving');
-    place();
+    if (outrun()) commit(); else place();
     win.clearTimeout(idle);
     idle = win.setTimeout(commit, settle);
   }
@@ -183,7 +216,7 @@ export function createWheelView({ host, art, freeRect, reducedMotion = () => fal
       turn.x = t0.x + (tt.x - t0.x) * e;
       turn.y = t0.y + (tt.y - t0.y) * e;
       host.classList.add('wl-moving');
-      place();
+      if (outrun()) commit(); else place();
       if (t < 1) flight = win.requestAnimationFrame(step);
       else { flight = null; commit(); }
     };
@@ -272,7 +305,6 @@ export function createWheelView({ host, art, freeRect, reducedMotion = () => fal
       turn.y = Math.max(-TILT.y, Math.min(TILT.y, drag.turn0.y + dx * 0.12));
       turn.x = Math.max(-TILT.x, Math.min(TILT.x, drag.turn0.x - dy * 0.12));
       place();
-      emit('change');
     } else {
       view.x = drag.view0.x - dx / view.s;
       view.y = drag.view0.y - dy / view.s;
@@ -284,6 +316,19 @@ export function createWheelView({ host, art, freeRect, reducedMotion = () => fal
     if (!pointers.has(ev.pointerId)) return;
     pointers.delete(ev.pointerId);
     if (pointers.size < 2) pinch = null;
+    else {
+      // a finger lifted from three: the pinch goes on between the two left
+      const [a, b] = [...pointers.values()];
+      pinch = { d: Math.hypot(a.x - b.x, a.y - b.y) || 1, mx: (a.x + b.x) / 2, my: (a.y + b.y) / 2 };
+    }
+    if (pointers.size === 1 && drag) {
+      /* Out of a pinch, the finger that stays goes on from where it is and
+         from the view as the pinch left it, not from where it first came
+         down: that was before the pinch moved everything under it. */
+      const [[id, p]] = [...pointers];
+      drag = { id, x0: p.x, y0: p.y, x: p.x, y: p.y, moved: true, turnIt: !zoomedIn(), turn0: { ...turn }, view0: { ...view }, target: null };
+      return;
+    }
     if (drag && drag.id === ev.pointerId) {
       const tap = !drag.moved && ev.type === 'pointerup';
       const target = drag.target;
@@ -310,16 +355,39 @@ export function createWheelView({ host, art, freeRect, reducedMotion = () => fal
     zoomAt(p.x, p.y, k);
     moved(160);
   }, { passive: false });
-  // Safari's own trackpad pinch
+  /* Safari's own trackpad pinch. On an iPhone or an iPad the same events come
+     with a pinch of the fingers as well, which the pointers above already
+     answer: taken twice, the wall would come twice as fast and fight itself. */
   let gScale = 1;
   host.addEventListener('gesturestart', (ev) => { ev.preventDefault(); gScale = 1; });
   host.addEventListener('gesturechange', (ev) => {
     ev.preventDefault();
+    if (pointers.size) return;
     if (!Number.isFinite(ev.scale) || ev.scale <= 0) return;
     const p = local(ev);
     zoomAt(p.x, p.y, ev.scale / gScale);
     gScale = ev.scale;
     moved(160);
+  });
+  /* The stage hides what overflows it, but a browser will still scroll it to
+     show an element that takes the focus, and nothing would scroll it back:
+     the wall would sit off to one side of where the pointer finds it. */
+  host.addEventListener('scroll', () => { host.scrollTop = 0; host.scrollLeft = 0; });
+  /* A part reached with the keyboard is brought onto the screen if it is off
+     it, at the distance the wall is seen from. Only with the keyboard: a tap
+     focuses what it lands on too, a moment after the finger lifts, and a tap
+     on a large part close in would otherwise carry the wall off to its middle. */
+  let keyed = false;
+  doc.addEventListener('keydown', () => { keyed = true; }, true);
+  doc.addEventListener('pointerdown', () => { keyed = false; }, true);
+  host.addEventListener('focusin', (ev) => {
+    const el = ev.target.closest && ev.target.closest('[data-wl]');
+    const b = el && boxes.get(el.getAttribute('data-wl'));
+    if (!b || !keyed || drag || pointers.size) return;
+    const { w, h } = size(), f = centre();
+    const x0 = view.x - f.x / view.s, y0 = view.y - f.y / view.s;
+    const cx = b[0] + b[2] / 2, cy = b[1] + b[3] / 2;
+    if (cx < x0 || cy < y0 || cx > x0 + w / view.s || cy > y0 + h / view.s) flyTo({ x: cx, y: cy, s: view.s }, 450);
   });
   // a part reached with the keyboard is a part picked
   host.addEventListener('keydown', (ev) => {
@@ -347,13 +415,13 @@ export function createWheelView({ host, art, freeRect, reducedMotion = () => fal
   /* The veil covers what is on the screen and a margin round it, not the
      whole of the wall's run: a transformed layer as large as that is more
      than the browser will composite, and it drops it without a word. */
-  let seen = [0, 0, 1320, 1740];
+  let seen = [0, 0, 1320, 1740], pane = [-400, -400, 2120, 2540];
   function veil() {
     const shade = host.querySelector('.wl-veil');
     if (!shade) return;
     const d = selected && drawn().shapes ? drawn().shapes.get(selected) : '';
-    const [x, y, w, h] = seen, m = Math.max(w, h) * 0.3;
-    const box = `M${Math.round(x - m)} ${Math.round(y - m)}H${Math.round(x + w + m)}V${Math.round(y + h + m)}H${Math.round(x - m)}Z`;
+    const [x, y, w, h] = pane;
+    const box = `M${Math.floor(x)} ${Math.floor(y)}H${Math.ceil(x + w)}V${Math.ceil(y + h)}H${Math.floor(x)}Z`;
     shade.setAttribute('d', d ? box + d : '');
     host.classList.toggle('wl-veiled', !!d);
   }
@@ -384,12 +452,14 @@ export function createWheelView({ host, art, freeRect, reducedMotion = () => fal
       && Math.abs(view.x - homeView.x) < 2 && Math.abs(view.y - homeView.y) < 2,
     state: () => ({ view: { ...view }, shown: { ...shown }, turn: { ...turn }, home: { ...homeView }, selected }),
     turnBy: (dx, dy) => {
+      cancelFlight();
       turn.y = Math.max(-TILT.y, Math.min(TILT.y, turn.y + dx));
       turn.x = Math.max(-TILT.x, Math.min(TILT.x, turn.x + dy));
       place();
     },
-    zoomBy: (k) => { const f = centre(); zoomAt(f.x, f.y, k); moved(160); },
-    panBy: (dx, dy) => { view.x += dx / view.s; view.y += dy / view.s; clamp(view); moved(160); },
+    // a key pressed while the wall is flying stops it where it is, and moves from there
+    zoomBy: (k) => { cancelFlight(); const f = centre(); zoomAt(f.x, f.y, k); moved(160); },
+    panBy: (dx, dy) => { cancelFlight(); view.x += dx / view.s; view.y += dy / view.s; clamp(view); moved(160); },
     on: (type, fn) => { listeners[type].push(fn); },
     lastTap: () => lastTap
   };

@@ -25,7 +25,7 @@
    current shelf or the runtime one, so old versions do not accumulate. */
 
 /* ── written by scripts/build-sw.cjs — do not edit below ─────────────── */
-const VERSION = '0f92d056ed1f1805';
+const VERSION = '24dad4b398d6d8db';
 const SHELL = [
   "apple-touch-icon.png",
   "assets/fonts/eb-garamond-400-italic-latin-ext.woff2",
@@ -54,7 +54,7 @@ const SHELL = [
   "assets/wheel/hand-l.webp",
   "assets/wheel/hand-r.webp",
   "assets/wheel/head.webp",
-  "assets/wheel/wall-far.webp",
+  "assets/wheel/wall.webp",
   "assets/wheel/wheel-hub-karma.webp",
   "assets/wheel/wheel-humans.webp",
   "assets/wheel/wheel-pretas-cold-hells.webp",

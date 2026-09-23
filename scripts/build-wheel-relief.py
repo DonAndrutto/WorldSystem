@@ -429,56 +429,123 @@ def fade_to_frame(shape, units):
     return np.clip(edge / units, 0, 1)
 
 
-PAD = 2000                   # how far the wall runs on past the photograph, in units
+PAD = 600                    # how far the wall's picture runs on past the photograph, in units
+BAND = 80                    # the wall next to the relief, which is the wall's colour everywhere else
+SHADOW = 8                   # the shadow the relief throws on it, which is not
+EASE = 420                   # how far past the photograph it takes to settle to the fall of the light
+LEDGE = 1670                 # the pale ledge at the foot of the wall starts here, and is left out
 
 
-def wall_far(near):
-    """The wall past the photograph's edges, at four units to the pixel. The
-    one thing that changes across it is the fall of the light, from the dark
-    head of the wall to the lit blue below; so past the photograph each height
-    takes the wall's median colour at that height, and the photograph's own
-    wall eases into it, so that there is no edge to be seen at any zoom."""
-    q = 0.25
-    src = cv2.resize(near, (int(W * q), int(H * q)), interpolation=cv2.INTER_AREA).astype(np.float32)
-    h0, w0 = src.shape[:2]
-    prof = np.median(src, axis=1)                       # one colour for each height
-    last = int(1670 * q)                                # above the pale ledge at the foot
-    prof[last:] = prof[last]
-    prof = cv2.GaussianBlur(prof[:, None, :], (0, 0), sigmaX=0.1, sigmaY=30)[:, 0, :]
-    p = int(PAD * q)
-    hh, ww = h0 + 2 * p, w0 + 2 * p
-    rows = np.clip(np.arange(hh) - p, 0, h0 - 1)
-    base = np.repeat(prof[rows][:, None, :], ww, axis=1)
-    ys, xs = np.mgrid[0:hh, 0:ww]
-    dx = np.maximum(0, np.maximum(p - xs, xs - (ww - 1 - p)))
-    dy = np.maximum(0, np.maximum(p - ys, ys - (hh - 1 - p)))
-    inside = np.zeros((hh, ww), np.float32)
-    inside[p:p + h0, p:p + w0] = 1
-    # within the photograph, its wall; easing into the profile toward its edges
-    edge_in = np.minimum.reduce([xs - p, ys - p, (p + w0 - 1) - xs, (p + h0 - 1) - ys]).astype(np.float32)
-    keep = (np.clip(edge_in / (150 * q), 0, 1) * inside)[..., None]
-    canvas = base.copy()
-    canvas[p:p + h0, p:p + w0] = src
-    out = canvas * keep + base * (1 - keep)
-    path = OUT / 'wall-far.webp'
-    cv2.imwrite(str(path), np.clip(out, 0, 255).astype(np.uint8), [cv2.IMWRITE_WEBP_QUALITY, 80])
-    log(f'  wall-far.webp  {ww}×{hh}  {path.stat().st_size // 1024} KB')
-    far = '#%02x%02x%02x' % tuple(int(c) for c in prof[-1][::-1])
-    return {'href': 'assets/wheel/wall-far.webp', 'x': -PAD, 'y': -PAD, 'w': W + 2 * PAD, 'h': H + 2 * PAD}, far
+def push_pull(img, known):
+    """The known pixels as they are, the rest filled smoothly from them: each
+    level of a pyramid of weighted averages fills the holes of the one above."""
+    levels = [(img * known[..., None], known)]
+    while min(levels[-1][1].shape) > 4:
+        a, w = levels[-1]
+        size = ((a.shape[1] + 1) // 2, (a.shape[0] + 1) // 2)
+        levels.append((cv2.resize(cv2.GaussianBlur(a, (0, 0), 1.0), size, interpolation=cv2.INTER_AREA),
+                       cv2.resize(cv2.GaussianBlur(w, (0, 0), 1.0), size, interpolation=cv2.INTER_AREA)))
+    a, w = levels[-1]
+    est = a / np.maximum(w, 1e-6)[..., None]
+    for a, w in reversed(levels[:-1]):
+        up = cv2.resize(est, (a.shape[1], a.shape[0]), interpolation=cv2.INTER_LINEAR)
+        here = a / np.maximum(w, 1e-6)[..., None]
+        t = np.clip(w * 4, 0, 1)[..., None]
+        est = here * t + up * (1 - t)
+    return est
 
 
-def wall_under_relief(master, relief):
-    """The photograph's wall with the relief taken off it: its own tone, dark
-    at the head where the light does not reach, filled in under the relief
-    from what is round it. Smooth enough to be served at two units a pixel."""
+def wall_picture(master, wall):
+    """The wall, at four units to the pixel, from the photograph's edges out to
+    PAD past them; and the fall of its light, the one colour for each height
+    that it settles to there and that the page carries on with past that.
+
+    Everything on the wall is made from the one strip of it the eye compares
+    the rest with: the blue within BAND of the relief, less the shadow the
+    relief throws on it (the page throws its own) and the odd speck that is
+    not wall. Under the relief the wall is filled in from that strip, so that
+    where a turned layer shows what is behind it, it is the blue beside it; the
+    photograph's own wall further out, which darkens toward the frame and would
+    stand as a lighter panel round the relief, is not used at all. Each height
+    of the fall of the light is that strip's median at that height, and past
+    the photograph the wall eases into it, so that there is no edge to be seen
+    at any zoom."""
     q = 0.25
     w4, h4 = int(W * q), int(H * q)
-    small = cv2.resize(master, (w4, h4), interpolation=cv2.INTER_AREA)
-    hole = (cv2.resize(relief, (w4, h4), interpolation=cv2.INTER_AREA) > 0.02).astype(np.uint8)
-    hole = cv2.dilate(hole, np.ones((5, 5), np.uint8))
-    filled = cv2.inpaint(small, hole * 255, 6, cv2.INPAINT_TELEA)
-    filled = cv2.GaussianBlur(filled, (0, 0), 1.5)
-    return cv2.resize(filled, (W * SM, H * SM), interpolation=cv2.INTER_CUBIC)
+    small = cv2.resize(master, (w4, h4), interpolation=cv2.INTER_AREA).astype(np.float32)
+    bare = cv2.resize(wall.astype(np.float32), (w4, h4), interpolation=cv2.INTER_AREA) > 0.98
+    near = cv2.distanceTransform(bare.astype(np.uint8), cv2.DIST_L2, 5) / q
+    strip = bare & (near >= SHADOW) & (near <= BAND)
+    # the pale ledge at the very foot is a line across the photograph's bottom
+    # edge, which carried on would run as a pale smear down past it
+    strip[int(LEDGE * q):] = False
+    # what stands out of the strip's own run of colour is a speck or a shadow
+    rough = cv2.GaussianBlur(push_pull(small, strip.astype(np.float32)), (0, 0), 40 * q)
+    known = strip & (np.abs(small - rough).max(axis=2) < 18)
+    inside = push_pull(small, known.astype(np.float32))
+    # the fall of the light: the strip's median at each height, smoothed down the wall
+    fall = np.full((h4, 3), np.nan, np.float32)
+    for y in range(h4):
+        if known[y].sum() >= 4:
+            fall[y] = np.median(small[y][known[y]], axis=0)
+    ys = np.arange(h4)
+    for c in range(3):
+        ok = ~np.isnan(fall[:, c])
+        fall[:, c] = np.interp(ys, ys[ok], fall[ok, c])
+    fall[int(LEDGE * q):] = fall[int(LEDGE * q) - 1]
+    fall = cv2.GaussianBlur(fall[:, None, :], (0, 0), sigmaX=0.1, sigmaY=70 * q,
+                            borderType=cv2.BORDER_REPLICATE)[:, 0, :]
+    # past the photograph: the wall at its edge carried straight out and
+    # softened along the edge as it goes, easing into the fall of the light
+    p = int(PAD * q)
+    hh, ww = h4 + 2 * p, w4 + 2 * p
+    out = np.zeros((hh, ww, 3), np.float32)
+    out[p:p + h4, p:p + w4] = inside
+    yy, xx = np.mgrid[0:hh, 0:ww]
+    cy, cx = np.clip(yy - p, 0, h4 - 1), np.clip(xx - p, 0, w4 - 1)
+    ox, oy = (xx - p) - cx, (yy - p) - cy               # how far out, across and down
+    dpx = np.hypot(ox, oy).astype(np.float32)
+    sig = [0, 2, 4, 8, 16, 32, 64, 128]
+    def along(line):
+        """an edge of the photograph's wall, blurred along itself at each of sig"""
+        return np.stack([line if k == 0 else
+                         cv2.GaussianBlur(line[:, None, :], (0, 0), sigmaX=0.1, sigmaY=k,
+                                          borderType=cv2.BORDER_REPLICATE)[:, 0, :] for k in sig])
+    edges = {'l': along(inside[:, 0]), 'r': along(inside[:, -1]), 't': along(inside[0]), 'b': along(inside[-1])}
+    # the blur goes up with the distance out, half of it, between the levels
+    lv = np.interp(np.log2(np.maximum(dpx * 0.5, 1)), np.log2(np.maximum(sig, 1)), np.arange(len(sig)))
+    lo = np.floor(lv).astype(int)
+    hi = np.minimum(lo + 1, len(sig) - 1)
+    fr = (lv - lo)[..., None]
+    pick = lambda e, i: e[lo, i] * (1 - fr) + e[hi, i] * fr
+    side = np.where(ox < 0, 0, 1)
+    across = np.where(side[..., None] == 0, pick(edges['l'], cy), pick(edges['r'], cy))
+    upDown = np.where((oy < 0)[..., None], pick(edges['t'], cx), pick(edges['b'], cx))
+    # in a corner, as much of each as the direction out is toward it
+    wv = (np.arctan2(np.abs(oy), np.abs(ox)) / (np.pi / 2))[..., None]
+    carried = np.where((ox == 0)[..., None], upDown, np.where((oy == 0)[..., None], across,
+                                                              across * (1 - wv) + upDown * wv))
+    outside = (dpx > 0)[..., None]
+    out = np.where(outside, carried, out)
+    rows = np.clip(np.arange(hh) - p, 0, h4 - 1)
+    base = np.repeat(fall[rows][:, None, :], ww, axis=1)
+    d = dpx / q
+    t = np.clip(d / EASE, 0, 1)
+    t = (t * t * (3 - 2 * t))[..., None]
+    out = np.clip(out * (1 - t) + base * t, 0, 255)
+    img = np.round(out).astype(np.uint8)
+    path = OUT / 'wall.webp'
+    cv2.imwrite(str(path), img, [cv2.IMWRITE_WEBP_QUALITY, 92])
+    log(f'  wall.webp  {ww}×{hh}  {path.stat().st_size // 1024} KB')
+    # the fall of the light as the page draws it past the picture, in drawing
+    # units: a stop every so often, and wherever it turns
+    hexa = lambda c: '#%02x%02x%02x' % tuple(int(round(v)) for v in c[::-1])
+    stops = [[round(y / q - PAD), hexa(base[y, 0])] for y in range(0, hh, 6)]
+    stops.append([round((hh - 1) / q - PAD), hexa(base[-1, 0])])
+    thin = [s0 for i, s0 in enumerate(stops) if i in (0, len(stops) - 1) or s0[1] != stops[i - 1][1] or s0[1] != stops[i + 1][1]]
+    beside = hexa(fall[int(C[1] * q)])
+    return ({'href': 'assets/wheel/wall.webp', 'x': -PAD, 'y': -PAD, 'w': W + 2 * PAD, 'h': H + 2 * PAD},
+            thin, beside)
 
 
 def body_behind_wheel(master, body, rk):
@@ -519,7 +586,8 @@ def main():
     log('layers')
     shape = master.shape[:2]
     rgb = master
-    relief = 1 - wall_mask(master)
+    wall = wall_mask(master)
+    relief = 1 - wall
     # the photograph ends where it ends: fade the relief out over its last
     # twenty units rather than cut it off with the frame's straight edge
     frame_fade = fade_to_frame(shape, 34)
@@ -540,9 +608,8 @@ def main():
     layers = []
     def layer(name, depth, parts):
         layers.append({'name': name, 'depth': depth, 'images': parts})
-    near = wall_under_relief(master, relief)
-    far_image, far_colour = wall_far(near)
-    layer('wall', 0, [far_image])
+    wall_image, fall, beside = wall_picture(master, wall)
+    layer('wall', 0, [wall_image])
     layer('beyond', 2, [export('beyond', rgb, beyond, SB)])
     # Behind the wheel is Yama's body, which the photograph never shows. Turned,
     # the wall would show the edge of a second wheel there; it shows his body
@@ -576,7 +643,7 @@ def main():
         'layers': layers, 'hot': hot, 'cold': cold,
         'front': {k: [list(p) for p in v] for k, v in FRONT.items()},
         'yama': yama,
-        'wall': far_colour
+        'wall': beside, 'fall': fall
     }
     body_js = json.dumps(data, separators=(',', ':'))
     MODULE.write_text(
