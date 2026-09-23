@@ -143,29 +143,42 @@ the full generation prompt.
 
 ## The wheel of life
 
-The wheel of life is drawn in SVG by `wheel-art.js`, at run time; it loads no
-image. Its reference is five photographs the author supplied of one painted clay
-relief of the wheel on a blue wall: the whole, and close views of the hub and
-karma ring, the upper wheel under Yama's head, the human realm, and the pretas'
-realm with the cold hells. The drawing keeps the relief's arrangement — the
-spokes where the relief sets them, the asuras upper left and the humans upper
-right, the hot hells left of the judge and the cold right of him, the twelve
-panels in the order and with the pictures the relief gives them — and its
-palette: the blue wall, the dark red Lord of Death, jade and dark green scarves,
-pink feet, gold rims.
+The wheel of life is the painted clay relief of five photographs the author
+supplied, kept in `assets/wheel-reference/`: the whole wall, and close views of
+the upper wheel under Yama's head, the human realm, the pretas' realm with the
+cold hells, and the hub with the ring of karma. The page shows the relief
+itself, from those photographs; the figures, colours and composition are the
+relief's, not this project's.
 
-What it does not keep is the photograph. The figures, animals, buildings,
-clouds and flames are this project's own vector drawing, built from a small
-number of shapes and bent into poses: a clay relief's figures, not a copy of
-this one's. Two things are adjusted on purpose. The photograph was taken from
-below, which draws the top of the wheel in and swells the bottom; the drawing
-puts the wheel back in the round, and reads positions off the photograph through
-that correction. And the hot and cold hells are ruled into eight cells each, one
-for each hell, so that each can be pointed at; the relief paints them as one
-field of torments.
+`scripts/build-wheel-relief.py` makes what is served from them, in
+`assets/wheel/`, and changes them in these ways only:
+
+- **The camera's angle is corrected.** The photograph was taken from below, and
+  the wheel's rims came out as ellipses on different centres. A radial warp puts
+  them back on one centre as circles. Outside the rim the photograph is left as
+  it is.
+- **The close-ups replace the whole photograph where they cover it**, registered
+  onto it and warped through the same correction, so that those parts can be
+  seen closer.
+- **The relief is cut into layers** that the view stands at different depths.
+  Where a layer is cut out of the wall, the wall under it is the photograph's
+  own wall, with the relief lifted off and filled in from the wall round it; past
+  the photograph's edges the wall carries on in the colour of its light at each
+  height. Behind the wheel, which no photograph shows, is Yama's body, in his
+  maroon as measured just outside the rim. These fills are only ever seen at the
+  edges of a layer when the wall is turned.
+- **The photograph's own edges are faded**, where it cuts through a cloud or a
+  figure at the edge of the frame.
+
+Nothing is drawn, painted or generated in the relief's place. What is drawn is
+the outline of each part over it, in `wheel-parts.js`, and those are traced on
+the corrected photograph: the rims, spokes and dividers where they were measured,
+the outlines of Yama, his scarves, his bone ornaments and the offering bowl where
+the script found them by colour, and the rest by hand. The eight hot hells and
+the eight cold are outlined as the rows the relief sets them in, counted from the
+spoke; the relief does not label its rows, and the entries say so.
 
 The figures at the edges of the wall — a flying figure in red at the upper
 right, the edge of a white face at the upper left — belong to the painting that
-continues beyond the photograph. They are drawn as they are seen and are not
+continues beyond the photograph. They are shown as they are seen and are not
 identified.
-

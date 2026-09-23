@@ -68,7 +68,7 @@ export function createWheelView({ host, art, freeRect, reducedMotion = () => fal
       el.setAttribute('aria-label', titleOf(id));
       el.closest('svg').removeAttribute('aria-hidden');
     });
-    if (selected) mark('wl-sel', selected);
+    if (selected) { mark('wl-sel', selected); veil(); }
     fit();
     commit();
   }
@@ -94,8 +94,10 @@ export function createWheelView({ host, art, freeRect, reducedMotion = () => fal
     homeView = { x: ART.w / 2, y: ART.h / 2, s };
     return homeView;
   }
+  // the photographs hold about three pixels to a unit where the close-ups
+  // are, one and a half elsewhere: closer than this there is nothing more to see
   const minScale = () => homeView.s * 0.8;
-  const maxScale = () => Math.max(homeView.s * 16, 6);
+  const maxScale = () => Math.max(homeView.s * 7, 3.2);
   function clamp(v) {
     v.s = Math.min(maxScale(), Math.max(minScale(), v.s));
     v.x = Math.min(ART.w, Math.max(0, v.x));
@@ -111,20 +113,19 @@ export function createWheelView({ host, art, freeRect, reducedMotion = () => fal
     const f = centre();
     shown = { ...view };
     const s = shown.s;
-    const vb = [shown.x - f.x / s, shown.y - f.y / s, w / s, h / s].map((n) => Math.round(n * 100) / 100).join(' ');
+    const box = [shown.x - f.x / s, shown.y - f.y / s, w / s, h / s].map((n) => Math.round(n * 100) / 100);
+    const vb = box.join(' ');
+    seen = box;
     layers.forEach((l, i) => {
       l.svg.setAttribute('viewBox', vb);
       l.svg.setAttribute('width', String(w));
       l.svg.setAttribute('height', String(h));
       // the shadow a layer throws on the one behind it, as far as it stands off it
-      const off = i > 1 ? Math.min(16, (l.depth - layers[i - 1].depth) * s * 0.34) : 0;
+      const off = i > 1 && l.name !== 'shade' ? Math.min(16, (l.depth - layers[i - 1].depth) * s * 0.34) : 0;
       l.svg.style.filter = off > 0.4
         ? `drop-shadow(${(off * 0.55).toFixed(1)}px ${off.toFixed(1)}px ${(off * 0.7).toFixed(1)}px rgba(24, 12, 6, .42))` : '';
     });
-    // the outline round a picked part stays the same width on the screen
-    defs.querySelectorAll('.wl-thick').forEach((m) => m.setAttribute('radius', (2.6 / s).toFixed(2)));
-    defs.querySelectorAll('.wl-thin').forEach((m) => m.setAttribute('radius', (1.4 / s).toFixed(2)));
-    defs.querySelectorAll('.wl-soft').forEach((m) => m.setAttribute('stdDeviation', (1.6 / s).toFixed(2)));
+    if (selected) veil();
     place();
     host.classList.remove('wl-moving');
   }
@@ -341,12 +342,28 @@ export function createWheelView({ host, art, freeRect, reducedMotion = () => fal
   }
   let selected = null;
   const mark = (cls, id) => host.querySelectorAll(`[data-wl="${id}"]`).forEach((el) => el.classList.add(cls));
+  /* A picked part is outlined, and everything else on the wall is dimmed
+     round it, so that one figure in a crowded relief can be found. */
+  /* The veil covers what is on the screen and a margin round it, not the
+     whole of the wall's run: a transformed layer as large as that is more
+     than the browser will composite, and it drops it without a word. */
+  let seen = [0, 0, 1320, 1740];
+  function veil() {
+    const shade = host.querySelector('.wl-veil');
+    if (!shade) return;
+    const d = selected && drawn().shapes ? drawn().shapes.get(selected) : '';
+    const [x, y, w, h] = seen, m = Math.max(w, h) * 0.3;
+    const box = `M${Math.round(x - m)} ${Math.round(y - m)}H${Math.round(x + w + m)}V${Math.round(y + h + m)}H${Math.round(x - m)}Z`;
+    shade.setAttribute('d', d ? box + d : '');
+    host.classList.toggle('wl-veiled', !!d);
+  }
   function select(id) {
     const next = id && boxes.has(id) ? id : null;
     if (next === selected) return;
     host.querySelectorAll('.wl-sel').forEach((el) => el.classList.remove('wl-sel'));
     selected = next;
     if (selected && built) mark('wl-sel', selected);
+    if (built) veil();
   }
 
   /* ── keeping up with the screen ────────────────────────────────────── */

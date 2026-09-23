@@ -46,10 +46,15 @@ Click any part to open its entry; drag to orbit, scroll to zoom.
 | `scripts/build-fonts.cjs` | Rebuilds the font sheet and its woff2 files from Google Fonts. |
 | `scripts/build-sw.cjs` | Writes the worker's list of files and the version it holds them under. |
 | `tests/offline.mjs` | Checks that nothing is asked of another origin, that the pinned hashes still hold, and that the worker's shelf matches the tree. |
-| `wheel-art.js` | The wheel of life, drawn: the relief as seven SVG layers, wall to fangs, with every part that has an entry named and boxed. |
-| `wheel-view.js` | The wheel on its wall: zoom, pan, a turn that stops well short of edge-on, picking, and framing a part. |
-| `wheel-notes.js` | The entries for the wheel's 88 parts and three index-only entries, the wheel's share of the index, and which of the model's own entries it can frame. |
-| `tests/wheel-of-life.mjs` | The drawing, its entries and its view, without the rest of the page. |
+| `wheel-art.js` | The wheel of life, set up: the relief's six photographic layers, wall to fangs, a veil over them, and every part's outline over the layer it stands in. |
+| `wheel-parts.js` | Where each of the wheel's 88 parts is: its outline on the corrected photograph, and the layer it stands in. |
+| `wheel-relief.js` | Generated. The measured rims, spokes and dividers, the layers' pictures and where they go, and the outlines found by colour. |
+| `wheel-view.js` | The wheel on its wall: zoom, pan, a turn that stops well short of edge-on, picking, the veil round a picked part, and framing a part. |
+| `wheel-notes.js` | The entries for the wheel's 88 parts and four index-only entries, the wheel's share of the index, and which of the model's own entries it can frame. |
+| `scripts/build-wheel-relief.py` | Corrects the photographs, cuts the relief into its layers, and writes `assets/wheel/` and `wheel-relief.js`. |
+| `assets/wheel-reference/` | The five photographs of the relief the wheel is made from. Not served. |
+| `assets/wheel/` | The relief in its layers, as WebP, about 2 MB. |
+| `tests/wheel-of-life.mjs` | The relief's layers, its parts and entries, and its view, without the rest of the page. |
 
 Serve the directory over HTTP and open it (not `file://` — the page uses ES
 modules, and no service worker will register from a file). It is published with
@@ -106,8 +111,8 @@ turn has to say. The throw itself is gold wherever it stands.
 It works offline. Everything the page draws with is in this repository, the
 library among it, and the service worker in `sw.js` puts the whole of it by on
 the first visit: the page, its modules, three.js, the two typefaces, the three
-offering sheets and the board's four painted fields. Fifty-one files, about
-10 MB, fetched once. From the second visit on, the network is never asked for any
+offering sheets, the board's four painted fields and the wheel of life in its
+layers. Sixty-seven files, about 12 MB, fetched once. From the second visit on, the network is never asked for any
 of them — only ever whether there is a newer world.
 
 So: open it once with a connection, add it to the home screen, turn the network
@@ -457,46 +462,73 @@ offering names them by.
 ## The wheel of life
 
 The fourth view is not a view of the model. It is the bhavacakra — the wheel of
-existence — as a painted clay relief on a blue wall, drawn after the author's
-photographs of one: the three poisons at the hub, the white and black paths of
-karma around them, the six realms in the body of the wheel, the twelve links in
-their panels on the rim, and Yama gripping the whole of it with his fangs, hands
-and feet. In the upper corners, outside his reach, a buddha points the way out
-and a rainbow road climbs from the rim to the realm beyond.
+existence — as the painted clay relief of the author's photographs, on its blue
+wall: the three poisons at the hub, the white and black paths of karma around
+them, the six realms in the body of the wheel, the twelve links in their panels
+on the rim, and Yama gripping the whole of it with his fangs, hands and feet. In
+the upper corners, outside his reach, a buddha points the way out and a rainbow
+road climbs from beside the rim to the realm beyond.
 
-Every part of it opens an entry: 88 of them on the wall, each realm and each
-thing in it, each of the six sages, the eight hot hells and the eight cold in
-their cells, the neighbouring and the ephemeral hells, the judge and his mirror,
-all twelve links, and each of Yama's attributes. The index has a group for the
-wheel in the order it is read, from the hub outward, with three entries that
-stand there alone: the twelve links as a chain, the six sages together, and the
-verse the Vinaya has written beneath the wheel. Where the model or the board
-already has an entry on the same thing — a hot hell, the pretas, a square of
-the game — the wheel's entry names it rather than repeating it, and an entry of
-the model opened while the wheel is up frames that part of the wheel.
+What is on the screen is the relief itself, not a drawing after it. The five
+photographs in `assets/wheel-reference/` — the whole wall, and close views of
+the upper wheel under Yama's head, the human realm, the pretas and the cold
+hells, and the hub — are corrected and cut up by
+`scripts/build-wheel-relief.py`:
+
+- **The camera's angle is taken out.** The photograph was taken from below, so
+  the wheel's four gold rims come out as ellipses that do not share a centre.
+  Each is found and fitted, and a radial warp puts all four back on one centre
+  as circles, leaving the wall and Yama outside the rim as they are.
+- **The close-ups are laid over it.** Each is registered onto the whole with
+  SIFT features and a homography (between 500 and 2,300 matching points apiece),
+  warped through the same correction, and laid in at three pixels to a unit
+  where it has more to give, feathered at its edges.
+- **The wheel is measured.** The six spokes and twelve dividers are found on the
+  corrected image, so the realms and the panels of the rim are where the relief
+  has them: the hells take nearly a third of the wheel.
+- **The relief is cut into the layers it is built in** — the paintings on the
+  wall beyond Yama's reach, his body behind the wheel, the wheel, its gold, and
+  in front of it his head, hands and feet — each at its own depth. The wall
+  under them is the photograph's own wall with the relief lifted off it, carried
+  on past the photograph's edges in the fall of its light; behind the wheel,
+  where the photograph shows nothing, is Yama's body in his own maroon.
+
+Run twice, the script writes the same files. It needs Python with
+`opencv-python-headless` and `numpy`.
+
+Every part opens an entry: 88 of them on the wall — each realm and what stands
+in it, the six sages, the eight hot hells and the eight cold as the rows the
+relief sets them in, the court of the dead, all twelve links, and each of Yama's
+attributes. Each part is an outline over the relief, traced on the corrected
+photograph or found by its colour: unseen until the pointer is on it, and when
+it is picked, lit in gold with the rest of the wall dimmed round it. The index
+has a group for the wheel in the order it is read, from the hub outward, with
+four entries that stand there alone: the twelve links as a chain, the six sages
+together, the ephemeral hells, which the relief gives no scene of their own, and
+the verse the Vinaya has written beneath the wheel. The entries describe what
+this relief shows, and say so where it departs from the usual iconography — its
+tenth link is not the pregnant woman most wheels paint. Where the model or the
+board already has an entry on the same thing — a hot hell, the pretas, a square
+of the game — the wheel's entry names it rather than repeating it, and an entry
+of the model opened while the wheel is up frames that part of the wheel.
 
 It is a thing on a wall, and it moves like one. Scroll or pinch to come closer;
 close in, a drag slides the wall under the hand. Seen whole, a drag turns the
 wall — a right button or Shift turns it at any distance — up to 22° across and
-14° up or down, and no further: far enough to see the wheel stand off the wall,
-the figures stand off the wheel and Yama's head and hands stand off both, never
-far enough to see behind it. Reset view (`Esc`) straightens and frames it; `+`,
-`-` and the arrow keys zoom and pan; every part is a stop for Tab and opens with
-Enter.
+14° up or down, and no further: far enough to see the wheel stand off the wall
+and Yama's head, hands and feet stand off the wheel, never far enough to see
+behind it. Each layer throws a shadow on the one behind it. Reset view (`Esc`)
+straightens and frames it; `+`, `-` and the arrow keys zoom and pan; every part
+is a stop for Tab and opens with Enter.
 
-The relief is drawn as seven SVG layers, each at its own depth, and zooming
-rewrites their viewBoxes rather than scaling pixels, so a figure a few units
-tall is as sharp at sixteen times as at one. During a gesture the change is
-carried by a CSS transform and written into the viewBoxes a moment after it
-stops. Nothing is built until the view is first asked for, and the model behind
-it is neither shown nor drawn while it is up.
-
-The drawing is the photograph's own frame, 1320 by 1740, so that a place read
-off the photograph is a place in the drawing. The spokes are where the relief
-puts them, measured from the hub, which gives the hells nearly a quarter of the
-wheel. The photograph was taken from below; the wheel here is round again. The
-figures, animals and buildings are this project's own vector drawing, in the
-relief's arrangement and colours; see [ARTWORK.md](ARTWORK.md#the-wheel-of-life).
+The layers are SVG, each holding its pictures and its parts' outlines, and
+zooming rewrites their viewBoxes, so the outlines stay sharp; the pictures are
+as sharp as the photographs, which is three pixels to a unit where a close-up
+covers the relief and one and a half elsewhere, and the view stops at seven
+times the whole. During a gesture the change is carried by a CSS transform and
+written into the viewBoxes a moment after it stops. Nothing is fetched or built
+until the view is first asked for, and the model behind it is neither shown nor
+drawn while it is up. See [ARTWORK.md](ARTWORK.md#the-wheel-of-life).
 
 ## Maṇḍala mode
 
@@ -690,6 +722,7 @@ none of them needs a development dependency:
 | `node scripts/vendor-three.cjs` | moving to another three.js — change the version and the hashes in the import map in `index.html` first, and the script refuses to vendor anything that does not match them |
 | `node scripts/build-fonts.cjs` | changing which cuts of EB Garamond or IBM Plex Mono the page sets |
 | `node scripts/build-locale.cjs <dir>` | folding a translator's worksheets into `locales/pl.js` and `locales/pl-texts.js` — it checks the markup, the square numbers and the names against the sources, and reports what it left out |
+| `python3 scripts/build-wheel-relief.py` | changing the wheel's reference photographs, or how they are corrected and cut — then `build-sw.cjs` |
 | `node scripts/build-sw.cjs` | **anything the page serves itself**: the page, a module, a painted sheet, an icon, the fonts, the library |
 
 The last one is the one that is easy to forget. `node tests/offline.mjs` fails

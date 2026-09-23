@@ -25,7 +25,7 @@
    current shelf or the runtime one, so old versions do not accumulate. */
 
 /* ── written by scripts/build-sw.cjs — do not edit below ─────────────── */
-const VERSION = '0739ca3e5cc4bb71';
+const VERSION = '0f92d056ed1f1805';
 const SHELL = [
   "apple-touch-icon.png",
   "assets/fonts/eb-garamond-400-italic-latin-ext.woff2",
@@ -46,6 +46,20 @@ const SHELL = [
   "assets/rebirth/squares-3.webp",
   "assets/rebirth/squares-4.webp",
   "assets/rebirth/travelers.png",
+  "assets/wheel/beyond.webp",
+  "assets/wheel/body.webp",
+  "assets/wheel/foot-l.webp",
+  "assets/wheel/foot-r.webp",
+  "assets/wheel/frame.webp",
+  "assets/wheel/hand-l.webp",
+  "assets/wheel/hand-r.webp",
+  "assets/wheel/head.webp",
+  "assets/wheel/wall-far.webp",
+  "assets/wheel/wheel-hub-karma.webp",
+  "assets/wheel/wheel-humans.webp",
+  "assets/wheel/wheel-pretas-cold-hells.webp",
+  "assets/wheel/wheel-yama-gods.webp",
+  "assets/wheel/wheel.webp",
   "continent-models.js",
   "favicon-32.png",
   "favicon.ico",
@@ -76,6 +90,8 @@ const SHELL = [
   "viewport-gestures.js",
   "wheel-art.js",
   "wheel-notes.js",
+  "wheel-parts.js",
+  "wheel-relief.js",
   "wheel-view.js",
   "world-surfaces.js"
 ];
