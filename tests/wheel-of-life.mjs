@@ -324,4 +324,16 @@ const fb = view.boxOf('wl_nidana_death');
 assert.ok(Math.abs(sv().view.x - (fb[0] + fb[2] / 2)) < 1 && Math.abs(sv().view.s - offAt.s) < 1e-9, 'one tabbed to off the screen is brought onto it, at the same distance');
 ok('a part tabbed to is brought onto the screen; a tap does not move the wall');
 
+// ── a fingertip's tap wanders further than a mouse's click ──────────────────
+const typed = (type, id, x, y, pointerType, el = far) => { const ev = new dom.window.MouseEvent(type, { bubbles: true, clientX: x, clientY: y, button: 0 }); Object.defineProperty(ev, 'pointerId', { value: id }); Object.defineProperty(ev, 'pointerType', { value: pointerType }); el.dispatchEvent(ev); };
+view.home(0);
+const tapsBefore = picked.length, turnBefore = { ...sv().turn };
+typed('pointerdown', 20, 600, 400, 'touch'); typed('pointermove', 20, 608, 404, 'touch'); typed('pointerup', 20, 608, 404, 'touch');
+assert.equal(picked.length, tapsBefore + 1, 'a finger that wanders eight pixels still taps');
+assert.equal(picked.at(-1), 'wl_nidana_death', 'what it landed on');
+assert.deepEqual(sv().turn, turnBefore, 'and does not turn the wall');
+typed('pointerdown', 21, 600, 400, 'mouse'); typed('pointermove', 21, 608, 404, 'mouse'); typed('pointerup', 21, 608, 404, 'mouse');
+assert.equal(picked.length, tapsBefore + 1, 'a mouse that moves as far has dragged');
+ok('a finger that wanders a little still taps; a mouse moved as far drags');
+
 console.log('\nwheel-of-life: the relief in six layers, 88 parts, 12 links, 6 realms, 16 hells in their rows, and a wall that turns but not round.');

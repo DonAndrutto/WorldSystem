@@ -269,7 +269,10 @@ export function createWheelView({ host, art, freeRect, reducedMotion = () => fal
     try { host.setPointerCapture(ev.pointerId); } catch (err) {}
     if (pointers.size === 1) {
       const turnIt = ev.button === 2 || ev.shiftKey || !zoomedIn();
-      drag = { id: ev.pointerId, x0: p.x, y0: p.y, x: p.x, y: p.y, moved: false, turnIt, turn0: { ...turn }, view0: { ...view }, target: ev.target };
+      /* a fingertip wanders further in a tap than a mouse does: past this it
+         is a drag, and short of it a tap that opens what it landed on */
+      const slop = ev.pointerType === 'touch' ? 11 : ev.pointerType === 'pen' ? 8 : 5;
+      drag = { id: ev.pointerId, x0: p.x, y0: p.y, x: p.x, y: p.y, moved: false, slop, turnIt, turn0: { ...turn }, view0: { ...view }, target: ev.target };
     } else if (pointers.size === 2) {
       const [a, b] = [...pointers.values()];
       pinch = { d: Math.hypot(a.x - b.x, a.y - b.y) || 1, mx: (a.x + b.x) / 2, my: (a.y + b.y) / 2 };
@@ -298,7 +301,7 @@ export function createWheelView({ host, art, freeRect, reducedMotion = () => fal
     }
     if (!drag || drag.id !== ev.pointerId) return;
     const dx = p.x - drag.x0, dy = p.y - drag.y0;
-    if (!drag.moved && Math.hypot(dx, dy) < 5) return;
+    if (!drag.moved && Math.hypot(dx, dy) < drag.slop) return;
     if (!drag.moved) hover(null);
     drag.moved = true;
     if (drag.turnIt) {
