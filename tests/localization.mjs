@@ -317,5 +317,134 @@ const settle = async win => { for (let i = 0; i < 30; i++) await new Promise(r =
   assert.equal(sub.innerHTML, '<i>sgeg mo ma</i> \u00b7 bogini pi\u0119kna');
 }
 
+// \u2500\u2500 the wheel of life \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+// Every part of the relief the wheel entries answer for: the name, the
+// eyebrow, the index tag, the Wylie/Sanskrit gloss, every row of the table,
+// every paragraph and the sources. wheel-notes.js is not a module Node can
+// import directly (it has no package.json marking the repo as one), so it is
+// read as text and run the way build-locale.cjs already runs rebirth-board.js.
+{
+  const { doc, win } = open('pl');
+  win.eval(fs.readFileSync(repo + 'locales/pl-texts.js', 'utf8'));
+  await settle(win);
+  const T = win.WorldSystemLocale.translations;
+  const tr = win.WorldSystemLocale.translate;
+  const has = k => Object.prototype.hasOwnProperty.call(T, k);
+
+  const wnSource = fs.readFileSync(repo + 'wheel-notes.js', 'utf8').replace(/export const/g, 'const');
+  const wnBox = {};
+  vm.runInContext(wnSource + '\nbox.WHEEL_ENTRIES = WHEEL_ENTRIES; box.WHEEL_TREE = WHEEL_TREE;',
+    vm.createContext({ box: wnBox }));
+  const WHEEL_ENTRIES = wnBox.WHEEL_ENTRIES, WHEEL_TREE = wnBox.WHEEL_TREE;
+  assert.equal(Object.keys(WHEEL_ENTRIES).length, 92, 'the ninety-two entries the wheel is written with');
+
+  /* A stopword says a string carries real English prose rather than a bare
+     Wylie transliteration, a Sanskrit or Tibetan proper name, or a citation
+     that keeps a book's own title (the house style throughout the pack, e.g.
+     "Kongtrul, Myriad Worlds" left as it is). Those need no entry of their
+     own: the name is the same word in both languages. */
+  const STOP = new Set(['the', 'and', 'of', 'in', 'with', 'by', 'at', 'on', 'a', 'an', 'to', 'for',
+    'from', 'is', 'are', 'as', 'it', 'its', 'that', 'this', 'not', 'or', 'but', 'into', 'over',
+    'under', 'without', 'his', 'their', 'each', 'one', 'who', 'be', 'has', 'have']);
+  /* Checking a page already rendered in Polish cannot use that same list: "a"
+     is also the Polish word for "and", "to" is Polish for "this", "on" is
+     Polish for "he", and "by" is the Polish conditional particle. Every one
+     of them turns up in ordinary Polish prose, so they would flag translated
+     paragraphs as if they were still English. The rest of the list is not a
+     Polish word under any spelling and keeps its meaning as a sign of it. */
+  const STOP_IN_POLISH_TOO = new Set(['a', 'to', 'on', 'by']);
+  const STOP_STRAY = new Set([...STOP].filter((w) => !STOP_IN_POLISH_TOO.has(w)));
+  /* An italicised span is either a Wylie transliteration or a citation's own
+     title, and neither is ours to translate — dropping its content, not just
+     its tag, keeps a Wylie syllable that happens to spell an English article
+     ("a chu zer ba") from reading as one. Diacritics are letters too:
+     splitting only on [A-Za-z] would cut "triviṣa" into "tri" and "a", and
+     that stray "a" would read as the article as well; \p{L} keeps such a
+     word whole, so it is dropped by the ASCII filter instead. */
+  const looksEnglish = (s) => (String(s).replace(/<i[^>]*>.*?<\/i>/gs, ' ').match(/\p{L}+/gu) || [])
+    .filter((w) => /^[A-Za-z]+$/.test(w))
+    .some((w) => STOP.has(w.toLowerCase()));
+  const tagsOf = (html) => (String(html).match(/<\/?[a-z][a-z0-9]*/gi) || [])
+    .map((t) => t.toLowerCase()).sort().join(',');
+
+  const need = (s, where) => {
+    if (!looksEnglish(s)) return;                    // a bare gloss: nothing here to say in Polish
+    // `tr()` is what the page actually calls: a whole-string match against T,
+    // or one of the composed patterns (the "· gloss" gloss-after-a-dot shape
+    // among them) built from a phrase T does hold. Either counts as covered.
+    const out = tr(s);
+    assert.ok(out !== s, where + ' is translated: ' + JSON.stringify(String(s).slice(0, 70)));
+    if (has(s)) assert.equal(tagsOf(s), tagsOf(T[s]), where + ': the markup matches its source');
+  };
+
+  /* The entry sheet never offers `en` whole: it is joined onto `tib` first
+     (`bits.join(' &middot; ')` in index.html), so a leading <i>Wylie</i> only
+     ever reaches the pack as the text node standing after it, not as part of
+     one string with the italic. Parsing `en` the same way the page parses it
+     — into a small DOM and back out through its child nodes — asks the table
+     for exactly the pieces the page will ask it for, whether or not `tib` is
+     there to be joined in front. */
+  const needEn = (en, id) => {
+    const div = doc.createElement('div');
+    div.innerHTML = en;
+    if (!div.querySelector('i')) { need(en, id + '.en'); return; }
+    for (const node of div.childNodes) if (node.nodeType === 3) need(node.nodeValue, id + '.en (text after the Wylie)');
+  };
+
+  for (const [id, o] of Object.entries(WHEEL_ENTRIES)) {
+    need(o.t, id + '.t');
+    if (o.meta) need(o.meta, id + '.meta');
+    if (o.k) need(o.k, id + '.k');
+    if (o.en) needEn(o.en, id);
+    (o.f || []).forEach(([label, value], i) => {
+      need(label, id + '.f[' + i + '] (label)');
+      need(value, id + '.f[' + i + '] (value)');
+    });
+    (o.b || []).forEach((para, i) => need(para, id + '.b[' + i + ']'));
+    [].concat(o.more || []).forEach((para, i) => need(para, id + '.more[' + i + ']'));
+    if (o.moreLabel) need(o.moreLabel, id + '.moreLabel');
+    // A source is a citation, and a citation keeps a title in the language it
+    // was published in; only that its OWN composed string is in the table is
+    // asked here, not that every word inside it is Polish.
+    if (o.src) assert.ok(has(o.src), id + '.src is translated');
+  }
+
+  // the index groups the wheel adds to the tree, and the tree's own name
+  assert.ok(has(WHEEL_TREE[0]), 'the wheel\u2019s place in the index is named: ' + JSON.stringify(WHEEL_TREE[0]));
+  for (const row of WHEEL_TREE[1]) if (row[0] === '\u2014') need(row[1], 'WHEEL_TREE ' + row[1]);
+
+  // An entry's HTML, assembled the way show() in index.html assembles it, and
+  // dropped into the page the pack is already watching: once settled, nothing
+  // of it reads as English prose. Four entries stand in for the shapes the
+  // sheet takes \u2014 a plain gloss, a verse quoted whole, a Wylie+Sanskrit pair
+  // with a translated tail, and a table row carrying an inline <span>.
+  const bodyBlock = (p) => (/^<(?:ul|ol|blockquote)\b/.test(p) ? p : '<p class="body">' + p + '</p>');
+  for (const id of ['wl_wheel', 'wl_verse', 'wl_hell_avichi', 'wl_yama']) {
+    const o = WHEEL_ENTRIES[id];
+    const sheet = doc.createElement('div');
+    const bits = [];
+    if (o.tib) bits.push(/[\u0f00-\u0fff]/.test(o.tib)
+      ? '<i class="bo" lang="bo">' + o.tib + '</i>' : '<i>' + o.tib + '</i>');
+    if (o.en) bits.push(o.en);
+    sheet.innerHTML = '<p class="eyebrow">' + (o.meta || '') + '</p><h2></h2>'
+      + '<p class="sub">' + bits.join(' &middot; ') + '</p>'
+      + '<dl>' + (o.f || []).map((r) => '<dt>' + r[0] + '</dt><dd>' + r[1] + '</dd>').join('') + '</dl>'
+      + '<div class="bodies">' + [].concat(o.b || []).map(bodyBlock).join('') + '</div>';
+    sheet.querySelector('h2').textContent = o.t;      // set as text, as show() sets it
+    doc.body.appendChild(sheet);
+    await settle(win);
+    // Wylie stays in English letters by rule, and a short syllable of it can
+    // spell an English word on its own ("khor" is harmless, but Tibetan "pa"
+    // and "la" are two-letter words a stopword list has no way to tell from
+    // English "pa" or "la" \u2014 reason enough to read the sheet the way
+    // looksEnglish does, with every italic's own text left out of the count.
+    const stray = (sheet.innerHTML.replace(/<i[^>]*>.*?<\/i>/gs, ' ').match(/\p{L}+/gu) || [])
+      .filter((w) => /^[A-Za-z]+$/.test(w) && STOP_STRAY.has(w.toLowerCase()));
+    assert.equal(stray.length, 0, id + ': no English left once the entry is shown \u2014 ' + stray.slice(0, 6).join(', '));
+    sheet.remove();
+  }
+}
+
 console.log('localization: the pack settles, translates what it should, names each square once,\n'
-  + '              and answers for the ma\u1e47\u1e0dala, its tour and the verse.');
+  + '              and answers for the ma\u1e47\u1e0dala, its tour and the verse\u2014and for the\n'
+  + '              wheel of life, its ninety-two entries rendered as the page renders them.');
