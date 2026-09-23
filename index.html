@@ -1284,15 +1284,17 @@
      model behind it is neither shown nor drawn, as under the printed board. */
   .wheel-stage {
     position: fixed; inset: 0; z-index: 1; overflow: hidden;
-    background: #2c5f9e; perspective: 1800px;
+    background: #4c7eb2; perspective: 1800px;
     touch-action: none; user-select: none; -webkit-user-select: none;
     cursor: grab;
   }
   .wheel-stage[hidden] { display: none; }
   .wheel-stage:active { cursor: grabbing; }
   body.night .wheel-stage { background: #10213a; }
-  /* at night the wall goes dark and the relief keeps its colour, as under a lamp */
-  body.night .wl-wall, body.night .wl-beyond { filter: brightness(.45) saturate(.8); }
+  /* at night the wall goes dark and the relief keeps its colour, as under a lamp;
+     the ground behind the layers is the wall where a gesture outruns them */
+  body.night .wl-back, body.night .wl-wall, body.night .wl-beyond { filter: brightness(.45) saturate(.8); }
+  .wl-back { position: absolute; inset: 0; }
   body.wheel-on three-d-stage, body.wheel-on .compass, body.wheel-on .underwater { visibility: hidden; }
   .wl-defs { position: absolute; width: 0; height: 0; overflow: hidden; }
   .wl-tilt { position: absolute; inset: 0; transform-style: preserve-3d; }
@@ -1317,6 +1319,7 @@
     transform: translate(-50%, calc(-100% - 16px));
   }
   .wl-tip[hidden] { display: none; }
+  .wl-tip.below { transform: translate(-50%, 22px); }
   .wl-tip i { display: block; font-style: normal; font-size: 12px; color: var(--ink-2); }
   body.board-only .rb-label { display: none; }
   .game-focus {
@@ -5855,17 +5858,26 @@ wheelView.on('hover', (id, p) => {
   const e = id && E[id];
   if (!e || !p) { wheelTip.hidden = true; return; }
   const bo = rbTib && /[\u0F00-\u0FFF]/.test(e.tib || '');
-  wheelTip.innerHTML = bo ? '<span lang="bo">' + e.tib + '</span><i>' + e.t + '</i>' : e.t + (e.k ? '<i>' + e.k + '</i>' : '');
-  wheelTip.style.left = p.x + 'px';
-  wheelTip.style.top = p.y + 'px';
+  const html = bo ? '<span lang="bo">' + e.tib + '</span><i>' + e.t + '</i>' : e.t + (e.k ? '<i>' + e.k + '</i>' : '');
+  if (wheelTip.dataset.id !== id + bo) { wheelTip.innerHTML = html; wheelTip.dataset.id = id + bo; }
   wheelTip.hidden = false;
+  /* over the pointer, and on the screen: a part at the top of it has its name
+     shown under the pointer instead, and one at a side is not cut off by it */
+  const tw = wheelTip.offsetWidth, th = wheelTip.offsetHeight;
+  const x = Math.min(wheelEl.clientWidth - tw / 2 - 8, Math.max(tw / 2 + 8, p.x));
+  const below = p.y - th - 16 < 8;
+  wheelTip.style.left = x + 'px';
+  wheelTip.style.top = p.y + 'px';
+  wheelTip.classList.toggle('below', below);
 });
 wheelView.on('change', () => setTimeout(syncHome, 0));
 function enterWheel() {
   syncChrome();
   wheelView.build();
-  // framed once the stage has its size, and without a flight: it is arriving
-  requestAnimationFrame(() => wheelView.home(0));
+  /* Framed now, without a flight: it is arriving, and the stage has had its
+     size since syncChrome showed it. Not a frame later, which would undo an
+     entry opened with the wheel, flown to as the wheel comes up. */
+  wheelView.home(0);
 }
 function leaveWheel() {
   wheelTip.hidden = true;

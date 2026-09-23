@@ -96,7 +96,6 @@ export const PARTS = [
   P('wl_karma_demon', 'wheel', ['poly', [[664, 922], [700, 914], [728, 930], [722, 962], [690, 972], [664, 962]]]),
   P('wl_hub', 'wheel', ['disc', R.hub]),
   // the three animals, each at the tail of the next: read off the hub's close-up
-  // the three animals, each at the tail of the next: read off the hub's close-up
   P('wl_hub_bird', 'wheel', ['poly', [[619, 848], [622, 833], [636, 822], [650, 816], [662, 820], [674, 823], [684, 824], [691, 830], [693, 835], [684, 836], [678, 842], [666, 854], [656, 858], [640, 857], [626, 853]]]),
   P('wl_hub_snake', 'wheel', ['poly', [[632, 857], [638, 864], [646, 870], [654, 869], [660, 862], [666, 854], [672, 851], [678, 856], [684, 864], [692, 864], [702, 860], [708, 859], [709, 863], [702, 866], [690, 869], [682, 868], [676, 862], [672, 858], [666, 862], [660, 870], [650, 874], [640, 872], [633, 866], [629, 860]]]),
   P('wl_hub_pig', 'wheel', ['poly', [[612, 864], [620, 863], [630, 870], [640, 875], [654, 876], [674, 876], [694, 878], [699, 874], [706, 876], [705, 886], [694, 900], [674, 908], [650, 910], [630, 905], [622, 894], [615, 878]]]),
@@ -164,7 +163,11 @@ export const PARTS = [
   P('wl_hell_cauldron', 'wheel', ['poly', [[604, 1224], [650, 1216], [712, 1222], [716, 1254], [606, 1256]]]),
 
   /* ── the gold ──────────────────────────────────────────────────────── */
-  P('wl_wheel', 'frame', ['ring', R.band1 - 1, R.rim]),
+  // the outer rim, and the three inside it: the realms and the links meet on
+  // the spokes and the dividers, but not across a rim, and a tap on one
+  // would otherwise go through to Yama behind the wheel
+  P('wl_wheel', 'frame', ['ring', R.band1 - 1, R.rim], ['ring', R.realm, R.band0],
+    ['ring', R.karma, R.karmaRim], ['ring', R.hub, R.hubRim]),
 
   /* ── Yama, in front ────────────────────────────────────────────────── */
   P('wl_yama_head', 'front', ['poly', RELIEF.front.head]),

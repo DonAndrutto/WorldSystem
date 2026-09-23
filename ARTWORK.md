@@ -161,12 +161,17 @@ relief's, not this project's.
   onto it and warped through the same correction, so that those parts can be
   seen closer.
 - **The relief is cut into layers** that the view stands at different depths.
-  Where a layer is cut out of the wall, the wall under it is the photograph's
-  own wall, with the relief lifted off and filled in from the wall round it; past
-  the photograph's edges the wall carries on in the colour of its light at each
-  height. Behind the wheel, which no photograph shows, is Yama's body, in his
-  maroon as measured just outside the rim. These fills are only ever seen at the
-  edges of a layer when the wall is turned.
+  The wall itself is made from the strip of it just beside the relief — the
+  blue the eye compares everything else with — less the shadow the relief
+  throws on it: under the relief it is filled in from that strip, and past the
+  photograph's edges it is carried out and eases into the colour of its light
+  at each height, the strip's own median there, so that the wall seen round
+  the relief at any zoom or turn is the blue beside it. The photograph's own
+  wall further out, which darkens toward its frame, and the pale ledge along
+  its bottom edge are not used. Behind the wheel, which no photograph shows, is
+  Yama's body, in his maroon as measured just outside the rim. The fills under
+  the relief are only ever seen at the edges of a layer when the wall is
+  turned.
 - **The photograph's own edges are faded**, where it cuts through a cloud or a
   figure at the edge of the frame.
 

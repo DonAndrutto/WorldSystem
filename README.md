@@ -489,9 +489,11 @@ hells, and the hub — are corrected and cut up by
 - **The relief is cut into the layers it is built in** — the paintings on the
   wall beyond Yama's reach, his body behind the wheel, the wheel, its gold, and
   in front of it his head, hands and feet — each at its own depth. The wall
-  under them is the photograph's own wall with the relief lifted off it, carried
-  on past the photograph's edges in the fall of its light; behind the wheel,
-  where the photograph shows nothing, is Yama's body in his own maroon.
+  under them is made from the blue just beside the relief, filled in under it
+  and carried on past the photograph's edges into the fall of its light, one
+  colour for each height, which the page runs on as a gradient: the wall is
+  the blue beside the wheel wherever it is seen. Behind the wheel, where the
+  photograph shows nothing, is Yama's body in his own maroon.
 
 Run twice, the script writes the same files. It needs Python with
 `opencv-python-headless` and `numpy`.
@@ -526,7 +528,11 @@ zooming rewrites their viewBoxes, so the outlines stay sharp; the pictures are
 as sharp as the photographs, which is three pixels to a unit where a close-up
 covers the relief and one and a half elsewhere, and the view stops at seven
 times the whole. During a gesture the change is carried by a CSS transform and
-written into the viewBoxes a moment after it stops. Nothing is fetched or built
+written into the viewBoxes a moment after it stops. Each layer draws only the
+screen and a margin round it, not the whole relief at the size it is seen: close
+in, that would be a layer tens of thousands of pixels across, which a phone drops
+or runs out of memory holding. A gesture or a flight that carries the view near
+the margin's edge has it drawn again on the way. Nothing is fetched or built
 until the view is first asked for, and the model behind it is neither shown nor
 drawn while it is up. See [ARTWORK.md](ARTWORK.md#the-wheel-of-life).
 

@@ -1,6 +1,6 @@
 # System Świata
 
-Polska lokalizacja aplikacji WorldSystem: interaktywnego modelu kosmologii Abhidharmy, trzydziestosiedmioczęściowego ofiarowania mandali oraz planszowej „Gry odrodzenia”.
+Polska lokalizacja aplikacji WorldSystem: interaktywnego modelu kosmologii Abhidharmy, trzydziestosiedmioczęściowego ofiarowania mandali, planszowej „Gry odrodzenia” oraz koła życia jako malowanej płaskorzeźby.
 
 ## Język interfejsu
 
@@ -14,6 +14,9 @@ Polska warstwa obejmuje:
   trzydziestu siedmiu ofiarowań, podpowiedziami zwiedzania i opisami malowanych ilustracji;
 - tekst trzydziestosiedmioczęściowego ofiarowania — każdy wers, który coś znaczy;
 - planszę gry, konfigurację graczy, rzuty, pułapki, dziennik ruchów i komunikaty zwycięstwa;
+- koło życia (bhawaczakrę) jako malowaną płaskorzeźbę — wszystkie dziewięćdziesiąt dwa
+  hasła, od piasty po Jamę i sferę poza kołem, wraz z podpowiedzią przy najechaniu na
+  każdą część i miejscem koła w indeksie;
 - działanie offline: pakiet językowy jest dołączany do pamięci podręcznej service workera.
 
 Angielski pozostaje językiem domyślnym i źródłowym. Nazwy sanskryckie, tybetańskie oraz cytowania bibliograficzne zachowują oryginalną postać, aby polska wersja nie odrywała terminów od tekstów, na których opiera się model.
@@ -34,6 +37,16 @@ oraz opisy pól wraz z cytowanymi strofami. Do decyzji tłumacza pozostają:
   angielskiej („zhi yongsu dakpa…”). Polska transkrypcja byłaby osobną decyzją
   redakcyjną i nie została tu podjęta. Mantry sanskryckie i transliteracja Wyliego
   zostają bez zmian.
+- **„Holds” i „Held by”** w tabeli haseł koła życia — dwie angielskie etykiety już
+  zajęte przez inne znaczenie gdzie indziej w pakiecie („Zawiera”, „Mieszkańcy”) —
+  wracają w tych samych brzmieniach przy sześciu mędrcach i przy Jamie trzymającym
+  koło, choć sens jest tam inny (trzyma, a nie zawiera). Poprawka wymagałaby zmiany
+  nazw pól w `wheel-notes.js`, więc pozostawiono to tłumaczowi do oceny.
+- **Cztery gołe nazwy barw** („white”, „green”, „blue”, „red”) użyte przy sześciu
+  mędrcach dziedziczą rodzaj żeński nadany im wcześniej przez nazwy kontynentów
+  („biała”, „zielona”, „błękitna”, „czerwona”), choć przy postaci mędrca pasowałby
+  rodzaj męski. Ten sam powód co wyżej: pole w tabeli nie niesie żadnego kontekstu
+  poza samym słowem.
 
 Wcześniejsza wersja pakietu podawała dla pól 57–104 nazwy przesunięte względem
 planszy: pole 59 (Shambhala) nosiło nazwę „Mahajana, stan arhata”, a pole 97 —
@@ -53,9 +66,10 @@ angielsku nie ściągał kilkuset kilobajtów, których nie zobaczy.
 
 Oba pliki dzielą się na część pisaną ręcznie i część składaną z arkuszy. Skrypt
 budujący zapisuje tylko to, co stoi między oznaczonymi liniami; reszta — między
-innymi podpowiedzi zwiedzania, które żyją w `mandala-tour.js`, a nie w arkuszu —
-zostaje nienaruszona. W `locales/pl.js` ręczna tabela stoi po tabeli składanej
-i ma nad nią pierwszeństwo.
+innymi podpowiedzi zwiedzania, które żyją w `mandala-tour.js`, a nie w arkuszu,
+oraz cała warstwa koła życia, której hasła żyją w `wheel-notes.js` — zostaje
+nienaruszona. W `locales/pl.js` ręczna tabela stoi po tabeli składanej i ma
+nad nią pierwszeństwo.
 
 Arkusze tłumacza (trzy kolumny rozdzielone tabulatorem: rodzaj, angielski,
 polski) scala się do pakietu poleceniem:
