@@ -1,0 +1,41 @@
+/* Tours use the shared reading dock and leave the largest useful image area. */
+.tour-playback { display: grid; flex-shrink: 0; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; margin: 8px 0 0; }
+.tour-playback .btn, .tour-playback select { min-height: 44px; font-size: 14px; letter-spacing: 0; }
+.tour-playback .btn { white-space: normal; text-transform: none; }
+.tour-playback select { width: 100%; color: var(--ink); background: var(--paper); border: 1px solid var(--rule-2); border-radius: 7px; font-family: inherit; padding: 4px 8px; }
+.tour-playback label { display: flex; align-items: center; gap: 5px; font-size: 14px; }
+.tour-panel .tour-foot .btn, .tour-panel .tour-overview, .tour-panel .tour-links .btn { font-size: 13px; letter-spacing: 0; text-transform: none; min-height: 44px; }
+.tour-panel .tour-links { display: flex; flex-wrap: wrap; }
+.tour-panel .tour-links .btn { flex: 1 1 90px; }
+.tour-panel .tour-foot { display: grid; grid-template-columns: 1fr 1fr 1fr; }
+.tour-panel .tour-foot .tour-overview { margin: 0; }
+.tour-panel .tour-title { overflow-wrap: anywhere; }
+.tour-panel .tour-copy { overflow-wrap: anywhere; }
+body.presentation-view .compass { display: none; }
+body.presentation-view.game-view .board-view,
+body.presentation-view.game-view .rb-players,
+body.presentation-view.game-view .rb-label { display: none !important; }
+@media (max-width: 700px) {
+  body.presentation-view .panel-dock { max-height: min(54dvh, calc(100dvh - 260px - var(--sa-t) - var(--sa-b))); }
+  .tour-panel { padding: 10px; }
+  .tour-panel .mode-tabs { display: none; }
+  .tour-panel .tour-count { margin-bottom: 5px; }
+  .tour-panel .tour-progress { margin-bottom: 10px; }
+  .tour-panel .tour-title { font-size: 23px; }
+  .tour-panel .tour-copy { font-size: 17px; line-height: 1.45; margin-bottom: 10px; }
+  .tour-panel .tour-name, .tour-panel .tour-position { font-size: 13px; margin-bottom: 8px; }
+  .tour-panel .tour-foot { margin-top: 6px; padding-top: 6px; }
+  .tour-panel .tour-foot .btn { padding-inline: 4px; }
+  .tour-panel .tour-overview { margin-top: 4px; }
+  .tour-playback { gap: 5px; margin-top: 6px; }
+}
+/* A phone turned sideways needs a side panel rather than a bottom sheet. */
+@media (max-height: 500px) and (orientation: landscape) {
+  body.presentation-view .panel-dock { top: var(--header-clearance, 74px); bottom: 12px; left: auto; right: 10px; width: min(340px, 45vw); max-height: none; }
+  .tour-panel .mode-tabs { display: none; }
+  .tour-panel .tour-foot .btn, .tour-panel .tour-overview, .tour-playback .btn, .tour-playback select { min-height: 40px; }
+  .tour-playback label { font-size: 12px; }
+  .tour-panel .tour-title { font-size: 23px; }
+  .tour-panel .tour-progress { margin-bottom: 8px; }
+  .tour-panel .tour-count { margin-bottom: 4px; }
+}

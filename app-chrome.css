@@ -1,0 +1,110 @@
+/* Shared utilities remain discoverable while each mode keeps its own controls. */
+html, body { touch-action: pan-x pan-y pinch-zoom; }
+:root { --header-clearance: calc(84px + var(--sa-t)); }
+:where(button, summary, a, input, select):focus-visible {
+  outline: 3px solid var(--accent); outline-offset: 3px;
+}
+.app-header {
+  position: fixed; z-index: 10; top: calc(18px + var(--sa-t)); left: 22px;
+  display: flex; align-items: center; gap: 4px; padding: 4px 6px;
+  border-radius: 9px; background: var(--menu); pointer-events: auto;
+}
+.app-brand { font-size: 21px; line-height: 1; padding: 0 12px 0 6px; }
+.app-brand span { display: block; }
+.app-header .btn, .help-close {
+  min-height: 44px; min-width: 44px; display: inline-flex;
+  align-items: center; justify-content: center; gap: 6px;
+  font-size: 12px; letter-spacing: .02em; text-transform: none;
+  border: 0; border-radius: 6px; padding: 8px 10px;
+}
+.app-donate { text-decoration: none; color: var(--accent); }
+.app-donate svg { width: 17px; height: 17px; }
+.app-help-symbol { width: 21px; height: 21px; border: 1.5px solid currentColor; border-radius: 50%; font: 17px/20px Georgia, serif; }
+.app-language { position: relative; }
+.app-language summary { list-style: none; cursor: pointer; }
+.app-language summary::-webkit-details-marker { display: none; }
+.app-language-menu { position: absolute; right: 0; top: calc(100% + 8px); min-width: 170px; padding: 6px; border-radius: 8px; background: var(--menu); }
+.app-language-menu .btn { width: 100%; justify-content: flex-start; }
+.app-language-menu .btn[aria-pressed="true"]::after { content: '✓'; margin-left: auto; }
+.app-header [hidden], .app-help [hidden], .app-intro [hidden] { display: none !important; }
+.app-help, .app-intro {
+  background: var(--paper); color: var(--ink); border: 1px solid var(--rule-2);
+  border-radius: 16px; box-shadow: var(--shadow); font-family: inherit;
+  width: min(620px, calc(100vw - 28px)); max-height: calc(100dvh - 36px - var(--sa-t) - var(--sa-b));
+  padding: 24px; overscroll-behavior: contain;
+}
+.app-help::backdrop, .app-intro::backdrop { background: rgba(15, 17, 23, .58); backdrop-filter: blur(5px); }
+.app-help-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.app-help h2, .app-intro h1 { font-weight: 400; margin: 0; font-size: 36px; line-height: 1.1; }
+.app-help p { font-size: 18px; line-height: 1.45; }
+.help-eyebrow { font: 11px/1.5 "IBM Plex Mono", monospace; text-transform: uppercase; letter-spacing: .12em; color: var(--accent); margin: 0 0 10px; }
+.help-close { flex: none; border: 1px solid var(--rule-2); font-size: 25px; padding: 4px; }
+.help-controls { margin: 18px 0; display: grid; gap: 0; }
+.help-control { display: grid; grid-template-columns: 32px 1fr; gap: 12px; padding: 12px 0; border-top: 1px solid var(--rule); }
+.help-control > span { color: var(--accent); font-size: 23px; text-align: center; }
+.help-control dt { font-size: 19px; font-weight: 600; }
+.help-control dd { margin: 3px 0 0; font-size: 17px; line-height: 1.4; color: var(--ink-2); }
+.help-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.help-actions .btn { min-height: 44px; font-size: 12px; letter-spacing: .02em; text-transform: none; white-space: normal; }
+.help-actions [data-help-tour] { background: var(--accent); color: var(--paper); }
+.help-shortcuts { color: var(--ink-2); font-size: 15px !important; }
+.app-intro { text-align: center; width: min(710px, calc(100vw - 28px)); padding: 32px; }
+.intro-emblem { color: var(--accent); font-size: 46px; line-height: 1; margin: 0 0 16px; }
+.intro-description { font-size: 20px; line-height: 1.4; color: var(--ink-2); margin: 13px auto 24px; max-width: 40ch; }
+.intro-modes { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.intro-mode { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 16px 8px; min-width: 0; border-radius: 10px; border: 1px solid var(--rule-2); background: var(--field); color: var(--ink); cursor: pointer; font: inherit; }
+.intro-mode:hover:not(:disabled) { background: var(--hi-2); border-color: var(--accent); }
+.intro-mode:disabled { cursor: wait; }
+.intro-mode > span { font-size: 31px; color: var(--accent); line-height: 1; }
+.intro-mode strong { font-size: 20px; font-weight: 500; }
+.intro-mode small { font-size: 15px; line-height: 1.3; color: var(--ink-2); }
+.intro-status { font: 12px/1.6 "IBM Plex Mono", monospace; color: var(--ink-2); margin: 24px 0 8px; }
+.intro-loading { display: block; height: 2px; width: 72px; margin: 16px auto 0; background: var(--rule); overflow: hidden; }
+.intro-loading::after { content: ''; display: block; width: 50%; height: 100%; background: var(--accent); animation: intro-loading 1.4s ease-in-out infinite alternate; }
+.intro-skip { min-height: 44px; font-size: 12px; letter-spacing: .03em; }
+@keyframes intro-loading { to { transform: translateX(100%); } }
+/* Readable labels and real touch targets throughout menus and the shared dock. */
+.controls .btn { min-height: 44px; font-size: 12px; letter-spacing: .055em; }
+.menu-body .btn, .menu-body .menu-row { font-size: 12px; letter-spacing: .03em; }
+.panel-dock .btn { min-height: 44px; font-size: 12px; letter-spacing: .025em; }
+body.board-only .board-view { padding-top: calc(86px + var(--sa-t)); }
+body.world-only .board-view, body.world-only.index-open .board-view {
+  top: var(--header-clearance);
+}
+body.game-setup .app-header { visibility: hidden; }
+body.tour-view .compass { top: calc(86px + var(--sa-t)); }
+@media (min-width: 701px) and (max-width: 1080px) {
+  .app-brand { display: none; }
+  .app-header { left: 14px; }
+  .controls { right: 14px; }
+}
+@media (max-width: 700px) {
+  :root { --header-clearance: calc(70px + var(--sa-t)); }
+  .app-header { top: calc(8px + var(--sa-t)); left: 9px; right: 9px; gap: 1px; padding: 3px; }
+  .app-brand { margin-right: auto; padding: 0 6px; font-size: 18px; }
+  .app-header .btn { padding: 8px; }
+  .app-help-label { display: none; }
+  .app-help, .app-intro { padding: 20px; width: calc(100vw - 20px); }
+  .app-help h2, .app-intro h1 { font-size: 30px; }
+  .intro-modes { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .intro-mode { padding: 13px 8px; gap: 6px; }
+  .intro-description { font-size: 18px; margin-bottom: 18px; }
+  .intro-emblem { font-size: 36px; margin-bottom: 10px; }
+  .intro-status { margin-top: 16px; }
+  .controls > .btn, .controls .menu > .btn { font-size: 12px; letter-spacing: .02em; }
+  .menu-body .menu-row .seg .btn { min-height: 44px; }
+  .sheet .sheet-scroll { font-size: 18px; }
+  body.board-only .board-view { padding-top: calc(72px + var(--sa-t)); }
+  body.tour-view .compass { top: calc(74px + var(--sa-t)); }
+}
+@media (max-height: 500px) {
+  .app-intro { padding: 16px; }
+  .intro-emblem { display: none; }
+  .intro-modes { grid-template-columns: repeat(4, 1fr); }
+  .intro-description { margin: 8px auto 12px; font-size: 17px; }
+  .intro-status { margin: 12px 0 4px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .intro-loading::after { animation: none; width: 100%; }
+  *, *::before, *::after { scroll-behavior: auto !important; }
+}

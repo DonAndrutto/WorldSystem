@@ -56,7 +56,7 @@
     --surface: rgba(246, 241, 231, .86);
     --ink: #23201a;
     --ink-2: #5c5445;
-    --ink-3: #8a8170;
+    --ink-3: #6f6656;
     --rule: rgba(35, 32, 26, .15);
     --rule-2: rgba(35, 32, 26, .3);
     --accent: #7a5a2e;
@@ -539,16 +539,14 @@
     display: grid; justify-items: center; gap: 3px; border: 0; background: none;
     padding: 0; cursor: pointer; font: inherit; color: var(--ink-2);
   }
-  /* A heap mark has to be read where it lands — often over the plate, often
-     with its neighbours touching it. The disc is opaque and carries its own
-     lift, so overlapping marks still separate, and the number is set a size
-     up from the rest of the small type. */
+  /* Compact opaque discs keep all thirty-seven heaps readable without
+     covering their illustrations. Touch targets extend beyond the disc. */
   .mk .n {
-    touch-action: none;
-    width: 23px; height: 23px; border-radius: 50%; display: grid; place-items: center;
+    touch-action: none; position: relative;
+    width: 20px; height: 20px; border-radius: 50%; display: grid; place-items: center;
     border: 1px solid var(--rule-2); background: var(--mark); pointer-events: auto;
     box-shadow: var(--mark-lift); color: var(--ink);
-    cursor: pointer; font-family: "IBM Plex Mono", monospace; font-size: 11px;
+    cursor: pointer; font-family: "IBM Plex Mono", monospace; font-size: 10px;
     font-weight: 500; line-height: 1;
     transition: background-color .14s, color .14s, border-color .14s, transform .14s;
   }
@@ -660,14 +658,14 @@
   body.hide-heap-numbers .marks .mk { display: none !important; }
   .mk.now .n {
     background: var(--accent); color: var(--paper); border-color: var(--accent);
-    transform: scale(1.42);
+    transform: scale(1.2);
   }
   .mk.now .lb { opacity: 1; }
   .mk.fresh .n { animation: heap-in .5s cubic-bezier(.18,.9,.24,1), heap-ring 1.1s ease-out .08s; }
   @keyframes heap-in {
     0%   { transform: scale(.2); opacity: .25; }
-    62%  { transform: scale(1.64); opacity: 1; }
-    100% { transform: scale(1.42); }
+    62%  { transform: scale(1.35); opacity: 1; }
+    100% { transform: scale(1.2); }
   }
   @keyframes heap-ring {
     0%   { box-shadow: 0 0 0 0 var(--hi-2); }
@@ -755,7 +753,6 @@
        disc a thumb can still find, and only the heap being spoken of — or
        the one just touched — says its name; the rest hold their number and
        let the maṇḍala they stand on be seen. */
-    .mk .n { width: 26px; height: 26px; font-size: 11px; }
     .mk.roomy .lb { opacity: 0; }
     .mk:hover .lb, .mk[aria-current="true"] .lb, .mk.now .lb { opacity: 1; }
     .mk .lb { font-size: 11.5px; }
@@ -767,7 +764,7 @@
   }
   /* touch: bigger targets */
   @media (pointer: coarse) {
-    .mk .n { width: 30px; height: 30px; font-size: 12px; }
+    .mk .n::before { content: ""; position: absolute; inset: -4px; border-radius: 50%; }
     .mk .lb { font-size: 12.5px; }
     .x { width: 34px; height: 34px; font-size: 20px; }
     .index .row { padding: 7px 18px; }
@@ -1731,6 +1728,8 @@
   }
 </style>
 <link rel="stylesheet" href="game-ui.css">
+<link rel="stylesheet" href="presentation-tours.css">
+<link rel="stylesheet" href="app-chrome.css">
 </head>
 <body>
 
@@ -1927,6 +1926,7 @@
       <button class="pb" data-p="next" type="button" title="Forward one — ." aria-label="Forward one">›</button>
       <button class="pb" data-p="reset" type="button" title="Start again" aria-label="Start again">↻</button>
       <button class="pb" data-p="rate" type="button" title="Speed">1×</button>
+      <button class="pb" data-numbers type="button" aria-pressed="true" aria-controls="offering-marks" title="Show or hide heap numbers">Numbers</button>
       <span class="count">0 / 37</span>
     </div>
     <div class="off-bar"><i></i></div>
@@ -1937,7 +1937,6 @@
     </div>
     <div class="off-full scroll" hidden=""></div>
     <div class="off-foot">
-      <button class="btn" data-numbers type="button" aria-pressed="true" aria-controls="offering-marks">Numbers</button>
       <button class="btn" data-p="full" type="button" title="The whole verse — v">Full verse</button>
       <button class="btn" data-p="overview" type="button">Whole mandala</button>
       <button class="btn" data-open="about_mandala" type="button">About the offering</button>
@@ -1953,7 +1952,7 @@
       <p class="tour-count mono" role="status" aria-live="polite" aria-atomic="true"></p>
       <progress class="tour-progress" max="37" value="1" aria-label="Tour progress"></progress>
       <h2 class="tour-title"></h2><p class="tour-name"></p><p class="tour-position mono"></p>
-      <p class="tour-copy"></p>
+      <div class="tour-copy"></div>
       <p class="tour-art-note">Modern painted interpretation. Colours, dress and poses are illustrative.</p>
       <label class="tour-jump-label" for="tour-jump">Go to an offering</label>
       <select id="tour-jump" aria-label="Go to an offering"></select>
@@ -1961,14 +1960,21 @@
         <button class="btn" data-numbers type="button" aria-pressed="true" aria-controls="offering-marks">Numbers</button>
         <button class="btn" type="button" data-tour="entry">Read entry &amp; sources</button>
         <button class="btn" type="button" data-tour="frame">Re-centre</button>
+        <button class="btn" type="button" data-tour="restart">Restart</button>
       </div>
       <p class="tour-help">Take your time. Drag to look around and scroll or pinch to zoom. Use the arrows to visit the next heap.</p>
     </div>
     <footer class="tour-foot">
       <button class="btn" type="button" data-tour="prev">Previous</button>
       <button class="btn" type="button" data-tour="next">Next heap</button>
+      <button class="btn tour-overview" type="button" data-tour="overview">End tour</button>
     </footer>
-    <button class="btn tour-overview" type="button" data-tour="overview">Return to whole mandala</button>
+    <div class="tour-playback">
+      <button class="btn" type="button" data-tour="play" aria-pressed="false">Play presentation</button>
+      <label for="tour-pace">Pace <select id="tour-pace" aria-label="Time per slide">
+        <option value="1.5">1.5 seconds</option><option value="3">3 seconds</option><option value="5" selected>5 seconds</option><option value="8">8 seconds</option>
+      </select></label>
+    </div>
   </section>
   <section class="sheet card" hidden="">
     <div class="grip">
@@ -2021,9 +2027,12 @@
 </div>
 
 <script src="locales/pl.js"></script>
+<script src="presentation-locales.js"></script>
+<script src="app-chrome.js"></script>
 <script type="module">
-import { createOfferingModels, OFFERING_ART } from './mandala-offerings.js';
+import { createOfferingModels, OFFERING_ART, offeringBackground } from './mandala-offerings.js';
 import { TOUR_NOTES } from './mandala-tour.js';
+import { createPresentationTours, createPresentationPlayer } from './presentation-tours.js';
 import { installViewportGestures } from './viewport-gestures.js';
 import { createGoldenRangeGeometry, createWaterNormalMap, createWaterMaterial, createWaterGeometry } from './world-surfaces.js';
 import { createSummitDetail } from './summit-detail.js';
@@ -2051,6 +2060,7 @@ let THREE;
 try {
   ({ THREE } = await stage.ready);
 } catch (err) {
+  window.dispatchEvent(new CustomEvent('ws-app-error'));
   const note = document.querySelector('.glnote');
   note.querySelector('span').textContent =
     'The 3D library did not load. Check the connection and try again.';
@@ -4523,6 +4533,8 @@ const indexEl = document.querySelector('.index');
 
 let order = [];   // flat reading order, filled when the index is built
 let touring = false, tourIndex = 0;
+let guidedMode = null, tourPlayer = null, tourReturnLayout = null, tourPreviousMotion = null, tourPreviousSelection = null;
+const presentationActive = () => touring || guidedMode !== null;
 const dock = document.querySelector('.panel-dock');
 const tourEl = document.querySelector('.tour-panel');
 const boardEl = document.querySelector('.board-view');
@@ -4540,6 +4552,7 @@ function wheelPart(id) {
 }
 function close() {
   if (touring) { visitHeap(tourIndex, false); return; }
+  if (guidedMode) { renderGuidedStop(tourPlayer.state(), false); return; }
   invalidate(3);
   clearPick();
   if (wheelView) wheelView.select(null);
@@ -4553,6 +4566,7 @@ function close() {
    as it stands. */
 const bodyBlock = (p) => (/^<(?:ul|ol|blockquote)\b/.test(p) ? p : '<p class="body">' + p + '</p>');
 function show(id, reveal) {
+  if (presentationActive()) tourPlayer?.pause();
   const e = E[id];
   if (!e) return;
   setOpen(false, false);
@@ -4623,19 +4637,19 @@ function show(id, reveal) {
   entryArt.classList.toggle('field', !!field);
   if (art || field) {
     const image = entryArt.querySelector('div');
-    const where = field ? cellBackground(field) : null;
+    const where = field ? cellBackground(field) : offeringBackground(art);
     image.style.backgroundImage = 'url("' + (field ? field.sheet : art.url) + '")';
-    image.style.backgroundPosition = where ? where.position
-      : ((art.cell % 4) / 3 * 100) + '% ' + (Math.floor(art.cell / 4) * 100) + '%';
-    image.style.backgroundSize = where ? where.size : '';
+    image.style.backgroundPosition = where.position;
+    image.style.backgroundSize = where.size;
+    image.style.aspectRatio = field ? '' : where.aspectRatio;
     image.setAttribute('aria-label', field ? field.attribute : art.attribute);
     entryArt.querySelector('figcaption').textContent = field
       ? 'The field this square is drawn as on the board'
       : 'Modern painted interpretation';
   }
   sheetTour.hidden = !HEAP_NUMBERS.has(id) || touring;
-  sheetBack.hidden = !mandala;
-  sheetBack.textContent = touring ? 'Back to tour' : 'Back to recitation';
+  sheetBack.hidden = !mandala && !guidedMode;
+  sheetBack.textContent = presentationActive() ? 'Back to tour' : 'Back to recitation';
   const pos = order.indexOf(id);
   prevBtn.disabled = pos <= 0;
   nextBtn.disabled = pos < 0 || pos >= order.length - 1;
@@ -4850,6 +4864,7 @@ function stepMotion() {
   placeLuminaries();
   lightFromSky();
   invalidate(2);
+  return dt;
 }
 
 function fly(toPos, toTarget, dur = 800, exterior = false) {
@@ -4940,8 +4955,11 @@ glCanvas.addEventListener('webglcontextrestored', () => {
    be asked to do for no reason, so it is not asked. */
 const worldHidden = () => document.body.classList.contains('board-only') || mode === 'wheel';
 const drawLoop = () => {
-  if (glLost) return;
-  if (motion) stepMotion();
+  if (glLost || document.hidden) return;
+  if (motion) {
+    const dt = stepMotion();
+    if (mode === 'wheel') wheelView?.advanceMotion(dt);
+  }
   ctr.update();                        // fires 'change' → invalidate, when moving
   if (frames <= 0) return;
   if (worldHidden()) { frames = 0; return; }
@@ -4972,8 +4990,11 @@ function focus(id, direction = null, padding = 1.3) {
   const half = Math.tan(cam.fov * Math.PI / 360);
   // A camera-facing image can be fitted by its actual width and height.
   // Keep the more conservative sphere framing for volumetric heaps.
+  const imageMesh = illustration?.children[0]?.children?.find?.(child => child.geometry) || illustration?.children?.find?.(child => child.geometry);
+  const imageGeometry = imageMesh?.geometry;
+  const imageSize = imageGeometry ? (imageGeometry.boundingBox || (imageGeometry.computeBoundingBox(), imageGeometry.boundingBox)) : null;
   const dist = illustration
-    ? Math.max(0.73 * illustration.scale.x / fr.w, 0.98 * illustration.scale.y / fr.h)
+    ? Math.max((imageSize?.max.x - imageSize?.min.x || 0.73) * illustration.scale.x / fr.w, (imageSize?.max.y - imageSize?.min.y || 0.98) * illustration.scale.y / fr.h)
       * h / (2 * half * 0.84)
     : r * padding / half * h / Math.min(fr.w, fr.h);
   aimAt(sph.center, dist, fr, direction);
@@ -4989,7 +5010,7 @@ function aimAt(centre, dist, fr, direction = null, dur) {
   const dir = direction ? direction.clone() : cam.position.clone().sub(ctr.target);
   if (dir.lengthSq() < 1e-9) dir.set(1, 0.6, 1.25);
   dir.normalize();
-  if (dir.y < 0.22) { dir.y = 0.22; dir.normalize(); }
+  if (!direction && dir.y < 0.22) { dir.y = 0.22; dir.normalize(); }
   const right = new THREE.Vector3().crossVectors(new THREE.Vector3(0, 1, 0), dir).normalize();
   const up = new THREE.Vector3().crossVectors(dir, right).normalize();
   const perPx = 2 * dist * half / h;
@@ -5217,7 +5238,7 @@ function syncChrome() {
   indexEl.inert = !indexOpen;
   if (indexOpen) sheet.hidden = true;
   noteEl.hidden = !mandala || touring || !sheet.hidden || indexOpen;
-  tourEl.hidden = !touring || !sheet.hidden || indexOpen;
+  tourEl.hidden = !presentationActive() || !sheet.hidden || indexOpen;
   boardEl.hidden = mode !== 'game';
   wheelEl.hidden = mode !== 'wheel';
   document.body.classList.toggle('wheel-on', mode === 'wheel');
@@ -5231,6 +5252,7 @@ function syncChrome() {
   document.body.classList.toggle('panel-open', !dock.hidden);
   document.body.classList.toggle('min-menus', minPlay);
   document.body.classList.toggle('tour-view', touring);
+  document.body.classList.toggle('presentation-view', presentationActive());
   document.body.classList.toggle('game-view', mode === 'game');
   // measured here rather than per frame; the label reads it every frame
   rbLabelClip = (mode === 'game' && !boardEl.hidden && !document.body.classList.contains('world-only'))
@@ -5271,10 +5293,18 @@ function freeRect() {
     });
     ins[best.k] = Math.max(ins[best.k], best.v);
   };
-  [document.querySelector('.controls'), dock, boardEl, document.querySelector('.game-focus')].forEach(eat);
+  // Utility bars belong to the top or bottom. Charging a short header to a
+  // side before measuring the reading dock can squeeze landscape views twice.
+  for (const bar of document.querySelectorAll('.app-header, .controls')) {
+    const q = bar.getBoundingClientRect();
+    if (q.width < 6 || q.height < 6) continue;
+    const edge = q.top + q.height / 2 < h / 2 ? 't' : 'b';
+    ins[edge] = Math.max(ins[edge], edge === 't' ? q.bottom : h - q.top);
+  }
+  [dock, boardEl, document.querySelector('.game-focus')].forEach(eat);
   const pad = 14;
   /* a dock panel may claim two fifths of the width; the board claims most of it */
-  const side = mode === 'game' ? 0.76 : 0.4;
+  const side = mode === 'game' ? 0.76 : presentationActive() ? 0.55 : 0.4;
   const l = Math.min(ins.l + pad, w * side), r = Math.min(ins.r + pad, w * side);
   const t = Math.min(ins.t + pad, h * 0.3), b = Math.min(ins.b + pad, h * 0.72);
   return {
@@ -5411,6 +5441,7 @@ function placeCompass() {
 }
 const OVERHEAD = ['heaven_', 'formless_'];
 function setMandala(on) {
+  if (presentationActive()) endPresentation(false);
   restoreTourVisibility();
   touring = false;
   sheet.hidden = true;
@@ -5672,7 +5703,10 @@ const goTo = (id) => {
   else if (!mandala) focus(id, null, 1.3);
 };
 
-/* The study tour has no recitation timer. Each stop corresponds to one heap. */
+/* Presentation playback has its own timer; recitation never advances a tour. */
+const PRESENTATION_TOURS = createPresentationTours({
+  entries: E, tree: TREE, heaps: HEAPS, squares: RB_SQUARES, wheelTree: WHEEL_TREE, resolveEntry: entryFor
+});
 HEAPS.forEach(([number, id]) => {
   const option = document.createElement('option');
   option.value = String(number - 1);
@@ -5707,6 +5741,8 @@ function tourFocus() {
 function reframeOffering() { if (touring) tourFocus(); else mandalaFly(420); }
 function visitHeap(index, move = true) {
   if (!touring) return;
+  const bounded = Math.max(0, Math.min(HEAPS.length - 1, index));
+  if (tourPlayer?.state().mode === 'mandala' && tourPlayer.state().index !== bounded) { tourPlayer.go(bounded); return; }
   tourIndex = Math.max(0, Math.min(HEAPS.length - 1, index));
   clearTimeout(framePut);
   pausePlay();
@@ -5733,33 +5769,205 @@ function visitHeap(index, move = true) {
   if (move) tourFocus();
   invalidate();
 }
+function prepareTourPanel(tourMode) {
+  const heaps = tourMode === 'mandala';
+  tourEl.setAttribute('aria-label', heaps ? 'Tour of the 37 heaps' : 'Guided presentation');
+  tourEl.querySelector('.mode-tabs').hidden = !heaps;
+  tourEl.querySelector('[data-numbers]').hidden = !heaps;
+  tourEl.querySelector('.tour-jump-label').textContent = heaps ? 'Go to an offering' : 'Go to a stop';
+  tourSelect.setAttribute('aria-label', heaps ? 'Go to an offering' : 'Go to a stop');
+  tourEl.querySelector('.tour-overview').textContent = 'End tour';
+  tourEl.querySelector('.tour-overview').title = heaps ? 'Return to whole mandala' : 'End tour';
+  tourEl.querySelector('.tour-progress').max = heaps ? HEAPS.length : PRESENTATION_TOURS[tourMode].length;
+  tourSelect.replaceChildren();
+  const stops = heaps ? HEAPS.map(([number, id]) => ({ id })) : PRESENTATION_TOURS[tourMode];
+  stops.forEach((stop, i) => {
+    const option = document.createElement('option');
+    option.value = String(i);
+    option.textContent = (i + 1) + '. ' + (stop.title || E[stop.id]?.t || stop.id);
+    tourSelect.appendChild(option);
+  });
+}
+function rememberTourMotion() {
+  tourPreviousMotion = { on: motion, pace: motionPace };
+  setMotionPace('slow', false);
+  setMotion(!reducedMotion(), false);
+}
+function restorePresentationMotion() {
+  if (tourPreviousMotion !== null) {
+    setMotionPace(tourPreviousMotion.pace, false);
+    setMotion(tourPreviousMotion.on, false);
+  }
+  tourPreviousMotion = null;
+}
 function startTour(index = 0) {
+  if (presentationActive()) endPresentation(false);
   setMandala(true);
+  rememberTourMotion();
   touring = true;
   resetPlay();
-  visitHeap(index);
+  prepareTourPanel('mandala');
+  tourPlayer.start('mandala', HEAPS.length, index);
+  setMotion(!reducedMotion(), false);
+  reframeAfterPanels();
 }
-function endTour() {
+function endTour(overview = true) {
+  tourPlayer?.stop();
   touring = false;
   sheet.hidden = true;
   current = null;
   resetPlay();
   orientOfferingCards();
   syncChrome();
-  mandalaFly(700);
+  restorePresentationMotion();
+  if (overview) mandalaFly(700);
 }
+function startPresentation(next = mode) {
+  if (!['explore', 'mandala', 'game', 'wheel'].includes(next)) return;
+  if (next === 'mandala') { startTour(); return; }
+  if (presentationActive()) endPresentation(false);
+  setMode(next);
+  pausePlay();
+  setOpen(false, false);
+  closeMenus();
+  rememberTourMotion();
+  if (next === 'game') {
+    rbCloseAsk(); rbHideCard(); rbCancelTransition(); rbClearFocus();
+    tourReturnLayout = rbView3D;
+    tourPreviousSelection = rbSelected;
+    rbLayout('world', false, false);
+  }
+  guidedMode = next;
+  prepareTourPanel(next);
+  tourPlayer.start(next, PRESENTATION_TOURS[next].length);
+  setMotion(!reducedMotion(), false);
+  reframeAfterPanels();
+}
+function renderGuidedStop(state, move = true) {
+  if (!guidedMode) return;
+  const stop = PRESENTATION_TOURS[guidedMode][state.index], entry = E[stop.id];
+  setOpen(false, false);
+  sheet.hidden = true;
+  clearPick();
+  current = stop.id;
+  tourEl.querySelector('.tour-count').textContent = 'Stop ' + (state.index + 1) + ' / ' + state.length;
+  tourEl.querySelector('.tour-progress').value = state.index + 1;
+  tourEl.querySelector('.tour-title').textContent = stop.title || entry?.t || stop.id;
+  tourEl.querySelector('.tour-name').textContent = entry?.tib || '';
+  tourEl.querySelector('.tour-position').textContent = entry?.meta || '';
+  tourEl.querySelector('.tour-copy').innerHTML = entry?.b?.[0] || entry?.meta || '';
+  tourEl.querySelector('.tour-art-note').hidden = true;
+  tourEl.querySelector('[data-tour="prev"]').disabled = state.index === 0;
+  tourEl.querySelector('[data-tour="next"]').textContent = state.index === state.length - 1 ? 'Finish tour' : 'Next stop';
+  tourEl.querySelector('[data-tour="entry"]').disabled = !entry;
+  tourSelect.value = String(state.index);
+  tourEl.querySelector('.tour-scroll').scrollTop = 0;
+  if (guidedMode === 'game' && /^rebirth_sq_/.test(stop.id)) rbSelect(Number(stop.id.slice(11)), false);
+  if (guidedMode === 'wheel') wheelView.select(wheelPart(stop.id));
+  else tintOnly(stop.id);
+  syncChrome();
+  if (move) framePresentationStop();
+}
+function framePresentationStop() {
+  if (touring) { tourFocus(); return; }
+  if (!guidedMode) return;
+  const stop = PRESENTATION_TOURS[guidedMode][tourPlayer.state().index];
+  if (guidedMode === 'wheel') {
+    wheelView.resize();
+    const part = wheelPart(stop.id) || E[stop.id]?.rel?.find(id => wheelPart(id));
+    if (part) wheelView.focus(wheelPart(part)); else wheelView.home();
+  } else if (guidedMode === 'game') {
+    if (!/^rebirth_sq_/.test(stop.id)) { reframeGame(); return; }
+    const anchor = rbFocusAnchor(stop.id);
+    if (!anchor) return;
+    const meruBounds = new THREE.Box3();
+    world.updateMatrixWorld(true);
+    byName.forEach((meshes, name) => {
+      if (/^(meru_|king_|vaijayanta)/.test(name) || name === 'sudarshana_city') meshes.forEach(mesh => meruBounds.expandByObject(mesh));
+    });
+    meruBounds.min.y = Math.max(0, meruBounds.min.y);
+    const composition = composeGameFocus(THREE, { anchor, meruBounds, summit: SUMMIT,
+      viewport: { w: stage.clientWidth, h: stage.clientHeight }, rect: freeRect(), fov: cam.fov });
+    fly(composition.position, composition.target, 750, true);
+  } else {
+    const meshes = meshesFor(stop.id);
+    if (!meshes.length) { reframeExplore(); return; }
+    world.updateMatrixWorld(true);
+    const bounds = new THREE.Box3();
+    meshes.forEach(mesh => bounds.expandByObject(mesh));
+    const centre = bounds.getCenter(new THREE.Vector3());
+    const radial = Math.hypot(centre.x, centre.z);
+    let direction = new THREE.Vector3(1, 0.65, 1.25);
+    if (/^(range_|seven_inner|salt_ocean|cakravada)/.test(stop.id)) direction.set(0.2, 2.8, 1);
+    else if (centre.y < FLOOR * 0.5) direction.set(radial > 0.01 ? centre.x : 1, -Math.max(radial * 0.2, 0.35), radial > 0.01 ? centre.z : 1.25);
+    else if (radial > 0.03) direction.set(centre.x, Math.max(radial * 0.8, 0.3), centre.z);
+    focus(stop.id, direction, 1.8);
+  }
+  invalidate(4);
+}
+function endPresentation(overview = true) {
+  if (touring) { endTour(overview); return; }
+  if (!guidedMode) return;
+  const previous = guidedMode;
+  guidedMode = null;
+  tourPlayer.stop();
+  sheet.hidden = true;
+  clearPick(); current = null;
+  if (previous === 'wheel') wheelView.select(null);
+  syncChrome();
+  if (previous === 'game' && tourReturnLayout) rbLayout(tourReturnLayout, false, false);
+  if (previous === 'game' && tourPreviousSelection !== null) rbSelect(tourPreviousSelection, false);
+  tourPreviousSelection = null;
+  tourReturnLayout = null;
+  restorePresentationMotion();
+  if (overview) {
+    if (previous === 'wheel') wheelView.home();
+    else if (previous === 'game') reframeGame();
+    else home();
+  }
+}
+tourPlayer = createPresentationPlayer({ clock: window,
+  onVisit: state => { if (state.mode === 'mandala') visitHeap(state.index); else renderGuidedStop(state); },
+  onState: (state, reason) => {
+    if (state.active && presentationActive()) {
+      if (reason === 'play') { setMotionPace('slow', false); setMotion(!reducedMotion(), false); }
+      if (reason === 'pause') setMotion(false, false);
+    }
+    const play = tourEl.querySelector('[data-tour="play"]');
+    play.textContent = state.playing ? 'Pause presentation' : 'Play presentation';
+    play.setAttribute('aria-pressed', String(state.playing));
+    document.dispatchEvent(new CustomEvent('ws-tour-change', { detail: state }));
+  }
+});
+window.WorldSystemTours = {
+  start: startPresentation, pause: () => tourPlayer.pause(), end: endPresentation,
+  state: () => tourPlayer.state(), routes: PRESENTATION_TOURS
+};
+document.addEventListener('ws-start-tour', event => startPresentation(event.detail?.mode || mode));
+document.addEventListener('visibilitychange', () => { if (document.hidden) tourPlayer.pause(); });
+window.addEventListener('ws-help-open', () => pausePlay());
+window.addEventListener('ws-layout-change', () => reframeAfterPanels());
+window.addEventListener('resize', () => { if (presentationActive()) reframeAfterPanels(); });
+// Exploring by hand pauses the presentation before a timed advance can move it.
+ctr.addEventListener('start', () => { if (presentationActive()) tourPlayer.pause(); });
+wheelEl.addEventListener('pointerdown', () => { if (guidedMode) tourPlayer.pause(); }, { passive: true });
+wheelEl.addEventListener('wheel', () => { if (guidedMode) tourPlayer.pause(); }, { passive: true });
 for (const button of document.querySelectorAll('[data-view]')) button.addEventListener('click', () => {
   if (button.dataset.view === 'tour') startTour(touring ? tourIndex : 0);
   else if (touring) endTour();
 });
-tourSelect.addEventListener('change', () => visitHeap(Number(tourSelect.value)));
+tourSelect.addEventListener('change', () => tourPlayer.go(Number(tourSelect.value)));
+tourEl.querySelector('#tour-pace').addEventListener('change', event => tourPlayer.setSeconds(event.target.value));
 tourEl.addEventListener('click', event => {
   const action = event.target.closest('[data-tour]')?.dataset.tour;
-  if (action === 'prev') visitHeap(tourIndex - 1);
-  if (action === 'next') { if (tourIndex === 36) endTour(); else visitHeap(tourIndex + 1); }
-  if (action === 'overview') endTour();
-  if (action === 'frame') tourFocus();
-  if (action === 'entry') show(HEAPS[tourIndex][1], true);
+  const state = tourPlayer.state();
+  if (action === 'prev') tourPlayer.go(state.index - 1);
+  if (action === 'next') { if (state.index === state.length - 1) endPresentation(); else tourPlayer.go(state.index + 1); }
+  if (action === 'overview') endPresentation();
+  if (action === 'frame') { tourPlayer.pause(); framePresentationStop(); }
+  if (action === 'restart') tourPlayer.restart();
+  if (action === 'play') tourPlayer.toggle();
+  if (action === 'entry') show(touring ? HEAPS[tourIndex][1] : PRESENTATION_TOURS[guidedMode][state.index].id, true);
 });
 
 /* ── build the index ─────────────────────────────────────────────────── */
@@ -5828,7 +6036,7 @@ search.addEventListener('input', () => {
 /* ── controls ────────────────────────────────────────────────────────── */
 const indexBtn = document.querySelector('[data-act="index"]');
 const setOpen = (open, reframeView = true) => {
-  if (open) pausePlay();
+  if (open) { pausePlay(); tourPlayer?.pause(); }
   document.body.classList.toggle('index-open', open);
   syncChrome();
   indexBtn.setAttribute('aria-pressed', String(open));
@@ -6590,12 +6798,18 @@ function rbAskNew() {
   // whoever is playing now, so the usual case is New game then Start
   rbNameFields(rbGame.players.map(rbGivenName));
   rbAsk.hidden = false;
+  document.body.classList.add('game-setup');
+  const appHeader = document.querySelector('.app-header');
+  if (appHeader) appHeader.inert = true;
   rbGrid.inert = true; boardEl.querySelector('.bv-rail').inert = true; controlsEl.inert = true;
   const first = rbNames.querySelector('input');
   if (first) first.focus();
 }
 function rbCloseAsk() {
   rbAsk.hidden = true;
+  document.body.classList.remove('game-setup');
+  const appHeader = document.querySelector('.app-header');
+  if (appHeader) appHeader.inert = false;
   rbGrid.inert = false; boardEl.querySelector('.bv-rail').inert = false; controlsEl.inert = false;
   try { localStorage.setItem('ws-game-onboarded', '1'); } catch {}
   rbThrowBtn.focus();
@@ -7005,6 +7219,7 @@ function reframeExplore(dur = 420) {
 /* Panels open, fold and resize under all three views; the model is framed in
    whatever they leave, so the same answer is asked of whichever one is up. */
 function reframeCurrent(dur = 420) {
+  if (presentationActive()) { framePresentationStop(); return; }
   if (mandala) reframeOffering();
   else if (mode === 'game') {
     if (gameFocus) rbFrameFocus(dur);
@@ -7063,6 +7278,7 @@ function syncModeButtons() {
 }
 function setMode(next) {
   if (next === mode) return;
+  if (presentationActive()) endPresentation(false);
   if (mode === 'game') leaveGame();
   if (mode === 'wheel') leaveWheel();
   if (next === 'mandala') setMandala(true);
@@ -7076,6 +7292,7 @@ function setMode(next) {
   syncModeButtons();
   syncChrome();
   syncHome();
+  document.dispatchEvent(new CustomEvent('ws-mode-change', { detail: { mode } }));
   invalidate(4);
 }
 
@@ -7117,7 +7334,7 @@ document.querySelector('.upright [data-upright="world"]')
 
 /* ── the motion switch ───────────────────────────────────────────────── */
 const motionBtn = document.querySelector('[data-act="motion"]');
-function setMotion(on) {
+function setMotion(on, remember = true) {
   motion = on;
   lastFrame = performance.now();
   ctr.autoRotate = on && !anim && !orbitInteracting && !gameFocus;
@@ -7128,19 +7345,19 @@ function setMotion(on) {
   motionBtn.querySelector('.t').textContent = on ? 'Hold still' : 'Motion';
   motionBtn.title = (on ? 'Hold still' : 'Set it turning') + ' \u2014 r';
   invalidate(4);
-  try { localStorage.setItem('ws-motion', on ? '1' : '0'); } catch (err) {}
+  if (remember) { try { localStorage.setItem('ws-motion', on ? '1' : '0'); } catch (err) {} }
 }
 
 /* How fast that one movement goes. The sun and moon keep the angle they have
    reached: a pace is a change of speed, not a return to the east. */
 const paceButtons = [...document.querySelectorAll('[data-speed]')];
-function setMotionPace(next) {
+function setMotionPace(next, remember = true) {
   motionPace = MOTION_PACE[next] ? next : 'slow';
   ctr.autoRotateSpeed = MOTION_PACE[motionPace].turn;
   paceButtons.forEach((b) =>
     b.setAttribute('aria-pressed', String(b.dataset.speed === motionPace)));
   lastFrame = performance.now();
-  try { localStorage.setItem('ws-motion-pace', motionPace); } catch (err) {}
+  if (remember) { try { localStorage.setItem('ws-motion-pace', motionPace); } catch (err) {} }
   invalidate(2);
 }
 
@@ -7323,14 +7540,21 @@ canvas.addEventListener('pointerup', (e) => {
   if (!touring) close();
 });
 window.addEventListener('keydown', (e) => {
+  if (e.defaultPrevented || e.ctrlKey || e.metaKey || e.altKey) return;
   if (e.key === 'Escape' && rbMenus.some(m => m.open)) {
     rbMenus.forEach(m => { m.open = false; }); e.target.blur?.(); e.preventDefault(); return;
   }
   if (['INPUT', 'SELECT', 'TEXTAREA'].includes(e.target.tagName) || e.target.isContentEditable) {
     if (e.key === 'Escape') e.target.blur(); return;
   }
-  if (touring && sheet.hidden && !document.body.classList.contains('index-open') && ['ArrowLeft', 'ArrowRight'].includes(e.key)) {
-    e.preventDefault(); visitHeap(tourIndex + (e.key === 'ArrowRight' ? 1 : -1)); return;
+  if (presentationActive() && sheet.hidden && !document.body.classList.contains('index-open')) {
+    if (['ArrowLeft', 'ArrowRight'].includes(e.key)) {
+      e.preventDefault(); tourPlayer.go(tourPlayer.state().index + (e.key === 'ArrowRight' ? 1 : -1)); return;
+    }
+    if ((e.key === ' ' && !e.target.closest('button, a, summary')) || e.key.toLowerCase() === 'p') {
+      e.preventDefault(); tourPlayer.toggle(); return;
+    }
+    if (e.key === 'Escape') { e.preventDefault(); endPresentation(); return; }
   }
   if (e.key === 'Escape') {
     if (MENUS.some((m) => m.open)) { closeMenus(); return; }
@@ -7372,6 +7596,8 @@ window.addEventListener('keydown', (e) => {
   if (e.key === '.' || e.key === '>') stepBy(1);
   if (e.key === ',' || e.key === '<') stepBy(-1);
 });
+window.WorldSystemReady = true;
+window.dispatchEvent(new CustomEvent('ws-app-ready'));
 </script>
 
 <!-- ── the world, kept ──────────────────────────────────────────────────
@@ -7415,6 +7641,7 @@ window.addEventListener('keydown', (e) => {
     }
     // A worker in hand and another already waiting behind it: the reader has
     // come back to a version that finished downloading after they last looked.
+    if (!reg) return; // browser policies may suppress registration without a rejection
     if (reg.waiting && navigator.serviceWorker.controller) offer(reg.waiting);
     reg.addEventListener('updatefound', () => {
       const arriving = reg.installing;

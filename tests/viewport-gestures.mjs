@@ -32,7 +32,7 @@ const wheel=(target,ctrlKey=false)=>{
 let before=distance();
 assert.ok(wheel(canvas,true).defaultPrevented); assert.ok(distance()<before,'Canvas trackpad pinch zooms the camera');
 before=distance();
-assert.ok(wheel(menu,true).defaultPrevented); assert.equal(distance(),before,'Menu pinch cannot zoom the page or camera');
+assert.equal(wheel(menu,true).defaultPrevented,false,'Menu pinch remains available for browser text zoom'); assert.equal(distance(),before,'Menu pinch cannot zoom the camera');
 assert.equal(wheel(menu).defaultPrevented,false,'Ordinary menu scrolling is preserved');
 assert.ok(wheel(marker,true).defaultPrevented); assert.ok(distance()<before,'Wheel over a number reaches OrbitControls');
 
@@ -61,8 +61,11 @@ assert.equal(distance(),before,'Safari wheel events do not double-apply native g
 assert.ok(gesture(canvas,'gesturechange',1.5).defaultPrevented);
 assert.ok(Math.abs(distance()-before/1.5)<1e-8,'Safari gesture fallback zooms the camera');
 gesture(canvas,'gestureend',1.5);
-before=distance();gesture(menu,'gesturestart',1);gesture(menu,'gesturechange',2);gesture(menu,'gestureend',2);
-assert.equal(distance(),before,'Safari menu pinch changes neither the camera nor page scale');
+before=distance();
+assert.equal(gesture(menu,'gesturestart',1).defaultPrevented,false);
+assert.equal(gesture(menu,'gesturechange',2).defaultPrevented,false);
+assert.equal(gesture(menu,'gestureend',2).defaultPrevented,false);
+assert.equal(distance(),before,'Safari menu pinch does not change the camera');
 pointer(canvas,'pointerdown',4,100);pointer(canvas,'pointerdown',5,200);
 gesture(canvas,'gesturestart',1);gesture(canvas,'gesturechange',2);
 assert.equal(distance(),before,'Native gestures do not double-apply pointer pinch');
@@ -73,7 +76,7 @@ const touch=(count)=>{
   const event=new window.Event('touchmove',{bubbles:true,cancelable:true});
   Object.defineProperty(event,'touches',{value:Array(count).fill({})});menu.dispatchEvent(event);return event;
 };
-assert.ok(touch(2).defaultPrevented,'Multi-touch cannot magnify the UI');
+assert.equal(touch(2).defaultPrevented,false,'Multi-touch over a menu remains available for browser text zoom');
 assert.equal(touch(1).defaultPrevented,false,'Single-finger menu scrolling remains native');
 const key=new window.KeyboardEvent('keydown',{key:'+',ctrlKey:true,bubbles:true,cancelable:true});
 menu.dispatchEvent(key);assert.equal(key.defaultPrevented,false,'Browser keyboard zoom remains available');

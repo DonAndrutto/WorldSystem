@@ -95,6 +95,7 @@ export function createWheelView({ host, art, freeRect, reducedMotion = () => fal
   const view = { x: 660, y: 870, s: 0.5 };
   let shown = { ...view };
   const turn = { x: 0, y: 0 };
+  let driftTime = 0;
   let homeView = { ...view };
   const size = () => ({ w: Math.max(host.clientWidth, 1), h: Math.max(host.clientHeight, 1) });
   const centre = () => {
@@ -448,6 +449,15 @@ export function createWheelView({ host, art, freeRect, reducedMotion = () => fal
 
   return {
     build, home, focus, select, resize, commit,
+    // A slow, bounded sway reveals relief depth without orbiting behind the
+    // painting. The app owns playback, reduced-motion and visibility policy.
+    advanceMotion(dt) {
+      if (!built || host.hidden || flight || pointers.size || !(dt > 0)) return;
+      driftTime += Math.max(0, Math.min(Number(dt) || 0, 0.1));
+      turn.x = Math.sin(driftTime * 0.16) * 2;
+      turn.y = Math.sin(driftTime * 0.12) * 4;
+      place();
+    },
     has: (id) => boxes.has(id),
     boxOf: (id) => boxes.get(id) || null,
     parts: () => [...boxes.keys()],

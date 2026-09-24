@@ -89,6 +89,10 @@ for (const needed of ['index.html', 'manifest.webmanifest', 'three-d-stage.js',
 for (const url of Object.values(map.imports)) {
   assert.ok(shell.includes(url.replace(/^\.\//, '')), url + ' is imported but never cached');
 }
+for (const tag of bare.matchAll(/<link\b[^>]*rel="stylesheet"[^>]*>/g)) {
+  const href = tag[0].match(/href="([^"]+)"/)[1].replace(/^\.\//, '').split('?')[0];
+  assert.ok(shell.includes(href), href + ' must be available on a first offline visit');
+}
 assert.ok(!shell.includes('sw.js'), 'the worker must not cache itself — that is how an update stops arriving');
 assert.ok(!shell.some(file => file.startsWith('assets/Game of Liberation')),
   'the 28 MB of source paintings would be downloaded on every install');

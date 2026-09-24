@@ -6,8 +6,9 @@ import {fileURLToPath, pathToFileURL} from 'node:url';
 import {JSDOM} from 'jsdom';
 import * as RealThree from 'three';
 const repo = process.env.WORLDSYSTEM_REPO || fileURLToPath(new URL('../', import.meta.url));
-const {createOfferingModels, OFFERING_ART} = await import(pathToFileURL(repo + '/mandala-offerings.js'));
+const {createOfferingModels, OFFERING_ART, offeringBackground} = await import(pathToFileURL(repo + '/mandala-offerings.js'));
 const {TOUR_NOTES} = await import(pathToFileURL(repo + '/mandala-tour.js'));
+const {createPresentationTours, createPresentationPlayer} = await import(pathToFileURL(repo + '/presentation-tours.js'));
 const {installViewportGestures} = await import(pathToFileURL(repo + '/viewport-gestures.js'));
 const surfaces = await import(pathToFileURL(repo + '/world-surfaces.js'));
 const skyClouds = await import(pathToFileURL(repo + '/sky-clouds.js'));
@@ -54,7 +55,7 @@ const textureRequests = [];
 const THREE = {...RealThree, TextureLoader: class {
   load(url, success, progress, failure) { textureRequests.push({url, success, failure}); }
 }};
-Object.assign(window, {createOfferingModels, OFFERING_ART, TOUR_NOTES, installViewportGestures}, surfaces, skyClouds, gameCamera, gamePlayers, gameSession, summitDetail, continentModels, wheelView, wheelNotes, {drawWheel: wheelArt.drawWheel}, {
+Object.assign(window, {createOfferingModels, OFFERING_ART, offeringBackground, TOUR_NOTES, createPresentationTours, createPresentationPlayer, installViewportGestures}, surfaces, skyClouds, gameCamera, gamePlayers, gameSession, summitDetail, continentModels, wheelView, wheelNotes, {drawWheel: wheelArt.drawWheel}, {
   RB_SQUARES: rbBoard.SQUARES, RB_SPECIAL: rbBoard.SPECIAL, RB_START: rbBoard.START,
   RB_VICTORY: rbBoard.VICTORY, TRAP_QUOTA: rbBoard.TRAP_QUOTA, TRAP_QUOTA_NOTE64: rbBoard.TRAP_QUOTA_NOTE64,
   DIE_FACES: rbBoard.FACES, RB_BY_N: rbBoard.BY_N, createBoardLayer: rbBoard.createBoardLayer,
@@ -128,10 +129,11 @@ const app = await window.eval(`(async()=>{${source}\nreturn {
  STEPS, LUMINARIES, RIM, OFFERING_SIZE, freeRect, tourImageRect, meshesFor, visibleInScene,
  stageGround:()=>stage._ground,
  setMandala, setMode, show, close, setOpen, startTour, visitHeap, endTour, orientOfferingCards,
+ startPresentation, endPresentation, tourPlayer, PRESENTATION_TOURS, setMotionPace,
  applyStep, playToggle, stepBy, pausePlay, resetPlay, applyTheme, setMotion,
  rbBoard, rbArt, rbGame:()=>rbGame, rbFocusWorld, rbFrameFocus, rbClearFocus,
  gameFocus:()=>gameFocus, reframeGame, rbOverviewBounds, SAMSARA_TOP, wheelView:()=>wheelView,
- state:()=>({mandala,mode,touring,tourIndex,pStep,playing,current,motion,showHeapNumbers,lumSpin})
+ state:()=>({mandala,mode,touring,tourIndex,pStep,playing,current,motion,motionPace,rbSelected,rbView3D,showHeapNumbers,lumSpin})
 };})()`);
 advance(1200);
 const panels = ['.sheet','.mandala-note','.tour-panel','.index'];
@@ -174,6 +176,24 @@ document.querySelectorAll('[data-numbers]').forEach(b=>assert.equal(b.getAttribu
 q('.tour-panel [data-numbers]').click();
 assert.equal(app.state().showHeapNumbers,true);
 assert.ok(!document.body.classList.contains('hide-heap-numbers'));
+// Playback folds the footer away. Numbers must remain in the visible player,
+// and toggling them must leave the verse and its running timer untouched.
+const recitationNumbers = q('.off-player [data-numbers]');
+assert.ok(recitationNumbers, 'Numbers is available beside playback controls');
+app.playToggle(); advance(500);
+assert.equal(app.state().playing, true);
+assert.ok(document.body.classList.contains('min-menus'), 'Exercise the folded recitation panel');
+const recitingStep = app.state().pStep;
+recitationNumbers.click();
+assert.equal(app.state().showHeapNumbers, false);
+assert.equal(app.state().playing, true, 'Hiding numbers does not pause recitation');
+assert.equal(app.state().pStep, recitingStep, 'Hiding numbers does not change the verse');
+recitationNumbers.click();
+assert.equal(app.state().showHeapNumbers, true);
+assert.equal(app.state().playing, true, 'Showing numbers does not pause recitation');
+advance(3000);
+assert.ok(app.state().pStep > recitingStep, 'Recitation continues after both toggles');
+app.resetPlay();
 app.OFFERING_MODELS.forEach(model => model.traverse(m => {
   if (m.isMesh) assert.equal(m.material.opacity,0,'No solid placeholder before loading');
 }));
@@ -206,14 +226,33 @@ for(const [id,model] of app.OFFERING_MODELS) {
   assert.ok(front.material.alphaTest>0,'Discard nearly transparent background pixels');
   assert.equal(front.material.opacity,1,'Loaded artwork is visible');
   assert.equal(front.material.map.colorSpace,THREE.SRGBColorSpace);
-  const art=OFFERING_ART.get(id), u=art.cell%4, v=Math.floor(art.cell/4);
+  assert.equal(front.material.map.generateMipmaps,false,'Tiny cards cannot blend neighbouring atlas subjects');
+  assert.equal(front.material.map.minFilter,THREE.LinearFilter);
+  const art=OFFERING_ART.get(id), [x,y,width,height]=art.region;
   const uv=front.geometry.attributes.uv;
   for(let i=0;i<uv.count;i++) {
-    assert.ok(uv.getX(i)>u/4 && uv.getX(i)<(u+1)/4,'Atlas column');
-    assert.ok(uv.getY(i)>1-(v+1)/2 && uv.getY(i)<1-v/2,'Atlas row');
+    assert.ok(uv.getX(i)>x/1536 && uv.getX(i)<(x+width)/1536,'Inside subject region horizontally');
+    assert.ok(uv.getY(i)>1-(y+height)/1024 && uv.getY(i)<1-y/1024,'Inside subject region vertically');
   }
   assert.ok(fs.existsSync(fileURLToPath(art.url)),'Local artwork missing');
 }
+// Landmarks measured from the original alpha silhouettes. These subjects
+// cross the nominal grid: each must retain its own painted edges and exclude
+// its neighbour, in both the scene and the entry drawer.
+for (const [id,left,right,top] of [
+  ['emblem_elephant',0,414,564], ['emblem_horse',414,801,523], ['emblem_general',801,1145,497]
+]) {
+  const model=app.OFFERING_MODELS.get(id), uv=model.children[0].children[0].geometry.attributes.uv;
+  const xs=Array.from({length:uv.count},(_,i)=>uv.getX(i)*1536);
+  const ys=Array.from({length:uv.count},(_,i)=>(1-uv.getY(i))*1024);
+  assert.ok(Math.min(...xs)>=left && Math.max(...xs)>=right,id+': full subject without its left neighbour');
+  assert.ok(Math.min(...ys)<=top,id+': preserve the top of the subject');
+  app.show(id);
+  const bg=offeringBackground(OFFERING_ART.get(id));
+  assert.equal(q('.entry-art > div').style.backgroundSize,bg.size,'Entry uses the corrected crop');
+  assert.equal(q('.entry-art > div').style.aspectRatio,bg.aspectRatio,'Entry preserves subject proportions');
+}
+app.close();
 assert.equal(triangles,48,'Only the 24 illustration planes, with no rectangular backings');
 // Recitation illustrations must remain face-on while orbiting and must never
 // intersect their supporting surface, even with the camera near the horizon.
@@ -1311,7 +1350,62 @@ assert.ok(!document.body.classList.contains('wheel-on'));
 key('l'); advance(1200); assert.equal(app.state().mode, 'wheel', 'l for the wheel');
 key('l'); advance(1200); assert.equal(app.state().mode, 'explore', 'and l again for the world');
 
+// Presentations cover the catalogues, preserve a game, and frame every stop.
+const routes = app.PRESENTATION_TOURS;
+assert.equal(routes.mandala.length, 37);
+assert.equal(routes.game.length, 105, 'introduction and all 104 squares');
+assert.equal(routes.wheel.length, Object.keys(wheelNotes.WHEEL_ENTRIES).length);
+assert.ok(routes.explore.length > 100, 'the complete world catalogue, not a highlights subset');
+for (const [mode, stops] of Object.entries(routes)) {
+  assert.equal(new Set(stops.map(stop => stop.id)).size, stops.length, mode + ': no duplicate stops');
+  for (const stop of stops) assert.ok(app.E[stop.id], mode + ': authored entry for ' + stop.id);
+}
+reduced = true; // deterministic camera endpoints, without hundreds of animation frames
+app.setMotion(false); app.setMotionPace('fast');
+const savedGame = JSON.stringify(app.rbGame());
+const savedPreferences = ['ws-motion', 'ws-motion-pace', 'ws-game-view'].map(key => window.localStorage.getItem(key));
+for (const size of [{w:1280,h:900}, {w:390,h:844}, {w:844,h:390}]) {
+  viewport = size; app.cam.aspect = size.w / size.h; app.cam.updateProjectionMatrix();
+  for (const mode of Object.keys(routes)) {
+    app.setMode(mode); advance(20);
+    const beforeTour = app.state();
+    app.startPresentation(mode); advance(20); panel('.tour-panel');
+    assert.equal(app.state().motion, false, 'reduced motion is respected');
+    for (let index = 0; index < routes[mode].length; index++) {
+      app.tourPlayer.go(index); advance(20);
+      assert.equal(app.state().current, routes[mode][index].id);
+      assert.ok([...app.cam.position, ...app.ctr.target].every(Number.isFinite), mode + ': finite camera at ' + index);
+      assert.ok(q('.tour-title').textContent.trim(), mode + ': named slide');
+      assert.ok(q('.tour-copy').textContent.trim(), mode + ': explanatory copy');
+    }
+    app.endPresentation(); advance(20);
+    assert.equal(app.state().motion, false, 'motion preference restored');
+    assert.equal(app.state().motionPace, 'fast', 'pace preference restored');
+    if (mode === 'game') {
+      assert.equal(app.state().rbSelected, beforeTour.rbSelected, 'the selected square is restored');
+      assert.equal(app.state().rbView3D, beforeTour.rbView3D, 'the game layout is restored');
+    }
+  }
+}
+assert.equal(JSON.stringify(app.rbGame()), savedGame, 'all 104 stops leave the game unchanged');
+assert.deepEqual(['ws-motion', 'ws-motion-pace', 'ws-game-view'].map(key => window.localStorage.getItem(key)), savedPreferences,
+  'tour motion and game layout do not overwrite preferences');
+reduced = false;
+app.startPresentation('wheel'); advance(1200);
+assert.equal(app.state().motion, true, 'a tour opens with motion enabled');
+assert.equal(app.state().motionPace, 'slow', 'tour motion starts slow');
+const wheelTurn = app.wheelView().state().turn.y;
+advance(100);
+assert.notEqual(app.wheelView().state().turn.y, wheelTurn, 'wheel motion actually moves the relief');
+app.tourPlayer.setSeconds(1.5); app.tourPlayer.play(); advance(1500);
+assert.equal(app.tourPlayer.state().index, 1, 'fastest pace advances after 1.5 seconds');
+document.dispatchEvent(new window.Event('visibilitychange'));
+app.tourPlayer.pause(); const pausedIndex = app.tourPlayer.state().index; advance(9000);
+assert.equal(app.tourPlayer.state().index, pausedIndex, 'pause cancels the slide timer');
+app.endPresentation();
+
 console.log(JSON.stringify({result:'PASS',heaps:37,illustrations:24,triangles,atlasRequests:3,
+ presentationStops:Object.fromEntries(Object.entries(routes).map(([mode,stops])=>[mode,stops.length])),
  squares:app.rbBoard.nodes.size,anchoredSquares:anchoredSquares.length,boardCells:cells.length,
  squareNotes:Object.keys(SQUARE_NOTES).length, fullEntries:Object.keys(SQUARE_FULL).length,
  artSlotsProved:rbIcons.SQUARE_ART.size,
