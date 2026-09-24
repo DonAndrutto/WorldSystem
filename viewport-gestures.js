@@ -12,7 +12,7 @@ export function installViewportGestures({canvas, marks, camera, controls, invali
   // Trackpad pinch is delivered as ctrl+wheel. Cancel page zoom without
   // stopping the event from reaching OrbitControls on the canvas.
   doc.addEventListener('wheel', event => {
-    if (event.ctrlKey || onScene(event)) cancel(event);
+    if (onScene(event)) cancel(event);
     // Safari may emit both streams for one trackpad pinch.
     if (gesture && event.ctrlKey && onScene(event)) event.stopPropagation();
   }, {capture: true, passive: false});
@@ -71,15 +71,17 @@ export function installViewportGestures({canvas, marks, camera, controls, invali
 
   // iOS fallback where native viewport pinch is still offered despite CSS.
   for (const type of ['touchstart', 'touchmove']) doc.addEventListener(type, event => {
-    if (event.touches.length > 1) cancel(event);
+    if (event.touches.length > 1 && onScene(event)) cancel(event);
   }, {capture: true, passive: false});
   // Safari trackpads also expose GestureEvents. Pointer-based two-finger
   // gestures already belong to OrbitControls and must not be applied twice.
   doc.addEventListener('gesturestart', event => {
+    if (!onScene(event)) { gesture = null; return; }
     cancel(event);
-    gesture = onScene(event) ? {scale: event.scale || 1, pointerDriven: touches.size >= 2} : null;
+    gesture = {scale: event.scale || 1, pointerDriven: touches.size >= 2};
   }, {passive: false});
   doc.addEventListener('gesturechange', event => {
+    if (!onScene(event)) return;
     cancel(event);
     if (!gesture || gesture.pointerDriven || !controls.enabled || !controls.enableZoom) return;
     const scale = event.scale;
@@ -91,6 +93,6 @@ export function installViewportGestures({canvas, marks, camera, controls, invali
     gesture.scale = scale;
     controls.update(); invalidate();
   }, {passive: false});
-  doc.addEventListener('gestureend', event => { cancel(event); gesture = null; }, {passive: false});
+  doc.addEventListener('gestureend', event => { if (onScene(event)) cancel(event); gesture = null; }, {passive: false});
   return {allowScenePick: event => !skipPick.has(event)};
 }

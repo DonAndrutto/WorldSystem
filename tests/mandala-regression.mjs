@@ -6,8 +6,9 @@ import {fileURLToPath, pathToFileURL} from 'node:url';
 import {JSDOM} from 'jsdom';
 import * as RealThree from 'three';
 const repo = process.env.WORLDSYSTEM_REPO || fileURLToPath(new URL('../', import.meta.url));
-const {createOfferingModels, OFFERING_ART} = await import(pathToFileURL(repo + '/mandala-offerings.js'));
+const {createOfferingModels, OFFERING_ART, offeringBackground} = await import(pathToFileURL(repo + '/mandala-offerings.js'));
 const {TOUR_NOTES} = await import(pathToFileURL(repo + '/mandala-tour.js'));
+const {PRESENTATION_TOURS, createPresentationPlayer} = await import(pathToFileURL(repo + '/presentation-tours.js'));
 const {installViewportGestures} = await import(pathToFileURL(repo + '/viewport-gestures.js'));
 const surfaces = await import(pathToFileURL(repo + '/world-surfaces.js'));
 const skyClouds = await import(pathToFileURL(repo + '/sky-clouds.js'));
@@ -54,7 +55,7 @@ const textureRequests = [];
 const THREE = {...RealThree, TextureLoader: class {
   load(url, success, progress, failure) { textureRequests.push({url, success, failure}); }
 }};
-Object.assign(window, {createOfferingModels, OFFERING_ART, TOUR_NOTES, installViewportGestures}, surfaces, skyClouds, gameCamera, gamePlayers, gameSession, summitDetail, continentModels, wheelView, wheelNotes, {drawWheel: wheelArt.drawWheel}, {
+Object.assign(window, {createOfferingModels, OFFERING_ART, offeringBackground, TOUR_NOTES, PRESENTATION_TOURS, createPresentationPlayer, installViewportGestures}, surfaces, skyClouds, gameCamera, gamePlayers, gameSession, summitDetail, continentModels, wheelView, wheelNotes, {drawWheel: wheelArt.drawWheel}, {
   RB_SQUARES: rbBoard.SQUARES, RB_SPECIAL: rbBoard.SPECIAL, RB_START: rbBoard.START,
   RB_VICTORY: rbBoard.VICTORY, TRAP_QUOTA: rbBoard.TRAP_QUOTA, TRAP_QUOTA_NOTE64: rbBoard.TRAP_QUOTA_NOTE64,
   DIE_FACES: rbBoard.FACES, RB_BY_N: rbBoard.BY_N, createBoardLayer: rbBoard.createBoardLayer,
@@ -174,6 +175,24 @@ document.querySelectorAll('[data-numbers]').forEach(b=>assert.equal(b.getAttribu
 q('.tour-panel [data-numbers]').click();
 assert.equal(app.state().showHeapNumbers,true);
 assert.ok(!document.body.classList.contains('hide-heap-numbers'));
+// Playback folds the footer away. Numbers must remain in the visible player,
+// and toggling them must leave the verse and its running timer untouched.
+const recitationNumbers = q('.off-player [data-numbers]');
+assert.ok(recitationNumbers, 'Numbers is available beside playback controls');
+app.playToggle(); advance(500);
+assert.equal(app.state().playing, true);
+assert.ok(document.body.classList.contains('min-menus'), 'Exercise the folded recitation panel');
+const recitingStep = app.state().pStep;
+recitationNumbers.click();
+assert.equal(app.state().showHeapNumbers, false);
+assert.equal(app.state().playing, true, 'Hiding numbers does not pause recitation');
+assert.equal(app.state().pStep, recitingStep, 'Hiding numbers does not change the verse');
+recitationNumbers.click();
+assert.equal(app.state().showHeapNumbers, true);
+assert.equal(app.state().playing, true, 'Showing numbers does not pause recitation');
+advance(3000);
+assert.ok(app.state().pStep > recitingStep, 'Recitation continues after both toggles');
+app.resetPlay();
 app.OFFERING_MODELS.forEach(model => model.traverse(m => {
   if (m.isMesh) assert.equal(m.material.opacity,0,'No solid placeholder before loading');
 }));
@@ -206,14 +225,33 @@ for(const [id,model] of app.OFFERING_MODELS) {
   assert.ok(front.material.alphaTest>0,'Discard nearly transparent background pixels');
   assert.equal(front.material.opacity,1,'Loaded artwork is visible');
   assert.equal(front.material.map.colorSpace,THREE.SRGBColorSpace);
-  const art=OFFERING_ART.get(id), u=art.cell%4, v=Math.floor(art.cell/4);
+  assert.equal(front.material.map.generateMipmaps,false,'Tiny cards cannot blend neighbouring atlas subjects');
+  assert.equal(front.material.map.minFilter,THREE.LinearFilter);
+  const art=OFFERING_ART.get(id), [x,y,width,height]=art.region;
   const uv=front.geometry.attributes.uv;
   for(let i=0;i<uv.count;i++) {
-    assert.ok(uv.getX(i)>u/4 && uv.getX(i)<(u+1)/4,'Atlas column');
-    assert.ok(uv.getY(i)>1-(v+1)/2 && uv.getY(i)<1-v/2,'Atlas row');
+    assert.ok(uv.getX(i)>x/1536 && uv.getX(i)<(x+width)/1536,'Inside subject region horizontally');
+    assert.ok(uv.getY(i)>1-(y+height)/1024 && uv.getY(i)<1-y/1024,'Inside subject region vertically');
   }
   assert.ok(fs.existsSync(fileURLToPath(art.url)),'Local artwork missing');
 }
+// Landmarks measured from the original alpha silhouettes. These subjects
+// cross the nominal grid: each must retain its own painted edges and exclude
+// its neighbour, in both the scene and the entry drawer.
+for (const [id,left,right,top] of [
+  ['emblem_elephant',0,414,564], ['emblem_horse',414,801,523], ['emblem_general',801,1145,497]
+]) {
+  const model=app.OFFERING_MODELS.get(id), uv=model.children[0].children[0].geometry.attributes.uv;
+  const xs=Array.from({length:uv.count},(_,i)=>uv.getX(i)*1536);
+  const ys=Array.from({length:uv.count},(_,i)=>(1-uv.getY(i))*1024);
+  assert.ok(Math.min(...xs)>=left && Math.max(...xs)>=right,id+': full subject without its left neighbour');
+  assert.ok(Math.min(...ys)<=top,id+': preserve the top of the subject');
+  app.show(id);
+  const bg=offeringBackground(OFFERING_ART.get(id));
+  assert.equal(q('.entry-art > div').style.backgroundSize,bg.size,'Entry uses the corrected crop');
+  assert.equal(q('.entry-art > div').style.aspectRatio,bg.aspectRatio,'Entry preserves subject proportions');
+}
+app.close();
 assert.equal(triangles,48,'Only the 24 illustration planes, with no rectangular backings');
 // Recitation illustrations must remain face-on while orbiting and must never
 // intersect their supporting surface, even with the camera near the horizon.

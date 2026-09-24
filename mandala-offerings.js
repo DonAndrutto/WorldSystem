@@ -28,7 +28,30 @@ const records = [
   ['mandala_parasol', treasures, 6, 'A white silk parasol with pearl festoons and a jewel finial'],
   ['mandala_banner', treasures, 7, 'A cylindrical victory standard with layered silks and streamers']
 ];
-export const OFFERING_ART = new Map(records.map(([id, url, cell, attribute]) => [id, {url, cell, attribute}]));
+const SHEET_WIDTH = 1536, SHEET_HEIGHT = 1024;
+// The royal subjects were painted on an uneven grid: the elephant and horse
+// cross their nominal cell edges, and the general's plume crosses the row.
+// Select the whole subjects, with transparent gutters, rather than admitting
+// a sliced piece of their neighbour or clipping their own painted silhouette.
+const royalRegions = {
+  emblem_elephant: [0, 512, 432, 512],
+  emblem_horse: [432, 512, 396, 512],
+  emblem_general: [828, 490, 340, 534]
+};
+export const OFFERING_ART = new Map(records.map(([id, url, cell, attribute]) => [id, {
+  url, cell, attribute,
+  region: royalRegions[id] || [cell % 4 * 384, Math.floor(cell / 4) * 512, 384, 512]
+}]));
+
+// The entry drawer and the scene must show exactly the same subject region.
+export function offeringBackground(art) {
+  const [x, y, width, height] = art.region;
+  return {
+    size: `${SHEET_WIDTH / width * 100}% ${SHEET_HEIGHT / height * 100}%`,
+    position: `${x / (SHEET_WIDTH - width) * 100}% ${y / (SHEET_HEIGHT - height) * 100}%`,
+    aspectRatio: `${width} / ${height}`
+  };
+}
 
 export function createOfferingModels(THREE, onStatus = () => {}) {
   const models = new Map(), sheets = new Map();
@@ -42,6 +65,10 @@ export function createOfferingModels(THREE, onStatus = () => {}) {
       new THREE.TextureLoader().load(url, texture => {
         texture.colorSpace = THREE.SRGBColorSpace;
         texture.anisotropy = 4;
+        // Whole-sheet mipmaps blend adjacent subjects at small on-screen sizes.
+        // Linear sampling stays within each gutter even on the phone overview.
+        texture.generateMipmaps = false;
+        texture.minFilter = THREE.LinearFilter;
         sheet.materials.forEach(material => {
           material.map = texture;
           material.opacity = 1;
@@ -60,13 +87,12 @@ export function createOfferingModels(THREE, onStatus = () => {}) {
     const card = new THREE.Group();
     card.rotation.x = -Math.PI / 2;
     group.add(card);
-    const geometry = new THREE.PlaneGeometry(0.73, 0.98);
+    const [x, y, width, height] = art.region;
+    const geometry = new THREE.PlaneGeometry(0.73 * (width / height) / (384 / 512), 0.98);
     const uv = geometry.getAttribute('uv');
-    const col = art.cell % 4, row = Math.floor(art.cell / 4);
-    const insetU = 0.5 / 1536, insetV = 0.5 / 1024;
     for (let i = 0; i < uv.count; i++) uv.setXY(i,
-      col / 4 + insetU + uv.getX(i) * (1 / 4 - 2 * insetU),
-      (1 - (row + 1) / 2) + insetV + uv.getY(i) * (1 / 2 - 2 * insetV));
+      (x + 0.5 + uv.getX(i) * (width - 1)) / SHEET_WIDTH,
+      1 - (y + height - 0.5 - uv.getY(i) * (height - 1)) / SHEET_HEIGHT);
     // Preserve the cutout edges without invisible rectangles writing depth.
     // Stay invisible until the atlas arrives, including on failed requests.
     const material = new THREE.MeshBasicMaterial({
