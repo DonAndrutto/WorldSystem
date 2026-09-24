@@ -1,5 +1,6 @@
 /* Shared utilities remain discoverable while each mode keeps its own controls. */
 html, body { touch-action: pan-x pan-y pinch-zoom; }
+:root { --header-clearance: calc(84px + var(--sa-t)); }
 :where(button, summary, a, input, select):focus-visible {
   outline: 3px solid var(--accent); outline-offset: 3px;
 }
@@ -67,6 +68,10 @@ html, body { touch-action: pan-x pan-y pinch-zoom; }
 .menu-body .btn, .menu-body .menu-row { font-size: 12px; letter-spacing: .03em; }
 .panel-dock .btn { min-height: 44px; font-size: 12px; letter-spacing: .025em; }
 body.board-only .board-view { padding-top: calc(86px + var(--sa-t)); }
+body.world-only .board-view, body.world-only.index-open .board-view {
+  top: var(--header-clearance);
+}
+body.game-setup .app-header { visibility: hidden; }
 body.tour-view .compass { top: calc(86px + var(--sa-t)); }
 @media (min-width: 701px) and (max-width: 1080px) {
   .app-brand { display: none; }
@@ -74,6 +79,7 @@ body.tour-view .compass { top: calc(86px + var(--sa-t)); }
   .controls { right: 14px; }
 }
 @media (max-width: 700px) {
+  :root { --header-clearance: calc(70px + var(--sa-t)); }
   .app-header { top: calc(8px + var(--sa-t)); left: 9px; right: 9px; gap: 1px; padding: 3px; }
   .app-brand { margin-right: auto; padding: 0 6px; font-size: 18px; }
   .app-header .btn { padding: 8px; }

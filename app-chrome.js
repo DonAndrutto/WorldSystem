@@ -41,6 +41,15 @@
     </details>
     <button class="btn" type="button" data-help-open aria-label="Help with the controls" aria-haspopup="dialog" aria-controls="app-help"><span class="app-help-symbol" aria-hidden="true">?</span><span class="app-help-label">Help</span></button>`;
   document.querySelector('.overlay').append(header);
+  const measureHeader = () => {
+    const clearance = Math.ceil(header.getBoundingClientRect().bottom + 10) + 'px';
+    if (document.documentElement.style.getPropertyValue('--header-clearance') === clearance) return;
+    document.documentElement.style.setProperty('--header-clearance', clearance);
+    window.dispatchEvent(new CustomEvent('ws-layout-change'));
+  };
+  new ResizeObserver(measureHeader).observe(header);
+  window.addEventListener('resize', measureHeader);
+  measureHeader();
 
   const help = document.createElement('dialog');
   help.id = 'app-help'; help.className = 'app-help';
@@ -104,6 +113,7 @@
     }
     // Do not let a presentation advance behind its guide.
     window.WorldSystemTours?.pause();
+    window.dispatchEvent(new CustomEvent('ws-help-open'));
     help.showModal(); help.scrollTop = 0;
   };
   header.querySelector('[data-help-open]').addEventListener('click', openHelp);

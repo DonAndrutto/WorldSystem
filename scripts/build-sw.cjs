@@ -22,7 +22,8 @@ const root = path.resolve(__dirname, '..');
 // build scripts eat — no visitor fetches
 // them, and an installed app has no use for the 28 MB.
 const SHELL = [
-  'index.html', 'game-ui.css',
+  'index.html',
+  ['.', /\.css$/],                           // all shared and mode styles
   'manifest.webmanifest',
   ['.', /\.js$/, { skip: ['sw.js'] }],        // the page's modules and the stage
   ['locales', /\.js$/],                       // language packs loaded by the page

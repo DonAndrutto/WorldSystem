@@ -25,8 +25,9 @@
    current shelf or the runtime one, so old versions do not accumulate. */
 
 /* ── written by scripts/build-sw.cjs — do not edit below ─────────────── */
-const VERSION = '8ab2cd3bcd8cd4d0';
+const VERSION = '1917fa8fd496bca9';
 const SHELL = [
+  "app-chrome.css",
   "app-chrome.js",
   "apple-touch-icon.png",
   "assets/fonts/eb-garamond-400-italic-latin-ext.woff2",
@@ -78,6 +79,7 @@ const SHELL = [
   "mandala-tour.js",
   "manifest.webmanifest",
   "presentation-locales.js",
+  "presentation-tours.css",
   "presentation-tours.js",
   "rebirth-board.js",
   "rebirth-game.js",

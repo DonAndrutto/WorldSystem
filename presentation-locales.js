@@ -5,6 +5,15 @@
   const locale = window.WorldSystemLocale;
   locale?.add({
     'Play presentation': 'Odtwarzaj prezentację',
+    'Pause presentation': 'Wstrzymaj prezentację',
+    'Next stop': 'Następny przystanek',
+    'Guided presentation': 'Prezentacja z przewodnikiem',
+    'Time per slide': 'Czas na slajd',
+    '1.5 seconds': '1,5 sekundy',
+    '3 seconds': '3 sekundy',
+    '5 seconds': '5 sekund',
+    '8 seconds': '8 sekund',
+    'Show or hide heap numbers': 'Pokaż lub ukryj numery kopców',
     'End tour': 'Zakończ zwiedzanie',
     'Restart': 'Od początku',
     'Pace': 'Tempo',

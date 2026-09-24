@@ -566,11 +566,11 @@ a heap always names it. Which heaps have that room is measured from where the
 marks actually land, so zooming in opens the names out ring by ring. The
 offering selector and tour progress remain available with numbers off.
 
-**Tour the 37 heaps** opens a separate, untimed study route. Each stop shows the
+**Tour the 37 heaps** opens a separate study route with optional playback. Each stop shows the
 current heap and hides surrounding geometry so it
 cannot obscure the subject. It has a short looking prompt, its name and access to the full source
 entry. Use Previous/Next, the left/right arrow keys or the 37-item selector.
-The final stop offers Finish tour; Return to whole mandala is always available.
+The final stop offers Finish tour; End tour returns to the whole mandala.
 An entry also has Tour from here. The full scene returns when leaving the tour.
 Painted images use a larger view fitted to their rectangular bounds, with
 space reserved below for the heap number. Meru and the continents retain
@@ -581,8 +581,23 @@ at a time, with return controls restoring the appropriate view. On phones the
 dock sits above the main controls. Close-ups account for the space occupied by
 the dock. Reduced-motion preferences disable animated camera flights.
 Wheel and pinch gestures over the scene, including its number markers, control
-the camera. Pinch gestures do not magnify the menus. Single-finger and wheel
-scrolling inside the menus remain available, as does browser keyboard zoom.
+the camera. Pinch gestures over reading panels retain native browser zoom.
+Single-finger and wheel scrolling inside the menus remain available.
+
+Each mode offers **Start a guided tour** in the View menu and Help: 104 Explorer
+entries, all 37 Mandala heaps, a Game introduction plus all 104 squares, and
+all 92 Wheel entries. Play advances every 1.5, 3, 5 or 8 seconds. The last slide
+receives the full interval. Previous/Next, the jump selector, Restart and End
+tour also work without playback; Space toggles playback and arrow keys step.
+Tours begin with slow motion (unless reduced motion is requested), pause when
+the reader interacts with the scene or opens Help/Index, and restore the earlier
+motion settings on exit. Game tours preserve the saved game, selection and layout.
+Phone landscape uses a side reading panel; camera framing reserves its space.
+
+The shared header provides Donate, English/Polish selection and contextual Help.
+Donate uses the same Dharma translation PayPal destination as Yontendzo and
+Ngondro. A loading introduction previews all four modes and can be replayed
+from Help. The smaller heap numbers remain switchable during recitation.
 
 The artwork is contemporary and AI-assisted, informed by traditional descriptions
 and Himalayan painting. Its costume, palette and individual poses remain
@@ -669,6 +684,7 @@ node tests/game-session.mjs
 node tests/localization.mjs
 node tests/offline.mjs
 node tests/wheel-of-life.mjs
+node tests/presentation-player.mjs
 ```
 
 The maṇḍala suite runs the complete app script with real Three.js geometry and
@@ -677,6 +693,22 @@ texture UVs, loading/retry behavior, keyboard controls and restoration of the
 world view.
 Canvas/GPU rendering, texture delivery and browser layout have test substitutes.
 A passing result does not establish actual WebGL appearance or device usability.
+The presentation checks visit all 338 stops at desktop, phone and landscape
+dimensions and verify restored motion preferences and unchanged game state.
+
+An optional Chrome suite checks rendered controls, tour playback, language,
+reduced motion, the Throw button, recitation Numbers and modal focus:
+
+```sh
+npm install --no-save --package-lock=false three@0.184.0 jsdom@26 playwright
+python3 -m http.server 4174
+# In another terminal (Google Chrome installed):
+WORLDSYSTEM_URL=http://127.0.0.1:4174 node tests/browser-ui.mjs
+```
+
+These checks emulate viewport sizes; physical iOS/Android and screen-reader
+testing remain separate. The source review and further recommendations are in
+[the application review](docs/APPLICATION-REVIEW.md).
 
 The summit detail uses the existing pigments and selectable entries for four
 roofed gates, corner pavilions, lattice windows, roof ribs, stairs, parapets

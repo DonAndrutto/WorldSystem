@@ -113,3 +113,20 @@ All ten baseline suites passed against an isolated archive of `e489c57`, using t
 | `wheel-of-life.mjs` | Layer assets, 88 interactive regions, 12 links, 6 realms, 16 hells, keyboard access, touch behavior and bounded camera movement. |
 
 The baseline tests do **not** establish actual CSS layout, artwork appearance, GPU rendering, physical touch recognition, installed-app behavior, or screen-reader usability. Final acceptance should include a 320–390 px phone viewport, a wide desktop, landscape, both interface languages, day/night themes, reduced motion, a slow or failed asset request, and returning from background while a recitation or presentation is active.
+
+## Delivered changes and verification
+
+The implementation adds a shared Donate/language/Help header using the verified reference donation destination, contextual explanations of controls, and a four-mode loading introduction that can be replayed. Essential controls have larger type and touch targets, secondary text has stronger contrast, and reading panels retain browser pinch zoom. The Game world toolbar measures the header clearance, so Throw remains accessible; the header is hidden and inert during player setup.
+
+Presentations now cover 104 Explorer entries, 37 Mandala heaps, a Game introduction plus all 104 squares, and all 92 Wheel entries. Their routes follow the existing catalogues and their explanations reuse the authored entries. Playback offers 1.5, 3, 5 and 8 seconds, gives the last slide a full interval, and supports pause, restart, jumping and keyboard controls. Slow movement starts by default unless reduced motion is requested. Help, manual scene interaction and backgrounding pause playback. Exit restores motion settings; Game tours also restore selection and layout without changing the saved game.
+
+Phone landscape reserves a side panel with a usable reading area, and camera framing accounts for both utility bars and the dock. The Mandala Numbers control remains available during recitation. Corrected atlas regions and aspect ratios remove neighboring artwork from heaps 23 and 24 without cutting off the general's plume. The service-worker generator now includes all root stylesheets, closing a gap that would otherwise break the new UI offline.
+
+Validation performed on the delivered code:
+
+- All eleven Node suites passed, including a new presentation timing suite. The full application harness visits all 338 stops at desktop, portrait and landscape sizes, checks finite camera positions and content, and verifies game and preference restoration.
+- Real Chrome checks passed at 320 × 568, 390 × 844, 844 × 390 and 1440 × 1000, covering a real Throw, all four tour launch paths, playback, jump-to-end, modal focus, recitation Numbers, English/Polish and reduced motion. The repeatable optional suite is `tests/browser-ui.mjs`.
+- Rendered screenshots confirmed the mobile header/Throw separation, landscape text/artwork arrangement, and clean complete silhouettes for heaps 23 and 24.
+- A real service-worker installation cached the new CSS and modules; the application then reloaded offline and opened the complete Wheel tour without runtime errors.
+
+The structural recommendations above remain useful follow-up work: reversible language rendering, board grid keyboard semantics, a text-only recovery path, measured GPU optimization, and a smaller optional offline download. Physical device, Safari and screen-reader acceptance were not performed; Chrome viewport emulation is not evidence for those environments.

@@ -2299,6 +2299,7 @@ const PATTERNS=[
   [/^([0-9]+) of 104$/, '$1 ze 104'],
   [/^row (\d+), column (\d+) from the right$/, 'rząd $1, kolumna $2 od prawej'],
   [/^Heap (\d+) of 37$/, 'Kopczyk $1 z 37'],
+  [/^Stop (\d+) \/ (\d+)$/, 'Przystanek $1 / $2'],
   [/^Character for player (\d+)$/, 'Postać gracza $1'],
 
   /* A menu's tooltip carries the key that reaches it: "Index — i", "Reset view
