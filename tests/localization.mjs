@@ -27,15 +27,16 @@ const board = JSON.parse(fs.readFileSync(repo + 'rebirth-board.js', 'utf8')
 // A page with the shapes that matter: a phrase that translates to itself, one
 // carrying markup, an attribute, and a script the pack must not read.
 const SCRIPT_TEXT = 'const notAPhrase = "Mandala"; // ' + 'x'.repeat(4000);
-const open = (lang = 'pl') => {
-  const dom = new JSDOM(`<!doctype html><html lang="en"><body>
+const open = (lang = 'pl', body = `
     <button class="btn" data-mode="mandala" title="Night"><span class="g">◎</span><span class="t">Mandala</span></button>
     <p class="prose">The model is the work of <b>Andrzej R. Rybszleger</b>, built from the sources named below.</p>
     <p class="plain">Full verse</p>
     <ul class="idx"><li>Mount Meru</li><li>Kalpas</li></ul>
     <span data-no-localize>Day</span>
     <script>${SCRIPT_TEXT}<\/script>
-  </body></html>`, { runScripts: 'outside-only', url: 'https://worldsystem.test/' });
+  `) => {
+  const dom = new JSDOM(`<!doctype html><html lang="en"><body>${body}</body></html>`,
+    { runScripts: 'outside-only', url: 'https://worldsystem.test/' });
   dom.window.localStorage.setItem('ws-language', lang);
   // A pack that feeds itself never yields to a timer, so the count is capped
   // here rather than asserted on afterwards: past the cap the records are
@@ -97,6 +98,66 @@ const settle = async win => { for (let i = 0; i < 30; i++) await new Promise(r =
   assert.equal(doc.querySelector('.plain').textContent, 'Full verse', 'nothing is translated');
   assert.equal(doc.documentElement.lang, 'en');
   assert.ok(passes() < 4, 'and the observer does no work');
+}
+
+// ── chrome authors English; only the locale observer turns it into Polish ────
+for (const lang of ['en', 'pl']) {
+  const { doc, win } = open(lang,
+    '<div class="overlay"><details data-menu="mode"><div class="menu-body"></div></details></div>');
+  try {
+    // jsdom has no layout or native modal methods; no scene/WebGL is needed.
+    win.ResizeObserver = class { observe() {} };
+    win.HTMLDialogElement.prototype.showModal = function () { this.open = true; };
+    win.HTMLDialogElement.prototype.close = function () {
+      this.open = false;
+      this.dispatchEvent(new win.Event('close'));
+    };
+    const setTimeout = win.setTimeout.bind(win);
+    let slowLoading;
+    win.setTimeout = (callback, delay, ...args) => {
+      if (delay === 15000) { slowLoading = callback; return 0; }
+      return setTimeout(callback, delay, ...args);
+    };
+    win.eval(fs.readFileSync(repo + 'app-chrome.js', 'utf8'));
+    await settle(win);
+    const expected = (en, pl) => lang === 'pl' ? pl : en;
+    const status = () => doc.querySelector('.intro-status').textContent;
+    assert.equal(status(), expected('Preparing the world…', 'Przygotowywanie świata…'));
+    assert.equal(doc.querySelector('.app-header').getAttribute('aria-label'),
+      expected('Help, language and support', 'Pomoc, język i wsparcie'));
+    assert.equal(doc.querySelector('.app-donate span').textContent, expected('Donate', 'Wesprzyj'));
+    assert.equal(doc.querySelector('.app-help-label').textContent, expected('Help', 'Pomoc'));
+    assert.equal(doc.querySelector('[data-language-label]').textContent, lang.toUpperCase());
+
+    slowLoading();
+    await settle(win);
+    assert.equal(status(), expected('Loading is taking longer than usual. You can wait or reload.',
+      'Ładowanie trwa dłużej niż zwykle. Możesz poczekać lub odświeżyć stronę.'));
+    win.dispatchEvent(new win.CustomEvent('ws-app-error'));
+    await settle(win);
+    assert.equal(status(), expected('The world could not open. Please reload to try again.',
+      'Nie udało się otworzyć świata. Odśwież stronę, aby spróbować ponownie.'));
+    win.dispatchEvent(new win.CustomEvent('ws-app-ready'));
+    await settle(win);
+    assert.equal(status(), expected('Choose a mode, or begin in Explorer.',
+      'Wybierz tryb lub rozpocznij od Eksploratora.'));
+
+    doc.querySelector('.intro-skip').click();
+    doc.querySelector('[data-help-open]').click();
+    await settle(win);
+    assert.ok(doc.querySelector('#app-help').open, 'Help opens after dismissing the intro');
+    const titles = [...doc.querySelectorAll('.help-controls dt')].map(el => el.textContent);
+    const copies = [...doc.querySelectorAll('.help-controls dd')].map(el => el.textContent);
+    assert.equal(titles[0], expected('Look around', 'Rozejrzyj się'));
+    assert.equal(titles[1], expected('Index', 'Indeks'));
+    assert.equal(copies[0], expected(
+      'Drag with a mouse to orbit; scroll to zoom. On a phone, one finger pans and two fingers turn and zoom. Tap a place to read about it.',
+      'Przeciągnij myszą, aby obrócić widok; przewijaj, aby przybliżać. Na telefonie jeden palec przesuwa widok, a dwa obracają i przybliżają. Dotknij miejsca, aby o nim przeczytać.'));
+    assert.equal(copies[1], expected('Find a place or an idea, then open its explanation and sources.',
+      'Znajdź miejsce lub pojęcie i otwórz jego objaśnienie oraz źródła.'));
+  } finally {
+    win.close();
+  }
 }
 
 // ── translating twice changes nothing ────────────────────────────────────────

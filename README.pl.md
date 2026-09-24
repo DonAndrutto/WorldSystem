@@ -4,7 +4,7 @@ Polska lokalizacja aplikacji WorldSystem: interaktywnego modelu kosmologii Abhid
 
 ## Język interfejsu
 
-Otwórz **Opcje → Język → Polski**. Wybór jest zapisywany lokalnie na urządzeniu. Nazwy tybetańskie pozostają osobnym przełącznikiem, więc można używać polskiego interfejsu razem z nazwami tybetańskimi. Przy polskim interfejsie przełącznik **Nazwy** przestawia się między **PL** a **བོད**, bo nazwy podawane mimochodem są wtedy polskie.
+Wybierz **Polski** w menu **文 EN/PL** w nagłówku lub otwórz **Opcje → Język → Polski**. Wybór jest zapisywany lokalnie na urządzeniu. Nazwy tybetańskie pozostają osobnym przełącznikiem, więc można używać polskiego interfejsu razem z nazwami tybetańskimi. Przy polskim interfejsie przełącznik **Nazwy** przestawia się między **PL** a **བོད**, bo nazwy podawane mimochodem są wtedy polskie.
 
 Polska warstwa obejmuje:
 

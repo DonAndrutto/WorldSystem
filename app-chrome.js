@@ -4,6 +4,7 @@
   const translations = {
     'Donate': 'Wesprzyj', 'Donate to Dharma translation projects (opens a new tab)': 'Wesprzyj tłumaczenia Dharmy (otwiera nową kartę)',
     'Help': 'Pomoc', 'Help with the controls': 'Objaśnienia przycisków', 'Close help': 'Zamknij pomoc',
+    'Help, language and support': 'Pomoc, język i wsparcie',
     'Four ways to explore': 'Cztery sposoby poznawania', 'One world, four ways in.': 'Jeden świat, cztery ścieżki.',
     'Explore the world system, offer a mandala, follow the game of rebirth, or study the wheel of life.': 'Poznaj system świata, ofiaruj mandalę, zagraj w grę odrodzeń lub zgłębiaj koło życia.',
     'Worlds & realms': 'Światy i sfery', 'The 37 offerings': '37 ofiar', 'Paths of rebirth': 'Drogi odrodzeń', 'The cycle of life': 'Cykl życia',
@@ -25,7 +26,6 @@
     'Pinch over a reading panel to enlarge text. Scene gestures control the drawing.': 'Uszczypnij nad panelem tekstowym, aby powiększyć tekst. Gesty nad sceną sterują rysunkiem.'
   };
   locale?.add(translations);
-  const tr = text => locale?.translate(text) || text;
   const header = document.createElement('nav');
   header.className = 'app-header card';
   header.setAttribute('aria-label', 'Help, language and support');
@@ -107,8 +107,8 @@
       const row = document.createElement('div'); row.className = 'help-control';
       const icon = document.createElement('span'); icon.textContent = symbol; icon.setAttribute('aria-hidden', 'true');
       const content = document.createElement('div');
-      const dt = document.createElement('dt'); dt.textContent = tr(title);
-      const dd = document.createElement('dd'); dd.textContent = tr(copy);
+      const dt = document.createElement('dt'); dt.textContent = title;
+      const dd = document.createElement('dd'); dd.textContent = copy;
       content.append(dt, dd); row.append(icon, content); list.append(row);
     }
     // Do not let a presentation advance behind its guide.
@@ -138,20 +138,20 @@
     intro.querySelectorAll('[disabled]').forEach(el => { el.disabled = false; });
     intro.querySelector('.intro-loading').hidden = true;
     intro.querySelector('[data-intro-reload]').hidden = true;
-    intro.querySelector('.intro-status').textContent = tr('Choose a mode, or begin in Explorer.');
+    intro.querySelector('.intro-status').textContent = 'Choose a mode, or begin in Explorer.';
     if (!replay) dismissTimer = setTimeout(dismissIntro, Math.max(0, 2200 - (performance.now() - began)));
   };
   const failure = () => {
     if (ready) return;
     clearTimeout(slowTimer);
     intro.querySelector('.intro-loading').hidden = true;
-    intro.querySelector('.intro-status').textContent = tr('The world could not open. Please reload to try again.');
+    intro.querySelector('.intro-status').textContent = 'The world could not open. Please reload to try again.';
     const reload = intro.querySelector('[data-intro-reload]');
     reload.hidden = false; reload.disabled = false;
   };
   const slowTimer = setTimeout(() => {
     if (ready) return;
-    intro.querySelector('.intro-status').textContent = tr('Loading is taking longer than usual. You can wait or reload.');
+    intro.querySelector('.intro-status').textContent = 'Loading is taking longer than usual. You can wait or reload.';
     const reload = intro.querySelector('[data-intro-reload]');
     reload.hidden = false; reload.disabled = false;
   }, 15000);
