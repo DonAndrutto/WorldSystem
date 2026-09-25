@@ -519,7 +519,11 @@ close in, a drag slides the wall under the hand. Seen whole, a drag turns the
 wall — a right button or Shift turns it at any distance — up to 22° across and
 14° up or down, and no further: far enough to see the wheel stand off the wall
 and Yama's head, hands and feet stand off the wheel, never far enough to see
-behind it. Each layer throws a shadow on the one behind it. Reset view (`Esc`)
+behind it. On a touch screen one finger always turns the wall, however close
+it is, and two fingers pinch it closer and slide it, so a look from the side
+is never taken for a slide off it. With Motion on, the wall sways a little
+about wherever it was left rather than snapping back to face on. Each layer
+throws a shadow on the one behind it. Reset view (`Esc`)
 straightens and frames it; `+`, `-` and the arrow keys zoom and pan; every part
 is a stop for Tab and opens with Enter.
 

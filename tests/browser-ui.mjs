@@ -27,6 +27,7 @@ try {
     assert.equal(await page.locator('.intro-mode').count(), 4);
     await page.locator('.app-intro').waitFor({state:'hidden'});
     assert.ok(await page.locator('.app-header').evaluate(e=>e.scrollWidth<=e.clientWidth), 'header contents fit');
+    assert.ok(await page.locator('.controls').evaluate(c=>[...c.querySelectorAll(':scope > .btn, .menu > .btn')].every(b=>b.scrollWidth<=b.clientWidth+1)), 'control bar labels fit');
     const mode = async id => {
       await page.locator('[data-menu=mode] > summary').click();
       await page.locator('[data-mode='+id+']').click();

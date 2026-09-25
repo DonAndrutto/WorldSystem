@@ -96,6 +96,11 @@ export function createWheelView({ host, art, freeRect, reducedMotion = () => fal
   let shown = { ...view };
   const turn = { x: 0, y: 0 };
   let driftTime = 0;
+  /* The sway rides on the turn the wall was left at, by a hand, a key or a
+     flight, rather than replacing it; after any such change it grows back in
+     from nothing, so the wall never jumps out from under the hand. */
+  let rest = { x: 0, y: 0 }, swayed = null, swayGain = 0;
+  const swaying = () => !!swayed && swayed.x === turn.x && swayed.y === turn.y;
   let homeView = { ...view };
   const size = () => ({ w: Math.max(host.clientWidth, 1), h: Math.max(host.clientHeight, 1) });
   const centre = () => {
@@ -259,9 +264,12 @@ export function createWheelView({ host, art, freeRect, reducedMotion = () => fal
     const r = host.getBoundingClientRect();
     return { x: ev.clientX - r.left, y: ev.clientY - r.top };
   };
-  /* Close in, the wall slides under the hand or the finger; seen whole, it
-     turns. A right button or a held Shift always turns it. */
+  /* A mouse: close in, the wall slides under the hand; seen whole, it turns,
+     and a right button or a held Shift always turns it. A finger always
+     turns it, near or far: sliding and zooming are for two fingers, so that
+     a look at the relief from the side is never taken for a slide off it. */
   const zoomedIn = () => view.s > homeView.s * 1.08;
+  const turnsIt = (touch) => touch || !zoomedIn();
   host.addEventListener('pointerdown', (ev) => {
     if (ev.button > 2) return;
     cancelFlight();
@@ -269,17 +277,23 @@ export function createWheelView({ host, art, freeRect, reducedMotion = () => fal
     pointers.set(ev.pointerId, p);
     try { host.setPointerCapture(ev.pointerId); } catch (err) {}
     if (pointers.size === 1) {
-      const turnIt = ev.button === 2 || ev.shiftKey || !zoomedIn();
+      const touch = ev.pointerType === 'touch';
+      const turnIt = ev.button === 2 || ev.shiftKey || turnsIt(touch);
       /* a fingertip wanders further in a tap than a mouse does: past this it
          is a drag, and short of it a tap that opens what it landed on */
       const slop = ev.pointerType === 'touch' ? 11 : ev.pointerType === 'pen' ? 8 : 5;
-      drag = { id: ev.pointerId, x0: p.x, y0: p.y, x: p.x, y: p.y, moved: false, slop, turnIt, turn0: { ...turn }, view0: { ...view }, target: ev.target };
+      drag = { id: ev.pointerId, x0: p.x, y0: p.y, x: p.x, y: p.y, moved: false, slop, touch, turnIt, turn0: { ...turn }, view0: { ...view }, target: ev.target };
     } else if (pointers.size === 2) {
       const [a, b] = [...pointers.values()];
       pinch = { d: Math.hypot(a.x - b.x, a.y - b.y) || 1, mx: (a.x + b.x) / 2, my: (a.y + b.y) / 2 };
       if (drag) drag.moved = true;
     }
   });
+  /* the turn a gesture asks for, held to how far a wall can turn */
+  const turnTo = (x, y) => {
+    turn.y = Math.max(-TILT.y, Math.min(TILT.y, y));
+    turn.x = Math.max(-TILT.x, Math.min(TILT.x, x));
+  };
   host.addEventListener('pointermove', (ev) => {
     const p = local(ev);
     if (!pointers.has(ev.pointerId)) {
@@ -306,8 +320,7 @@ export function createWheelView({ host, art, freeRect, reducedMotion = () => fal
     if (!drag.moved) hover(null);
     drag.moved = true;
     if (drag.turnIt) {
-      turn.y = Math.max(-TILT.y, Math.min(TILT.y, drag.turn0.y + dx * 0.12));
-      turn.x = Math.max(-TILT.x, Math.min(TILT.x, drag.turn0.x - dy * 0.12));
+      turnTo(drag.turn0.x - dy * 0.12, drag.turn0.y + dx * 0.12);
       place();
     } else {
       view.x = drag.view0.x - dx / view.s;
@@ -328,13 +341,16 @@ export function createWheelView({ host, art, freeRect, reducedMotion = () => fal
     if (pointers.size === 1 && drag) {
       /* Out of a pinch, the finger that stays goes on from where it is and
          from the view as the pinch left it, not from where it first came
-         down: that was before the pinch moved everything under it. */
+         down: that was before the pinch moved everything under it. Two
+         fingers seldom leave the glass in the same instant, so the one left
+         has to travel a little before it turns the wall, and it is never
+         a tap. */
       const [[id, p]] = [...pointers];
-      drag = { id, x0: p.x, y0: p.y, x: p.x, y: p.y, moved: true, turnIt: !zoomedIn(), turn0: { ...turn }, view0: { ...view }, target: null };
+      drag = { id, x0: p.x, y0: p.y, x: p.x, y: p.y, moved: false, slop: 14, touch: drag.touch, turnIt: turnsIt(drag.touch), turn0: { ...turn }, view0: { ...view }, target: null, noTap: true };
       return;
     }
     if (drag && drag.id === ev.pointerId) {
-      const tap = !drag.moved && ev.type === 'pointerup';
+      const tap = !drag.moved && !drag.noTap && ev.type === 'pointerup';
       const target = drag.target;
       drag = null;
       if (tap) {
@@ -453,21 +469,27 @@ export function createWheelView({ host, art, freeRect, reducedMotion = () => fal
     // painting. The app owns playback, reduced-motion and visibility policy.
     advanceMotion(dt) {
       if (!built || host.hidden || flight || pointers.size || !(dt > 0)) return;
-      driftTime += Math.max(0, Math.min(Number(dt) || 0, 0.1));
-      turn.x = Math.sin(driftTime * 0.16) * 2;
-      turn.y = Math.sin(driftTime * 0.12) * 4;
+      const step = Math.max(0, Math.min(Number(dt) || 0, 0.1));
+      if (!swaying()) { rest = { ...turn }; swayGain = 0; }
+      driftTime += step;
+      swayGain = Math.min(1, swayGain + step / 2.5);
+      turnTo(rest.x + Math.sin(driftTime * 0.16) * 2 * swayGain, rest.y + Math.sin(driftTime * 0.12) * 4 * swayGain);
+      swayed = { ...turn };
       place();
     },
     has: (id) => boxes.has(id),
     boxOf: (id) => boxes.get(id) || null,
     parts: () => [...boxes.keys()],
-    isHome: () => Math.abs(view.s - homeView.s) < homeView.s * 0.02 && Math.abs(turn.x) + Math.abs(turn.y) < 0.1
-      && Math.abs(view.x - homeView.x) < 2 && Math.abs(view.y - homeView.y) < 2,
+    // the sway is not a turn anyone asked for: a wall swaying face on is home
+    isHome: () => {
+      const t = swaying() ? rest : turn;
+      return Math.abs(view.s - homeView.s) < homeView.s * 0.02 && Math.abs(t.x) + Math.abs(t.y) < 0.1
+        && Math.abs(view.x - homeView.x) < 2 && Math.abs(view.y - homeView.y) < 2;
+    },
     state: () => ({ view: { ...view }, shown: { ...shown }, turn: { ...turn }, home: { ...homeView }, selected }),
     turnBy: (dx, dy) => {
       cancelFlight();
-      turn.y = Math.max(-TILT.y, Math.min(TILT.y, turn.y + dx));
-      turn.x = Math.max(-TILT.x, Math.min(TILT.x, turn.x + dy));
+      turnTo(turn.x + dy, turn.y + dx);
       place();
     },
     // a key pressed while the wall is flying stops it where it is, and moves from there

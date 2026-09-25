@@ -1,13 +1,18 @@
 /* Shared utilities remain discoverable while each mode keeps its own controls. */
 html, body { touch-action: pan-x pan-y pinch-zoom; }
-:root { --header-clearance: calc(84px + var(--sa-t)); }
+:root {
+  --header-clearance: calc(84px + var(--sa-t));
+  /* One shape for everything that floats over the scene, taken from the
+     header: a rounded card, and rounded controls set inside it. */
+  --radius: 12px; --radius-in: 7px;
+}
 :where(button, summary, a, input, select):focus-visible {
   outline: 3px solid var(--accent); outline-offset: 3px;
 }
 .app-header {
   position: fixed; z-index: 10; top: calc(18px + var(--sa-t)); left: 22px;
   display: flex; align-items: center; gap: 4px; padding: 4px 6px;
-  border-radius: 9px; background: var(--menu); pointer-events: auto;
+  border-radius: var(--radius); background: var(--menu); pointer-events: auto;
 }
 .app-brand { font-size: 21px; line-height: 1; padding: 0 12px 0 6px; }
 .app-brand span { display: block; }
@@ -15,7 +20,7 @@ html, body { touch-action: pan-x pan-y pinch-zoom; }
   min-height: 44px; min-width: 44px; display: inline-flex;
   align-items: center; justify-content: center; gap: 6px;
   font-size: 12px; letter-spacing: .02em; text-transform: none;
-  border: 0; border-radius: 6px; padding: 8px 10px;
+  border: 0; border-radius: var(--radius-in); padding: 8px 10px;
 }
 .app-donate { text-decoration: none; color: var(--accent); }
 .app-donate svg { width: 17px; height: 17px; }
@@ -23,13 +28,13 @@ html, body { touch-action: pan-x pan-y pinch-zoom; }
 .app-language { position: relative; }
 .app-language summary { list-style: none; cursor: pointer; }
 .app-language summary::-webkit-details-marker { display: none; }
-.app-language-menu { position: absolute; right: 0; top: calc(100% + 8px); min-width: 170px; padding: 6px; border-radius: 8px; background: var(--menu); }
+.app-language-menu { position: absolute; right: 0; top: calc(100% + 8px); min-width: 170px; padding: 6px; border-radius: var(--radius); background: var(--menu); }
 .app-language-menu .btn { width: 100%; justify-content: flex-start; }
 .app-language-menu .btn[aria-pressed="true"]::after { content: '✓'; margin-left: auto; }
 .app-header [hidden], .app-help [hidden], .app-intro [hidden] { display: none !important; }
 .app-help, .app-intro {
   background: var(--paper); color: var(--ink); border: 1px solid var(--rule-2);
-  border-radius: 16px; box-shadow: var(--shadow); font-family: inherit;
+  border-radius: var(--radius); box-shadow: var(--shadow); font-family: inherit;
   width: min(620px, calc(100vw - 28px)); max-height: calc(100dvh - 36px - var(--sa-t) - var(--sa-b));
   padding: 24px; overscroll-behavior: contain;
 }
@@ -52,7 +57,7 @@ html, body { touch-action: pan-x pan-y pinch-zoom; }
 .intro-emblem { color: var(--accent); font-size: 46px; line-height: 1; margin: 0 0 16px; }
 .intro-description { font-size: 20px; line-height: 1.4; color: var(--ink-2); margin: 13px auto 24px; max-width: 40ch; }
 .intro-modes { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
-.intro-mode { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 16px 8px; min-width: 0; border-radius: 10px; border: 1px solid var(--rule-2); background: var(--field); color: var(--ink); cursor: pointer; font: inherit; }
+.intro-mode { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 16px 8px; min-width: 0; border-radius: var(--radius-in); border: 1px solid var(--rule-2); background: var(--field); color: var(--ink); cursor: pointer; font: inherit; }
 .intro-mode:hover:not(:disabled) { background: var(--hi-2); border-color: var(--accent); }
 .intro-mode:disabled { cursor: wait; }
 .intro-mode > span { font-size: 31px; color: var(--accent); line-height: 1; }
@@ -63,6 +68,29 @@ html, body { touch-action: pan-x pan-y pinch-zoom; }
 .intro-loading::after { content: ''; display: block; width: 50%; height: 100%; background: var(--accent); animation: intro-loading 1.4s ease-in-out infinite alternate; }
 .intro-skip { min-height: 44px; font-size: 12px; letter-spacing: .03em; }
 @keyframes intro-loading { to { transform: translateX(100%); } }
+/* ── one shape for every menu, panel and card ────────────────────────────
+   The header set the look: a card with rounded corners, and inside it
+   controls rounded a step less. Everything else that stands over the scene
+   used to be square, or rounded by its own private number. */
+.btn, .x, .rel button, .index input, #tour-jump { border-radius: var(--radius-in); }
+.controls, .menu-body, .sheet, .mandala-note, .tour-panel, .panel-dock > .index,
+.art-status, .glnote, .swnote, .game-focus, .bv-rail, .bv-tools-body, .bv-options-body,
+.bv-card-in, .bv-ask-in, body.board-only .bv-rail, body.board-only .bv-grid {
+  border-radius: var(--radius);
+}
+/* Rounded corners keep their contents inside them. */
+.sheet, .tour-panel { overflow: hidden; }
+.wl-tip { border-radius: var(--radius-in); }
+/* The strip is a card holding buttons, as the header is: the buttons sit
+   inside its edge as rounded shapes of their own instead of being cut apart
+   by rules. */
+.controls { padding: 3px; gap: 2px; }
+.controls > .btn, .controls .menu > .btn,
+body.night .controls > .btn, body.night .controls .menu > .btn { border: 0; border-radius: var(--radius-in); }
+.menu-body { padding: 5px; gap: 1px; }
+.menu-body .seg { border-radius: var(--radius-in); }
+.seg button, .mode-tabs .btn { border-radius: 0; }
+.bv-tools-body .bv-more-body { border-radius: 0; }
 /* Readable labels and real touch targets throughout menus and the shared dock. */
 .controls .btn { min-height: 44px; font-size: 12px; letter-spacing: .055em; }
 .menu-body .btn, .menu-body .menu-row { font-size: 12px; letter-spacing: .03em; }
@@ -92,10 +120,19 @@ body.tour-view .compass { top: calc(86px + var(--sa-t)); }
   .intro-emblem { font-size: 36px; margin-bottom: 10px; }
   .intro-status { margin-top: 16px; }
   .controls > .btn, .controls .menu > .btn { font-size: 12px; letter-spacing: .02em; }
+  /* Three shares of the bar sized to what they say, not three equal thirds:
+     a long name for the view (Eksplorator) ran into the control beside it. */
+  .controls > .btn, .controls > .menu { flex: 1 1 auto; min-width: 0; }
+  .controls .menu > .btn { width: 100%; }
   .menu-body .menu-row .seg .btn { min-height: 44px; }
   .sheet .sheet-scroll { font-size: 18px; }
   body.board-only .board-view { padding-top: calc(72px + var(--sa-t)); }
   body.tour-view .compass { top: calc(74px + var(--sa-t)); }
+}
+@media (max-width: 360px) {
+  .controls > .btn, .controls .menu > .btn { font-size: 11px; letter-spacing: 0; }
+  .controls .btn .g { margin-right: 4px; }
+  .controls .btn .chev { margin-left: 3px; }
 }
 @media (max-height: 500px) {
   .app-intro { padding: 16px; }
