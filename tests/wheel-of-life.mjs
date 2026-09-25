@@ -336,4 +336,52 @@ typed('pointerdown', 21, 600, 400, 'mouse'); typed('pointermove', 21, 608, 404, 
 assert.equal(picked.length, tapsBefore + 1, 'a mouse that moves as far has dragged');
 ok('a finger that wanders a little still taps; a mouse moved as far drags');
 
+// ── a finger turns the wall, near or far; two fingers slide and zoom it ─────
+view.home(0);
+for (let i = 0; i < 6; i++) view.zoomBy(1.25);
+view.commit();
+{
+  const v0 = { ...sv().view }, t0 = { ...sv().turn };
+  typed('pointerdown', 30, 600, 400, 'touch', host); typed('pointermove', 30, 660, 380, 'touch', host); typed('pointerup', 30, 660, 380, 'touch', host);
+  assert.ok(sv().view.s > sv().home.s * 1.5, 'close in');
+  assert.deepEqual(sv().view, v0, 'close in, one finger does not slide the wall');
+  assert.ok(sv().turn.y > t0.y && sv().turn.x > t0.x, 'it turns it');
+  // two fingers moved together carry the wall, and do not turn it
+  const v1 = { ...sv().view }, t1 = { ...sv().turn };
+  typed('pointerdown', 31, 500, 400, 'touch', host); typed('pointerdown', 32, 700, 400, 'touch', host);
+  typed('pointermove', 31, 440, 400, 'touch', host); typed('pointermove', 32, 640, 400, 'touch', host);
+  assert.deepEqual(sv().turn, t1, 'two fingers do not turn the wall');
+  assert.ok(sv().view.x > v1.x + 20 / v1.s, 'they slide it');
+  // the finger left after a pinch goes on turning, once it has travelled
+  typed('pointerup', 32, 640, 400, 'touch', host);
+  const v2 = { ...sv().view };
+  typed('pointermove', 31, 446, 402, 'touch', host);
+  assert.deepEqual(sv().turn, t1, 'a finger left behind by a pinch does not twitch the wall');
+  typed('pointermove', 31, 400, 440, 'touch', host);
+  assert.deepEqual(sv().view, v2, 'and does not slide it');
+  assert.notDeepEqual(sv().turn, t1, 'it turns it once it has travelled');
+  const picks = picked.length;
+  typed('pointerup', 31, 400, 440, 'touch', host);
+  assert.equal(picked.length, picks, 'and is not a tap');
+  // a mouse close in still slides
+  const v3 = { ...sv().view }, t3 = { ...sv().turn };
+  typed('pointerdown', 33, 600, 400, 'mouse', host); typed('pointermove', 33, 660, 400, 'mouse', host); typed('pointerup', 33, 660, 400, 'mouse', host);
+  assert.deepEqual(sv().turn, t3, 'a mouse close in does not turn the wall');
+  assert.ok(sv().view.x < v3.x, 'it slides it');
+}
+ok('one finger turns the wall at any distance; two slide and zoom it; a mouse close in slides');
+
+// ── the sway rides on the turn it was left at ───────────────────────────────
+view.home(0);
+view.turnBy(15, 8);
+const left = { ...sv().turn };
+view.advanceMotion(0.016);
+assert.ok(Math.abs(sv().turn.x - left.x) < 0.05 && Math.abs(sv().turn.y - left.y) < 0.05, 'the sway does not snap the wall back');
+for (let i = 0; i < 400; i++) view.advanceMotion(0.05);
+assert.ok(Math.abs(sv().turn.y - left.y) <= 4.01 && Math.abs(sv().turn.x - left.x) <= 2.01, 'it sways round where the wall was left');
+view.home(0);
+for (let i = 0; i < 100; i++) view.advanceMotion(0.05);
+assert.ok(view.isHome(), 'a wall swaying face on is still home');
+ok('the sway keeps the turn it was given, and a swaying wall at home is home');
+
 console.log('\nwheel-of-life: the relief in six layers, 88 parts, 12 links, 6 realms, 16 hells in their rows, and a wall that turns but not round.');

@@ -21,7 +21,7 @@
     'Look around': 'Rozejrzyj się', 'Drag with a mouse to orbit; scroll to zoom. On a phone, one finger pans and two fingers turn and zoom. Tap a place to read about it.': 'Przeciągnij myszą, aby obrócić widok; przewijaj, aby przybliżać. Na telefonie jeden palec przesuwa widok, a dwa obracają i przybliżają. Dotknij miejsca, aby o nim przeczytać.',
     'Play & numbers': 'Odtwarzanie i numery', 'Play follows the recitation one offering at a time. Numbers hides or shows the heap labels, even while playing. The study tour has separate presentation playback.': 'Odtwarzanie prowadzi przez recytację, ofiara po ofierze. Numery włącza lub ukrywa oznaczenia kopców także podczas odtwarzania. Zwiedzanie ma osobny tryb prezentacji.',
     'Throw & explore': 'Rzucaj i poznawaj', 'Throw advances the current player. Select a square to read it; Show in world visits its location. The tour explains the board without taking a turn.': 'Rzut przesuwa bieżącego gracza. Wybierz pole, aby je poznać; Pokaż w świecie przenosi do jego miejsca. Zwiedzanie objaśnia planszę bez wykonywania ruchu.',
-    'Zoom & discover': 'Przybliżaj i odkrywaj', 'Drag to move around the painting; pinch or scroll to zoom. Tap a highlighted region to read its meaning. The tour guides you through the wheel.': 'Przeciągnij, aby przesunąć malowidło; uszczypnij lub przewijaj, aby je przybliżyć. Dotknij wyróżnionego obszaru, aby poznać jego znaczenie. Zwiedzanie prowadzi przez koło.',
+    'Zoom & discover': 'Przybliżaj i odkrywaj', 'Drag to tilt the wall; scroll to zoom, and once close, drag to move across it. On a phone, one finger tilts the wall and two fingers move and zoom it. Tap a part to read its meaning. The tour guides you through the wheel.': 'Przeciągnij, aby przechylić ścianę; przewijaj, aby ją przybliżyć, a z bliska przeciągaj, aby się po niej poruszać. Na telefonie jeden palec przechyla ścianę, a dwa przesuwają ją i przybliżają. Dotknij dowolnej części, aby poznać jej znaczenie. Zwiedzanie prowadzi przez koło.',
     'Keyboard: E Explorer · M Mandala · G Game · L Wheel · I Index · ? Help. Escape closes the current panel.': 'Klawiatura: E Eksplorator · M Mandala · G Gra · L Koło · I Indeks · ? Pomoc. Escape zamyka bieżący panel.',
     'Pinch over a reading panel to enlarge text. Scene gestures control the drawing.': 'Uszczypnij nad panelem tekstowym, aby powiększyć tekst. Gesty nad sceną sterują rysunkiem.'
   };
@@ -81,6 +81,14 @@
     if (choice) { locale?.setLanguage(choice.dataset.uiLang); language.open = false; language.querySelector('summary').focus(); syncLanguage(); }
   });
   document.addEventListener('pointerdown', event => { if (!language.contains(event.target)) language.open = false; });
+  // One menu open at a time, however it was opened: a pointer outside already
+  // closes the others, but the keyboard opened one over another.
+  document.addEventListener('toggle', event => {
+    const menu = event.target;
+    if (!menu.open || !(menu instanceof HTMLDetailsElement)) return;
+    if (menu === language) document.querySelectorAll('.controls details[open], .bv-tools[open], .bv-options[open]').forEach(other => { other.open = false; });
+    else if (menu.matches('.controls details, .bv-tools, .bv-options')) language.open = false;
+  }, true);
   window.addEventListener('ws-language-change', syncLanguage);
   syncLanguage();
 
@@ -89,7 +97,7 @@
     explore: ['✦', 'Look around', 'Drag with a mouse to orbit; scroll to zoom. On a phone, one finger pans and two fingers turn and zoom. Tap a place to read about it.'],
     mandala: ['◎', 'Play & numbers', 'Play follows the recitation one offering at a time. Numbers hides or shows the heap labels, even while playing. The study tour has separate presentation playback.'],
     game: ['☸', 'Throw & explore', 'Throw advances the current player. Select a square to read it; Show in world visits its location. The tour explains the board without taking a turn.'],
-    wheel: ['❂', 'Zoom & discover', 'Drag to move around the painting; pinch or scroll to zoom. Tap a highlighted region to read its meaning. The tour guides you through the wheel.']
+    wheel: ['❂', 'Zoom & discover', 'Drag to tilt the wall; scroll to zoom, and once close, drag to move across it. On a phone, one finger tilts the wall and two fingers move and zoom it. Tap a part to read its meaning. The tour guides you through the wheel.']
   };
   let previousFocus = null;
   const openHelp = () => {
