@@ -98,6 +98,19 @@ board they competed with the hundred and four fields.
 - Existing rebirth, gestures, world-surfaces and offline suites remain applicable. Run `node scripts/build-sw.cjs` after served assets change.
 - Browser checks cover desktop and a 390 × 844 phone viewport, character setup, arrival cards, world focus, resume, game menu and large-square view. These are desktop browser viewport checks, not physical-device testing.
 
+## The camera follows the traveler
+
+In the World arrangement the camera goes with whoever holds the die. Each throw
+flies the eye to where the traveler lands, in the same three-quarter view a
+visit to that square gets (the square and Meru together), and it flies there
+while the token does, so the landing and the arrival are one movement. Entering
+the game, switching to World, or a panel opening or closing frames the traveler
+last followed rather than the whole ascent. A drag looks around freely; the next
+throw picks the traveler up again. **Camera follows the traveler** in the Game
+menu turns it off, returning to the whole-journey overview; it is on until then,
+and the choice is kept (`ws-game-follow`). An explicit Show in world, and the
+guided tour, frame their own stops as before.
+
 ## Character artwork
 
 `assets/rebirth/travelers.png` is one transparent 6-column × 2-row sprite atlas generated with the built-in image-generation tool. It is contemporary game illustration, not an image from the historical board. The same atlas is cropped by CSS and Three.js texture coordinates; the final generated image was copied with its alpha channel intact. An image-tool background-extraction pass followed the initial generation.

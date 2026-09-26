@@ -22,6 +22,9 @@ html, body { touch-action: pan-x pan-y pinch-zoom; }
   font-size: 12px; letter-spacing: .02em; text-transform: none;
   border: 0; border-radius: var(--radius-in); padding: 8px 10px;
 }
+.app-text-size { display: flex; gap: 0; }
+.app-text-size svg { width: 20px; height: 20px; }
+.app-text-size .btn:disabled { opacity: .38; cursor: default; }
 .app-donate { text-decoration: none; color: var(--accent); }
 .app-donate svg { width: 17px; height: 17px; }
 .app-help-symbol { width: 21px; height: 21px; border: 1.5px solid currentColor; border-radius: 50%; font: 17px/20px Georgia, serif; }
@@ -68,6 +71,32 @@ html, body { touch-action: pan-x pan-y pinch-zoom; }
 .intro-loading::after { content: ''; display: block; width: 50%; height: 100%; background: var(--accent); animation: intro-loading 1.4s ease-in-out infinite alternate; }
 .intro-skip { min-height: 44px; font-size: 12px; letter-spacing: .03em; }
 @keyframes intro-loading { to { transform: translateX(100%); } }
+/* ── text size ──────────────────────────────────────────────────────────
+   The header's two magnifiers set --text-zoom. Each window's contents are
+   zoomed, not the window: the text rewraps inside the frame it already has,
+   and a frame measured against the drawing keeps its measure. */
+:root { --text-zoom: 1; }
+.sheet .sheet-scroll, .sheet .grip .eyebrow,
+.index .head h1, .index .rows, .index .empty, .index .foot,
+.tour-panel .tour-scroll,
+.mandala-note > h3, .mandala-note > .off-tib, .mandala-note > .off-intro,
+.mandala-note > .off-now, .mandala-note > .off-full,
+.bv-card-in, .bv-ask-in > *, .bv-tools-body > *, .bv-options-body,
+.game-focus > strong, .game-focus > p, .art-status > span,
+.app-help > *, .app-intro > * {
+  zoom: var(--text-zoom);
+}
+/* Enlarged, the index's short glosses no longer fit beside the name, so each
+   one goes under its name instead of squeezing it or running off the edge. */
+:root:is([data-text-size="130"], [data-text-size="150"], [data-text-size="175"]) .index .row {
+  grid-template-columns: minmax(0, 1fr); gap: 0;
+}
+:root:is([data-text-size="130"], [data-text-size="150"], [data-text-size="175"]) .index .row .k {
+  white-space: normal; overflow-wrap: anywhere;
+}
+:root:not([data-text-size="100"]) :is(.index .row .n, .sheet-scroll, .tour-scroll, .bv-card-in) {
+  overflow-wrap: anywhere;
+}
 /* ── one shape for every menu, panel and card ────────────────────────────
    The header set the look: a card with rounded corners, and inside it
    controls rounded a step less. Everything else that stands over the scene
@@ -111,6 +140,7 @@ body.tour-view .compass { top: calc(86px + var(--sa-t)); }
   .app-header { top: calc(8px + var(--sa-t)); left: 9px; right: 9px; gap: 1px; padding: 3px; }
   .app-brand { margin-right: auto; padding: 0 6px; font-size: 18px; }
   .app-header .btn { padding: 8px; }
+  .app-text-size .btn { min-width: 38px; padding: 8px 5px; }
   .app-help-label { display: none; }
   .app-help, .app-intro { padding: 20px; width: calc(100vw - 20px); }
   .app-help h2, .app-intro h1 { font-size: 30px; }

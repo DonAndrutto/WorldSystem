@@ -723,6 +723,7 @@ const T={
   "Quick": "Szybkie",
   "Instant": "Natychmiastowe",
   "Larger board squares (scroll)": "Większe pola planszy (przewijanie)",
+  "Camera follows the traveler": "Kamera podąża za podróżnikiem",
   "Saved on this device.": "Zapisano na tym urządzeniu.",
   "Saving is unavailable. Keep this tab open to continue this game.": "Nie można zapisać. Zostaw tę kartę otwartą, aby kontynuować grę.",
   "New game": "Nowa gra",

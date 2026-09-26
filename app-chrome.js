@@ -22,10 +22,14 @@
     'Play & numbers': 'Odtwarzanie i numery', 'Play follows the recitation one offering at a time. Numbers hides or shows the heap labels, even while playing. The study tour has separate presentation playback.': 'Odtwarzanie prowadzi przez recytację, ofiara po ofierze. Numery włącza lub ukrywa oznaczenia kopców także podczas odtwarzania. Zwiedzanie ma osobny tryb prezentacji.',
     'Throw & explore': 'Rzucaj i poznawaj', 'Throw advances the current player. Select a square to read it; Show in world visits its location. The tour explains the board without taking a turn.': 'Rzut przesuwa bieżącego gracza. Wybierz pole, aby je poznać; Pokaż w świecie przenosi do jego miejsca. Zwiedzanie objaśnia planszę bez wykonywania ruchu.',
     'Zoom & discover': 'Przybliżaj i odkrywaj', 'Drag to tilt the wall; scroll to zoom, and once close, drag to move across it. On a phone, one finger tilts the wall and two fingers move and zoom it. Tap a part to read its meaning. The tour guides you through the wheel.': 'Przeciągnij, aby przechylić ścianę; przewijaj, aby ją przybliżyć, a z bliska przeciągaj, aby się po niej poruszać. Na telefonie jeden palec przechyla ścianę, a dwa przesuwają ją i przybliżają. Dotknij dowolnej części, aby poznać jej znaczenie. Zwiedzanie prowadzi przez koło.',
-    'Keyboard: E Explorer · M Mandala · G Game · L Wheel · I Index · ? Help. Escape closes the current panel.': 'Klawiatura: E Eksplorator · M Mandala · G Gra · L Koło · I Indeks · ? Pomoc. Escape zamyka bieżący panel.',
-    'Pinch over a reading panel to enlarge text. Scene gestures control the drawing.': 'Uszczypnij nad panelem tekstowym, aby powiększyć tekst. Gesty nad sceną sterują rysunkiem.'
+    'Keyboard: E Explorer · M Mandala · G Game · L Wheel · I Index · ? Help. + and − zoom, the arrows turn the view. Escape closes the current panel.': 'Klawiatura: E Eksplorator · M Mandala · G Gra · L Koło · I Indeks · ? Pomoc. + i − przybliżają i oddalają, strzałki obracają widok. Escape zamyka bieżący panel.',
+    'Pinch over a reading panel to enlarge text. Scene gestures control the drawing.': 'Uszczypnij nad panelem tekstowym, aby powiększyć tekst. Gesty nad sceną sterują rysunkiem.',
+    'Text size': 'Rozmiar tekstu', 'Smaller text': 'Mniejszy tekst', 'Larger text': 'Większy tekst',
+    'Make the writing in every panel and window smaller or larger with the two magnifiers in the header. The choice is kept on this device.': 'Pomniejsz lub powiększ tekst we wszystkich panelach i oknach dwiema lupami w nagłówku. Wybór zostaje zapamiętany na tym urządzeniu.'
   };
   locale?.add(translations);
+  // A magnifying glass with a minus or a plus in its lens.
+  const magnifier = plus => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m15.4 15.4 5.1 5.1M7.8 10.5h5.4${plus ? 'M10.5 7.8v5.4' : ''}"/></svg>`;
   const header = document.createElement('nav');
   header.className = 'app-header card';
   header.setAttribute('aria-label', 'Help, language and support');
@@ -33,6 +37,10 @@
     <a class="btn app-donate" href="https://www.paypal.com/donate/?business=JZS5LVZKPPY5J&amp;no_recurring=0&amp;item_name=Help+fund+Dharma+translation+projects.&amp;currency_code=USD" target="_blank" rel="noopener noreferrer" aria-label="Donate to Dharma translation projects (opens a new tab)">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/></svg><span>Donate</span>
     </a>
+    <div class="app-text-size" role="group" aria-label="Text size">
+      <button class="btn" type="button" data-text-size="-1" aria-label="Smaller text" title="Smaller text">${magnifier(false)}</button>
+      <button class="btn" type="button" data-text-size="1" aria-label="Larger text" title="Larger text">${magnifier(true)}</button>
+    </div>
     <details class="app-language"><summary class="btn" aria-label="Interface language"><span aria-hidden="true">文</span><span data-language-label data-no-localize>EN</span><span aria-hidden="true">▾</span></summary>
       <div class="app-language-menu card" role="group" aria-label="Interface language">
         <button class="btn" type="button" data-ui-lang="en" lang="en" data-no-localize aria-pressed="true">English</button>
@@ -57,7 +65,7 @@
   help.innerHTML = `<div class="app-help-head"><div><div class="help-eyebrow">Your controls</div><h2 id="help-title">Explore at your own pace.</h2></div><button class="btn help-close" type="button" aria-label="Close help" autofocus>×</button></div>
     <dl class="help-controls"></dl>
     <div class="help-actions"><button class="btn" type="button" data-help-tour>Start a guided tour</button><button class="btn" type="button" data-help-intro>Meet the four modes</button></div>
-    <p class="help-shortcuts">Keyboard: E Explorer · M Mandala · G Game · L Wheel · I Index · ? Help. Escape closes the current panel.</p>
+    <p class="help-shortcuts">Keyboard: E Explorer · M Mandala · G Game · L Wheel · I Index · ? Help. + and − zoom, the arrows turn the view. Escape closes the current panel.</p>
     <p class="help-shortcuts">Pinch over a reading panel to enlarge text. Scene gestures control the drawing.</p>`;
   document.body.append(help);
   const intro = document.createElement('dialog');
@@ -92,6 +100,38 @@
   window.addEventListener('ws-language-change', syncLanguage);
   syncLanguage();
 
+  /* ── text size ────────────────────────────────────────────────────────
+     One setting for the writing in every panel and window: the entries, the
+     index, the tours, the game's cards and dialogs, help and the welcome.
+     It is applied as a zoom on each window's contents rather than on the
+     window, so a larger size rewraps inside the same frame instead of
+     pushing the frame off the screen. The drawing is left as it is. */
+  const TEXT_SIZES = [0.85, 1, 1.15, 1.3, 1.5, 1.75];
+  const sizeButtons = [...header.querySelectorAll('[data-text-size]')];
+  let textSize = 1;
+  try { textSize = Number(localStorage.getItem('ws-text-size')) || 1; } catch {}
+  if (!TEXT_SIZES.includes(textSize)) textSize = 1;
+  const applyTextSize = (remember = false) => {
+    document.documentElement.style.setProperty('--text-zoom', String(textSize));
+    document.documentElement.dataset.textSize = String(Math.round(textSize * 100));
+    const at = TEXT_SIZES.indexOf(textSize);
+    sizeButtons[0].disabled = at <= 0;
+    sizeButtons[1].disabled = at >= TEXT_SIZES.length - 1;
+    const percent = Math.round(textSize * 100) + '%';
+    sizeButtons.forEach(button => { button.dataset.size = percent; });
+    if (remember) { try { localStorage.setItem('ws-text-size', String(textSize)); } catch {} }
+    window.dispatchEvent(new CustomEvent('ws-text-size-change', { detail: { size: textSize } }));
+  };
+  header.querySelector('.app-text-size').addEventListener('click', event => {
+    const button = event.target.closest('[data-text-size]');
+    if (!button) return;
+    const at = TEXT_SIZES.indexOf(textSize) + Number(button.dataset.textSize);
+    if (at < 0 || at >= TEXT_SIZES.length) return;
+    textSize = TEXT_SIZES[at];
+    applyTextSize(true);
+  });
+  applyTextSize();
+
   const currentMode = () => document.querySelector('[data-mode][aria-pressed="true"]')?.dataset.mode || 'explore';
   const modeHelp = {
     explore: ['✦', 'Look around', 'Drag with a mouse to orbit; scroll to zoom. On a phone, one finger pans and two fingers turn and zoom. Tap a place to read about it.'],
@@ -108,6 +148,7 @@
       ['☰', 'Index', 'Find a place or an idea, then open its explanation and sources.'],
       ['✦', 'View', 'Choose Explorer, Mandala, Game or Wheel from the mode menu.'],
       ['⚙', 'Options', 'Set motion, night colours, sound or full screen. Reset view returns to an overview.'],
+      ['⊕', 'Text size', 'Make the writing in every panel and window smaller or larger with the two magnifiers in the header. The choice is kept on this device.'],
       ['文', 'Language', 'Switch the interface between English and Polish. Tibetan names have their own switch in Options.'],
       ['♡', 'Donate', 'Support Dharma translation projects through PayPal. Opens a separate tab.']];
     const list = help.querySelector('.help-controls'); list.replaceChildren();
