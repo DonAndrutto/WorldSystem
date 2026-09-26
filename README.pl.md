@@ -17,6 +17,9 @@ Polska warstwa obejmuje:
 - koło życia (bhawaczakrę) jako malowaną płaskorzeźbę — wszystkie dziewięćdziesiąt dwa
   hasła, od piasty po Jamę i sferę poza kołem, wraz z podpowiedzią przy najechaniu na
   każdą część i miejscem koła w indeksie;
+- prezentację **Miliard światów** — cztery przystanki oddalające widok od jednego
+  systemu świata przez mały i średni tysiąckrotny świat aż po wielki trójtysięczny
+  świat, wraz z czterema hasłami indeksu, na których się opiera;
 - działanie offline: pakiet językowy jest dołączany do pamięci podręcznej service workera.
 
 Angielski pozostaje językiem domyślnym i źródłowym. Nazwy sanskryckie, tybetańskie oraz cytowania bibliograficzne zachowują oryginalną postać, aby polska wersja nie odrywała terminów od tekstów, na których opiera się model.

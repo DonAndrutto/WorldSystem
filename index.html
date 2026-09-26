@@ -1761,6 +1761,8 @@
         <button class="btn" data-mode="mandala" type="button" aria-pressed="false" title="Mandala — m"><span class="g">◎</span><span class="t">Mandala</span></button>
         <button class="btn" data-mode="game" type="button" aria-pressed="false" title="Game of rebirth — g"><span class="g">☸</span><span class="t">Game</span></button>
         <button class="btn" data-mode="wheel" type="button" aria-pressed="false" title="Wheel of life — l"><span class="g">❂</span><span class="t">Wheel</span></button>
+        <!-- the guided tour is put in front of this by app-chrome.js -->
+        <button class="btn" data-act="worlds" type="button" title="Zoom out from this world to the trichiliocosm — b">A billion worlds</button>
       </div>
     </details>
     <details class="menu" data-menu="options">
@@ -2033,7 +2035,8 @@
 <script type="module">
 import { createOfferingModels, OFFERING_ART, offeringBackground } from './mandala-offerings.js';
 import { TOUR_NOTES } from './mandala-tour.js';
-import { createPresentationTours, createPresentationPlayer } from './presentation-tours.js';
+import { createPresentationTours, createPresentationPlayer, WORLD_ORDERS } from './presentation-tours.js';
+import { createThousandWorlds, framingDistance as worldsFramingDistance } from './thousand-worlds.js';
 import { installViewportGestures } from './viewport-gestures.js';
 import { createGoldenRangeGeometry, createWaterNormalMap, createWaterMaterial, createWaterGeometry } from './world-surfaces.js';
 import { createSummitDetail } from './summit-detail.js';
@@ -3306,6 +3309,7 @@ stage._ground.visible = false;
    A cloud band on the inside of a large sphere, so the world stands in
    front of something rather than in an empty field. */
 const SKY = {};
+let cosmos = null;    // the thousand worlds, made further down the first time the view zooms out
 const skyMat = new THREE.MeshBasicMaterial({
   side: THREE.BackSide, depthWrite: false, toneMapped: false
 });
@@ -3318,7 +3322,10 @@ stage._scene.add(skyMesh);
 function setSky(dark) {
   const k = dark ? 'night' : 'day';
   SKY[k] = SKY[k] || cloudTex(dark);
-  skyMat.map = SKY[k];
+  // beyond the iron rim there is darkness: the clouds go with the first zoom out
+  const beyond = cosmos !== null && cosmos.level > 0;
+  skyMat.map = beyond ? null : SKY[k];
+  skyMat.color.setHex(beyond ? 0x070b16 : 0xffffff);
   skyMat.needsUpdate = true;
 }
 
@@ -4038,9 +4045,63 @@ def('about_thousandfold', {
       ['Its reach', 'the field of a single buddha'],
       ['Between them', 'darkness, and the wind that carries them']],
   b: ['This drawing is one world system of a thousand million. They are arranged in three powers of a thousand, and the largest of those — the trichiliocosm — is the field within which one buddha teaches. Each system in it has its own Meru, its own four continents, its own sun and moon, and its own eight hells.',
-      'The formless realm is not counted in the multiplication, having no place; and the highest heavens of form are shared rather than repeated, which is why the pure abodes are not destroyed when a single system burns.'],
-  rel: ['cakravada_iron_ring', 'about_destruction'],
+      'The formless realm is not counted in the multiplication, having no place; and the highest heavens of form are shared rather than repeated, which is why the pure abodes are not destroyed when a single system burns.',
+      '<b>Zoom out</b> to see the three orders drawn: a thousand of this world in a cube ten to a side, then a thousand of those, then a thousand again. The cube is the drawing\'s own device for making a thousand countable; the texts give the number and say nothing of the shape.'],
+  rel: ['worlds_one', 'worlds_small', 'worlds_middling', 'worlds_great', 'cakravada_iron_ring', 'about_destruction'],
   src: 'Abhidharmakośa III.73–74'
+});
+/* — the three orders of a thousand, one stop each when the view zooms out — */
+def('worlds_one', {
+  t: 'One world system', tib: 'gling bzhi pa\'i \'jig rten gyi khams', en: 'a four-continent world', k: '1',
+  meta: 'The unit the texts count in',
+  f: [['Meru', 'one, with its four faces and its four terraces'],
+      ['Continents', 'four, with their eight companions'],
+      ['Sun and moon', 'one of each, circling at the height of Yugandhara'],
+      ['Heavens of its own', 'the six of desire, and the Brahmā world of the first dhyāna'],
+      ['Hells', 'the eight hot hells beneath Jambudvīpa, and the eight cold ones'],
+      ['Beyond the rim', 'darkness, and then the next']],
+  b: ['This is the whole of what the drawing draws, and the unit the texts count in: a single four-continent world with its Meru, its sun and moon, its six desire heavens and the Brahmā world above them. The Kośa lists exactly these when it says what is multiplied by a thousand. The higher heavens of form stand over more than one such world; the drawing keeps them in view above this one for reference.',
+      'Past the iron rim there is darkness, and then another world of the same design, resting on its own wind. Zoom out to see a thousand of them.'],
+  rel: ['about_thousandfold', 'worlds_small', 'cakravada_iron_ring', 'wind_mandala'],
+  src: 'Abhidharmakośa III.73'
+});
+def('worlds_small', {
+  t: 'A small chiliocosm', tib: 'stong spyi phud kyi \'jig rten gyi khams', en: 'sāhasra-cūḍika-lokadhātu · the first thousand', k: '10³',
+  meta: '1,000 world systems — ten to a side',
+  f: [['Count', 'a thousand four-continent worlds'],
+      ['Each with', 'its own Meru, sun and moon, desire heavens and Brahmā world'],
+      ['Over all of them', 'one second dhyāna — the heavens of Ābhāsvara'],
+      ['In this drawing', 'a cube of ten by ten by ten: the drawing\'s own arrangement'],
+      ['Also called', 'the thousandfold world; the first-order thousand']],
+  b: ['A thousand four-continent worlds, with a thousand Merus and a thousand suns and moons, make the first order of a thousand. The Kośa calls it the small chiliocosm — the <i>cūḍika</i>, "topknot" thousand, a name the Tibetan keeps as <i>stong spyi phud</i>. Each world in it has its own Brahmā heaven, and over all thousand together stands a single second dhyāna. The texts give the count and not the arrangement; this drawing sets them ten to a side, so that a thousand can be seen for what it is, with darkness and the wind between them.',
+      'The world you were looking at is one of the thousand, and not the middle one: ten to a side has no middle, and no world system is the centre.'],
+  rel: ['worlds_one', 'worlds_middling', 'heaven_abhasvara', 'about_thousandfold'],
+  src: 'Abhidharmakośa III.73–74; Kongtrul, Myriad Worlds'
+});
+def('worlds_middling', {
+  t: 'A middling chiliocosm', tib: 'stong gnyis pa bar ma\'i \'jig rten gyi khams', en: 'dvisāhasra-madhyama-lokadhātu · the second thousand', k: '10⁶',
+  meta: '1,000,000 world systems — a thousand small chiliocosms',
+  f: [['Count', 'a thousand small chiliocosms: a million worlds'],
+      ['Over all of them', 'one third dhyāna — the heavens of Śubhakṛtsna'],
+      ['In this drawing', 'a cube of a thousand cubes'],
+      ['Also called', 'the second-order thousand; the middle thousand']],
+  b: ['A thousand of the small chiliocosms make the second order: a thousand thousand four-continent worlds. The Tibetan name says the arithmetic — <i>stong gnyis pa bar ma</i>, the second thousand, the middling one. Over the whole million stands a single third dhyāna, as the second stood over each thousand.',
+      'At this remove a world system is a speck and a small chiliocosm a small cube of specks. The drawing gives each of the thousand cubes its own second-dhyāna canopy, and one canopy over all of them.'],
+  rel: ['worlds_small', 'worlds_great', 'heaven_shubhakritsna', 'about_thousandfold'],
+  src: 'Abhidharmakośa III.74; Kongtrul, Myriad Worlds'
+});
+def('worlds_great', {
+  t: 'The great trichiliocosm', tib: 'stong gsum gyi stong chen po\'i \'jig rten gyi khams', en: 'trisāhasra-mahāsāhasra-lokadhātu · the third thousand', k: '10⁹',
+  meta: '1,000,000,000 world systems — the field of one buddha',
+  f: [['Count', 'a thousand middling chiliocosms: a thousand million worlds'],
+      ['Over all of them', 'one fourth dhyāna, with the five pure abodes'],
+      ['Its reach', 'the field within which one buddha teaches'],
+      ['Not counted', 'the formless realm, which has no place'],
+      ['Made and unmade', 'together, as one, in one great kalpa']],
+  b: ['A thousand middling chiliocosms make the third order: the great thousand of three thousands, a thousand million four-continent worlds. This is the trichiliocosm, the field of a single buddha, and the Kośa adds that it is made together and destroyed together. Over the whole of it stands one fourth dhyāna, and with it the pure abodes — which is why they are not touched when any world beneath them burns.',
+      'The formless realm is not counted in the multiplication, having no place. The drawing stops here, at ten to a side three times over; the sūtras go on to count worlds beyond number, in every direction, each with its buddha.'],
+  rel: ['worlds_middling', 'about_thousandfold', 'about_destruction', 'heaven_akanishtha'],
+  src: 'Abhidharmakośa III.74; Kongtrul, Myriad Worlds'
 });
 def('gods_ways', {
   t: 'The life of a god', meta: 'Birth, union, and the five signs', k: 'the desire gods',
@@ -4416,6 +4477,7 @@ const TREE = [
   ['The eight hot hells', HOT.map(([id]) => [`hell_${id}`]).concat([['naraka_shaft']])],
   ['The eight cold hells', COLD_DATA.map(([id]) => [`cold_${id}`])],
   ['The other destinies', [['preta_realm'], ['animals'], ['humans']]],
+  ['A thousand worlds', WORLD_ORDERS.map(id => [id])],
   ['The mandala of thirty-seven', [['about_mandala']].concat(
     HEAPS.map(([n, id]) => [id, n + '. ' + (E[id] ? E[id].t : id)])
   )]
@@ -4627,7 +4689,7 @@ function show(id, reveal) {
   // Source entries are authored with the app, including linked text and licence credits.
   sSrc.innerHTML = e.src || '';
   sSrc.hidden = !e.src;
-  zoomBtn.disabled = !ms.length && !(mode === 'wheel' && wheelPart(id));
+  zoomBtn.disabled = !ms.length && !(mode === 'wheel' && wheelPart(id)) && worldsStop(id) === null;
   syncZoom();
   sheet.hidden = false;
   sScroll.scrollTop = 0;
@@ -4673,6 +4735,12 @@ const step = (d) => {
 /* In the game the entry opens a contextual world visit, even from the 2D
    board. The explorer retains its ordinary object inspection control. */
 function syncZoom() {
+  // the orders of a thousand are not a place to zoom in on; they are zoomed out to
+  if (current && worldsStop(current) !== null) {
+    zoomBtn.hidden = false;
+    zoomBtn.textContent = 'Zoom out';
+    return;
+  }
   if (mode === 'wheel') {
     // on the wheel a part is zoomed to; anything else is shown in the world
     zoomBtn.hidden = false;
@@ -4695,6 +4763,14 @@ sheet.addEventListener('click', (ev) => {
 sheet.querySelector('.x').addEventListener('click', close);
 zoomBtn.addEventListener('click', () => {
   if (!current) return;
+  const order = worldsStop(current);
+  if (order !== null) {
+    // from the note, or from one world, the first zoom out; from an order, that order
+    const at = Math.max(1, order);
+    if (guidedMode === 'worlds') { sheet.hidden = true; tourPlayer.go(at); }
+    else startPresentation('worlds', at);
+    return;
+  }
   if (mode === 'wheel') {
     const part = wheelPart(current);
     if (part) { wheelView.focus(part); return; }
@@ -4923,7 +4999,7 @@ function applyZoomLimits() {
   ctr.minDistance = framedDist ? Math.min(ZOOM_NEAREST, framedDist * 0.8) : ZOOM_NEAREST;
   ctr.maxDistance = framedDist ? Math.max(far, framedDist * 1.25) : far;
 }
-const _roamBox = new THREE.Box3(), _roam = new THREE.Vector3(), _roamSize = new THREE.Vector3();
+const _roamBox = new THREE.Box3(), _roam = new THREE.Vector3(), _roamSize = new THREE.Vector3(), _roamEdge = new THREE.Vector3();
 function roamBox() {
   // across, the disc and a little past its iron rim (the plate, in the
   // maṇḍala); up and down, as far as the world itself goes
@@ -4936,6 +5012,12 @@ function roamBox() {
   }
   // and never so tight that it pulls away from a view the page chose itself
   if (framedTarget) _roamBox.expandByPoint(framedTarget);
+  // out among the thousand worlds, the whole cube shown is the room to roam in
+  if (cosmos !== null && cosmos.level > 0) {
+    const L = cosmos.levels[cosmos.level - 1], half = L.edge / 2;
+    _roamBox.expandByPoint(_roamEdge.set(L.centre[0] - half, L.centre[1] - half, L.centre[2] - half));
+    _roamBox.expandByPoint(_roamEdge.set(L.centre[0] + half, L.centre[1] + half, L.centre[2] + half));
+  }
   return _roamBox;
 }
 function keepTargetNear() {
@@ -5044,6 +5126,7 @@ const drawLoop = () => {
     const dt = stepMotion();
     if (mode === 'wheel') wheelView?.advanceMotion(dt);
   }
+  if (cosmos !== null && cosmos.tick(performance.now())) invalidate(2);   // an order fading in or out
   ctr.update();                        // fires 'change' → invalidate, when moving
   if (frames <= 0) return;
   if (worldHidden()) { frames = 0; return; }
@@ -5109,6 +5192,54 @@ function home() {
   // a phone with a panel up has no room for the opening view; frame what is left
   if (tightScreen() && !dock.hidden) { reframeExplore(900); return; }
   fly(HOME.p.clone(), HOME.t.clone(), 900);
+}
+
+/* ── a thousand worlds ───────────────────────────────────────────────────
+   The three orders of a thousand, drawn around this world the first time
+   the view zooms out to them (thousand-worlds.js). The world stays where it
+   is; the eye steps back to a cube of a thousand, then a thousand of those,
+   then a thousand again, and the clouds behind the world give way to the
+   darkness the texts put between one system and the next. `cosmos` itself
+   is declared with the sky, which is the first thing to ask after it. */
+const WORLDS_DIR = new THREE.Vector3(1, 0.78, 1.25).normalize();
+const worldsStop = (id) => { const at = WORLD_ORDERS.indexOf(id); return at >= 0 ? at : id === 'about_thousandfold' ? 0 : null; };
+function cosmosOf() {
+  if (cosmos) return cosmos;
+  world.updateMatrixWorld(true);
+  // the world as it stands in Explorer: the board's ascent and the offering's
+  // rings are in the same group, hidden, and would triple the span
+  const box = new THREE.Box3();
+  world.traverse((o) => { if (o.isMesh && !o.userData.pickOnly && visibleInScene(o)) box.expandByObject(o); });
+  const size = box.getSize(new THREE.Vector3()), c = box.getCenter(new THREE.Vector3());
+  // a world's own heavens end with the first dhyāna; the spire of a proxy stops there
+  const brahma = new THREE.Box3();
+  (byName.get('heaven_mahabrahma') || []).forEach((m) => brahma.expandByObject(m));
+  cosmos = createThousandWorlds(THREE, {
+    span: Math.max(size.x, size.y, size.z), centre: [c.x, c.y, c.z],
+    rim: RIM, floor: FLOOR, summit: SUMMIT, fov: cam.fov,
+    spireTop: brahma.isEmpty() ? SUMMIT + (SUMMIT - FLOOR) : brahma.max.y,
+    meru: { halfTop: TOP_H, halfBase: BASE_H, seat: SEAT },
+    luminaries: LUMINARIES.map((L) => ({
+      x: Math.sin(L.base) * L.r, y: L.h, z: Math.cos(L.base) * L.r, r: L.objs[0].geometry.parameters.radius })),
+    createCanvas: () => document.createElement('canvas')
+  });
+  stage._scene.add(cosmos.group);
+  return cosmos;
+}
+/* Take the view to one order of a thousand — 0 is this world alone — and
+   show what stands there. A flight of its own length: the zoom out is the
+   thing being shown. */
+function worldsGo(level, dur = 1800) {
+  const cs = cosmosOf();
+  const instant = reducedMotion();
+  if (cs.setLevel(level, { instant, dur: Math.min(900, dur) })) invalidate(4);
+  setSky(night);
+  if (level <= 0) { home(); return; }
+  const L = cs.levels[level - 1];
+  const fr = freeRect();
+  const dist = worldsFramingDistance(L.radius, { fov: cam.fov, height: Math.max(stage.clientHeight, 1), rect: fr });
+  aimAt(new THREE.Vector3(...L.centre), dist, fr, WORLDS_DIR, dur);
+  invalidate(4);
 }
 
 /* ── the mandala view ────────────────────────────────────────────────
@@ -5860,13 +5991,13 @@ function visitHeap(index, move = true) {
 }
 function prepareTourPanel(tourMode) {
   const heaps = tourMode === 'mandala';
-  tourEl.setAttribute('aria-label', heaps ? 'Tour of the 37 heaps' : 'Guided presentation');
+  tourEl.setAttribute('aria-label', heaps ? 'Tour of the 37 heaps' : tourMode === 'worlds' ? 'A thousand worlds' : 'Guided presentation');
   tourEl.querySelector('.mode-tabs').hidden = !heaps;
   tourEl.querySelector('[data-numbers]').hidden = !heaps;
   tourEl.querySelector('.tour-jump-label').textContent = heaps ? 'Go to an offering' : 'Go to a stop';
   tourSelect.setAttribute('aria-label', heaps ? 'Go to an offering' : 'Go to a stop');
-  tourEl.querySelector('.tour-overview').textContent = 'End tour';
-  tourEl.querySelector('.tour-overview').title = heaps ? 'Return to whole mandala' : 'End tour';
+  tourEl.querySelector('.tour-overview').textContent = tourMode === 'worlds' ? 'Back to one world' : 'End tour';
+  tourEl.querySelector('.tour-overview').title = heaps ? 'Return to whole mandala' : tourMode === 'worlds' ? 'Back to one world' : 'End tour';
   tourEl.querySelector('.tour-progress').max = heaps ? HEAPS.length : PRESENTATION_TOURS[tourMode].length;
   tourSelect.replaceChildren();
   const stops = heaps ? HEAPS.map(([number, id]) => ({ id })) : PRESENTATION_TOURS[tourMode];
@@ -5911,11 +6042,12 @@ function endTour(overview = true) {
   restorePresentationMotion();
   if (overview) mandalaFly(700);
 }
-function startPresentation(next = mode) {
-  if (!['explore', 'mandala', 'game', 'wheel'].includes(next)) return;
+function startPresentation(next = mode, at = 0) {
+  if (!['explore', 'mandala', 'game', 'wheel', 'worlds'].includes(next)) return;
   if (next === 'mandala') { startTour(); return; }
   if (presentationActive()) endPresentation(false);
-  setMode(next);
+  // the thousand worlds are zoomed out to from the world itself, in Explorer
+  setMode(next === 'worlds' ? 'explore' : next);
   pausePlay();
   setOpen(false, false);
   closeMenus();
@@ -5928,7 +6060,7 @@ function startPresentation(next = mode) {
   }
   guidedMode = next;
   prepareTourPanel(next);
-  tourPlayer.start(next, PRESENTATION_TOURS[next].length);
+  tourPlayer.start(next, PRESENTATION_TOURS[next].length, at);
   setMotion(!reducedMotion(), false);
   reframeAfterPanels();
 }
@@ -5947,7 +6079,10 @@ function renderGuidedStop(state, move = true) {
   tourEl.querySelector('.tour-copy').innerHTML = entry?.b?.[0] || entry?.meta || '';
   tourEl.querySelector('.tour-art-note').hidden = true;
   tourEl.querySelector('[data-tour="prev"]').disabled = state.index === 0;
-  tourEl.querySelector('[data-tour="next"]').textContent = state.index === state.length - 1 ? 'Finish tour' : 'Next stop';
+  // out through the orders of a thousand the two steps are a zoom, and say so
+  tourEl.querySelector('[data-tour="prev"]').textContent = guidedMode === 'worlds' ? 'Zoom in' : 'Previous';
+  tourEl.querySelector('[data-tour="next"]').textContent = state.index === state.length - 1 ? 'Finish tour'
+    : guidedMode === 'worlds' ? 'Zoom out' : 'Next stop';
   tourEl.querySelector('[data-tour="entry"]').disabled = !entry;
   tourSelect.value = String(state.index);
   tourEl.querySelector('.tour-scroll').scrollTop = 0;
@@ -5961,6 +6096,11 @@ function framePresentationStop() {
   if (touring) { tourFocus(); return; }
   if (!guidedMode) return;
   const stop = PRESENTATION_TOURS[guidedMode][tourPlayer.state().index];
+  if (guidedMode === 'worlds') {
+    // the same order again — a resize, a panel — is a short adjustment, not a zoom
+    worldsGo(stop.level, cosmos !== null && cosmos.level === stop.level ? 420 : 1800);
+    return;
+  }
   if (guidedMode === 'wheel') {
     wheelView.resize();
     const part = wheelPart(stop.id) || E[stop.id]?.rel?.find(id => wheelPart(id));
@@ -6009,6 +6149,11 @@ function endPresentation(overview = true) {
   tourPreviousSelection = null;
   tourReturnLayout = null;
   restorePresentationMotion();
+  if (previous === 'worlds' && cosmos !== null && cosmos.level > 0) {
+    // back in to the one world, over the flight home or at once
+    if (cosmos.setLevel(0, { instant: !overview || reducedMotion() })) invalidate(4);
+    setSky(night);
+  }
   if (overview) {
     if (previous === 'wheel') wheelView.home();
     else if (previous === 'game') { if (!rbFrameFollow(700)) reframeGame(); }
@@ -7465,7 +7610,11 @@ controlsEl.addEventListener('click', (ev) => {
   if (act.dataset.mode) setMode(act.dataset.mode);
   if (act.dataset.act === 'motion') setMotion(!motion);
   if (act.dataset.act === 'night') applyTheme(!night);
-  if (act.dataset.act === 'home') { close(); if (mode === 'wheel') wheelView.home(); else if (mode !== 'explore') setMode('explore'); else home(); }
+  if (act.dataset.act === 'worlds') startPresentation('worlds', 1);
+  if (act.dataset.act === 'home') {
+    if (guidedMode === 'worlds') endPresentation();   // the reset from a thousand worlds is the one world
+    else { close(); if (mode === 'wheel') wheelView.home(); else if (mode !== 'explore') setMode('explore'); else home(); }
+  }
   if (act.dataset.act === 'full') toggleFullScreen();
 });
 document.querySelector('.glnote [data-act="reload"]')
@@ -7724,6 +7873,11 @@ window.addEventListener('keydown', (e) => {
   if ((e.key === 't' || e.key === 'T') && mode === 'game') rbSetTibetan();
   if (e.key === 'e' || e.key === 'E') setMode('explore');
   if (e.key === 'l' || e.key === 'L') setMode(mode === 'wheel' ? 'explore' : 'wheel');
+  // b: out to the billion worlds, and back to the one (the game keeps b for its board)
+  if ((e.key === 'b' || e.key === 'B') && mode !== 'game') {
+    e.preventDefault();
+    if (guidedMode === 'worlds') endPresentation(); else startPresentation('worlds', 1);
+  }
   // on the wheel, the keys that zoom and pan a map do the same to the wall
   if (mode === 'wheel' && sheet.hidden && !document.body.classList.contains('index-open')) {
     if (e.key === '+' || e.key === '=') wheelView.zoomBy(1.25);
