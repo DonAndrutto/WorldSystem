@@ -1879,6 +1879,7 @@
       <details class="bv-options"><summary class="btn" title="The six possible destinations for this turn">Destinations</summary><div class="bv-options-body card"></div></details>
       <details class="bv-tools"><summary class="btn">Game</summary><div class="bv-tools-body card">
       <label>Animation pace <select id="g-pace"><option value="calm">Calm</option><option value="quick">Quick</option><option value="instant">Instant</option></select></label>
+      <label class="sw"><input type="checkbox" id="g-follow" checked> Camera follows the traveler</label>
       <label class="sw"><input type="checkbox" id="g-large-board"> Larger board squares (scroll)</label>
       <p class="bv-save" role="status"></p>
       <p>Throw the die to follow its destination. A missing destination means stay and pass. In a trap, collect the required faces; a needed face gives another throw. Reach 104 to win.</p>
@@ -4838,7 +4839,9 @@ let orbitInteracting = false;
 let gameFocus = null;
 ctr.addEventListener('start', () => {
   orbitInteracting = true; ctr.autoRotate = false;
-  if (anim) { cancelAnimationFrame(anim); anim = null; }
+  // a hand taking over mid-flight keeps the distance it found the eye at
+  if (anim) { cancelAnimationFrame(anim); anim = null; framedDist = cam.position.distanceTo(ctr.target); }
+  applyZoomLimits();
 });
 ctr.addEventListener('end', () => {
   orbitInteracting = false;
@@ -4867,12 +4870,18 @@ function stepMotion() {
   return dt;
 }
 
-function fly(toPos, toTarget, dur = 800, exterior = false) {
+/* A flight is the page choosing a view, so the limits on how near and how
+   far a hand may take the eye are lifted while it runs — an arc around Meru
+   swings wider than either end of it — and set again, around the view it
+   lands on, once it has arrived. A flight that only answers a key (framing
+   false) is still held to the limits it started under. */
+function fly(toPos, toTarget, dur = 800, exterior = false, framing = true) {
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) dur = 1;
   ctr.autoRotate = false;
   const fromP = cam.position.clone(), fromT = ctr.target.clone();
   const t0 = performance.now();
   if (anim) cancelAnimationFrame(anim);
+  ctr.minDistance = 0; ctr.maxDistance = Infinity;
   const walk = () => {
     const k = Math.min(1, (performance.now() - t0) / dur), e = ease(k);
     if (exterior) cam.position.copy(orbitFlightPoint(THREE, fromP, toPos, e, RIM * 1.15));
@@ -4880,9 +4889,84 @@ function fly(toPos, toTarget, dur = 800, exterior = false) {
     ctr.target.lerpVectors(fromT, toTarget, e);
     ctr.update();
     anim = k < 1 ? requestAnimationFrame(walk) : null;
-    if (!anim) ctr.autoRotate = motion && !orbitInteracting && !gameFocus;
+    if (!anim) {
+      if (framing) { framedDist = toPos.distanceTo(toTarget); framedTarget = toTarget.clone(); }
+      applyZoomLimits();
+      ctr.autoRotate = motion && !orbitInteracting && !gameFocus;
+    }
   };
   walk();
+}
+
+/* ── how near, how far, and how far afield ───────────────────────────────
+   Every view has a nearest and a farthest the eye can be taken by a wheel, a
+   pinch or a key. Nearest is a couple of centimetres from what is looked at:
+   closer than that and the surface in front is the one being passed through.
+   Farthest answers the view's own overview — the opening view in Explorer,
+   the whole plate in the maṇḍala, the whole ascent in the game — and lets the
+   eye stand a little way back from it, never so far that the world becomes a
+   coin in an empty sky. A view the page frames itself is always inside the
+   limits: they widen to take it in.
+
+   Panning is held too. The point looked at may wander over the whole world
+   and a little past its edge, but not out into the sky, where a drag used to
+   leave the model somewhere off the screen with no way back but Reset. */
+const ZOOM_NEAREST = 0.025;
+let framedDist = null, framedTarget = null;
+function zoomOutLimit() {
+  if (mode === 'mandala') return mandalaDistance() * 1.8;
+  if (mode === 'game') return gameOverviewDistance() * 1.6;
+  return homeDist() * 2.4;
+}
+function applyZoomLimits() {
+  const far = zoomOutLimit();
+  ctr.minDistance = framedDist ? Math.min(ZOOM_NEAREST, framedDist * 0.8) : ZOOM_NEAREST;
+  ctr.maxDistance = framedDist ? Math.max(far, framedDist * 1.25) : far;
+}
+const _roamBox = new THREE.Box3(), _roam = new THREE.Vector3(), _roamSize = new THREE.Vector3();
+function roamBox() {
+  // across, the disc and a little past its iron rim (the plate, in the
+  // maṇḍala); up and down, as far as the world itself goes
+  const across = mandala ? mandalaRadius() * 1.15 : RIM * 1.5;
+  _roamBox.min.set(-across, VIEW_BOUNDS.center.y - VIEW_BOUNDS.radius, -across);
+  _roamBox.max.set(across, VIEW_BOUNDS.center.y + VIEW_BOUNDS.radius, across);
+  if (mode === 'game' && !rbOverviewBounds.isEmpty()) {
+    // the game's own reach: the whole ascent, whichever is the larger
+    _roamBox.union(rbOverviewBounds.clone().expandByVector(rbOverviewBounds.getSize(_roamSize).multiplyScalar(0.1)));
+  }
+  // and never so tight that it pulls away from a view the page chose itself
+  if (framedTarget) _roamBox.expandByPoint(framedTarget);
+  return _roamBox;
+}
+function keepTargetNear() {
+  if (anim || mode === 'wheel') return;
+  _roam.copy(ctr.target);
+  roamBox().clampPoint(_roam, _roam);
+  _roam.sub(ctr.target);
+  if (_roam.lengthSq() < 1e-12) return;
+  // slide eye and target back together, so the angle of view is kept
+  ctr.target.add(_roam);
+  cam.position.add(_roam);
+}
+ctr.addEventListener('change', keepTargetNear);
+/* The keys: + and − take the eye nearer and farther, the arrows walk it
+   round and over what it looks at. Each is a short flight, held to the
+   limits above. */
+function dollyBy(k) {
+  if (anim) { cancelAnimationFrame(anim); anim = null; framedDist = cam.position.distanceTo(ctr.target); }
+  applyZoomLimits();
+  const offset = cam.position.clone().sub(ctr.target);
+  const d = THREE.MathUtils.clamp(offset.length() * k, ctr.minDistance, ctr.maxDistance);
+  fly(ctr.target.clone().add(offset.setLength(d)), ctr.target.clone(), 220, false, false);
+}
+function orbitBy(turn, lift) {
+  if (anim) { cancelAnimationFrame(anim); anim = null; framedDist = cam.position.distanceTo(ctr.target); }
+  applyZoomLimits();
+  const offset = cam.position.clone().sub(ctr.target);
+  const s = new THREE.Spherical().setFromVector3(offset);
+  s.theta += turn;
+  s.phi = THREE.MathUtils.clamp(s.phi - lift, 0.02, Math.PI - 0.02);
+  fly(ctr.target.clone().add(new THREE.Vector3().setFromSpherical(s)), ctr.target.clone(), 220, false, false);
 }
 
 /* ── draw only when something changes ─────────────────────────────────────
@@ -5322,6 +5406,11 @@ function mandalaRadius() {
   return mRad || RIM * 1.5;
 }
 /* straight down, centred on the free rectangle, three quarters of it across */
+function mandalaDistance() {
+  const half = Math.tan((cam.fov * Math.PI) / 360);
+  const h = Math.max(stage.clientHeight, 1), fr = freeRect();
+  return (2 * mandalaRadius()) / (Math.min(fr.w, fr.h) * 0.75) * h / (2 * half);
+}
 function mandalaFly(dur) {
   const half = Math.tan((cam.fov * Math.PI) / 360);
   const w = Math.max(stage.clientWidth, 1), h = Math.max(stage.clientHeight, 1);
@@ -5922,7 +6011,7 @@ function endPresentation(overview = true) {
   restorePresentationMotion();
   if (overview) {
     if (previous === 'wheel') wheelView.home();
-    else if (previous === 'game') reframeGame();
+    else if (previous === 'game') { if (!rbFrameFollow(700)) reframeGame(); }
     else home();
   }
 }
@@ -6726,7 +6815,13 @@ function rbResolve(face, animate = true) {
     rbSelect(ev.to, false);
   }
   rbSync();
-  if (animate && ev.to && ev.from !== ev.to && !rbInstant() && mode === 'game') rbAnimateMove(player, oldRect, oldWorld);
+  const moving = animate && ev.to && ev.from !== ev.to && !rbInstant() && mode === 'game';
+  if (moving) rbAnimateMove(player, oldRect, oldWorld);
+  if (ev.kind !== 'stupa') {
+    rbFollowed = player.i;
+    // the eye leaves with the token and arrives with it
+    if (rbFollowing()) rbFrameFollow(moving ? (rbPace.value === 'quick' ? 420 : 900) : 650);
+  }
 }
 /* ── beginning again ────────────────────────────────────────────────────
    A game can be abandoned at any moment, and abandoning one by accident is
@@ -6877,6 +6972,23 @@ rbPlayerCount.addEventListener('change', () => {
 // all finish the one durable pending throw before clearing visual state.
 const rbPace = boardEl.querySelector('#g-pace');
 const rbLargeBoard = boardEl.querySelector('#g-large-board');
+/* In the world the camera goes with whoever holds the die: each throw takes
+   the eye to where the traveler lands, flying there while the token does, so
+   a game played in three dimensions is a journey through the world rather
+   than a figure moving about in a view left where it was. A drag looks
+   around freely; the next throw picks the traveler up again. It is on until
+   it is switched off, and the choice is kept. */
+const rbFollowBox = boardEl.querySelector('#g-follow');
+try { rbFollowBox.checked = localStorage.getItem('ws-game-follow') !== '0'; } catch {}
+let rbFollowed = null;                  // the player the camera last went with
+const rbFollowing = () => rbFollowBox.checked && mode === 'game' && rbView3D === 'world'
+  && !gameFocus && !presentationActive();
+rbFollowBox.addEventListener('change', () => {
+  try { localStorage.setItem('ws-game-follow', rbFollowBox.checked ? '1' : '0'); } catch {}
+  if (mode !== 'game') return;
+  if (rbFollowing()) rbFrameFollow(700);
+  else if (rbView3D === 'world' && !gameFocus) reframeGame(700);
+});
 rbLargeBoard.addEventListener('change', () => {
   boardEl.classList.toggle('large-squares', rbLargeBoard.checked);
   if (rbLargeBoard.checked) rbCells.get(rbSelected)?.scrollIntoView?.({ block: 'center', inline: 'center' });
@@ -7101,6 +7213,14 @@ function measureRound() {
       new THREE.Vector3(2, 2, 2).multiplyScalar(radius)));
   });
 }
+function gameOverviewDistance() {
+  measureRound();
+  const composition = composeGameOverview(THREE, {
+    bounds: rbOverviewBounds, fov: cam.fov, rect: freeRect(),
+    viewport: { w: Math.max(stage.clientWidth, 1), h: Math.max(stage.clientHeight, 1) }
+  });
+  return composition.position.distanceTo(composition.target);
+}
 function reframeGame(dur = 700, at = null) {
   measureRound();
   if (at) rbOverviewBounds.expandByPoint(at);
@@ -7119,7 +7239,7 @@ let focusRequest = null;
 function rbClearFocus() {
   if (focusRequest !== null) cancelAnimationFrame(focusRequest);
   focusRequest = null;
-  if (gameFocus && anim) { cancelAnimationFrame(anim); anim = null; }
+  if (gameFocus && anim) { cancelAnimationFrame(anim); anim = null; framedDist = cam.position.distanceTo(ctr.target); applyZoomLimits(); }
   gameFocus = null;
   gameFocusEl.hidden = true;
   gameFocusPin.hidden = true;
@@ -7182,6 +7302,28 @@ function rbFrameFocus(dur = 650) {
   fly(composition.position, composition.target, dur, true);
   invalidate(4);
 }
+/* Where the followed traveler stands, framed as a visit to that square is:
+   the square and Meru together, from the square's own side of the world. */
+function rbFrameFollow(dur = 650) {
+  if (!rbFollowing()) return false;
+  const who = rbGame.players[rbFollowed ?? rbGame.turn] || rbGame.players[rbGame.turn];
+  const anchor = rbBoard.positionOf(who.pos)?.clone();
+  if (!anchor) return false;
+  world.updateMatrixWorld(true);
+  const meruBounds = new THREE.Box3();
+  byName.forEach((meshes, name) => {
+    if (/^(meru_|king_|vaijayanta)/.test(name) || name === 'sudarshana_city')
+      meshes.forEach(mesh => meruBounds.expandByObject(mesh));
+  });
+  meruBounds.min.y = Math.max(0, meruBounds.min.y);
+  const composition = composeGameFocus(THREE, {
+    anchor, meruBounds, summit: SUMMIT,
+    viewport: { w: stage.clientWidth, h: stage.clientHeight }, rect: freeRect(), fov: cam.fov
+  });
+  fly(composition.position, composition.target, dur, true);
+  invalidate(4);
+  return true;
+}
 function rbPlaceFocusPin() {
   if (!gameFocus || gameFocusEl.hidden) { gameFocusPin.hidden = true; return; }
   const point = gameFocus.anchor.clone().project(cam);
@@ -7201,7 +7343,8 @@ gameFocusEl.addEventListener('click', event => {
     close();
     rbLayout(previous.returnLayout, false, false);
     clearTimeout(panelReframe);
-    cam.position.copy(previous.camera.p); ctr.target.copy(previous.camera.t); ctr.update();
+    cam.position.copy(previous.camera.p); ctr.target.copy(previous.camera.t);
+    framedDist = previous.camera.p.distanceTo(previous.camera.t); applyZoomLimits(); ctr.update();
     rbThrowBtn.focus({ preventScroll: true });
     invalidate(3);
   }
@@ -7223,7 +7366,7 @@ function reframeCurrent(dur = 420) {
   if (mandala) reframeOffering();
   else if (mode === 'game') {
     if (gameFocus) rbFrameFocus(dur);
-    else reframeGame(dur, rbSelected === null ? null : rbBoard.positionOf(rbSelected));
+    else if (!rbFrameFollow(dur)) reframeGame(dur, rbSelected === null ? null : rbBoard.positionOf(rbSelected));
   } else if (tightScreen() && !dock.hidden) reframeExplore(dur);
 }
 function enterGame() {
@@ -7239,7 +7382,8 @@ function enterGame() {
   rbApplyLayout();          // the arrangement this game was last left in
   paintBoardSky();          // and, if that is the printed board, its ground
   reshadow();
-  requestAnimationFrame(() => { if (mode === 'game') reframeGame(900); });
+  rbFollowed = rbGame.turn;
+  requestAnimationFrame(() => { if (mode === 'game' && !rbFrameFollow(900)) reframeGame(900); });
   invalidate(4);
   rbTransition('world', rbView3D, true);
   if (rbGame.over) rbShowCard(rbSession?.rolls.at(-1) || 1, rbGame.players[rbGame.winner].name + ' wins', RB_VICTORY, rbGame.stupa === null ? 'One ceremonial stupa throw remains.' : 'The game is complete.', true);
@@ -7372,7 +7516,9 @@ ctr.addEventListener('change', syncHome);
 window.addEventListener('resize', () => {
   const untouched = homeBtn.disabled;
   refitHome();
-  if (untouched) { cam.position.copy(HOME.p); ctr.update(); invalidate(); }
+  if (untouched) { cam.position.copy(HOME.p); framedDist = HOME.p.distanceTo(HOME.t); }
+  if (mode !== 'wheel') applyZoomLimits();
+  if (untouched) { ctr.update(); invalidate(); }
 });
 document.addEventListener('click', () => setTimeout(syncHome, 60), true);
 window.addEventListener('keyup', () => setTimeout(syncHome, 60));
@@ -7585,6 +7731,15 @@ window.addEventListener('keydown', (e) => {
     const pan = { ArrowLeft: [-80, 0], ArrowRight: [80, 0], ArrowUp: [0, -80], ArrowDown: [0, 80] }[e.key];
     if (pan) { e.preventDefault(); wheelView.panBy(pan[0], pan[1]); }
   }
+  // in the three views drawn in 3D the same keys move the eye round the world
+  // (up and down still step through an open entry, as they always have)
+  if (mode !== 'wheel' && !worldHidden() && !e.target.closest?.('.bv-grid')) {
+    if (e.key === '+' || e.key === '=') { e.preventDefault(); dollyBy(0.8); }
+    if (e.key === '-' || e.key === '_') { e.preventDefault(); dollyBy(1.25); }
+    const turn = { ArrowLeft: [0.2, 0], ArrowRight: [-0.2, 0],
+      ...(sheet.hidden ? { ArrowUp: [0, 0.14], ArrowDown: [0, -0.14] } : {}) }[e.key];
+    if (turn) { e.preventDefault(); orbitBy(turn[0], turn[1]); }
+  }
   if (e.key === 'ArrowDown' && !sheet.hidden) { e.preventDefault(); step(1); }
   if (e.key === 'ArrowUp' && !sheet.hidden) { e.preventDefault(); step(-1); }
   if (e.key === 'i' || e.key === 'I') setOpen(!document.body.classList.contains('index-open'));
@@ -7596,6 +7751,8 @@ window.addEventListener('keydown', (e) => {
   if (e.key === '.' || e.key === '>') stepBy(1);
   if (e.key === ',' || e.key === '<') stepBy(-1);
 });
+framedDist = cam.position.distanceTo(ctr.target);
+applyZoomLimits();
 window.WorldSystemReady = true;
 window.dispatchEvent(new CustomEvent('ws-app-ready'));
 </script>

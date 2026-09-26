@@ -8,7 +8,8 @@ realms of existence.
 A visual study aid for practitioners learning and visualizing mandala offerings,
 and for anyone studying Buddhist cosmology.
 
-Click any part to open its entry; drag to orbit, scroll to zoom.
+Click any part to open its entry; drag to orbit, scroll to zoom. The two
+magnifiers in the header make the writing in every window larger or smaller.
 
 ## Files
 
@@ -440,6 +441,15 @@ the entries the legend sat beside.
 | **Sound** | The voice each square answers in, under Options with the rest of the settings that belong to no view. On unless it has been hushed. |
 | **Full screen** `f` | Hidden where the platform has none to give: iOS Safari, and any window already running as an installed app. |
 | **Reset view** `Esc` | Disabled when there is nothing to undo. |
+| **Text size** | Two magnifiers in the header, one with a minus and one with a plus, set the size of the writing in every panel and window — the entries, the index, the tours, the game's cards, menu and setup, help and the welcome — in six steps from 85% to 175%. Each window's contents are zoomed rather than the window, so the text rewraps inside the frame it already has. Kept between visits. |
+| **Zoom and turn** `+` `−` `←` `→` `↑` `↓` | In the three views drawn in 3D, the keys take the eye nearer and farther and walk it round and over what it looks at; up and down still step through an open entry. |
+
+Every 3D view has a nearest and a farthest the eye can be taken, by wheel,
+pinch or key: a couple of centimetres from what is looked at, and a little way
+back from the view's own overview — the opening view in Explorer, the whole plate
+in the maṇḍala, the whole ascent in the game. A view the page frames itself is
+always inside them. Panning is held to the world and a little past its rim, so a
+drag can no longer leave the model off the screen.
 
 An entry is read in the order a reader wants it: what it is called, then the
 thing itself — the painting, or the field the square is drawn as — then what is
