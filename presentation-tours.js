@@ -1,16 +1,21 @@
 /* Derive routes from the same catalogues as the index, without duplicates.
  * Copy stays with its source entry, so tours receive existing translations. */
 export const PRESENTATION_PACES = [1.5, 3, 5, 8];
+export const WORLD_ORDERS = ['worlds_one', 'worlds_small', 'worlds_middling', 'worlds_great'];
 export function createPresentationTours({ entries, tree, heaps, squares, wheelTree, resolveEntry }) {
   const unique = ids => [...new Set(ids)].filter(id => entries[id]);
   const resolve = id => resolveEntry(id)?.id || id;
   const indexed = tree.flatMap(([, rows]) => rows.filter(([id]) => id !== '—').map(([id]) => resolve(id)));
   const mandalaOnly = new Set(['about_mandala', ...heaps.filter(([n]) => n >= 18 && n !== 34 && n !== 35).map(([, id]) => id)]);
+  // the three orders of a thousand are shown by zooming out, not by visiting
   const explorerIds = unique([...indexed, ...Object.keys(entries)]).filter(id =>
-    !id.startsWith('wl_') && !id.startsWith('rebirth_') && !mandalaOnly.has(id));
+    !id.startsWith('wl_') && !id.startsWith('rebirth_') && !id.startsWith('worlds_') && !mandalaOnly.has(id));
   const stop = id => ({ id });
   return {
     explore: explorerIds.map(stop),
+    /* one world, then a thousand, a million, a thousand million: each stop is
+       one order further out, and its index is the order it stands at */
+    worlds: WORLD_ORDERS.filter(id => entries[id]).map((id, level) => ({ id, level })),
     mandala: heaps.map(([, id]) => stop(id)),
     game: unique(['rebirth_game', ...squares.map(square => 'rebirth_sq_' + square.n)]).map(stop),
     wheel: unique([

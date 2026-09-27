@@ -25,7 +25,7 @@
    current shelf or the runtime one, so old versions do not accumulate. */
 
 /* ── written by scripts/build-sw.cjs — do not edit below ─────────────── */
-const VERSION = 'c658f7dc0c9d76c8';
+const VERSION = 'c3521321c0fe6438';
 const SHELL = [
   "app-chrome.css",
   "app-chrome.js",
@@ -88,6 +88,7 @@ const SHELL = [
   "rebirth-sound.js",
   "sky-clouds.js",
   "summit-detail.js",
+  "thousand-worlds.js",
   "three-d-stage.js",
   "vendor/three@0.184.0/build/three.core.js",
   "vendor/three@0.184.0/build/three.module.js",

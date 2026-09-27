@@ -4,7 +4,8 @@ import assert from 'node:assert/strict';
 import {createRequire} from 'node:module';
 const require = createRequire(import.meta.url);
 const {chromium} = require(process.env.WORLDSYSTEM_PLAYWRIGHT || 'playwright');
-const browser = await chromium.launch({channel: 'chrome', headless: true});
+// WORLDSYSTEM_CHANNEL=chromium runs it in Playwright's own browser where Google Chrome is not installed.
+const browser = await chromium.launch({channel: process.env.WORLDSYSTEM_CHANNEL || 'chrome', headless: true});
 const url = process.env.WORLDSYSTEM_URL || 'http://127.0.0.1:4174/';
 const counts = {explore:104, mandala:37, game:105, wheel:92};
 try {
@@ -75,6 +76,26 @@ try {
       assert.equal(await page.locator('[data-act=motion]').getAttribute('aria-pressed'), 'false');
       assert.equal(await page.locator('[data-speed=fast]').getAttribute('aria-pressed'), 'true');
     }
+    // The billion worlds: from the View menu, four stops zooming out from the one world, and the way back in.
+    await mode('explore');
+    await page.locator('[data-menu=mode] > summary').click();
+    await page.locator('[data-act=worlds]').click();
+    await page.locator('.tour-panel').waitFor({state:'visible'});
+    assert.equal(await page.locator('#tour-jump option').count(), 4);
+    assert.equal(await page.evaluate(()=>WorldSystemTours.state().index), 1, 'the menu zooms out to the first thousand');
+    assert.ok(await page.locator('.tour-panel').evaluate(panel => panel.getBoundingClientRect().bottom <= innerHeight), 'worlds: dock fits screen');
+    // clicked from the page: with two million sprites drawn, a software renderer may never
+    // hold a frame still long enough for Playwright's own click to consider the button stable
+    const next = () => page.evaluate(() => document.querySelector('[data-tour=next]').click());
+    for (let stop = 2; stop <= 3; stop++) { await next(); await page.waitForTimeout(2000); }
+    assert.equal(await page.evaluate(()=>WorldSystemTours.state().index), 3);
+    assert.ok(await page.locator('.tour-copy').innerText());
+    await next();
+    assert.equal(await page.evaluate(()=>WorldSystemTours.state().active), false, 'Finish tour zooms back in');
+    await page.keyboard.press('b');
+    assert.equal(await page.evaluate(()=>WorldSystemTours.state().mode), 'worlds', 'b zooms out');
+    await page.keyboard.press('Escape');
+    assert.equal(await page.evaluate(()=>WorldSystemTours.state().active), false);
     assert.deepEqual(await page.evaluate(() => Object.fromEntries(Object.entries(localStorage).filter(([key])=>key.includes('session')))), savedGame, 'presentations preserve a played game');
     await mode('mandala');
     await page.locator('[data-p=play]').click();

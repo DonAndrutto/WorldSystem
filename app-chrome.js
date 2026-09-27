@@ -22,7 +22,7 @@
     'Play & numbers': 'Odtwarzanie i numery', 'Play follows the recitation one offering at a time. Numbers hides or shows the heap labels, even while playing. The study tour has separate presentation playback.': 'Odtwarzanie prowadzi przez recytację, ofiara po ofierze. Numery włącza lub ukrywa oznaczenia kopców także podczas odtwarzania. Zwiedzanie ma osobny tryb prezentacji.',
     'Throw & explore': 'Rzucaj i poznawaj', 'Throw advances the current player. Select a square to read it; Show in world visits its location. The tour explains the board without taking a turn.': 'Rzut przesuwa bieżącego gracza. Wybierz pole, aby je poznać; Pokaż w świecie przenosi do jego miejsca. Zwiedzanie objaśnia planszę bez wykonywania ruchu.',
     'Zoom & discover': 'Przybliżaj i odkrywaj', 'Drag to tilt the wall; scroll to zoom, and once close, drag to move across it. On a phone, one finger tilts the wall and two fingers move and zoom it. Tap a part to read its meaning. The tour guides you through the wheel.': 'Przeciągnij, aby przechylić ścianę; przewijaj, aby ją przybliżyć, a z bliska przeciągaj, aby się po niej poruszać. Na telefonie jeden palec przechyla ścianę, a dwa przesuwają ją i przybliżają. Dotknij dowolnej części, aby poznać jej znaczenie. Zwiedzanie prowadzi przez koło.',
-    'Keyboard: E Explorer · M Mandala · G Game · L Wheel · I Index · ? Help. + and − zoom, the arrows turn the view. Escape closes the current panel.': 'Klawiatura: E Eksplorator · M Mandala · G Gra · L Koło · I Indeks · ? Pomoc. + i − przybliżają i oddalają, strzałki obracają widok. Escape zamyka bieżący panel.',
+    'Keyboard: E Explorer · M Mandala · G Game · L Wheel · B Billion worlds · I Index · ? Help. + and − zoom, the arrows turn the view. Escape closes the current panel.': 'Klawiatura: E Eksplorator · M Mandala · G Gra · L Koło · B Miliard światów · I Indeks · ? Pomoc. + i − przybliżają i oddalają, strzałki obracają widok. Escape zamyka bieżący panel.',
     'Pinch over a reading panel to enlarge text. Scene gestures control the drawing.': 'Uszczypnij nad panelem tekstowym, aby powiększyć tekst. Gesty nad sceną sterują rysunkiem.',
     'Text size': 'Rozmiar tekstu', 'Smaller text': 'Mniejszy tekst', 'Larger text': 'Większy tekst',
     'Make the writing in every panel and window smaller or larger with the two magnifiers in the header. The choice is kept on this device.': 'Pomniejsz lub powiększ tekst we wszystkich panelach i oknach dwiema lupami w nagłówku. Wybór zostaje zapamiętany na tym urządzeniu.'
@@ -65,7 +65,7 @@
   help.innerHTML = `<div class="app-help-head"><div><div class="help-eyebrow">Your controls</div><h2 id="help-title">Explore at your own pace.</h2></div><button class="btn help-close" type="button" aria-label="Close help" autofocus>×</button></div>
     <dl class="help-controls"></dl>
     <div class="help-actions"><button class="btn" type="button" data-help-tour>Start a guided tour</button><button class="btn" type="button" data-help-intro>Meet the four modes</button></div>
-    <p class="help-shortcuts">Keyboard: E Explorer · M Mandala · G Game · L Wheel · I Index · ? Help. + and − zoom, the arrows turn the view. Escape closes the current panel.</p>
+    <p class="help-shortcuts">Keyboard: E Explorer · M Mandala · G Game · L Wheel · B Billion worlds · I Index · ? Help. + and − zoom, the arrows turn the view. Escape closes the current panel.</p>
     <p class="help-shortcuts">Pinch over a reading panel to enlarge text. Scene gestures control the drawing.</p>`;
   document.body.append(help);
   const intro = document.createElement('dialog');
@@ -81,7 +81,10 @@
   const tour = document.createElement('button');
   tour.className = 'btn'; tour.type = 'button'; tour.dataset.startTour = '';
   tour.textContent = 'Start a guided tour';
-  document.querySelector('[data-menu="mode"] .menu-body').append(tour);
+  // ahead of the billion worlds, which the page lists in the same menu
+  const modeMenu = document.querySelector('[data-menu="mode"] .menu-body');
+  const worlds = modeMenu.querySelector('[data-act="worlds"]');
+  if (worlds) worlds.before(tour); else modeMenu.append(tour);
   const language = header.querySelector('.app-language');
   const syncLanguage = () => { header.querySelector('[data-language-label]').textContent = locale?.language === 'pl' ? 'PL' : 'EN'; };
   header.addEventListener('click', event => {

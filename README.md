@@ -22,6 +22,8 @@ magnifiers in the header make the writing in every window larger or smaller.
 | `world-surfaces.js` | Closed mountain ridges, depth-coloured seas and one shared procedural ripple normal map. |
 | `continent-models.js` | Batched sculptures for the four continent treasures and the rose-apple tree. |
 | `viewport-gestures.js` | Routes scene gestures to the camera and prevents gestures from magnifying the menu interface. |
+| `thousand-worlds.js` | The three orders of a thousand: where the cubes of ten to a side stand around this world, the 999 proxy worlds of the first order, the clouds of a million sprites of the second and third, the canopies of the shared heavens, and their fading in and out. |
+| `tests/thousand-worlds.mjs` | The layout arithmetic and the drawing built from it, without a browser. |
 | `assets/offerings/` | Three locally served artwork sheets, with the generation prompts. |
 | `ARTWORK.md` | Image provenance, source references and iconographic adaptations. |
 | `tests/mandala-regression.mjs` | DOM and geometry regression checks. |
@@ -608,6 +610,25 @@ the reader interacts with the scene or opens Help/Index, and restore the earlier
 motion settings on exit. Game tours preserve the saved game, selection and layout.
 Phone landscape uses a side reading panel; camera framing reserves its space.
 
+**A billion worlds** is a fifth presentation, reached from the View menu, from
+the `b` key, or from **Zoom out** on the entry *A thousand worlds* and on the
+four entries under it. It has four stops. The first is this world alone; each
+of the next three zooms out by a factor of a thousand: to the small chiliocosm,
+the middling one, and the great trichiliocosm that is the field of one buddha.
+The texts give the count and say nothing of the arrangement, so the drawing
+sets each thousand in a cube of ten to a side — the one world is one of the
+thousand and not the middle one, since ten to a side has no middle — and then
+a cube of a thousand of those, and once more. The first order draws 999 proxy
+worlds, each a disc inside its rim with a Meru, a spire for the heavens that
+are its own, a sun and a moon; the second and third draw each of their
+thousand members as a cloud of a thousand sprites, one per world or per small
+chiliocosm. The heavens of form that stand over more than one world are drawn
+as translucent canopies: one over each thousand, one over each million, one
+over the whole. The clouds behind the world give way to darkness with the first
+zoom out and come back with the last zoom in. Nothing of this is built until
+the first zoom out; `Zoom in`, `Zoom out` and `Back to one world` are the
+panel's three steps, and Reset view from anywhere in it is the one world.
+
 The shared header provides Donate, English/Polish selection and contextual Help.
 Donate uses the same Dharma translation PayPal destination as Yontendzo and
 Ngondro. A loading introduction previews all four modes and can be replayed
@@ -699,6 +720,7 @@ node tests/localization.mjs
 node tests/offline.mjs
 node tests/wheel-of-life.mjs
 node tests/presentation-player.mjs
+node tests/thousand-worlds.mjs
 ```
 
 The maṇḍala suite runs the complete app script with real Three.js geometry and

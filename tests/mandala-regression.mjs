@@ -8,7 +8,8 @@ import * as RealThree from 'three';
 const repo = process.env.WORLDSYSTEM_REPO || fileURLToPath(new URL('../', import.meta.url));
 const {createOfferingModels, OFFERING_ART, offeringBackground} = await import(pathToFileURL(repo + '/mandala-offerings.js'));
 const {TOUR_NOTES} = await import(pathToFileURL(repo + '/mandala-tour.js'));
-const {createPresentationTours, createPresentationPlayer} = await import(pathToFileURL(repo + '/presentation-tours.js'));
+const {createPresentationTours, createPresentationPlayer, WORLD_ORDERS} = await import(pathToFileURL(repo + '/presentation-tours.js'));
+const thousandWorlds = await import(pathToFileURL(repo + '/thousand-worlds.js'));
 const {installViewportGestures} = await import(pathToFileURL(repo + '/viewport-gestures.js'));
 const surfaces = await import(pathToFileURL(repo + '/world-surfaces.js'));
 const skyClouds = await import(pathToFileURL(repo + '/sky-clouds.js'));
@@ -55,7 +56,8 @@ const textureRequests = [];
 const THREE = {...RealThree, TextureLoader: class {
   load(url, success, progress, failure) { textureRequests.push({url, success, failure}); }
 }};
-Object.assign(window, {createOfferingModels, OFFERING_ART, offeringBackground, TOUR_NOTES, createPresentationTours, createPresentationPlayer, installViewportGestures}, surfaces, skyClouds, gameCamera, gamePlayers, gameSession, summitDetail, continentModels, wheelView, wheelNotes, {drawWheel: wheelArt.drawWheel}, {
+Object.assign(window, {createOfferingModels, OFFERING_ART, offeringBackground, TOUR_NOTES, createPresentationTours, createPresentationPlayer, WORLD_ORDERS, installViewportGestures}, surfaces, skyClouds, gameCamera, gamePlayers, gameSession, summitDetail, continentModels, wheelView, wheelNotes, {drawWheel: wheelArt.drawWheel}, {
+  createThousandWorlds: thousandWorlds.createThousandWorlds, worldsFramingDistance: thousandWorlds.framingDistance,
   RB_SQUARES: rbBoard.SQUARES, RB_SPECIAL: rbBoard.SPECIAL, RB_START: rbBoard.START,
   RB_VICTORY: rbBoard.VICTORY, TRAP_QUOTA: rbBoard.TRAP_QUOTA, TRAP_QUOTA_NOTE64: rbBoard.TRAP_QUOTA_NOTE64,
   DIE_FACES: rbBoard.FACES, RB_BY_N: rbBoard.BY_N, createBoardLayer: rbBoard.createBoardLayer,
@@ -133,6 +135,7 @@ const app = await window.eval(`(async()=>{${source}\nreturn {
  applyStep, playToggle, stepBy, pausePlay, resetPlay, applyTheme, setMotion,
  rbBoard, rbArt, rbGame:()=>rbGame, rbFocusWorld, rbFrameFocus, rbClearFocus,
  gameFocus:()=>gameFocus, reframeGame, rbOverviewBounds, SAMSARA_TOP, wheelView:()=>wheelView,
+ cosmos:()=>cosmos, skyMat, guidedMode:()=>guidedMode, zoomBtn,
  state:()=>({mandala,mode,touring,tourIndex,pStep,playing,current,motion,motionPace,rbSelected,rbView3D,showHeapNumbers,lumSpin})
 };})()`);
 advance(1200);
@@ -1361,13 +1364,16 @@ for (const [mode, stops] of Object.entries(routes)) {
   for (const stop of stops) assert.ok(app.E[stop.id], mode + ': authored entry for ' + stop.id);
 }
 reduced = true; // deterministic camera endpoints, without hundreds of animation frames
+// (object-valued checks below are made as booleans: a failed assert.equal on a
+// three.js graph would try to print two clouds of 999,000 points into its message)
+assert.ok(app.cosmos() === null, 'nothing of the thousand worlds is built until the view zooms out');
 app.setMotion(false); app.setMotionPace('fast');
 const savedGame = JSON.stringify(app.rbGame());
 const savedPreferences = ['ws-motion', 'ws-motion-pace', 'ws-game-view'].map(key => window.localStorage.getItem(key));
 for (const size of [{w:1280,h:900}, {w:390,h:844}, {w:844,h:390}]) {
   viewport = size; app.cam.aspect = size.w / size.h; app.cam.updateProjectionMatrix();
   for (const mode of Object.keys(routes)) {
-    app.setMode(mode); advance(20);
+    app.setMode(mode === 'worlds' ? 'explore' : mode); advance(20);   // the thousand worlds are zoomed out to from Explorer
     const beforeTour = app.state();
     app.startPresentation(mode); advance(20); panel('.tour-panel');
     assert.equal(app.state().motion, false, 'reduced motion is respected');
@@ -1403,6 +1409,62 @@ document.dispatchEvent(new window.Event('visibilitychange'));
 app.tourPlayer.pause(); const pausedIndex = app.tourPlayer.state().index; advance(9000);
 assert.equal(app.tourPlayer.state().index, pausedIndex, 'pause cancels the slide timer');
 app.endPresentation();
+
+// The thousand worlds: three orders out from the one, each an order further
+// off, darkness behind them, and the clouds and the one world back on the way in.
+app.setMode('explore'); advance(1200);
+assert.deepEqual(routes.worlds.map(stop => stop.id), WORLD_ORDERS, 'four stops, one order of a thousand each');
+assert.deepEqual(routes.worlds.map(stop => stop.level), [0, 1, 2, 3], 'each stop knows its order');
+assert.ok(routes.explore.every(stop => !stop.id.startsWith('worlds_')), 'the orders are zoomed out to, not visited');
+for (const id of WORLD_ORDERS) assert.ok(q('.index .row[data-id="' + id + '"]'), id + ' is in the index');
+app.show('about_thousandfold', true); advance(200);
+assert.equal(app.zoomBtn.textContent, 'Zoom out', 'the note on a thousand worlds zooms out');
+assert.equal(app.zoomBtn.disabled, false);
+reduced = true;
+app.zoomBtn.click(); advance(200);
+assert.equal(app.guidedMode(), 'worlds'); panel('.tour-panel');
+assert.equal(app.state().mode, 'explore', 'zoomed out from Explorer');
+assert.equal(app.tourPlayer.state().index, 1, 'the note zooms out to the first thousand');
+assert.equal(app.cosmos().level, 1);
+const distances = [];
+for (let level = 0; level < 4; level++) {
+  app.tourPlayer.go(level); advance(2500);
+  assert.equal(app.cosmos().level, level, 'order ' + level + ' shown');
+  assert.equal(app.state().current, WORLD_ORDERS[level]);
+  assert.equal(q('.tour-title').textContent, app.E[WORLD_ORDERS[level]].t, 'the stop is named for its order');
+  assert.ok(q('.tour-copy').textContent.length > 100, 'and explained');
+  assert.equal(app.skyMat.map === null, level > 0, 'darkness beyond the rim at order ' + level);
+  assert.ok([...app.cam.position, ...app.ctr.target].every(Number.isFinite), 'finite camera at order ' + level);
+  distances.push(app.cam.position.distanceTo(app.ctr.target));
+}
+for (let level = 1; level < 4; level++) {
+  assert.ok(distances[level] > distances[level - 1] * 6, 'each order stands an order further off: ' + distances.map(d => d.toFixed(1)).join(' → '));
+}
+assert.ok(app.cosmos().group.visible && [1, 2, 3].every(order => app.cosmos().built(order)), 'all three orders drawn');
+assert.equal(q('[data-tour="next"]').textContent, 'Finish tour');
+app.tourPlayer.go(2); advance(2500);
+assert.equal(q('[data-tour="next"]').textContent, 'Zoom out'); assert.equal(q('[data-tour="prev"]').textContent, 'Zoom in');
+assert.equal(q('.tour-overview').textContent, 'Back to one world');
+key('Escape'); advance(2500);
+assert.equal(app.guidedMode(), null, 'Escape ends the zoom out');
+assert.equal(app.cosmos().level, 0); assert.equal(app.cosmos().group.visible, false, 'the orders are put away');
+assert.ok(app.skyMat.map !== null, 'and the clouds come back');
+assert.ok(Math.abs(app.cam.position.distanceTo(app.ctr.target) - distances[0]) < 1e-3, 'the one world, as it was');
+key('b'); advance(200);
+assert.equal(app.guidedMode(), 'worlds'); assert.equal(app.tourPlayer.state().index, 1, 'b zooms out to the first thousand');
+key('b'); advance(2500);
+assert.equal(app.guidedMode(), null, 'and b again zooms back in');
+app.startPresentation('worlds', 3); advance(2500);
+assert.equal(app.cosmos().level, 3);
+q('[data-act="home"]').click(); advance(2500);
+assert.equal(app.guidedMode(), null, 'Reset view from the billion worlds is the one world');
+assert.equal(app.cosmos().level, 0);
+app.startPresentation('worlds', 2); advance(2500);
+app.setMode('mandala'); advance(1200);
+assert.equal(app.cosmos().level, 0); assert.equal(app.cosmos().group.visible, false, 'another view puts the orders away at once');
+assert.ok(app.skyMat.map !== null);
+app.setMode('explore'); advance(1200);
+reduced = false;
 
 console.log(JSON.stringify({result:'PASS',heaps:37,illustrations:24,triangles,atlasRequests:3,
  presentationStops:Object.fromEntries(Object.entries(routes).map(([mode,stops])=>[mode,stops.length])),
