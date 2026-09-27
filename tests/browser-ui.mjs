@@ -84,10 +84,13 @@ try {
     assert.equal(await page.locator('#tour-jump option').count(), 4);
     assert.equal(await page.evaluate(()=>WorldSystemTours.state().index), 1, 'the menu zooms out to the first thousand');
     assert.ok(await page.locator('.tour-panel').evaluate(panel => panel.getBoundingClientRect().bottom <= innerHeight), 'worlds: dock fits screen');
-    for (let stop = 2; stop <= 3; stop++) { await page.locator('[data-tour=next]').click(); await page.waitForTimeout(2000); }
+    // clicked from the page: with two million sprites drawn, a software renderer may never
+    // hold a frame still long enough for Playwright's own click to consider the button stable
+    const next = () => page.evaluate(() => document.querySelector('[data-tour=next]').click());
+    for (let stop = 2; stop <= 3; stop++) { await next(); await page.waitForTimeout(2000); }
     assert.equal(await page.evaluate(()=>WorldSystemTours.state().index), 3);
     assert.ok(await page.locator('.tour-copy').innerText());
-    await page.locator('[data-tour=next]').click();
+    await next();
     assert.equal(await page.evaluate(()=>WorldSystemTours.state().active), false, 'Finish tour zooms back in');
     await page.keyboard.press('b');
     assert.equal(await page.evaluate(()=>WorldSystemTours.state().mode), 'worlds', 'b zooms out');
