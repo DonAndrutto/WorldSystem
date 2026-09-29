@@ -142,7 +142,7 @@ const GLYPHS = {
   lm_sa_ri: () =>
     f('M80 92 L104 62 H152 L176 92 L128 172 Z') + f('M104 62 L116 92 L128 62 L140 92 L152 62 Z', PALE) +
     l('M80 92 H176 M116 92 L128 172 L140 92'),
-  // ri mgo'i dbyibs, read as ra mgo — a goat's head (proposed reading)
+  // ra mgo'i dbyibs — a goat's head (the OCR's ri mgo, corrected)
   lm_sa_ga: () => {
     const half = f('M112 90 C100 64 78 54 62 64 C76 66 90 74 98 94 Z') +
       f('M102 110 C88 108 74 114 68 122 C82 126 96 122 104 118 Z', PALE);

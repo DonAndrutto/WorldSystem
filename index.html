@@ -26,7 +26,10 @@
      The files are byte-identical to the ones unpkg serves for 0.184.0, so the
      hashes below are the upstream hashes and can be checked against npm:
      `node scripts/vendor-three.cjs` re-fetches the tarball and verifies them
-     against this very map. -->
+     against this very map. The Jyotiṣa calculator's engine,
+     @fusionstrings/panchangam, is vendored and pinned the same way and is
+     fetched only when a calculation is first asked for
+     (`node scripts/vendor-panchangam.cjs`; see its NOTICE.md). -->
 <script type="importmap">
 {
   "imports": {
@@ -36,7 +39,9 @@
   "integrity": {
     "./vendor/three@0.184.0/build/three.module.js": "sha384-8FCZ1eVO6it4+pbec2aDtnTrwjWXZLJRC+MAGCIPDgsYnUrl/E0A2YlF8ioMKI/J",
     "./vendor/three@0.184.0/build/three.core.js": "sha384-dw2ooPewaEIrAgl6oFDBmmBWCE9oW9LxRGcfwZ0hLvEprzo202wXl7vCYHRlSnOT",
-    "./vendor/three@0.184.0/examples/jsm/controls/OrbitControls.js": "sha384-4rziNxOBZKQ69i+w+f89KJ55TCYquwchVbByQwmaOeIOXdOU2PLDn3kOfXHwIJC9"
+    "./vendor/three@0.184.0/examples/jsm/controls/OrbitControls.js": "sha384-4rziNxOBZKQ69i+w+f89KJ55TCYquwchVbByQwmaOeIOXdOU2PLDn3kOfXHwIJC9",
+    "./vendor/panchangam@0.2.1/panchangam.js": "sha384-atCZidhD1+w09nszlAOoyEXVUNIjd1hHj52BzRqgXOEbPxBfSEKBg4DWk2f4RO+y",
+    "./vendor/panchangam@0.2.1/panchangam.internal.js": "sha384-+xbkbAVPcEKlFQkPHku+dPz3jNZ5XUpPMyZlDoN+BJUNxijzofo+jAU5GeMTCXcR"
   }
 }
 </script>
@@ -837,7 +842,8 @@
   .lm-reading { font-size: 13px; color: var(--ink-2); margin: 6px 0 0; border-left: 2px solid var(--rule-2); padding-left: 8px; }
   .lm-more .btn { margin-top: 8px; }
   .btn.link { border: 0; background: none; padding: 0; min-height: 0; text-align: left; color: var(--accent); text-decoration: underline; text-underline-offset: 2px; font: inherit; cursor: pointer; }
-  .jy-provider { border: 1px solid var(--rule-2); border-radius: 6px; padding: 8px 10px; color: var(--ink) !important; }
+  .jy-sub { font-weight: 400; font-size: 15px; margin: 14px 0 0; color: var(--ink-2); }
+  .jy-result[aria-busy="true"] .jy-out { opacity: .5; }
   .jy-form fieldset { border: 0; border-top: 1px solid var(--rule); margin: 12px 0 0; padding: 8px 0 0; min-width: 0; }
   .jy-form legend { font-size: 15px; padding: 0; }
   .jy-form label { display: block; font-size: 14px; margin: 8px 0 3px; }

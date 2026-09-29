@@ -61,10 +61,11 @@ magnifiers in the header make the writing in every window larger or smaller.
 | `lunar-mansions.js` | The 28 lunar mansions of White Beryl: stable ids, the Tibetan order, and every association in its own field, with line, page and provenance. |
 | `mansion-layer.js` | The optional layer of 28 camera-facing glyphs on an illustrative ring, its picking and its selection. |
 | `mansion-ui.js`, `lunar-panels.js` | The mansion index (usable without WebGL), the remembered layer and selection, and the dock the two lunar pages share. |
-| `jyotisha.js`, `jyotisha-panel.js` | The separate Indian Jyotiṣa calculator (Lahiri ayanamsa): 27 sectors, time to one UTC instant, the form. Its engine is not integrated — see `docs/LUNAR-MANSIONS-STATUS.md`. |
+| `jyotisha.js`, `jyotisha-panel.js`, `jyotisha-engine.js` | The separate Indian Jyotiṣa calculator (Lahiri ayanamsa): 27 sectors, time to one UTC instant, the form, and the adapter to its engine. |
+| `vendor/panchangam@0.2.1/` | The calculator's engine, `@fusionstrings/panchangam` (browser build, with the Swiss Ephemeris compiled in — AGPL-3.0; see its `NOTICE.md`), fetched only when a calculation is first asked for. |
 | `assets/mansions/` | The 28 glyphs as 256-pixel WebP, about 150 KB; `src/` holds their SVG sources, which are not served. |
 | `scripts/build-mansion-glyphs.cjs` | Draws the glyphs from the catalogue and rasterises them. |
-| `tests/lunar-mansions.mjs`, `tests/mansion-layer.mjs`, `tests/jyotisha.mjs` | The catalogue against the audit's own tables, the layer's picking and lifecycle, and the calculator's time and sector logic. |
+| `tests/lunar-mansions.mjs`, `tests/mansion-layer.mjs`, `tests/jyotisha.mjs`, `tests/jyotisha-engine.mjs` | The catalogue against the audit's own tables, the layer's picking and lifecycle, the calculator's time and sector logic, and its engine against an independent reference (`tests/fixtures/meeus.mjs`). |
 
 Serve the directory over HTTP and open it (not `file://` — the page uses ES
 modules, and no service worker will register from a file). It is published with
@@ -501,9 +502,13 @@ dashed ring. The audit behind all of it is `docs/WHITE-BERYL-LUNAR-MANSIONS.md`.
 **Options → Jyotiṣa calculator** is a separate system: the Indian nakṣatra with
 the Lahiri ayanamsa. Its form checks the date, time, place and zone and resolves
 them to one UTC instant — a time that does not exist in a zone, or that happens
-twice, is said to be so — but its calculation engine is not integrated, and it
-says so rather than showing a result. `docs/LUNAR-MANSIONS-STATUS.md` records why
-and what remains.
+twice, is said to be so. It then gives the Moon's nakṣatra, pada, Vimshottari
+lord and sidereal longitude, when the nakṣatra began and ends, and the tithi,
+yoga, karaṇa and vāra of that day's local sunrise, all calculated in the browser
+by `@fusionstrings/panchangam` and working offline once installed.
+`docs/LUNAR-MANSIONS-STATUS.md` records the conventions, the engine's defects
+the adapter works around, and the licensing question its Swiss Ephemeris
+raises.
 
 ## The wheel of life
 
@@ -758,6 +763,7 @@ node tests/thousand-worlds.mjs
 node tests/lunar-mansions.mjs
 node tests/mansion-layer.mjs
 node tests/jyotisha.mjs
+node tests/jyotisha-engine.mjs
 ```
 
 The maṇḍala suite runs the complete app script with real Three.js geometry and
@@ -834,6 +840,7 @@ none of them needs a development dependency:
 | `node scripts/build-fonts.cjs` | changing which cuts of EB Garamond or IBM Plex Mono the page sets |
 | `node scripts/build-locale.cjs <dir>` | folding a translator's worksheets into `locales/pl.js` and `locales/pl-texts.js` — it checks the markup, the square numbers and the names against the sources, and reports what it left out |
 | `python3 scripts/build-wheel-relief.py` | changing the wheel's reference photographs, or how they are corrected and cut — then `build-sw.cjs` |
+| `node scripts/vendor-panchangam.cjs` | moving the calculator to another release of `@fusionstrings/panchangam` — change the version and hashes in the import map first; it refuses anything that does not match |
 | `node scripts/build-mansion-glyphs.cjs` | changing a mansion glyph or the catalogue it is drawn from (needs `sharp`) — then `build-sw.cjs` |
 | `node scripts/build-sw.cjs` | **anything the page serves itself**: the page, a module, a painted sheet, an icon, the fonts, the library |
 

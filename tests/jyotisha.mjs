@@ -136,18 +136,22 @@ const pole = J.readInput({ ...base, date: '2025-07-01', time: '12:00', latitude:
 assert.deepEqual([pole.ok, pole.value.latitude], [true, -90]);
 ok('manual coordinates, including a decimal comma, a typographic minus and the pole, without any city table');
 
-/* ── the provider ───────────────────────────────────────────────────────── */
-assert.equal(J.PROVIDER.status, 'unavailable');
-assert.equal(J.PROVIDER.config.ayanamsa, 'Lahiri');
-assert.equal(J.PROVIDER.config.position, 'geocentric');
-assert.equal(J.PROVIDER.version, null, 'no release is pinned until one is integrated');
-await assert.rejects(J.createProvider().calculate({ utcMs: 0, latitude: 0, longitude: 0 }), J.ProviderUnavailableError);
-// the shape a verified sidereal longitude will take, and the no-second-ayanamsa rule
+/* ── a result's shape, and the pañcāṅga from longitudes ──────────────────── */
 const shaped = J.resultFromMoon(5 * S + 2 * P, { name: 'fixture' });
 assert.deepEqual([shaped.nakshatra, shaped.pada, shaped.vimshottariLord, shaped.catalogueId], ['Ārdrā', 3, 'Rāhu', 'lm_lag']);
 assert.equal(shaped.moonSiderealLongitude, 5 * S + 2 * P, 'the longitude passes through unchanged');
-assert.deepEqual(shaped.secondary, { tithi: null, yoga: null, karana: null, vara: null });
-ok('the provider reports itself unavailable and yields no result; a future result keeps its longitude untouched and derives sector and pada from it');
+assert.deepEqual([J.tithiOf(0, 0.1).index, J.tithiOf(0, 0.1).paksha, J.tithiOf(0, 0.1).name], [1, 'Śukla', 'Pratipad']);
+assert.deepEqual([J.tithiOf(10, 10 + 179.9).name, J.tithiOf(10, 10 + 180).index, J.tithiOf(10, 10 + 180).paksha], ['Pūrṇimā', 16, 'Kṛṣṇa']);
+assert.equal(J.tithiOf(100, 99.99).name, 'Amāvāsyā');
+assert.deepEqual([0.5, 6.5, 12.5, 342.5, 348.5, 354.5].map((e) => J.karanaOf(0, e).name), ['Kiṃstughna', 'Bava', 'Bālava', 'Śakuni', 'Catuṣpada', 'Nāga']);
+assert.equal(J.karanaOf(0, 336.5).name, 'Viṣṭi', 'karaṇa 57, the last of the eighth round');
+assert.deepEqual([J.yogaOf(0, 0).name, J.yogaOf(200, 159.99).name, J.yogaOf(1, S).name], ['Viṣkambha', 'Vaidhṛti', 'Prīti']);
+assert.equal(J.weekdayOf({ y: 2025, mo: 7, d: 1 }), 2, '1 July 2025 was a Tuesday');
+// a local day's bounds, with a spring-forward midnight in it
+const [ws, we] = J.localDayBounds({ y: 2025, mo: 3, d: 30 }, { zone: 'Europe/Warsaw' });
+assert.equal((we - ws) / 3600000, 23, 'the day the clocks go forward in Warsaw is 23 hours long');
+assert.deepEqual(J.localClock(Date.UTC(2025, 9, 26, 1, 30), { zone: 'Europe/Warsaw' }), { date: '2025-10-26', time: '02:30', offset: 3600 });
+ok('a result keeps its longitude; tithi, karaṇa and yoga by their definitions, with paksha and the fixed karaṇas; local days and clocks across a DST change');
 
 for (const c of checks) console.log('  ok  ' + c);
 console.log('\n' + checks.length + ' checks passed. ICU ' + process.versions.icu + ', time-zone data ' + process.versions.tz + '.');

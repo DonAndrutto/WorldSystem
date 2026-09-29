@@ -45,7 +45,7 @@ A dash means the count is missing from the relevant OCR opening. Where a heading
 | 5 | མགོ་ / mgo | Mṛgaśīrṣa | 3 | Deer head | wind | wood | 10203; p. 315 |
 | 6 | ལག་ / lag | Ārdrā | 1 | Point / circular spot (thig le) | water | wood | 10221; p. 316 |
 | 7 | ནབས་སོ་ / nabs so | Punarvasu | 2 | Throne leg | wind | wood | 10236; p. 316 |
-| 8 | རྒྱལ་ / rgyal | Puṣya | — | ril ba survives; round form, precise reading incomplete | fire | wood | 10256; p. 317 |
+| 8 | རྒྱལ་ / rgyal | Puṣya | 3 | Rounded form (ril ba'i dbyibs); reading corrected by the project owner | fire | wood | 10256; p. 317 |
 | 9 | སྐག་ / skag | Āśleṣā | — | Opening lost; expanded serpent hood is a secondary-source lead | water | earth | 10273; p. 317 |
 | 10 | མཆུ་ / mchu | Maghā | 6 | River | fire | fire | 10291; p. 318 |
 | 11 | གྲེ་ / gre | Pūrvaphalgunī | — | Human leg | fire | fire | 10309; p. 319 |
@@ -53,7 +53,7 @@ A dash means the count is missing from the relevant OCR opening. Where a heading
 | 13 | མེ་བཞི་ / me bzhi | Hasta | 5 | Hand | wind | fire | 10345; p. 320 |
 | 14 | ནག་པ་ / nag pa | Citrā | — | Opening lost; lotus seed-head/fruit is a secondary-source lead | wind | fire | 10362; p. 320 |
 | 15 | ས་རི་ / sa ri | Svātī | 1 | Jewel | wind | fire | 10382; p. 321 |
-| 16 | ས་ག་ / sa ga | Viśākhā | 4 | Head: OCR ri mgo; goat-head reading ra mgo requires image check | fire | earth | 10402; p. 322 |
+| 16 | ས་ག་ / sa ga | Viśākhā | 4 | Goat head (ra mgo'i dbyibs); OCR misread ri mgo, corrected by the project owner | fire | earth | 10402; p. 322 |
 | 17 | ལྷ་མཚམས་ / lha mtshams | Anurādhā | 4 | Elephant (glang po; see translation note) | earth | iron | 10420; p. 322 |
 | 18 | སྣོན་ / snon (alias snron) | Jyeṣṭhā | 3 | Steps / ladder | earth | iron | 10437; p. 323 |
 | 19 | སྣུབས་ / snubs (alias snrubs) | Mūla | 9 | Scorpion | water | iron | 10453; p. 323 |
@@ -70,10 +70,10 @@ A dash means the count is missing from the relevant OCR opening. Where a heading
 ### Local reading notes
 
 - **lha mtshams:** the text clearly reads *glang po*, naturally translated as **elephant**. This differs from the “bull” in the earlier German secondary table. The [UMA Tibetan–Sanskrit–English dictionary](https://uma-tibet.org/pdf/greatbooks/UMA_Dictionary_May2016.pdf), printed p. 87, distinguishes *glang* (bull) and *glang po* (elephant). Prefer an elephant for the text-derived model; a manuscript illustration would establish that witness's visual treatment. Do not merge it with byi bzhin's *glang mgo*, ox head.
-- **sa ga:** the OCR reads *ri mgo* where the secondary table gives *ra mgo*, goat head. Four stars are legible. The goat reading is a plausible correction, not a verified transcription.
-- **rgyal:** the fragment *ril ba'i dbyibs* survives. A rounded form is a cautious working interpretation. The earlier “drop” should not be promoted to an exact source translation from this fragment alone.
+- **sa ga:** the OCR reads *ri mgo*. **Corrected by the project owner (29 September 2026):** རི་མགོའི་དབྱིབས། → ར་མགོའི་དབྱིབས།, *ra mgo'i dbyibs*, the shape of a goat's head. Four stars are legible.
+- **rgyal:** the OCR preserves only the fragment *ril ba'i dbyibs*. **Corrected by the project owner (29 September 2026):** the line reads རྒྱལ་ནི་སྐར་གསུམ་རིལ་བའི་དབྱིབ(ས)། — *rgyal ni skar gsum ril ba'i dbyibs*, “rgyal has three stars, a rounded form”. The count of three is therefore read, not secondary. The earlier “drop” is still not a source translation.
 - **mon gru:** *me tog phung*, a heap or bunch of flowers, is clear. The same opening also compares it with a person-like form; the syntax around that alternative is damaged. A floral sculpture is supported without resolving the alternative.
-- The lost opening motifs are **snar ma, skag, nag pa and khrums smad**. The [secondary Tibetan mansion table](https://de.wikipedia.org/wiki/Tibetische_Mondh%C3%A4user) supplies cart, serpent hood, lotus fruit and ear respectively. It also supplies the missing counts: 5, 6, 1 and 2; rgyal 3, gre 2 and mon gru 2. Keep these as secondary-supported values until the page images are checked. They can guide models with discreet provenance; do not label them directly verified from these OCR lines.
+- The lost opening motifs are **snar ma, skag, nag pa and khrums smad**. The [secondary Tibetan mansion table](https://de.wikipedia.org/wiki/Tibetische_Mondh%C3%A4user) supplies cart, serpent hood, lotus fruit and ear respectively. It also supplies the missing counts: 5, 6, 1 and 2; gre 2 and mon gru 2 (rgyal's 3 is now read, above). Keep these as secondary-supported values until the page images are checked. They can guide models with discreet provenance; do not label them directly verified from these OCR lines.
 
 These are specific transcription/image checks. They do not undermine the 28-member collection or the complete Tibetan sequence.
 
