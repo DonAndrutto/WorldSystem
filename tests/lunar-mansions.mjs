@@ -96,7 +96,9 @@ for (const x of MANSIONS) {
 }
 // the secondary counts the audit supplies, and only those
 const sec = Object.fromEntries(MANSIONS.filter((x) => x.stars.secondary !== null).map((x) => [x.wylie, x.stars.secondary]));
-assert.deepEqual(sec, { 'snar ma': 5, rgyal: 3, skag: 6, gre: 2, 'nag pa': 1, 'mon gru': 2, 'khrums smad': 2 });
+assert.deepEqual(sec, { 'snar ma': 5, skag: 6, gre: 2, 'nag pa': 1, 'mon gru': 2, 'khrums smad': 2 });
+assert.equal(MANSION_BY_ID.get('lm_rgyal').stars.readable, 3, 'rgyal: three stars, as the owner corrected the line');
+assert.equal(MANSION_BY_ID.get('lm_sa_ga').form.source, 'ར་མགོའི་དབྱིབས', 'sa ga: ra mgo, not the OCR’s ri mgo');
 ok('four secondary-supported forms, with provenance on the entry and the form; secondary counts held apart from readable ones');
 
 for (const x of MANSIONS) {

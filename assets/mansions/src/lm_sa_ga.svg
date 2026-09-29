@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
-<!-- lm_sa_ga: sa ga / Viśākhā — Head: goat head (ra mgo) as a proposed reading (primary; White Beryl L:10402, p. 322) -->
+<!-- lm_sa_ga: sa ga / Viśākhā — Goat head (ra mgo) (primary; White Beryl L:10402, p. 322) -->
 <defs><radialGradient id="h"><stop offset="0" stop-color="#fbf6e8" stop-opacity=".84"/><stop offset=".86" stop-color="#fbf6e8" stop-opacity=".84"/><stop offset="1" stop-color="#fbf6e8" stop-opacity="0"/></radialGradient></defs>
 <circle cx="128" cy="128" r="127" fill="url(#h)"/>
 <circle cx="128" cy="128" r="110" fill="none" stroke="#2b2a40" stroke-width="4"/>

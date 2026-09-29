@@ -25,7 +25,7 @@
    current shelf or the runtime one, so old versions do not accumulate. */
 
 /* ── written by scripts/build-sw.cjs — do not edit below ─────────────── */
-const VERSION = '82f7edc10f41b131';
+const VERSION = '00b008bf85979ee4';
 const SHELL = [
   "app-chrome.css",
   "app-chrome.js",
@@ -101,6 +101,7 @@ const SHELL = [
   "icon-512.png",
   "icon-maskable-512.png",
   "index.html",
+  "jyotisha-engine.js",
   "jyotisha-panel.js",
   "jyotisha.js",
   "locales/pl-texts.js",
@@ -124,6 +125,8 @@ const SHELL = [
   "summit-detail.js",
   "thousand-worlds.js",
   "three-d-stage.js",
+  "vendor/panchangam@0.2.1/panchangam.internal.js",
+  "vendor/panchangam@0.2.1/panchangam.js",
   "vendor/three@0.184.0/build/three.core.js",
   "vendor/three@0.184.0/build/three.module.js",
   "vendor/three@0.184.0/examples/jsm/controls/OrbitControls.js",

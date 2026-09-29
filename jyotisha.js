@@ -8,14 +8,15 @@
  * an explicit table of ids. Abhijit (byi bzhin) has a catalogue entry and no
  * sector here: no twenty-eighth sector, pada or lord is invented for it.
  *
- * Three parts:
- *   1. the sectors — a verified sidereal lunar longitude to nakṣatra and pada;
+ * Four parts:
+ *   1. the sectors — a sidereal lunar longitude to nakṣatra and pada;
  *   2. time — one local date and time, with an IANA zone or an explicit UTC
  *      offset, to exactly one UTC instant, or to an explicit ambiguity or gap;
- *   3. the provider — the adapter the calculation goes through. Its engine is
- *      not integrated: the selected package's licence requires a written
- *      grant, and this project holds none. The adapter says so and returns no
- *      result. Nothing here produces a longitude of its own.
+ *   3. the pañcāṅga's tithi, yoga and karaṇa from the Sun's and Moon's
+ *      longitudes, and the local civil day a reading falls in;
+ *   4. the shape of a result.
+ * The longitudes themselves come from the engine, through jyotisha-engine.js;
+ * nothing here computes a position.
  */
 
 /* ── 1. the twenty-seven sectors ─────────────────────────────────────────── */
@@ -203,33 +204,65 @@ export function readInput({ date, time, latitude, longitude, zoneMode, zone, off
     zone: basis.zone || null, basis: r.basis, ambiguous: r.status === 'ambiguous' } };
 }
 
-/* ── 3. the provider ──────────────────────────────────────────────────────
-   The calculation is to go through @node-jhora/core with Lahiri configured
-   explicitly and a geocentric lunar position. It is not integrated. The
-   package (3.1.0 on npm at the time of writing, licence
-   LicenseRef-NodeJHora-Source-Available) permits inspection but requires a
-   written commercial grant for use, personal use included, and no grant is
-   recorded for this project. Until one is, the adapter answers every request
-   with ProviderUnavailableError, and the page shows the calculator as
-   unavailable. No stand-in engine, no sample result. */
-export class ProviderUnavailableError extends Error {
-  constructor(reason) { super(reason); this.name = 'ProviderUnavailableError'; this.reason = reason; }
+/* ── 3. the pañcāṅga, from longitudes ────────────────────────────────────
+   Tithi, yoga and karaṇa follow from the Sun's and Moon's longitudes alone,
+   by their standard definitions: a tithi is each 12° of the Moon's elongation
+   from the Sun (so no ayanamsa enters it), a karaṇa each 6°, and a yoga each
+   13°20′ of the sum of their sidereal longitudes. The names are in IAST. */
+const TITHI_NAMES = ['Pratipad', 'Dvitīyā', 'Tṛtīyā', 'Caturthī', 'Pañcamī', 'Ṣaṣṭhī', 'Saptamī',
+  'Aṣṭamī', 'Navamī', 'Daśamī', 'Ekādaśī', 'Dvādaśī', 'Trayodaśī', 'Caturdaśī'];
+export const YOGA_NAMES = Object.freeze(['Viṣkambha', 'Prīti', 'Āyuṣmān', 'Saubhāgya', 'Śobhana', 'Atigaṇḍa',
+  'Sukarman', 'Dhṛti', 'Śūla', 'Gaṇḍa', 'Vṛddhi', 'Dhruva', 'Vyāghāta', 'Harṣaṇa', 'Vajra', 'Siddhi',
+  'Vyatīpāta', 'Varīyān', 'Parigha', 'Śiva', 'Siddha', 'Sādhya', 'Śubha', 'Śukla', 'Brahman', 'Indra', 'Vaidhṛti']);
+const MOVABLE_KARANAS = ['Bava', 'Bālava', 'Kaulava', 'Taitila', 'Gara', 'Vaṇij', 'Viṣṭi'];
+export const VARA_NAMES = Object.freeze(['Ravivāra', 'Somavāra', 'Maṅgalavāra', 'Budhavāra', 'Guruvāra', 'Śukravāra', 'Śanivāra']);
+
+const wrap360 = (x) => ((x % 360) + 360) % 360;
+export function tithiOf(sunTropical, moonTropical) {
+  const index = Math.floor(wrap360(moonTropical - sunTropical) / 12) + 1;        // 1–30
+  const paksha = index <= 15 ? 'Śukla' : 'Kṛṣṇa';
+  const name = index === 15 ? 'Pūrṇimā' : index === 30 ? 'Amāvāsyā' : TITHI_NAMES[(index - 1) % 15];
+  return { index, paksha, name };
+}
+export function karanaOf(sunTropical, moonTropical) {
+  const index = Math.floor(wrap360(moonTropical - sunTropical) / 6) + 1;         // 1–60
+  const name = index === 1 ? 'Kiṃstughna' : index === 58 ? 'Śakuni' : index === 59 ? 'Catuṣpada'
+    : index === 60 ? 'Nāga' : MOVABLE_KARANAS[(index - 2) % 7];
+  return { index, name };
+}
+export function yogaOf(sunSidereal, moonSidereal) {
+  const index = Math.floor(wrap360(sunSidereal + moonSidereal) / (360 / 27)) + 1; // 1–27
+  return { index, name: YOGA_NAMES[index - 1] };
 }
 
-export const PROVIDER = Object.freeze({
-  package: '@node-jhora/core',
-  version: null,                       // to be pinned to the release actually integrated
-  licence: 'LicenseRef-NodeJHora-Source-Available',
-  status: 'unavailable',
-  reason: 'The calculation engine is not available: its licence requires a written grant for any use, and this project does not hold one.',
-  config: Object.freeze({ ayanamsa: 'Lahiri', position: 'geocentric', sidereal: true })
-});
+/* The local civil day a reading falls in, as two UTC instants: its first
+   moment and the first moment of the next. A midnight that a clock change
+   skips begins the day at the first moment that exists. */
+export function localDayBounds(date, basis) {
+  const start = (d) => {
+    const r = resolveLocal(d, { h: 0, mi: 0, s: 0 }, basis);
+    if (r.status === 'ok') return r.utcMs;
+    if (r.status === 'ambiguous') return r.options[0].utcMs;
+    return asUtc(d, { h: 0, mi: 0, s: 0 }) - r.before * 1000;   // the gap's far side
+  };
+  const next = new Date(Date.UTC(date.y, date.mo - 1, date.d + 1));
+  return [start(date), start({ y: next.getUTCFullYear(), mo: next.getUTCMonth() + 1, d: next.getUTCDate() })];
+}
+/* the weekday of a civil date, 0 = Sunday */
+export const weekdayOf = ({ y, mo, d }) => new Date(Date.UTC(y, mo - 1, d)).getUTCDay();
+/* the local clock reading of an instant, for showing a result's times */
+export function localClock(utcMs, basis) {
+  const off = basis.zone ? offsetAt(basis.zone, utcMs) : basis.offsetSeconds;
+  const t = new Date(utcMs + off * 1000);
+  const two = (n) => String(n).padStart(2, '0');
+  return { date: t.getUTCFullYear() + '-' + two(t.getUTCMonth() + 1) + '-' + two(t.getUTCDate()),
+    time: two(t.getUTCHours()) + ':' + two(t.getUTCMinutes()), offset: off };
+}
 
-/* What a result looks like once there is one. Built only from a sidereal
-   lunar longitude the engine has verifiably produced under the configuration
-   above: the sector and pada are derived here, from that longitude, with no
-   further ayanamsa applied. Secondary details stay null until their
-   definitions and day boundaries are checked against the engine. */
+/* ── 4. a result ───────────────────────────────────────────────────────────
+   Built only from a sidereal lunar longitude the engine has produced under
+   the adapter's configuration (jyotisha-engine.js): the sector and pada are
+   derived here, from that longitude, with no further ayanamsa applied. */
 export function resultFromMoon(siderealLongitude, engine) {
   const s = sectorOf(siderealLongitude);
   return {
@@ -237,15 +270,7 @@ export function resultFromMoon(siderealLongitude, engine) {
     vimshottariLord: s.lord,
     catalogueId: s.catalogueId,
     // the engine's own figure, only brought into [0, 360) if it lies outside
-    moonSiderealLongitude: siderealLongitude >= 0 && siderealLongitude < 360 ? siderealLongitude : ((siderealLongitude % 360) + 360) % 360,
-    secondary: { tithi: null, yoga: null, karana: null, vara: null },
+    moonSiderealLongitude: siderealLongitude >= 0 && siderealLongitude < 360 ? siderealLongitude : wrap360(siderealLongitude),
     engine
-  };
-}
-
-export function createProvider() {
-  return {
-    ...PROVIDER,
-    async calculate() { throw new ProviderUnavailableError(PROVIDER.reason); }
   };
 }

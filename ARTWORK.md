@@ -153,7 +153,7 @@ the ring.
 | mgo | “deer head” | Frontal, with antlers. |
 | lag | “point, round spot (thig le)” | A disc inside a thin ring. |
 | nabs so | “throne leg” | A turned, footed leg. |
-| rgyal | “rounded form” (fragment *ril ba'i dbyibs*) | A plain round form with a shadow; no drop shape is claimed. |
+| rgyal | *rgyal ni skar gsum ril ba'i dbyibs*, “three stars, a rounded form” (owner's correction of the OCR) | A plain round form with a shadow and three star nodes; no drop shape is claimed. |
 | skag | expanded serpent hood — **secondary** | A hooded serpent with forked tongue and coils. |
 | mchu | “like a river” | A winding band with a current line. |
 | gre | “like a human leg” | A leg in profile. |
@@ -161,7 +161,7 @@ the ring.
 | me bzhi | “hand” | An open hand. |
 | nag pa | lotus seed-head — **secondary** | A lotus pod with seeds on its face. |
 | sa ri | “jewel” | A faceted gem. |
-| sa ga | OCR *ri mgo*; proposed *ra mgo*, goat head | Draws the **proposed** goat head (long face, curved horns, beard). The entry says the OCR reads ri mgo; a check of p. 322 is outstanding. |
+| sa ga | *ra mgo'i dbyibs*, goat head (owner's correction of the OCR's *ri mgo*) | A goat head: long face, curved horns, beard. |
 | lha mtshams | *glang po*, elephant | A whole elephant in profile, kept distinct from byi bzhin's ox head. |
 | snon | “steps, ladder” | A ladder. |
 | snubs | “scorpion” | From above, with claws and a curled tail. |

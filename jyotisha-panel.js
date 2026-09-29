@@ -3,12 +3,13 @@
  * holds nothing it is given beyond the page it is open on: the inputs are not
  * stored and not sent anywhere.
  *
- * The calculation engine is not integrated (see jyotisha.js, PROVIDER). The
- * form still checks what it is given and resolves the local time to one UTC
- * instant — that part is this page's own and works — and then says plainly
- * that no calculation was made. The result fields stay empty.
+ * The form checks what it is given and resolves the local time to one UTC
+ * instant; the engine (jyotisha-engine.js: @fusionstrings/panchangam, in this
+ * browser, fetched the first time a calculation is asked for) does the rest.
+ * A result is shown only when the engine has produced it.
  */
-import { readInput, formatOffset, createProvider, ProviderUnavailableError, PROVIDER, YEAR_MIN, YEAR_MAX, formatLongitude } from './jyotisha.js';
+import { readInput, formatOffset, YEAR_MIN, YEAR_MAX, formatLongitude, parseDate, localDayBounds, localClock } from './jyotisha.js';
+import { createEngine, EngineError, ENGINE } from './jyotisha-engine.js';
 
 const pad = (n) => String(n).padStart(2, '0');
 const utcText = (ms) => {
@@ -18,7 +19,7 @@ const utcText = (ms) => {
 };
 const localText = (ms, offset) => utcText(ms + offset * 1000).replace(' UTC', '');
 
-export function createJyotishaPanel({ doc = document, panel, provider = createProvider(), catalogueName = () => '' }) {
+export function createJyotishaPanel({ doc = document, panel, provider = createEngine(), catalogueName = () => '' }) {
   const listeners = [];
   panel.innerHTML = `
     <div class="grip"><p class="eyebrow">Indian Jyotiṣa · a separate system</p>
@@ -28,8 +29,9 @@ export function createJyotishaPanel({ doc = document, panel, provider = createPr
       <details class="jy-info"><summary>About this calculation</summary>
         <p>The Moon’s nakṣatra in the Indian system: twenty-seven equal sectors of the sidereal zodiac, measured with the Lahiri ayanamsa from a geocentric lunar position, with its pada and Vimshottari lord.</p>
         <p>The 28 Lunar Mansions catalogue follows Tibetan sources, chiefly White Beryl, and is a separate system. A result names the corresponding catalogue entry as a cross-reference only. The Vimshottari lord is not White Beryl’s planetary ruler, and the ring in the world is not used for the calculation.</p>
+        <p>Nirayana longitudes are reckoned as the Indian Astronomical Ephemeris reckons them: the apparent longitude less the true Lahiri ayanamsa. The tithi, yoga and karaṇa are those at local sunrise (udaya) on the date entered; the vāra runs from sunrise to sunrise. Times are the place’s local clock, to the minute.</p>
+        <p>Calculated in this browser with ${ENGINE.package} ${ENGINE.version} and the Swiss Ephemeris it contains; nothing entered is sent anywhere or kept.</p>
       </details>
-      <p class="jy-provider" role="note"><b>Calculation unavailable.</b> <span>${PROVIDER.reason}</span></p>
       <form class="jy-form" novalidate>
         <fieldset><legend>Date and time</legend>
           <label for="jy-date">Date <span class="jy-hint">Gregorian calendar, ${YEAR_MIN}–${YEAR_MAX}</span></label>
@@ -79,6 +81,18 @@ export function createJyotishaPanel({ doc = document, panel, provider = createPr
           <dt>Pada</dt><dd data-out="pada">—</dd>
           <dt>Vimshottari lord</dt><dd data-out="lord">—</dd>
           <dt>Moon, sidereal longitude</dt><dd data-out="longitude">—</dd>
+          <dt>Nakṣatra from</dt><dd data-out="from">—</dd>
+          <dt>Nakṣatra until</dt><dd data-out="until">—</dd>
+          <dt>Pada until</dt><dd data-out="padaEnd">—</dd>
+        </dl>
+        <h4 class="jy-sub">At sunrise on the date entered</h4>
+        <dl class="jy-out jy-udaya">
+          <dt>Sunrise</dt><dd data-out="sunrise">—</dd>
+          <dt>Tithi</dt><dd data-out="tithi">—</dd>
+          <dt>Tithi until</dt><dd data-out="tithiEnd">—</dd>
+          <dt>Yoga</dt><dd data-out="yoga">—</dd>
+          <dt>Karaṇa</dt><dd data-out="karana">—</dd>
+          <dt>Vāra at the moment entered</dt><dd data-out="vara">—</dd>
         </dl>
         <button class="btn" type="button" data-jy="show" disabled>Show in world</button>
       </div>
@@ -120,7 +134,8 @@ export function createJyotishaPanel({ doc = document, panel, provider = createPr
   });
 
   function clearResult() {
-    ['nakshatra', 'catalogue', 'pada', 'lord', 'longitude'].forEach((k) => { out(k).textContent = '—'; });
+    ['nakshatra', 'catalogue', 'pada', 'lord', 'longitude', 'from', 'until', 'padaEnd', 'sunrise', 'tithi', 'tithiEnd', 'yoga', 'karana', 'vara']
+      .forEach((k) => { out(k).textContent = '—'; });
     showBtn.disabled = true;
     resultId = null;
   }
@@ -163,20 +178,48 @@ export function createJyotishaPanel({ doc = document, panel, provider = createPr
     const v = read.value;
     const instant = 'Resolved to ' + utcText(v.utcMs) + ' (local offset ' + formatOffset(v.offset)
       + (v.zone ? ', ' + v.zone : '') + ').';
+    const basis = v.zone ? { zone: v.zone } : { offsetSeconds: v.offset };
+    const date = parseDate(form.elements.date.value);
+    const [start, end] = localDayBounds(date, basis);
+    // a clock reading, with the date only when it is not the date entered
+    const clock = (ms) => { const c = localClock(ms, basis); return (c.date === form.elements.date.value ? '' : c.date + ' ') + c.time; };
+    const button = form.querySelector('[type=submit]');
+    button.disabled = true;
+    panel.querySelector('.jy-result').setAttribute('aria-busy', 'true');
+    if (!provider.ready) resolved.textContent = instant + ' Loading the calculation engine…';
     try {
-      const r = await provider.calculate({ utcMs: v.utcMs, latitude: v.latitude, longitude: v.longitude });
+      const r = await provider.calculate({ utcMs: v.utcMs, latitude: v.latitude, longitude: v.longitude, day: { date, start, end } });
       out('nakshatra').textContent = r.nakshatra;
       out('catalogue').textContent = r.catalogueId ? catalogueName(r.catalogueId) : '—';
       out('pada').textContent = String(r.pada);
       out('lord').textContent = r.vimshottariLord;
       out('longitude').textContent = formatLongitude(r.moonSiderealLongitude);
+      out('from').textContent = clock(r.nakshatraStart);
+      out('until').textContent = clock(r.nakshatraEnd);
+      out('padaEnd').textContent = clock(r.padaEnd);
+      if (r.udaya) {
+        out('sunrise').textContent = clock(r.udaya.sunrise);
+        out('tithi').textContent = r.udaya.tithi.paksha + ' ' + r.udaya.tithi.name;
+        out('tithiEnd').textContent = clock(r.udaya.tithi.end);
+        out('yoga').textContent = r.udaya.yoga.name;
+        out('karana').textContent = r.udaya.karana.name;
+        out('vara').textContent = r.vara.name;
+      } else {
+        out('sunrise').textContent = 'No sunrise at this place on this date';
+      }
       resultId = r.catalogueId || null;
       showBtn.disabled = !resultId;
       resolved.textContent = instant;
     } catch (err) {
-      resolved.textContent = instant + ' ' + (err instanceof ProviderUnavailableError
-        ? 'Not calculated: the calculation engine is unavailable.'
-        : 'Not calculated: the calculation engine failed to start. Try again.');
+      const why = err instanceof EngineError && err.kind === 'load'
+        ? 'The calculation engine could not be loaded. Check the connection and calculate again.'
+        : err instanceof EngineError
+          ? 'The calculation engine did not start as expected, so nothing was calculated.'
+          : 'The calculation failed. Calculate again, or check the inputs.';
+      resolved.textContent = instant + ' Not calculated: ' + why;
+    } finally {
+      button.disabled = false;
+      panel.querySelector('.jy-result').removeAttribute('aria-busy');
     }
   }
   form.addEventListener('submit', (ev) => { ev.preventDefault(); submit(); });
