@@ -1,31 +1,22 @@
 # Lunar mansions: implementation status
 
-29 September 2026, revised the same day for the owner's corrections and the change of engine. What the sprite layer and calculator revision delivered in this
+29 September 2026, revised the same day for the owner's corrections and twice for the calculator's engine. What the sprite layer and calculator revision delivered in this
 repository, how it was checked, and what remains. The requirements are in
 [the plan](LUNAR-MANSIONS-PLAN.md) and [the revision review](LUNAR-MANSIONS-REVISION-REVIEW.md);
 the content authority is [the White Beryl audit](WHITE-BERYL-LUNAR-MANSIONS.md).
 
 ## Provider
 
-The first provider named, `@node-jhora/core`, was never integrated: no written
-grant for it exists in this project, and its licence requires one. On 29
-September 2026 the owner chose instead **`@fusionstrings/panchangam`**, and it
-is now integrated (Phase 3, below).
+The calculator runs on **astronomy-engine 2.1.19 (MIT)**. Two earlier choices
+were set aside:
+- `@node-jhora/core` needed a written licence grant that the project does not
+  hold.
+- `@fusionstrings/panchangam` 0.2.1 was integrated on 29 September and removed
+  the same day at the owner's decision. Its WebAssembly contained the Swiss
+  Ephemeris under the AGPL-3.0.
 
-**Licensing — for the owner's decision before this is merged and served.** The
-package's own code is declared MIT, but no licence file is published with it or
-kept in its repository. Its WebAssembly statically contains the Swiss
-Ephemeris 2.10.03 through the Rust crate `swiss-eph` 0.2.1, which is licensed
-**AGPL-3.0**, as the Swiss Ephemeris is under its free licence (the alternative
-is Astrodienst's paid Swiss Ephemeris Professional Licence). So the binary the
-page serves is AGPL-covered whatever the package's label says. Serving it from
-a public site means meeting the AGPL: its licence text and notices are
-vendored beside it (`vendor/panchangam@0.2.1/NOTICE.md`,
-`LICENSE-AGPL-3.0.txt`), and the corresponding sources are public
-(fusionstrings/panchangam, fusionstrings/swiss-eph, the Swiss Ephemeris). Whether
-the rest of WorldSystem then has to be offered under the AGPL, or whether
-Astrodienst's professional licence is wanted instead, is the owner's call and
-is not settled here. This repository has no licence file of its own.
+[NAKSHATRA-ENGINE.md](NAKSHATRA-ENGINE.md) records the engine, its method and
+its verification.
 
 ## Phase 1 — catalogue and sprite layer: implemented
 
@@ -77,55 +68,24 @@ derives sector and pada from a sidereal longitude in whole milli-arcseconds and
 applies no ayanamsa. `resultFromMoon()` passes the engine's longitude through
 unchanged.
 
-## Phase 3 — provider: performed
+## Phase 3 — provider: performed (astronomy-engine)
 
-`@fusionstrings/panchangam` **0.2.1**, the browser build published on JSR
-(`jsr:@fusionstrings/panchangam@0.2.1/browser`), vendored in
-`vendor/panchangam@0.2.1/` and pinned by sha384 in the page's import map
-(`node scripts/vendor-panchangam.cjs` re-fetches and verifies it). The npm
-release, 0.2.0, is CommonJS that reads its WebAssembly with Node's `fs` and does
-not run in a browser; the JSR browser build carries the WebAssembly inline and
-does. It is fetched only when a calculation is first asked for (about 850 KB),
-is compiled on the main thread (Chromium allows it), is held by the offline
-shelf, and calculates with no network.
-
-`jyotisha-engine.js` is the whole adapter. Configuration, explicit:
-
-- **Lahiri**, the engine's mode 1; mode 27, True Chitrapaksha, is never passed.
-  `init()` refuses an engine whose Lahiri value is not distinct from True
-  Chitrapaksha's or is not the expected size.
-- **Geocentric**, from `p_calc_ut` (`swe_calc_ut`), time in **UT**.
-- **Nirayana = mean-equinox longitude − mean ayanamsa, once** (equal to the
-  apparent longitude less the true ayanamsa, the Indian Astronomical
-  Ephemeris's reckoning).
-- Nakṣatra and pada are derived from that longitude; their start and end, and
-  the pada's end, are found by root-finding on the Moon's motion. The
-  Vimshottari lord is the calculator's own, never White Beryl's ruler.
-- The pañcāṅga is taken at the **local sunrise of the date entered** (udaya):
-  tithi and its end, yoga, karaṇa. The vāra is the one of the moment entered,
-  running sunrise to sunrise. Where the Sun does not rise, none is given.
-
-Defects found in the engine, and routed around rather than inherited:
-
-1. **ΔT.** `calculate_nakshatra`, `calculate_planets`, `calculate_tithi`,
-   `calculate_yoga`, their start/end finders and `calculate_daily_panchang` pass
-   the Julian day to `swe_calc`, which reads it as Terrestrial Time. Handed UT,
-   they place the Moon ΔT early — measured at **69.0 s** in 2025, about 35″ —
-   which moves a boundary by about a minute. The adapter uses only
-   `p_calc_ut`.
-2. **The day of the daily pañcāṅga.** `calculate_daily_panchang` looks for
-   sunrise from 0h UTC of the date it is given, so east of about UTC+6 it
-   returns the next local day: for **Delhi on 1 July 2025 it gives the sunrise
-   of 2 July** (Saptamī instead of that day's Ṣaṣṭhī). Where the Sun does not
-   rise it substitutes 06:00 UT. The adapter looks for the sunrise inside the
-   local civil day and refuses the stand-in.
-3. **A wrong flag constant.** The package's `Constants.SEFLG_NONUT` is 1024,
-   which is Swiss Ephemeris's `SEFLG_NOABERR`; nutation is 64. The adapter uses
-   the Swiss Ephemeris values.
-4. **No ephemeris files.** Despite the `embedded-ephe` feature, `SEFLG_SWIEPH`
-   and `SEFLG_MOSEPH` give identical results: the engine runs on the Moshier
-   theory, good to a few arcseconds — ample for nakṣatra work, but not the JPL
-   precision the package's README suggests.
+- **Integration.** astronomy-engine 2.1.19 is vendored in
+  `vendor/astronomy-engine@2.1.19/`, pinned by sha384 in the import map, fetched
+  on the first calculation and held by the offline shelf.
+- **Adapter.** `jyotisha-engine.js` is the only importer, and it exports
+  `calculateNakshatra(date, latitude, longitude)`.
+- **Ayanamsa.** Lahiri from its published definition (23°15′00.658″ on 1956
+  March 21, carried by IAU 1976 precession, with nutation from the engine).
+  The Spica-anchored value, which is True Chitrapaksha by definition, is
+  computed only as a comparison: 33–40″ below Lahiri over 1900–2050.
+- **Outputs.** Nakṣatra, pada, Vimshottari lord, Moon nirayana longitude,
+  ayanamsa, resolved UTC, nakṣatra span and pada end, and the udaya pañcāṅga
+  with the vāra.
+- **Removed.** Everything of `@fusionstrings/panchangam`: the vendor directory,
+  the vendoring script, the import-map pins, the offline-shelf entries and its
+  test. The adapter no longer needs the time-scale and sunrise-day workarounds
+  that engine required.
 
 ## Verification performed
 
@@ -134,7 +94,7 @@ Defects found in the engine, and routed around rather than inherited:
 | `tests/lunar-mansions.mjs` | Pass. The catalogue is read against the audit's own tables (order, names, Sanskrit, readable counts, both element lists, line/page, rulers, directions), plus the brief's specific points, frozen records, 28 WebP glyphs. |
 | `tests/mansion-layer.mjs` (real three.js) | Pass. Ring directions; hidden layer fetches nothing and is never picked; retry fetches only the failure; 214 aims from 16 angles, each missed aim won by a nearer glyph, never a farther one; transparent corners pass through; dispose frees only owned resources. |
 | `tests/jyotisha.mjs` | Pass. 0°/360° wrap, all 26 sector boundaries and pada boundaries to 0.1″; Poland 30 Mar 2025 02:30 nonexistent and 26 Oct 2025 02:30 ambiguous; Kathmandu +05:30 → +05:45 on 1 Jan 1986; Warsaw +01:24 → CET in 1915; five UTC-equivalent spellings; invalid inputs; manual coordinates; tithi, karaṇa and yoga definitions; local day bounds across DST. ICU 78.2, tz 2025c. |
-| `tests/jyotisha-engine.mjs` (the vendored engine) | Pass. Against an independent reference (Meeus ch. 47 and 25, the Lahiri definition 23°15′00.658″ at 1956 Mar 21 with IAU 1976 precession): Moon nirayana within 13.4″ over 240 instants 1961–2050 (median 2.3″), tolerance 20″, every nakṣatra and pada identical; Lahiri at least 41″ from True Chitrapaksha over that span; boundaries to the second including Revatī → Aśvinī across 0°/360°; UTC-equivalent inputs; Poland's DST overlap and gap; Kathmandu 1986; sunrise within the local day for Delhi, Sydney and Tromsø (none); load failure, retry, wrong version and wrong ayanamsa refused; the engine's ΔT offset measured. |
+| `tests/jyotisha-engine.mjs` (astronomy-engine) | Pass. Four Swiss Ephemeris reference charts matched (nakṣatra, pada, lord, tithi, yoga, karaṇa; Moon ≤ 2.2″, Lahiri ≤ 0.16″, spans ≤ 5 s); Meeus theory within 9.3″ over 240 instants 1961–2050; the owner's published table (lords, sector starts); Spica-anchored − Lahiri −33…−40″; boundaries and the 0°/360° wrap; UTC equivalence; Poland's DST ambiguity and gap; Kathmandu 1986 and Warsaw 1915; sunrise at Sydney and Tromsø (none); load failure and retry. |
 | Existing suites | All pass, including `mandala-regression` with new assertions (Explorer tour unchanged, 28 native buttons, layer off and nothing fetched at start, tour restores the setting) and `offline` after regenerating `sw.js`. |
 | Browser (Chromium, SwiftShader) | Layer toggle; framing and return; Tibetan with a Tibetan font installed; tapping each on-screen glyph at 4 angles (52 of 54 selected as aimed, 2 correctly behind Meru, 0 wrong); 320 and 390 px phone layouts; keyboard, focus and announcement; Polish in place and English reload with state kept; offline reload with all 28 glyphs from cache; a failed glyph download shown and recovered; index and calculator working with WebGL disabled. |
 

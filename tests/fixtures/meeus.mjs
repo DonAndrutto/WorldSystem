@@ -4,8 +4,8 @@
 // low accuracy; about 0.01°), with the principal nutation terms of ch. 22, ΔT
 // after Espenak and Meeus's polynomials (NASA, 2006), and the Lahiri ayanamsa
 // from its definition — 23°15′00.658″ on 1956 March 21.0 — carried by the IAU
-// 1976 general precession in longitude. Nothing here shares code, data or
-// method with the Swiss Ephemeris the calculator's engine uses.
+// 1976 general precession in longitude. Nothing here shares code or data with
+// astronomy-engine, the calculator's engine.
 const rad = Math.PI / 180;
 const wrap = (x) => ((x % 360) + 360) % 360;
 

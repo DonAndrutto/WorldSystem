@@ -26,10 +26,9 @@
      The files are byte-identical to the ones unpkg serves for 0.184.0, so the
      hashes below are the upstream hashes and can be checked against npm:
      `node scripts/vendor-three.cjs` re-fetches the tarball and verifies them
-     against this very map. The Jyotiṣa calculator's engine,
-     @fusionstrings/panchangam, is vendored and pinned the same way and is
-     fetched only when a calculation is first asked for
-     (`node scripts/vendor-panchangam.cjs`; see its NOTICE.md). -->
+     against this very map. The Jyotiṣa calculator's astronomy-engine (MIT) is
+     vendored and pinned the same way, and fetched only when a calculation is
+     first asked for (`node scripts/vendor-astronomy-engine.cjs`). -->
 <script type="importmap">
 {
   "imports": {
@@ -40,8 +39,7 @@
     "./vendor/three@0.184.0/build/three.module.js": "sha384-8FCZ1eVO6it4+pbec2aDtnTrwjWXZLJRC+MAGCIPDgsYnUrl/E0A2YlF8ioMKI/J",
     "./vendor/three@0.184.0/build/three.core.js": "sha384-dw2ooPewaEIrAgl6oFDBmmBWCE9oW9LxRGcfwZ0hLvEprzo202wXl7vCYHRlSnOT",
     "./vendor/three@0.184.0/examples/jsm/controls/OrbitControls.js": "sha384-4rziNxOBZKQ69i+w+f89KJ55TCYquwchVbByQwmaOeIOXdOU2PLDn3kOfXHwIJC9",
-    "./vendor/panchangam@0.2.1/panchangam.js": "sha384-atCZidhD1+w09nszlAOoyEXVUNIjd1hHj52BzRqgXOEbPxBfSEKBg4DWk2f4RO+y",
-    "./vendor/panchangam@0.2.1/panchangam.internal.js": "sha384-+xbkbAVPcEKlFQkPHku+dPz3jNZ5XUpPMyZlDoN+BJUNxijzofo+jAU5GeMTCXcR"
+    "./vendor/astronomy-engine@2.1.19/astronomy.js": "sha384-nPZ/jITCxAeJbBIPmbSJIl4kt4aiPdMpN3N+igiXprv1Lds/PBg5qbX2vIKhrSJW"
   }
 }
 </script>
