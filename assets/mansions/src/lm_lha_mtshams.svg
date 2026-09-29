@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+<!-- lm_lha_mtshams: lha mtshams / Anurādhā — Elephant (glang po) (primary; White Beryl L:10420, p. 322) -->
+<defs><radialGradient id="h"><stop offset="0" stop-color="#fbf6e8" stop-opacity=".84"/><stop offset=".86" stop-color="#fbf6e8" stop-opacity=".84"/><stop offset="1" stop-color="#fbf6e8" stop-opacity="0"/></radialGradient></defs>
+<circle cx="128" cy="128" r="127" fill="url(#h)"/>
+<circle cx="128" cy="128" r="110" fill="none" stroke="#2b2a40" stroke-width="4"/>
+<g transform="translate(0 4)" stroke="#2b2a40" stroke-width="7" stroke-linejoin="round" stroke-linecap="round">
+<path d="M114 140 H132 V180 H114 Z M140 146 H156 V180 H140 Z M166 146 H182 V180 H166 Z M188 134 H202 V178 H188 Z" fill="#e3bf66"/><ellipse cx="152" cy="122" rx="54" ry="36" fill="#e3bf66"/><path d="M204 114 C214 122 216 138 211 150" fill="none"/><circle cx="96" cy="102" r="31" fill="#e3bf66"/><path d="M78 108 C64 128 62 158 78 180 L92 176 C82 158 84 132 96 118 Z" fill="#e3bf66"/><path d="M100 84 C124 82 132 110 120 130 C108 134 96 124 94 112 Z" fill="#f3e3b4"/><path d="M82 122 C92 134 104 136 112 130" fill="none" stroke="#f3e3b4" stroke-width="6"/><path d="M82 122 C92 134 104 136 112 130" fill="none"/><circle cx="86" cy="96" r="4.5" fill="#2b2a40" stroke="none"/>
+</g>
+<circle cx="155.8" cy="222.0" r="5.2" fill="#e3bf66" stroke="#2b2a40" stroke-width="2.2"/><circle cx="137.4" cy="225.5" r="5.2" fill="#e3bf66" stroke="#2b2a40" stroke-width="2.2"/><circle cx="118.6" cy="225.5" r="5.2" fill="#e3bf66" stroke="#2b2a40" stroke-width="2.2"/><circle cx="100.2" cy="222.0" r="5.2" fill="#e3bf66" stroke="#2b2a40" stroke-width="2.2"/>
+</svg>

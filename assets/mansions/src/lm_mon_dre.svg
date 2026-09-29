@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+<!-- lm_mon_dre: mon dre / Dhaniṣṭhā — Bird (primary; White Beryl L:10531, p. 326) -->
+<defs><radialGradient id="h"><stop offset="0" stop-color="#fbf6e8" stop-opacity=".84"/><stop offset=".86" stop-color="#fbf6e8" stop-opacity=".84"/><stop offset="1" stop-color="#fbf6e8" stop-opacity="0"/></radialGradient></defs>
+<circle cx="128" cy="128" r="127" fill="url(#h)"/>
+<circle cx="128" cy="128" r="110" fill="none" stroke="#2b2a40" stroke-width="4"/>
+<g transform="translate(0 4)" stroke="#2b2a40" stroke-width="7" stroke-linejoin="round" stroke-linecap="round">
+<path d="M110 146 L106 172 M126 146 L128 172 M86 174 H150" fill="none"/><path d="M76 108 C76 86 94 72 114 76 C134 80 148 94 160 110 L202 136 L196 148 L152 134 C140 148 118 152 100 146 C86 140 76 126 76 108 Z" fill="#e3bf66"/><path d="M78 90 L56 96 L78 102 Z" fill="#f3e3b4"/><path d="M108 106 C130 100 152 112 170 130 C146 132 124 128 108 118 Z" fill="#f3e3b4"/><circle cx="92" cy="92" r="4.5" fill="#2b2a40" stroke="none"/>
+</g>
+<circle cx="155.8" cy="222.0" r="5.2" fill="#e3bf66" stroke="#2b2a40" stroke-width="2.2"/><circle cx="137.4" cy="225.5" r="5.2" fill="#e3bf66" stroke="#2b2a40" stroke-width="2.2"/><circle cx="118.6" cy="225.5" r="5.2" fill="#e3bf66" stroke="#2b2a40" stroke-width="2.2"/><circle cx="100.2" cy="222.0" r="5.2" fill="#e3bf66" stroke="#2b2a40" stroke-width="2.2"/>
+</svg>

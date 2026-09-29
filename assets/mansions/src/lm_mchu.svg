@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+<!-- lm_mchu: mchu / Maghā — River (primary; White Beryl L:10291, p. 318) -->
+<defs><radialGradient id="h"><stop offset="0" stop-color="#fbf6e8" stop-opacity=".84"/><stop offset=".86" stop-color="#fbf6e8" stop-opacity=".84"/><stop offset="1" stop-color="#fbf6e8" stop-opacity="0"/></radialGradient></defs>
+<circle cx="128" cy="128" r="127" fill="url(#h)"/>
+<circle cx="128" cy="128" r="110" fill="none" stroke="#2b2a40" stroke-width="4"/>
+<g transform="translate(0 4)" stroke="#2b2a40" stroke-width="7" stroke-linejoin="round" stroke-linecap="round">
+<path d="M44 98 C76 74 108 122 140 98 C172 74 196 108 212 94 V130 C196 144 172 110 140 134 C108 158 76 110 44 134 Z" fill="#e3bf66"/><path d="M54 116 C82 98 110 136 138 116 C166 96 190 126 204 114" fill="none"/>
+</g>
+<circle cx="173.3" cy="214.9" r="5.2" fill="#e3bf66" stroke="#2b2a40" stroke-width="2.2"/><circle cx="155.8" cy="222.0" r="5.2" fill="#e3bf66" stroke="#2b2a40" stroke-width="2.2"/><circle cx="137.4" cy="225.5" r="5.2" fill="#e3bf66" stroke="#2b2a40" stroke-width="2.2"/><circle cx="118.6" cy="225.5" r="5.2" fill="#e3bf66" stroke="#2b2a40" stroke-width="2.2"/><circle cx="100.2" cy="222.0" r="5.2" fill="#e3bf66" stroke="#2b2a40" stroke-width="2.2"/><circle cx="82.7" cy="214.9" r="5.2" fill="#e3bf66" stroke="#2b2a40" stroke-width="2.2"/>
+</svg>

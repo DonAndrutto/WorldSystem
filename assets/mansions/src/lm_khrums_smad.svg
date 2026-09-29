@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+<!-- lm_khrums_smad: khrums smad / Uttarabhādrapadā — Ear (secondary; White Beryl L:10577, p. 327) -->
+<defs><radialGradient id="h"><stop offset="0" stop-color="#fbf6e8" stop-opacity=".84"/><stop offset=".86" stop-color="#fbf6e8" stop-opacity=".84"/><stop offset="1" stop-color="#fbf6e8" stop-opacity="0"/></radialGradient></defs>
+<circle cx="128" cy="128" r="127" fill="url(#h)"/>
+<circle cx="128" cy="128" r="110" fill="none" stroke="#2b2a40" stroke-width="4" stroke-dasharray="15 11"/>
+<g transform="translate(0 4)" stroke="#2b2a40" stroke-width="7" stroke-linejoin="round" stroke-linecap="round">
+<path d="M144 46 C104 42 84 74 86 104 C88 126 102 136 106 152 C110 172 122 188 142 184 C158 180 162 164 154 154 C146 144 150 132 162 118 C176 100 178 74 166 58 C160 50 152 47 144 46 Z" fill="#e3bf66"/><path d="M126 76 C150 70 160 90 150 104 C142 116 128 116 124 130 C122 140 130 146 136 150" fill="none"/>
+</g>
+
+</svg>

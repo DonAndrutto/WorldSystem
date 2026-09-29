@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+<!-- lm_nag_pa: nag pa / Citrā — Lotus seed-head (fruit) (secondary; White Beryl L:10362, p. 320) -->
+<defs><radialGradient id="h"><stop offset="0" stop-color="#fbf6e8" stop-opacity=".84"/><stop offset=".86" stop-color="#fbf6e8" stop-opacity=".84"/><stop offset="1" stop-color="#fbf6e8" stop-opacity="0"/></radialGradient></defs>
+<circle cx="128" cy="128" r="127" fill="url(#h)"/>
+<circle cx="128" cy="128" r="110" fill="none" stroke="#2b2a40" stroke-width="4" stroke-dasharray="15 11"/>
+<g transform="translate(0 4)" stroke="#2b2a40" stroke-width="7" stroke-linejoin="round" stroke-linecap="round">
+<path d="M128 146 C125 166 131 180 128 196" fill="none"/><path d="M78 78 C80 112 104 142 128 148 C152 142 176 112 178 78 Z" fill="#e3bf66"/><ellipse cx="128" cy="78" rx="50" ry="18" fill="#f3e3b4"/><circle cx="128" cy="78" r="4.5" fill="#2b2a40" stroke="none"/><circle cx="106" cy="75" r="4.5" fill="#2b2a40" stroke="none"/><circle cx="150" cy="75" r="4.5" fill="#2b2a40" stroke="none"/><circle cx="116" cy="86" r="4.5" fill="#2b2a40" stroke="none"/><circle cx="140" cy="86" r="4.5" fill="#2b2a40" stroke="none"/><circle cx="96" cy="84" r="3.5" fill="#2b2a40" stroke="none"/><circle cx="160" cy="84" r="3.5" fill="#2b2a40" stroke="none"/><circle cx="128" cy="66" r="3.5" fill="#2b2a40" stroke="none"/>
+</g>
+
+</svg>

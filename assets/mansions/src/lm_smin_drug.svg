@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+<!-- lm_smin_drug: smin drug / Kṛttikā — Razor (primary; White Beryl L:10168, p. 314) -->
+<defs><radialGradient id="h"><stop offset="0" stop-color="#fbf6e8" stop-opacity=".84"/><stop offset=".86" stop-color="#fbf6e8" stop-opacity=".84"/><stop offset="1" stop-color="#fbf6e8" stop-opacity="0"/></radialGradient></defs>
+<circle cx="128" cy="128" r="127" fill="url(#h)"/>
+<circle cx="128" cy="128" r="110" fill="none" stroke="#2b2a40" stroke-width="4"/>
+<g transform="translate(0 4)" stroke="#2b2a40" stroke-width="7" stroke-linejoin="round" stroke-linecap="round">
+<g transform="rotate(-34 128 112)"><g transform="rotate(30 74 110)"><path d="M22 102 H74 Q82 102 82 110 Q82 118 74 118 H22 Q14 118 14 110 Q14 102 22 102 Z" fill="#e3bf66"/></g><path d="M66 92 H182 C196 92 204 102 198 116 L188 132 H66 Z" fill="#f3e3b4"/><path d="M72 125 H186" fill="none"/><circle cx="74" cy="110" r="7" fill="#2b2a40"/></g>
+</g>
+<circle cx="173.3" cy="214.9" r="5.2" fill="#e3bf66" stroke="#2b2a40" stroke-width="2.2"/><circle cx="155.8" cy="222.0" r="5.2" fill="#e3bf66" stroke="#2b2a40" stroke-width="2.2"/><circle cx="137.4" cy="225.5" r="5.2" fill="#e3bf66" stroke="#2b2a40" stroke-width="2.2"/><circle cx="118.6" cy="225.5" r="5.2" fill="#e3bf66" stroke="#2b2a40" stroke-width="2.2"/><circle cx="100.2" cy="222.0" r="5.2" fill="#e3bf66" stroke="#2b2a40" stroke-width="2.2"/><circle cx="82.7" cy="214.9" r="5.2" fill="#e3bf66" stroke="#2b2a40" stroke-width="2.2"/>
+</svg>

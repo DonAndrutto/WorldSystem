@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+<!-- lm_lag: lag / Ārdrā — Point, a circular spot (thig le) (primary; White Beryl L:10221, p. 316) -->
+<defs><radialGradient id="h"><stop offset="0" stop-color="#fbf6e8" stop-opacity=".84"/><stop offset=".86" stop-color="#fbf6e8" stop-opacity=".84"/><stop offset="1" stop-color="#fbf6e8" stop-opacity="0"/></radialGradient></defs>
+<circle cx="128" cy="128" r="127" fill="url(#h)"/>
+<circle cx="128" cy="128" r="110" fill="none" stroke="#2b2a40" stroke-width="4"/>
+<g transform="translate(0 4)" stroke="#2b2a40" stroke-width="7" stroke-linejoin="round" stroke-linecap="round">
+<circle cx="128" cy="112" r="56" fill="none" stroke-width="4"/><circle cx="128" cy="112" r="34" fill="#e3bf66"/>
+</g>
+<circle cx="128.0" cy="226.0" r="5.2" fill="#e3bf66" stroke="#2b2a40" stroke-width="2.2"/>
+</svg>

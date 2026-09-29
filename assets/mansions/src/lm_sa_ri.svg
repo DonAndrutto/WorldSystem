@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+<!-- lm_sa_ri: sa ri / Svātī — Jewel (primary; White Beryl L:10382, p. 321) -->
+<defs><radialGradient id="h"><stop offset="0" stop-color="#fbf6e8" stop-opacity=".84"/><stop offset=".86" stop-color="#fbf6e8" stop-opacity=".84"/><stop offset="1" stop-color="#fbf6e8" stop-opacity="0"/></radialGradient></defs>
+<circle cx="128" cy="128" r="127" fill="url(#h)"/>
+<circle cx="128" cy="128" r="110" fill="none" stroke="#2b2a40" stroke-width="4"/>
+<g transform="translate(0 4)" stroke="#2b2a40" stroke-width="7" stroke-linejoin="round" stroke-linecap="round">
+<path d="M80 92 L104 62 H152 L176 92 L128 172 Z" fill="#e3bf66"/><path d="M104 62 L116 92 L128 62 L140 92 L152 62 Z" fill="#f3e3b4"/><path d="M80 92 H176 M116 92 L128 172 L140 92" fill="none"/>
+</g>
+<circle cx="128.0" cy="226.0" r="5.2" fill="#e3bf66" stroke="#2b2a40" stroke-width="2.2"/>
+</svg>

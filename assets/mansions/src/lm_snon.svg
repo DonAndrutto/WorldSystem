@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+<!-- lm_snon: snon / Jyeṣṭhā — Steps, a ladder (primary; White Beryl L:10437, p. 323) -->
+<defs><radialGradient id="h"><stop offset="0" stop-color="#fbf6e8" stop-opacity=".84"/><stop offset=".86" stop-color="#fbf6e8" stop-opacity=".84"/><stop offset="1" stop-color="#fbf6e8" stop-opacity="0"/></radialGradient></defs>
+<circle cx="128" cy="128" r="127" fill="url(#h)"/>
+<circle cx="128" cy="128" r="110" fill="none" stroke="#2b2a40" stroke-width="4"/>
+<g transform="translate(0 4)" stroke="#2b2a40" stroke-width="7" stroke-linejoin="round" stroke-linecap="round">
+<path d="M88 186 L108 44 M168 186 L148 44" fill="none" stroke-width="11"/><path d="M103 76 H153 M99 104 H157 M95 132 H161 M91 160 H165" fill="none"/>
+</g>
+<circle cx="146.7" cy="224.2" r="5.2" fill="#e3bf66" stroke="#2b2a40" stroke-width="2.2"/><circle cx="128.0" cy="226.0" r="5.2" fill="#e3bf66" stroke="#2b2a40" stroke-width="2.2"/><circle cx="109.3" cy="224.2" r="5.2" fill="#e3bf66" stroke="#2b2a40" stroke-width="2.2"/>
+</svg>

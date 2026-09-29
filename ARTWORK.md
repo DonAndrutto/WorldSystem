@@ -123,6 +123,72 @@ in `rebirth-board.js` beside the English titles, keyed by square number. The two
 sets of names are independent: the app shows one or the other in passing, and
 both in the entry.
 
+## The 28 lunar mansion glyphs
+
+`assets/mansions/` holds one glyph for each of the twenty-eight lunar mansions
+of White Beryl. They were drawn for this project on 29 September 2026 as small
+SVG line drawings, written in `scripts/build-mansion-glyphs.cjs`; the drawings'
+SVG sources are kept in `assets/mansions/src/` and are not served. No image
+generator, photograph, manuscript, thangka or printed illustration was copied or
+traced. Each glyph draws the form given in the mansion's own passage (L pp.
+313–328), as translated in [the audit](docs/WHITE-BERYL-LUNAR-MANSIONS.md): a
+contemporary interpretation of a textual description, not a reconstruction of
+any historical witness's picture.
+
+One hand for the set: a single ink line of one weight (#2b2a40), one gold fill
+(#e3bf66) and a paler gold, on a soft ivory halo that keeps the glyph legible over
+the day sky and the night sky. The ring round each glyph is solid where the form
+is read in the supplied OCR and **dashed where it follows the secondary table**,
+so provenance shows without colour. Gold nodes along the foot of the ring give
+the star count **only where the OCR makes it legible**; they are a count, not the
+stars' arrangement, which the text does not give. Nam gru's thirty-two go round
+the ring.
+
+| Glyph | Follows | Interpretive choices |
+| --- | --- | --- |
+| tha skar | “horse head and neck” | Profile, mane as short strokes. |
+| bra nye | “vulva / female genital form” | Kept to a plain almond with a single line: symbolic and restrained. |
+| smin drug | “razor” | An open razor, blade and handle. |
+| snar ma | cart — **secondary** | An ox-cart with solid wheels, pole and yoke. The opening line is lost in the OCR. |
+| mgo | “deer head” | Frontal, with antlers. |
+| lag | “point, round spot (thig le)” | A disc inside a thin ring. |
+| nabs so | “throne leg” | A turned, footed leg. |
+| rgyal | “rounded form” (fragment *ril ba'i dbyibs*) | A plain round form with a shadow; no drop shape is claimed. |
+| skag | expanded serpent hood — **secondary** | A hooded serpent with forked tongue and coils. |
+| mchu | “like a river” | A winding band with a current line. |
+| gre | “like a human leg” | A leg in profile. |
+| dbo | “throne” | A throne with back, seat and legs. |
+| me bzhi | “hand” | An open hand. |
+| nag pa | lotus seed-head — **secondary** | A lotus pod with seeds on its face. |
+| sa ri | “jewel” | A faceted gem. |
+| sa ga | OCR *ri mgo*; proposed *ra mgo*, goat head | Draws the **proposed** goat head (long face, curved horns, beard). The entry says the OCR reads ri mgo; a check of p. 322 is outstanding. |
+| lha mtshams | *glang po*, elephant | A whole elephant in profile, kept distinct from byi bzhin's ox head. |
+| snon | “steps, ladder” | A ladder. |
+| snubs | “scorpion” | From above, with claws and a curled tail. |
+| chu stod | “stūpa” | A Tibetan stūpa with steps, dome, spire, parasol, moon and sun. |
+| chu smad | “grain measure (bre)” | Filled with grain, after its passage's “life-star of grain” (*'bru yi bla*, L:10488) — the textual detail that tells it from gro bzhin. |
+| gro bzhin | “grain measure (bre)” | The same measure, empty, its inside showing. |
+| byi bzhin | *glang mgo*, ox head | Frontal, broad muzzle, wide horns. |
+| mon dre | “like a bird” | A perched bird. |
+| mon gru | “heap of flowers” | Six blossoms piled on a line; the damaged person-like alternative is not drawn. |
+| khrums stod | “cart” | A chariot on one spoked wheel, to stand apart from snar ma's secondary cart. |
+| khrums smad | ear — **secondary** | A human ear. |
+| nam gru | “boat”, 32 stars | A boat with a sail over water. |
+
+No deity is portrayed: the passages name deities but prescribe no bodies,
+faces, attributes or colours, and none is invented. Colour, line, halo and
+ornament are artistic treatment; the textual form and the star count are the
+source data.
+
+`node scripts/build-mansion-glyphs.cjs` renders each drawing to 256 × 256 pixels,
+quantises it to a 256-colour palette and stores it as lossless WebP: 148 KB for
+all 28. The same set was compared as lossy WebP (quality 82, about 400 KB) and
+as 32-bit PNG (909 KB); at twice the served size the palette version could not
+be told from the full-colour render on day or night skies. `--compare` writes
+the PNGs again for that comparison. Decoded on the graphics card the set is
+about 9.8 MB with mipmaps (28 × 256 × 256 × 4 bytes × 4⁄3); it is fetched only
+when the layer is first shown.
+
 ## Cloud and sky treatment
 
 The cloud renderer was revised using the two reference images supplied by the

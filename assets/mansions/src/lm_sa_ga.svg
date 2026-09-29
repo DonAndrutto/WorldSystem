@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+<!-- lm_sa_ga: sa ga / Viśākhā — Head: goat head (ra mgo) as a proposed reading (primary; White Beryl L:10402, p. 322) -->
+<defs><radialGradient id="h"><stop offset="0" stop-color="#fbf6e8" stop-opacity=".84"/><stop offset=".86" stop-color="#fbf6e8" stop-opacity=".84"/><stop offset="1" stop-color="#fbf6e8" stop-opacity="0"/></radialGradient></defs>
+<circle cx="128" cy="128" r="127" fill="url(#h)"/>
+<circle cx="128" cy="128" r="110" fill="none" stroke="#2b2a40" stroke-width="4"/>
+<g transform="translate(0 4)" stroke="#2b2a40" stroke-width="7" stroke-linejoin="round" stroke-linecap="round">
+<path d="M112 90 C100 64 78 54 62 64 C76 66 90 74 98 94 Z" fill="#e3bf66"/><path d="M102 110 C88 108 74 114 68 122 C82 126 96 122 104 118 Z" fill="#f3e3b4"/><g transform="translate(256 0) scale(-1 1)"><path d="M112 90 C100 64 78 54 62 64 C76 66 90 74 98 94 Z" fill="#e3bf66"/><path d="M102 110 C88 108 74 114 68 122 C82 126 96 122 104 118 Z" fill="#f3e3b4"/></g><path d="M128 178 C114 178 106 160 104 140 L100 106 C100 94 112 86 128 86 C144 86 156 94 156 106 L152 140 C150 160 142 178 128 178 Z" fill="#e3bf66"/><path d="M118 172 L128 200 L138 172 Z" fill="#f3e3b4"/><circle cx="116" cy="120" r="4.5" fill="#2b2a40" stroke="none"/><circle cx="140" cy="120" r="4.5" fill="#2b2a40" stroke="none"/>
+</g>
+<circle cx="155.8" cy="222.0" r="5.2" fill="#e3bf66" stroke="#2b2a40" stroke-width="2.2"/><circle cx="137.4" cy="225.5" r="5.2" fill="#e3bf66" stroke="#2b2a40" stroke-width="2.2"/><circle cx="118.6" cy="225.5" r="5.2" fill="#e3bf66" stroke="#2b2a40" stroke-width="2.2"/><circle cx="100.2" cy="222.0" r="5.2" fill="#e3bf66" stroke="#2b2a40" stroke-width="2.2"/>
+</svg>

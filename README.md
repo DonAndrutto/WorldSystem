@@ -58,6 +58,13 @@ magnifiers in the header make the writing in every window larger or smaller.
 | `assets/wheel-reference/` | The five photographs of the relief the wheel is made from. Not served. |
 | `assets/wheel/` | The relief in its layers, as WebP, about 2 MB. |
 | `tests/wheel-of-life.mjs` | The relief's layers, its parts and entries, and its view, without the rest of the page. |
+| `lunar-mansions.js` | The 28 lunar mansions of White Beryl: stable ids, the Tibetan order, and every association in its own field, with line, page and provenance. |
+| `mansion-layer.js` | The optional layer of 28 camera-facing glyphs on an illustrative ring, its picking and its selection. |
+| `mansion-ui.js`, `lunar-panels.js` | The mansion index (usable without WebGL), the remembered layer and selection, and the dock the two lunar pages share. |
+| `jyotisha.js`, `jyotisha-panel.js` | The separate Indian Jyotiṣa calculator (Lahiri ayanamsa): 27 sectors, time to one UTC instant, the form. Its engine is not integrated — see `docs/LUNAR-MANSIONS-STATUS.md`. |
+| `assets/mansions/` | The 28 glyphs as 256-pixel WebP, about 150 KB; `src/` holds their SVG sources, which are not served. |
+| `scripts/build-mansion-glyphs.cjs` | Draws the glyphs from the catalogue and rasterises them. |
+| `tests/lunar-mansions.mjs`, `tests/mansion-layer.mjs`, `tests/jyotisha.mjs` | The catalogue against the audit's own tables, the layer's picking and lifecycle, and the calculator's time and sector logic. |
 
 Serve the directory over HTTP and open it (not `file://` — the page uses ES
 modules, and no service worker will register from a file). It is published with
@@ -471,6 +478,33 @@ for it. In the maṇḍala view, seen from straight above with north at the top,
 four directions are lettered at the edge of the plate instead, with the Tibetan the
 offering names them by.
 
+## The 28 Lunar Mansions
+
+An optional layer, off until **Options → 28 Lunar Mansions → Show**: twenty-eight
+glyphs on a ring outside the circuit of the sun and moon, one for each lunar
+mansion (rgyu skar) of Desi Sangye Gyatso's *White Beryl*, read with Mipham's
+separately attributed notes. The ring is illustrative. Its equal places fall, in
+the catalogue's own order, into White Beryl's elemental directions — six to each
+cardinal direction, one to each intermediate one — and give no astronomical
+position. A glyph, a row of the **Index** beside it, the main index and the
+entry all select the same mansion; it is highlighted, framed from outside the
+ring, and **Return to previous view** puts the camera back. The layer and the
+selection are remembered on the device, and the index works without WebGL.
+
+Each entry keeps the textual form, the readable star count, the four-element
+and five-element assignments, the elemental direction, White Beryl's planetary
+ruler and the deity the passage names as separate facts, with the line and page
+of the supplied OCR. The four forms whose opening lines are lost (snar ma, skag,
+nag pa, khrums smad) follow a secondary table, and say so in words and with a
+dashed ring. The audit behind all of it is `docs/WHITE-BERYL-LUNAR-MANSIONS.md`.
+
+**Options → Jyotiṣa calculator** is a separate system: the Indian nakṣatra with
+the Lahiri ayanamsa. Its form checks the date, time, place and zone and resolves
+them to one UTC instant — a time that does not exist in a zone, or that happens
+twice, is said to be so — but its calculation engine is not integrated, and it
+says so rather than showing a result. `docs/LUNAR-MANSIONS-STATUS.md` records why
+and what remains.
+
 ## The wheel of life
 
 The fourth view is not a view of the model. It is the bhavacakra — the wheel of
@@ -721,6 +755,9 @@ node tests/offline.mjs
 node tests/wheel-of-life.mjs
 node tests/presentation-player.mjs
 node tests/thousand-worlds.mjs
+node tests/lunar-mansions.mjs
+node tests/mansion-layer.mjs
+node tests/jyotisha.mjs
 ```
 
 The maṇḍala suite runs the complete app script with real Three.js geometry and
@@ -797,6 +834,7 @@ none of them needs a development dependency:
 | `node scripts/build-fonts.cjs` | changing which cuts of EB Garamond or IBM Plex Mono the page sets |
 | `node scripts/build-locale.cjs <dir>` | folding a translator's worksheets into `locales/pl.js` and `locales/pl-texts.js` — it checks the markup, the square numbers and the names against the sources, and reports what it left out |
 | `python3 scripts/build-wheel-relief.py` | changing the wheel's reference photographs, or how they are corrected and cut — then `build-sw.cjs` |
+| `node scripts/build-mansion-glyphs.cjs` | changing a mansion glyph or the catalogue it is drawn from (needs `sharp`) — then `build-sw.cjs` |
 | `node scripts/build-sw.cjs` | **anything the page serves itself**: the page, a module, a painted sheet, an icon, the fonts, the library |
 
 The last one is the one that is easy to forget. `node tests/offline.mjs` fails

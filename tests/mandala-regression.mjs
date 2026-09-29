@@ -52,6 +52,15 @@ const html = fs.readFileSync(repo + '/index.html', 'utf8');
 const source = html.match(/<script type="module">([\s\S]*?)<\/script>/)[1].replace(/^import .*;\n/gm, '');
 const dom = new JSDOM(html, {url:'https://example.org/WorldSystem/', runScripts:'outside-only', pretendToBeVisual:true});
 const {window} = dom, document = window.document;
+// The lunar pages build their DOM when imported (lunar-panels.js runs ahead of
+// the page's own script and needs no WebGL), so they are imported against this
+// document, and their exports handed to the page as its import lines would.
+Object.assign(globalThis, {document, localStorage: window.localStorage, Event: window.Event,
+  matchMedia: q => window.matchMedia ? window.matchMedia(q) : {matches:false}});
+const lunarMansions = await import(pathToFileURL(repo + '/lunar-mansions.js'));
+const mansionLayerModule = await import(pathToFileURL(repo + '/mansion-layer.js'));
+const mansionUiModule = await import(pathToFileURL(repo + '/mansion-ui.js'));
+const lunarPanels = await import(pathToFileURL(repo + '/lunar-panels.js'));
 const textureRequests = [];
 const THREE = {...RealThree, TextureLoader: class {
   load(url, success, progress, failure) { textureRequests.push({url, success, failure}); }
@@ -68,6 +77,13 @@ Object.assign(window, {createOfferingModels, OFFERING_ART, offeringBackground, T
   createSoundKit: rbSound.createSoundKit, rbVoice: rbSound.voiceFor,
   createGame: rbGame.createGame, throwDie: rbGame.throwDie,
   rbView: rbGame.view, rbDestination: rbGame.destination
+}, {
+  MANSIONS: lunarMansions.MANSIONS, MANSION_BY_ID: lunarMansions.MANSION_BY_ID, ringAngle: lunarMansions.ringAngle,
+  glyphUrl: lunarMansions.glyphUrl, evidenceLine: lunarMansions.evidenceLine, CATALOGUE_SOURCE: lunarMansions.CATALOGUE_SOURCE,
+  createMansionLayer: mansionLayerModule.createMansionLayer,
+  mansionRows: mansionUiModule.associations, mansionNotes: mansionUiModule.readingNotes,
+  mansionUI: lunarPanels.mansionUI, adoptLunarPanels: lunarPanels.adopt,
+  lunarPanelsOpen: lunarPanels.lunarPanelsOpen, closeLunarPanels: lunarPanels.closeLunarPanels
 });
 let viewport = {w:1280, h:900}, reduced = false;
 window.matchMedia = query => ({matches:query.includes('reduced-motion') ? reduced
@@ -139,6 +155,9 @@ const app = await window.eval(`(async()=>{${source}\nreturn {
  state:()=>({mandala,mode,touring,tourIndex,pStep,playing,current,motion,motionPace,rbSelected,rbView3D,showHeapNumbers,lumSpin})
 };})()`);
 advance(1200);
+// the 28 Lunar Mansions start hidden and cost nothing until asked for
+assert.equal(document.querySelector('.lm-row [data-lm=layer]').getAttribute('aria-pressed'), 'false', 'the mansion layer starts off');
+assert.ok(!textureRequests.some(r => String(r.url).includes('assets/mansions/')), 'no glyph is fetched while the layer is off');
 const panels = ['.sheet','.mandala-note','.tour-panel','.index'];
 function panel(expected) {
   const visible=panels.filter(s=>!q(s).hidden);
@@ -1416,6 +1435,18 @@ app.setMode('explore'); advance(1200);
 assert.deepEqual(routes.worlds.map(stop => stop.id), WORLD_ORDERS, 'four stops, one order of a thousand each');
 assert.deepEqual(routes.worlds.map(stop => stop.level), [0, 1, 2, 3], 'each stop knows its order');
 assert.ok(routes.explore.every(stop => !stop.id.startsWith('worlds_')), 'the orders are zoomed out to, not visited');
+// the 28 Lunar Mansions: their own tour in the catalogue's order, and none of it in Explorer's
+assert.ok(routes.explore.every(stop => !stop.id.startsWith('lm_') && stop.id !== 'about_mansions'), 'the mansions do not lengthen the Explorer tour');
+assert.deepEqual(routes.mansions.map(stop => stop.id), lunarMansions.MANSIONS.map(m => m.id), 'the mansion tour follows the Tibetan order');
+const lmButtons = [...document.querySelectorAll('.lm-panel .lm-list .lm-open')];
+assert.equal(lmButtons.length, 28, 'the mansion index lists all 28');
+assert.ok(lmButtons.every(b => b.tagName === 'BUTTON' && b.type === 'button'), 'each selected with a native button');
+assert.equal(document.querySelectorAll('.lm-panel .lm-prov').length, 4, 'four entries say, in words, that their form is secondary');
+// the tours above include the mansions' own, which shows the layer while it
+// runs and then gives the reader's setting back, without remembering its own
+assert.equal(document.querySelector('.lm-row [data-lm=layer]').getAttribute('aria-pressed'), 'false', 'the layer is off again after the tour');
+assert.notEqual(window.localStorage.getItem('ws-mansions'), '1', 'the tour did not store the layer as on');
+for (const m of lunarMansions.MANSIONS) assert.ok(document.querySelector('.index .row[data-id="' + m.id + '"]'), m.id + ' is in the main index');
 for (const id of WORLD_ORDERS) assert.ok(q('.index .row[data-id="' + id + '"]'), id + ' is in the index');
 app.show('about_thousandfold', true); advance(200);
 assert.equal(app.zoomBtn.textContent, 'Zoom out', 'the note on a thousand worlds zooms out');
