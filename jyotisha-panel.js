@@ -4,8 +4,8 @@
  * stored and not sent anywhere.
  *
  * The form checks what it is given and resolves the local time to one UTC
- * instant; the engine (jyotisha-engine.js: @fusionstrings/panchangam, in this
- * browser, fetched the first time a calculation is asked for) does the rest.
+ * instant; the engine, through its adapter (jyotisha-engine.js: astronomy-engine,
+ * in this browser, fetched the first time a calculation is asked for), does the rest.
  * A result is shown only when the engine has produced it.
  */
 import { readInput, formatOffset, YEAR_MIN, YEAR_MAX, formatLongitude, parseDate, localDayBounds, localClock } from './jyotisha.js';
@@ -29,8 +29,8 @@ export function createJyotishaPanel({ doc = document, panel, provider = createEn
       <details class="jy-info"><summary>About this calculation</summary>
         <p>The Moon’s nakṣatra in the Indian system: twenty-seven equal sectors of the sidereal zodiac, measured with the Lahiri ayanamsa from a geocentric lunar position, with its pada and Vimshottari lord.</p>
         <p>The 28 Lunar Mansions catalogue follows Tibetan sources, chiefly White Beryl, and is a separate system. A result names the corresponding catalogue entry as a cross-reference only. The Vimshottari lord is not White Beryl’s planetary ruler, and the ring in the world is not used for the calculation.</p>
-        <p>Nirayana longitudes are reckoned as the Indian Astronomical Ephemeris reckons them: the apparent longitude less the true Lahiri ayanamsa. The tithi, yoga and karaṇa are those at local sunrise (udaya) on the date entered; the vāra runs from sunrise to sunrise. Times are the place’s local clock, to the minute.</p>
-        <p>Calculated in this browser with ${ENGINE.package} ${ENGINE.version} and the Swiss Ephemeris it contains; nothing entered is sent anywhere or kept.</p>
+        <p>The Lahiri ayanamsa is taken from its definition: 23°15′00.658″ on 21 March 1956, as adopted by the Calendar Reform Committee, carried forward by the precession of the equinoxes. Nirayana longitudes are the longitude on the true ecliptic of date less the true Lahiri ayanamsa. The tithi, yoga and karaṇa are those at local sunrise (udaya) on the date entered; the vāra runs from sunrise to sunrise. Times are the place’s local clock, to the minute.</p>
+        <p>Calculated in this browser with ${ENGINE.package} ${ENGINE.version} (MIT licence); nothing entered is sent anywhere or kept.</p>
       </details>
       <form class="jy-form" novalidate>
         <fieldset><legend>Date and time</legend>
