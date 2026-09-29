@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+<!-- lm_chu_smad: chu smad / Uttarāṣāḍhā — Grain measure (bre) (primary; White Beryl L:10487, p. 324) -->
+<defs><radialGradient id="h"><stop offset="0" stop-color="#fbf6e8" stop-opacity=".84"/><stop offset=".86" stop-color="#fbf6e8" stop-opacity=".84"/><stop offset="1" stop-color="#fbf6e8" stop-opacity="0"/></radialGradient></defs>
+<circle cx="128" cy="128" r="127" fill="url(#h)"/>
+<circle cx="128" cy="128" r="110" fill="none" stroke="#2b2a40" stroke-width="4"/>
+<g transform="translate(0 4)" stroke="#2b2a40" stroke-width="7" stroke-linejoin="round" stroke-linecap="round">
+<path d="M92 104 C100 64 156 58 182 96 Z" fill="#e3bf66"/><circle cx="118" cy="86" r="3" fill="#2b2a40" stroke="none"/><circle cx="138" cy="80" r="3" fill="#2b2a40" stroke="none"/><circle cx="156" cy="88" r="3" fill="#2b2a40" stroke="none"/><circle cx="128" cy="96" r="3" fill="#2b2a40" stroke="none"/><circle cx="108" cy="98" r="3" fill="#2b2a40" stroke="none"/><circle cx="166" cy="98" r="3" fill="#2b2a40" stroke="none"/><path d="M84 104 H172 L162 174 H94 Z" fill="#f3e3b4"/><path d="M172 104 L194 88 L184 158 L162 174 Z" fill="#e3bf66"/><path d="M89 138 H167" fill="none"/>
+</g>
+<circle cx="155.8" cy="222.0" r="5.2" fill="#e3bf66" stroke="#2b2a40" stroke-width="2.2"/><circle cx="137.4" cy="225.5" r="5.2" fill="#e3bf66" stroke="#2b2a40" stroke-width="2.2"/><circle cx="118.6" cy="225.5" r="5.2" fill="#e3bf66" stroke="#2b2a40" stroke-width="2.2"/><circle cx="100.2" cy="222.0" r="5.2" fill="#e3bf66" stroke="#2b2a40" stroke-width="2.2"/>
+</svg>

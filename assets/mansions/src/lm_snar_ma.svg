@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+<!-- lm_snar_ma: snar ma / Rohiṇī — Cart (secondary; White Beryl L:10185, p. 315) -->
+<defs><radialGradient id="h"><stop offset="0" stop-color="#fbf6e8" stop-opacity=".84"/><stop offset=".86" stop-color="#fbf6e8" stop-opacity=".84"/><stop offset="1" stop-color="#fbf6e8" stop-opacity="0"/></radialGradient></defs>
+<circle cx="128" cy="128" r="127" fill="url(#h)"/>
+<circle cx="128" cy="128" r="110" fill="none" stroke="#2b2a40" stroke-width="4" stroke-dasharray="15 11"/>
+<g transform="translate(0 4)" stroke="#2b2a40" stroke-width="7" stroke-linejoin="round" stroke-linecap="round">
+<path d="M80 86 H182 V132 H80 Z" fill="#f3e3b4"/><path d="M100 86 V132 M121 86 V132 M142 86 V132 M162 86 V132" fill="none"/><path d="M80 122 L36 134 M36 118 V150" fill="none"/><circle cx="104" cy="148" r="23" fill="#e3bf66"/><circle cx="104" cy="148" r="6" fill="#2b2a40" stroke="none"/><circle cx="160" cy="148" r="23" fill="#e3bf66"/><circle cx="160" cy="148" r="6" fill="#2b2a40" stroke="none"/>
+</g>
+
+</svg>

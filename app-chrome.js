@@ -200,6 +200,9 @@
     intro.querySelector('.intro-status').textContent = 'The world could not open. Please reload to try again.';
     const reload = intro.querySelector('[data-intro-reload]');
     reload.hidden = false; reload.disabled = false;
+    // the pages that need no drawing — the lunar mansion index and the
+    // calculator — are still there behind this, so the way past it stays open
+    intro.querySelector('.intro-skip').disabled = false;
   };
   const slowTimer = setTimeout(() => {
     if (ready) return;

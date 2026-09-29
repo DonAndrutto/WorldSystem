@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+<!-- lm_chu_stod: chu stod / Pūrvāṣāḍhā — Stūpa (primary; White Beryl L:10472, p. 324) -->
+<defs><radialGradient id="h"><stop offset="0" stop-color="#fbf6e8" stop-opacity=".84"/><stop offset=".86" stop-color="#fbf6e8" stop-opacity=".84"/><stop offset="1" stop-color="#fbf6e8" stop-opacity="0"/></radialGradient></defs>
+<circle cx="128" cy="128" r="127" fill="url(#h)"/>
+<circle cx="128" cy="128" r="110" fill="none" stroke="#2b2a40" stroke-width="4"/>
+<g transform="translate(0 4)" stroke="#2b2a40" stroke-width="7" stroke-linejoin="round" stroke-linecap="round">
+<path d="M70 166 H186 V182 H70 Z M80 152 H176 V166 H80 Z M90 140 H166 V152 H90 Z" fill="#f3e3b4"/><path d="M96 140 C96 106 108 90 128 90 C148 90 160 106 160 140 Z" fill="#e3bf66"/><path d="M113 80 H143 V90 H113 Z" fill="#f3e3b4"/><path d="M118 80 L122 50 H134 L138 80 Z" fill="#e3bf66"/><path d="M120 70 H136 M121 61 H135" fill="none"/><path d="M110 50 Q128 38 146 50 Z" fill="#f3e3b4"/><circle cx="128" cy="30" r="5" fill="#e3bf66"/><path d="M118 36 Q128 46 138 36" fill="none"/>
+</g>
+<circle cx="155.8" cy="222.0" r="5.2" fill="#e3bf66" stroke="#2b2a40" stroke-width="2.2"/><circle cx="137.4" cy="225.5" r="5.2" fill="#e3bf66" stroke="#2b2a40" stroke-width="2.2"/><circle cx="118.6" cy="225.5" r="5.2" fill="#e3bf66" stroke="#2b2a40" stroke-width="2.2"/><circle cx="100.2" cy="222.0" r="5.2" fill="#e3bf66" stroke="#2b2a40" stroke-width="2.2"/>
+</svg>

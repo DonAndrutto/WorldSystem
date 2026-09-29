@@ -51,6 +51,14 @@ oraz opisy pól wraz z cytowanymi strofami. Do decyzji tłumacza pozostają:
   rodzaj męski. Ten sam powód co wyżej: pole w tabeli nie niesie żadnego kontekstu
   poza samym słowem.
 
+- **28 domów księżycowych i kalkulator dźjotiszy**. Polskie teksty tej warstwy
+  (w ręcznej części `locales/pl.js`) są wersją roboczą do przejrzenia przez
+  tłumacza: „domy księżycowe” dla *rgyu skar*, „Biały beryl” dla *Vaiḍūrya dkar
+  po*, „lista czterech żywiołów” i „lista pięciu żywiołów”, „władca planetarny”
+  wobec „władcy Vimshottari”, „dźjotisza” i „ajanamsa Lahiriego”, a także
+  przekłady kształtów (np. „Owocostan lotosu”, „Miara zboża (bre)”). Nazwy
+  tybetańskie, transliteracja Wyliego i nazwy sanskryckie pozostają bez zmian.
+
 Wcześniejsza wersja pakietu podawała dla pól 57–104 nazwy przesunięte względem
 planszy: pole 59 (Shambhala) nosiło nazwę „Mahajana, stan arhata”, a pole 97 —
 „Nirwana”, czyli nazwę pola 104. Te wpisy usunięto i zastąpiono nowymi.

@@ -788,10 +788,75 @@
     display: flex; flex-direction: column; align-items: stretch; gap: 8px; z-index: 5;
   }
   .panel-dock[hidden], .panel-dock [hidden] { display: none !important; }
-  .panel-dock > .sheet, .panel-dock > .mandala-note, .panel-dock > .index, .panel-dock > .tour-panel {
+  .panel-dock > .sheet, .panel-dock > .mandala-note, .panel-dock > .index, .panel-dock > .tour-panel,
+  .panel-dock > .lm-panel, .panel-dock > .jy-panel {
     position: relative; inset: auto; transform: none; width: 100%; min-height: 0;
     max-height: 100%; margin: 0; flex: 0 1 auto; pointer-events: auto;
   }
+  /* ── the 28 Lunar Mansions and the Jyotiṣa calculator ─────────────────
+     two pages of the dock, read like the index: a head, then one scroll */
+  .lm-panel, .jy-panel { display: flex; flex-direction: column; padding: 0; border: 1px solid var(--rule); }
+  .lm-scroll, .jy-scroll { min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 12px 15px 16px; }
+  .lm-panel h2, .jy-panel h2 { margin: 0; font-weight: 400; font-size: 25px; line-height: 1.12; }
+  .lm-lede, .lm-note, .lm-calc, .jy-panel p { font-size: 14px; line-height: 1.45; color: var(--ink-2); margin: 8px 0 0; }
+  .lm-acts { display: flex; flex-wrap: wrap; gap: 6px; margin: 12px 0 4px; }
+  .lm-acts .btn, .jy-panel .btn { min-height: 40px; white-space: normal; }
+  .lm-about, .jy-info { margin: 10px 0 0; font-size: 14px; line-height: 1.45; }
+  .lm-about summary, .jy-info summary, .lm-more summary { cursor: pointer; color: var(--accent); min-height: 32px; padding: 6px 0; }
+  .lm-about p, .jy-info p { color: var(--ink-2); margin: 6px 0 0; }
+  .lm-warn { font-size: 14px; color: var(--ink); border-left: 2px solid var(--accent); padding-left: 9px; }
+  .vh { position: absolute !important; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+  .lm-list-head { font-weight: 400; font-size: 17px; margin: 16px 0 6px; }
+  .lm-list { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--rule); }
+  .lm-item { border-bottom: 1px solid var(--rule); padding: 6px 0 8px; }
+  .lm-h { margin: 0; font-weight: 400; font-size: inherit; }
+  .lm-open {
+    display: flex; align-items: baseline; gap: 10px; width: 100%; min-height: 44px; padding: 6px 8px;
+    text-align: left; font: inherit; color: var(--ink); background: none; border: 1px solid transparent;
+    border-radius: 6px; cursor: pointer;
+  }
+  .lm-open:hover { background: var(--hi-2, rgba(122,90,46,.08)); }
+  .lm-open[aria-current="true"] { border-color: var(--accent); background: var(--hi-2, rgba(122,90,46,.1)); }
+  .lm-n { flex: none; min-width: 1.6em; font-family: "IBM Plex Mono", monospace; font-size: 12px; color: var(--accent); }
+  .lm-names { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 10px; }
+  .lm-names .bo, .lm-panel .bo, .sheet dd .bo {
+    font-family: "Noto Serif Tibetan", "Noto Sans Tibetan", "Jomolhari", "Tibetan Machine Uni", "Microsoft Himalaya", "Kailasa", Georgia, serif;
+    font-size: 19px; line-height: 1.6; font-style: normal; }
+  .lm-more dd .bo, .sheet dd .bo { display: block; font-size: 17px; }
+  .lm-names .wy { font-style: italic; font-size: 16px; }
+  .lm-names .sa { font-size: 15px; color: var(--ink-2); }
+  .lm-form { margin: 0 0 0 calc(1.6em + 18px); font-size: 14px; color: var(--ink-2); }
+  .lm-prov, .lm-alias { font-size: 11.5px; letter-spacing: .03em; }
+  .lm-prov { border: 1px dashed var(--ink-3); border-radius: 4px; padding: 0 5px; margin-left: 4px; color: var(--ink); white-space: nowrap; }
+  .lm-alias { color: var(--ink-3); margin-left: 4px; font-style: italic; }
+  .lm-more { margin: 2px 0 0 calc(1.6em + 18px); font-size: 14px; }
+  .lm-more dl, .jy-out { display: grid; grid-template-columns: minmax(0, 11em) minmax(0, 1fr); gap: 4px 10px; margin: 4px 0 0; }
+  .lm-more dt, .jy-out dt { font-size: 12px; color: var(--ink-3); line-height: 1.4; }
+  .lm-more dd, .jy-out dd { margin: 0; line-height: 1.4; }
+  .lm-panel .wy, .sheet dd .wy { font-style: italic; }
+  .lm-reading { font-size: 13px; color: var(--ink-2); margin: 6px 0 0; border-left: 2px solid var(--rule-2); padding-left: 8px; }
+  .lm-more .btn { margin-top: 8px; }
+  .btn.link { border: 0; background: none; padding: 0; min-height: 0; text-align: left; color: var(--accent); text-decoration: underline; text-underline-offset: 2px; font: inherit; cursor: pointer; }
+  .jy-provider { border: 1px solid var(--rule-2); border-radius: 6px; padding: 8px 10px; color: var(--ink) !important; }
+  .jy-form fieldset { border: 0; border-top: 1px solid var(--rule); margin: 12px 0 0; padding: 8px 0 0; min-width: 0; }
+  .jy-form legend { font-size: 15px; padding: 0; }
+  .jy-form label { display: block; font-size: 14px; margin: 8px 0 3px; }
+  .jy-form label.jy-radio, .jy-choice label { display: flex; align-items: center; gap: 8px; min-height: 36px; margin: 2px 0; }
+  .jy-form input[type="date"], .jy-form input[type="time"], .jy-form input[type="text"] {
+    width: 100%; min-height: 44px; font: inherit; font-size: 16px; padding: 7px 9px;
+    color: var(--ink); background: var(--paper); border: 1px solid var(--rule-2); border-radius: 6px;
+  }
+  .jy-form input[aria-invalid="true"] { border: 2px solid var(--accent); }
+  .jy-hint { font-size: 12px; color: var(--ink-3); }
+  .jy-hint-block { margin: 2px 0 0 !important; }
+  .jy-err { font-size: 13.5px; color: var(--ink) !important; margin: 4px 0 0 !important; }
+  .jy-err::before { content: "⚠ "; }
+  .jy-choice { border: 1px solid var(--rule-2) !important; border-radius: 6px; padding: 6px 10px !important; }
+  .jy-form .btn.go { margin-top: 14px; min-height: 44px; width: 100%; }
+  .jy-device { margin-top: 6px; font-size: 13px !important; }
+  .jy-result { margin-top: 16px; border-top: 1px solid var(--rule); padding-top: 8px; }
+  .jy-result h3 { font-weight: 400; font-size: 17px; margin: 0; }
+  .jy-result .btn { margin-top: 10px; }
   .panel-dock > .index { border: 1px solid var(--rule); padding-bottom: 16px; }
   /* the rose keeps clear of the dock, which is wider than the drawer whose
      width the offset was written for */
@@ -861,7 +926,12 @@
        third of the screen, still turning, still there to go back to. */
     .panel-dock { left: 9px; right: 9px; top: auto; bottom: calc(66px + var(--sa-b));
       width: auto; max-height: min(62dvh, calc(100dvh - 126px - var(--sa-b) - var(--sa-t))); }
-    .panel-dock > .sheet, .panel-dock > .mandala-note, .panel-dock > .index, .panel-dock > .tour-panel { max-height: inherit; }
+    .panel-dock > .sheet, .panel-dock > .mandala-note, .panel-dock > .index, .panel-dock > .tour-panel,
+    .panel-dock > .lm-panel, .panel-dock > .jy-panel { max-height: inherit; }
+    .lm-form, .lm-more { margin-left: 0; }
+    .lm-more dl, .jy-out { grid-template-columns: minmax(0, 1fr); gap: 0 0; }
+    .lm-more dd, .jy-out dd { margin-bottom: 6px; }
+    .lm-panel h2, .jy-panel h2 { font-size: 21px; }
     .tour-panel { padding: 12px; }
     /* Two placards the height of a thumb, to say which of two views is open,
        at the head of a panel that has half a phone to say everything else in.
@@ -1778,6 +1848,16 @@
           </span>
         </div>
         <button class="btn" data-act="night" type="button" aria-pressed="false" title="Night — n"><span class="g">☾</span><span class="t">Night</span></button>
+        <!-- the 28 Lunar Mansions: a layer in the world and an index beside it
+             (mansion-ui.js); the Indian calculator is a separate page -->
+        <div class="menu-row lm-row" role="group" aria-label="28 Lunar Mansions">
+          <span class="g" aria-hidden="true">✧</span><span class="t">28 Lunar Mansions</span>
+          <span class="seg">
+            <button class="btn" type="button" data-lm="layer" aria-pressed="false" title="Show the 28 Lunar Mansions in the world">Show</button>
+            <button class="btn" type="button" data-lm="index" title="The index of the 28 Lunar Mansions">Index</button>
+          </span>
+        </div>
+        <button class="btn" data-act="jyotisha" type="button" title="Indian Jyotiṣa calculation · Lahiri ayanamsa"><span class="g">☽</span><span class="t">Jyotiṣa calculator</span></button>
         <label class="btn sw" for="g-sound" title="Sound — the voice each square answers in"><span class="g">♪</span><span class="t">Sound</span><input type="checkbox" id="g-sound"></label>
         <div class="menu-row lang" role="group" aria-label="The language names are given in">
           <span class="g" aria-hidden="true">ཨ</span><span class="t">Names</span>
@@ -2003,12 +2083,18 @@
       <button class="btn zoom" type="button">Zoom in</button>
       <button class="btn" type="button" data-sheet="tour" hidden>Tour from here</button>
       <button class="btn" type="button" data-sheet="back" hidden>Back to recitation</button>
+      <button class="btn" type="button" data-sheet="lm-return" hidden>Return to previous view</button>
+      <button class="btn" type="button" data-sheet="lm-index" hidden>Mansion index</button>
       <div class="stepper">
         <button class="btn prev" type="button" title="Previous entry">←</button>
         <button class="btn next" type="button" title="Next entry">→</button>
       </div>
     </footer>
   </section>
+
+  <!-- built by lunar-panels.js, and usable without WebGL -->
+  <section class="lm-panel card" aria-labelledby="lm-title" hidden></section>
+  <section class="jy-panel card" aria-labelledby="jy-title" hidden></section>
 
   <nav class="index card scroll" hidden>
     <div class="head">
@@ -2032,6 +2118,7 @@
 <script src="locales/pl.js"></script>
 <script src="presentation-locales.js"></script>
 <script src="app-chrome.js"></script>
+<script type="module" src="lunar-panels.js"></script>
 <script type="module">
 import { createOfferingModels, OFFERING_ART, offeringBackground } from './mandala-offerings.js';
 import { TOUR_NOTES } from './mandala-tour.js';
@@ -2053,6 +2140,10 @@ import { drawWheel } from './wheel-art.js';
 import { createWheelView } from './wheel-view.js';
 import { WHEEL_ENTRIES, WHEEL_TREE, WHEEL_ALSO } from './wheel-notes.js';
 import { composeGameFocus, composeGameOverview, orbitFlightPoint } from './game-camera.js';
+import { MANSIONS, MANSION_BY_ID, ringAngle, glyphUrl, evidenceLine, CATALOGUE_SOURCE } from './lunar-mansions.js';
+import { createMansionLayer } from './mansion-layer.js';
+import { associations as mansionRows, readingNotes as mansionNotes } from './mansion-ui.js';
+import { mansionUI, adopt as adoptLunarPanels, lunarPanelsOpen, closeLunarPanels } from './lunar-panels.js';
 const stage = document.querySelector('three-d-stage');
 /* Everything below this line is built on three.js, and three.js arrives over
    the network. Where it does not — a phone that lost the connection between
@@ -2990,6 +3081,26 @@ const MOON_LAG = Math.PI * 0.72;
     LUMINARIES.push({ base: a, r: RIM * 0.88, h: yv(40000), objs: [d, s, ring, hit] });
   }
 );
+
+/* ── The 28 Lunar Mansions ──────────────────────────────────────────────
+   An optional layer, off until asked for: one glyph for each mansion of the
+   White Beryl catalogue, facing the camera, on a ring at the height of the
+   sun and moon and well outside their circuit. The ring's equal places and
+   its grouping by the source's elemental directions are illustrative (see
+   lunar-mansions.js); nothing measures a longitude from them. The layer
+   stands in the scene rather than in the world group, so the world's own
+   picking, bounds and selection never see it; it is picked on its own, and
+   only while it is shown. */
+const MANSION_RING = RIM * 1.14;
+const MANSION_SIZE = MANSION_RING * 2 * Math.PI / 28 * 0.5;    // half of each place, so neighbours never touch
+const mansionLayer = createMansionLayer({
+  THREE, mansions: MANSIONS, ringAngle, urlOf: glyphUrl,
+  // just above the luminaries' plane, so a glyph and the sun are never at one height
+  radius: MANSION_RING, height: yv(40000) + MANSION_SIZE * 0.8, size: MANSION_SIZE
+});
+stage._scene.add(mansionLayer.group);
+/* the view the reader was at before a mansion was framed, to go back to */
+let mansionReturn = null;
 
 /* ── The heavens above the summit ─────────────────────────────────────
    Śakra's palace stands on Meru's peak; above it the twenty-one levels rise
@@ -4433,6 +4544,38 @@ def('rebirth_game', {
    they belong to; they join the index here like any other. */
 Object.entries(WHEEL_ENTRIES).forEach(([id, o]) => def(id, o));
 
+/* — the 28 Lunar Mansions ——————————————————————————————————————
+   One entry each, from lunar-mansions.js, with every association under its
+   own label (mansion-ui.js sets the same rows out in the mansion index). The
+   Indian calculator's sectors and lords are a separate system and are not
+   entries here. */
+def('about_mansions', {
+  t: 'The 28 Lunar Mansions', meta: 'White Beryl · an optional layer', k: 'rgyu skar',
+  tib: 'རྒྱུ་སྐར་ཉི་ཤུ་རྩ་བརྒྱད',
+  f: [['Source', 'White Beryl, Desi Sangye Gyatso'], ['Clarified by', 'Mipham, appended notes'],
+      ['In the world', 'An illustrative ring, off until shown']],
+  b: ['White Beryl names twenty-eight lunar mansions and treats each in turn: its form, its stars, its element and the deity its passage names. This model follows its Tibetan sequence, beginning with tha skar (dbyu gu). Because gro bzhin and byi bzhin share one allotment, the count becomes twenty-seven when the two are combined.',
+      'Shown in the world, the twenty-eight stand in equal places on a ring outside the circuit of the sun and moon, grouped by White Beryl’s elemental directions: six to each cardinal direction and one to each intermediate one. The arrangement is illustrative and gives no astronomical positions.',
+      'The drawings are modern interpretations of the textual forms. The four whose opening lines are lost in the supplied text follow a secondary table and are marked as such. Every entry keeps the four-element and five-element assignments, the direction, the planetary ruler and the deity named in the passage as separate facts.',
+      'Mipham’s notes on elemental astrology, appended to the same volume, clarify difficult points in White Beryl and are cited as his own work. The Indian Jyotiṣa calculator, with the Lahiri ayanamsa, is a separate system.'],
+  rel: ['lm_tha_skar', 'lm_byi_bzhin', 'lm_nam_gru'],
+  src: CATALOGUE_SOURCE.title + ', ' + CATALOGUE_SOURCE.author + '; count ' + CATALOGUE_SOURCE.count.split(':')[0]
+     + '; elements ' + CATALOGUE_SOURCE.elements + '; directions ' + CATALOGUE_SOURCE.directions + '; rulers ' + CATALOGUE_SOURCE.rulers
+     + '. Mipham, <i>nag rtsis brjed byang snying po gsal ba</i>, L p. 474 ff. Working translations after the audit of the supplied OCR.'
+});
+MANSIONS.forEach((m, i) => def(m.id, {
+  t: m.wylie, tib: m.tibetan, en: m.sanskrit, k: m.sanskrit,
+  meta: 'Lunar mansion · White Beryl',
+  f: [['Order', String(m.order)]].concat(mansionRows(m)),
+  b: ['<b>' + m.form.en + '</b>'].concat(mansionNotes(m),
+    m.aliases.map((a) => 'Also written <i>' + a.wylie + '</i>.'),
+    [m.provenance === 'secondary'
+      ? 'The drawing follows the secondary source and is set inside a dashed ring.'
+      : 'The drawing is a modern interpretation of the textual form.']),
+  rel: [MANSIONS[(i + 27) % 28].id, MANSIONS[(i + 1) % 28].id, 'about_mansions'],
+  src: evidenceLine(m) + '. ' + CATALOGUE_SOURCE.title + ', ' + CATALOGUE_SOURCE.author + '. Working translation.'
+}));
+
 const TREE = [
   ['Notes on the drawing', [
     ['about'], ['about_scale'], ['about_yojana'], ['about_time'],
@@ -4478,6 +4621,7 @@ const TREE = [
   ['The eight cold hells', COLD_DATA.map(([id]) => [`cold_${id}`])],
   ['The other destinies', [['preta_realm'], ['animals'], ['humans']]],
   ['A thousand worlds', WORLD_ORDERS.map(id => [id])],
+  ['The 28 Lunar Mansions', [['about_mansions']].concat(MANSIONS.map((m) => [m.id, m.order + '. ' + m.wylie]))],
   ['The mandala of thirty-seven', [['about_mandala']].concat(
     HEAPS.map(([n, id]) => [id, n + '. ' + (E[id] ? E[id].t : id)])
   )]
@@ -4522,6 +4666,7 @@ function applyTheme(on) {
   M.moonDisc.emissiveIntensity = on ? 0.62 : 0.62;
   M.moonGlow.opacity = on ? 0.8 : 0.62;
   M.formless.color.setHex(on ? 0xb9b09a : 0x8a8578);
+  mansionLayer.setNight(on);
   SEA_FOG.color.setHex(on ? 0x0b2942 : 0x14506a);
   setSky(on);
   paintBoardSky();
@@ -4633,6 +4778,7 @@ function show(id, reveal) {
   const e = E[id];
   if (!e) return;
   setOpen(false, false);
+  closeLunarPanels();
   pausePlay();
   // These figures belong to the offering diagram. Entries remain reachable
   // from the ordinary index, including before mandala mode has been opened.
@@ -4650,6 +4796,8 @@ function show(id, reveal) {
   invalidate(3);
   clearPick();
   current = id;
+  // an entry of the 28 is the same selection as its glyph and its index row
+  if (/^lm_/.test(id) && mansionUI.selected !== id && !presentationActive()) mansionUI.select(id, { source: 'entry', announce: false });
   if (mode === 'wheel') wheelView.select(wheelPart(id));
   const ms = meshesFor(id);
   ms.forEach((m) => {
@@ -4689,16 +4837,26 @@ function show(id, reveal) {
   // Source entries are authored with the app, including linked text and licence credits.
   sSrc.innerHTML = e.src || '';
   sSrc.hidden = !e.src;
-  zoomBtn.disabled = !ms.length && !(mode === 'wheel' && wheelPart(id)) && worldsStop(id) === null;
+  zoomBtn.disabled = !ms.length && !(mode === 'wheel' && wheelPart(id)) && worldsStop(id) === null && !MANSION_BY_ID.has(id);
   syncZoom();
   sheet.hidden = false;
   sScroll.scrollTop = 0;
   const art = OFFERING_ART.get(id);
   const square = /^rebirth_sq_(\d+)$/.exec(id);
   const field = square ? SQUARE_ART.get(Number(square[1])) : null;
-  entryArt.hidden = !art && !field;
-  entryArt.classList.toggle('field', !!field);
-  if (art || field) {
+  const glyph = MANSION_BY_ID.get(id);
+  entryArt.hidden = !art && !field && !glyph;
+  entryArt.classList.toggle('field', !!field || !!glyph);
+  if (glyph) {
+    const image = entryArt.querySelector('div');
+    image.style.backgroundImage = 'url("' + glyphUrl(id) + '")';
+    image.style.backgroundPosition = 'center';
+    image.style.backgroundSize = 'contain';
+    image.style.aspectRatio = '';
+    image.setAttribute('aria-label', glyph.form.en);
+    entryArt.querySelector('figcaption').textContent = glyph.provenance === 'secondary'
+      ? 'Modern drawing after a secondary source' : 'Modern drawing of the textual form';
+  } else if (art || field) {
     const image = entryArt.querySelector('div');
     const where = field ? cellBackground(field) : offeringBackground(art);
     image.style.backgroundImage = 'url("' + (field ? field.sheet : art.url) + '")';
@@ -4713,6 +4871,7 @@ function show(id, reveal) {
   sheetTour.hidden = !HEAP_NUMBERS.has(id) || touring;
   sheetBack.hidden = !mandala && !guidedMode;
   sheetBack.textContent = presentationActive() ? 'Back to tour' : 'Back to recitation';
+  syncMansionSheet();
   const pos = order.indexOf(id);
   prevBtn.disabled = pos <= 0;
   nextBtn.disabled = pos < 0 || pos >= order.length - 1;
@@ -4735,6 +4894,12 @@ const step = (d) => {
 /* In the game the entry opens a contextual world visit, even from the 2D
    board. The explorer retains its ordinary object inspection control. */
 function syncZoom() {
+  // a mansion is shown where its glyph stands, turning the layer on if need be
+  if (current && MANSION_BY_ID.has(current)) {
+    zoomBtn.hidden = false;
+    zoomBtn.textContent = 'Show in world';
+    return;
+  }
   // the orders of a thousand are not a place to zoom in on; they are zoomed out to
   if (current && worldsStop(current) !== null) {
     zoomBtn.hidden = false;
@@ -4763,6 +4928,7 @@ sheet.addEventListener('click', (ev) => {
 sheet.querySelector('.x').addEventListener('click', close);
 zoomBtn.addEventListener('click', () => {
   if (!current) return;
+  if (MANSION_BY_ID.has(current)) { mansionUI.select(current, { source: 'show' }); return; }
   const order = worldsStop(current);
   if (order !== null) {
     // from the note, or from one world, the first zoom out; from an order, that order
@@ -5189,6 +5355,7 @@ function aimAt(centre, dist, fr, direction = null, dur) {
 
 function home() {
   cam.clearViewOffset();
+  mansionReturn = null;
   // a phone with a panel up has no room for the opening view; frame what is left
   if (tightScreen() && !dock.hidden) { reframeExplore(900); return; }
   fly(HOME.p.clone(), HOME.t.clone(), 900);
@@ -5452,12 +5619,13 @@ function syncChrome() {
   indexEl.hidden = !indexOpen;
   indexEl.inert = !indexOpen;
   if (indexOpen) sheet.hidden = true;
-  noteEl.hidden = !mandala || touring || !sheet.hidden || indexOpen;
-  tourEl.hidden = !presentationActive() || !sheet.hidden || indexOpen;
+  const lunarOpen = lunarPanelsOpen();
+  noteEl.hidden = !mandala || touring || !sheet.hidden || indexOpen || lunarOpen;
+  tourEl.hidden = !presentationActive() || !sheet.hidden || indexOpen || lunarOpen;
   boardEl.hidden = mode !== 'game';
   wheelEl.hidden = mode !== 'wheel';
   document.body.classList.toggle('wheel-on', mode === 'wheel');
-  dock.hidden = sheet.hidden && noteEl.hidden && tourEl.hidden && !indexOpen;
+  dock.hidden = sheet.hidden && noteEl.hidden && tourEl.hidden && !indexOpen && !lunarOpen;
   // the wheel is framed in what the panels leave of the screen, as the world is
   if (mode === 'wheel' && dock.hidden !== dockWas && wheelView) setTimeout(() => wheelView.resize(), 90);
   /* the board yields width to an open panel, so the world it leaves changes
@@ -5925,8 +6093,10 @@ const goTo = (id) => {
 
 /* Presentation playback has its own timer; recitation never advances a tour. */
 const PRESENTATION_TOURS = createPresentationTours({
-  entries: E, tree: TREE, heaps: HEAPS, squares: RB_SQUARES, wheelTree: WHEEL_TREE, resolveEntry: entryFor
+  entries: E, tree: TREE, heaps: HEAPS, squares: RB_SQUARES, wheelTree: WHEEL_TREE, resolveEntry: entryFor,
+  mansions: MANSIONS.map((m) => m.id)
 });
+let tourPreviousLayer = null;
 HEAPS.forEach(([number, id]) => {
   const option = document.createElement('option');
   option.value = String(number - 1);
@@ -6043,11 +6213,17 @@ function endTour(overview = true) {
   if (overview) mandalaFly(700);
 }
 function startPresentation(next = mode, at = 0) {
-  if (!['explore', 'mandala', 'game', 'wheel', 'worlds'].includes(next)) return;
+  if (!['explore', 'mandala', 'game', 'wheel', 'worlds', 'mansions'].includes(next)) return;
   if (next === 'mandala') { startTour(); return; }
   if (presentationActive()) endPresentation(false);
-  // the thousand worlds are zoomed out to from the world itself, in Explorer
-  setMode(next === 'worlds' ? 'explore' : next);
+  // the thousand worlds are zoomed out to from the world itself, in Explorer;
+  // the tour of the 28 visits their glyphs there, showing the layer for its length
+  setMode(next === 'worlds' || next === 'mansions' ? 'explore' : next);
+  if (next === 'mansions') {
+    closeLunarPanels();
+    tourPreviousLayer = mansionUI.layer;
+    mansionUI.setLayer(true, { remember: false });
+  }
   pausePlay();
   setOpen(false, false);
   closeMenus();
@@ -6088,6 +6264,7 @@ function renderGuidedStop(state, move = true) {
   tourEl.querySelector('.tour-scroll').scrollTop = 0;
   if (guidedMode === 'game' && /^rebirth_sq_/.test(stop.id)) rbSelect(Number(stop.id.slice(11)), false);
   if (guidedMode === 'wheel') wheelView.select(wheelPart(stop.id));
+  else if (guidedMode === 'mansions') { mansionLayer.select(stop.id); invalidate(3); }
   else tintOnly(stop.id);
   syncChrome();
   if (move) framePresentationStop();
@@ -6101,7 +6278,9 @@ function framePresentationStop() {
     worldsGo(stop.level, cosmos !== null && cosmos.level === stop.level ? 420 : 1800);
     return;
   }
-  if (guidedMode === 'wheel') {
+  if (guidedMode === 'mansions') {
+    frameMansion(stop.id, false);
+  } else if (guidedMode === 'wheel') {
     wheelView.resize();
     const part = wheelPart(stop.id) || E[stop.id]?.rel?.find(id => wheelPart(id));
     if (part) wheelView.focus(wheelPart(part)); else wheelView.home();
@@ -6143,6 +6322,13 @@ function endPresentation(overview = true) {
   sheet.hidden = true;
   clearPick(); current = null;
   if (previous === 'wheel') wheelView.select(null);
+  if (previous === 'mansions') {
+    // the layer and the highlight go back to what the reader had chosen
+    mansionUI.setLayer(tourPreviousLayer, { remember: false });
+    tourPreviousLayer = null;
+    mansionLayer.select(mansionUI.selected);
+    mansionFramed = null;
+  }
   syncChrome();
   if (previous === 'game' && tourReturnLayout) rbLayout(tourReturnLayout, false, false);
   if (previous === 'game' && tourPreviousSelection !== null) rbSelect(tourPreviousSelection, false);
@@ -6234,7 +6420,10 @@ TREE.forEach(([group, rows]) => {
     b.innerHTML = '<span class="n">' + (label || e.t) + '</span><span class="k">' + (e.k || '') + '</span>';
     b.dataset.search = ((label || '') + ' ' + e.t + ' ' + (e.en || '') + ' ' +
       (e.tib || '') + ' ' + (e.meta || '') + ' ' + group).toLowerCase();
-    b.addEventListener('click', () => { show(e.id, false); goTo(e.id); });
+    b.addEventListener('click', () => {
+      if (MANSION_BY_ID.has(e.id)) { mansionUI.select(e.id, { source: 'index' }); return; }
+      show(e.id, false); goTo(e.id);
+    });
     body.appendChild(b);
   });
   head.innerHTML = '<span>' + group + '</span><span class="c">' + n + ' <b>&#9662;</b></span>';
@@ -6270,7 +6459,7 @@ search.addEventListener('input', () => {
 /* ── controls ────────────────────────────────────────────────────────── */
 const indexBtn = document.querySelector('[data-act="index"]');
 const setOpen = (open, reframeView = true) => {
-  if (open) { pausePlay(); tourPlayer?.pause(); }
+  if (open) { pausePlay(); tourPlayer?.pause(); closeLunarPanels(); }
   document.body.classList.toggle('index-open', open);
   syncChrome();
   indexBtn.setAttribute('aria-pressed', String(open));
@@ -7512,7 +7701,8 @@ function reframeCurrent(dur = 420) {
   else if (mode === 'game') {
     if (gameFocus) rbFrameFocus(dur);
     else if (!rbFrameFollow(dur)) reframeGame(dur, rbSelected === null ? null : rbBoard.positionOf(rbSelected));
-  } else if (tightScreen() && !dock.hidden) reframeExplore(dur);
+  } else if (mansionFramed && mansionLayer.group.visible) frameMansion(mansionFramed, false);
+  else if (tightScreen() && !dock.hidden) reframeExplore(dur);
 }
 function enterGame() {
   close();
@@ -7581,6 +7771,7 @@ function setMode(next) {
   syncModeButtons();
   syncChrome();
   syncHome();
+  syncMansionLayer();
   document.dispatchEvent(new CustomEvent('ws-mode-change', { detail: { mode } }));
   invalidate(4);
 }
@@ -7797,6 +7988,107 @@ rbLayout(savedGameView || 'board', false);
 rbSetTibetan(savedTibetan === '1');
 syncHome();
 
+/* ── the 28 Lunar Mansions, in the world ─────────────────────────────────
+   The layer is shown only in Explorer, only when the reader has asked for
+   it; hidden, it is skipped by the renderer and by picking alike, and its
+   glyphs stay loaded for the next time. A mansion chosen anywhere — its
+   glyph, its row in either index, its entry, a calculator result — is one
+   selection (mansion-ui.js), highlighted here and framed from outside the
+   ring with the world behind it. The view before the first framing is kept
+   so it can be returned to. */
+let mansionFramed = null;
+function syncMansionLayer() {
+  const on = mansionUI.layer && mode === 'explore';
+  if (on === mansionLayer.group.visible) return;
+  mansionLayer.setVisible(on);
+  if (on) mansionLayer.ensureLoaded().then((r) => {
+    invalidate(3);
+    mansionUI.warn(r.failed.length ? r.failed.length + ' of the 28 drawings did not load. They are asked for again the next time the layer is shown.' : null);
+  });
+  if (!on) mansionFramed = null;
+  invalidate(3);
+}
+function syncMansionSheet() {
+  const on = MANSION_BY_ID.has(current) || current === 'about_mansions';
+  sheet.querySelector('[data-sheet="lm-return"]').hidden = !(on && mansionReturn);
+  sheet.querySelector('[data-sheet="lm-index"]').hidden = !on || presentationActive();
+}
+function frameMansion(id, remember = true) {
+  const c = mansionLayer.centreOf(id);
+  if (!c || !mansionLayer.group.visible) return;
+  if (remember && !mansionReturn) mansionReturn = { p: cam.position.clone(), t: ctr.target.clone() };
+  mansionFramed = id;
+  // from outside the ring and a little above it, looking back in over the world
+  const dir = new THREE.Vector3(c.x, Math.hypot(c.x, c.z) * 0.42, c.z).normalize();
+  const fr = freeRect();
+  const h = Math.max(stage.clientHeight, 1);
+  const half = Math.tan(cam.fov * Math.PI / 360);
+  // the highlighted glyph takes about a fifth of the free rectangle's short side,
+  // leaving its neighbours on the ring and the world behind it in view
+  const dist = mansionLayer.size * 1.28 * h / (2 * half * 0.2 * Math.max(80, Math.min(fr.w, fr.h)));
+  aimAt(c, dist, fr, dir);
+  syncMansionSheet();
+  mansionUI.sync();
+}
+function returnFromMansion() {
+  if (!mansionReturn) return;
+  const { p, t } = mansionReturn;
+  mansionReturn = null;
+  mansionFramed = null;
+  fly(p, t, 800);
+  syncMansionSheet();
+  mansionUI.sync();
+}
+ctr.addEventListener('start', () => { mansionFramed = null; });
+const frameSoon = (id) => setTimeout(() => { if (mansionUI.selected === id || guidedMode === 'mansions') frameMansion(id); }, 90);
+mansionUI.on('layer', () => syncMansionLayer());
+mansionUI.on('select', (id, source) => {
+  mansionLayer.select(id);
+  invalidate(3);
+  if (!id) { mansionFramed = null; syncMansionSheet(); return; }
+  if (source === 'entry') { if (mansionLayer.group.visible) frameSoon(id); return; }
+  if (source === 'show') {
+    if (presentationActive()) endPresentation(false);
+    if (mode !== 'explore') { setMode('explore'); mansionReturn = { p: HOME.p.clone(), t: HOME.t.clone() }; }
+    if (!mansionUI.layer) mansionUI.setLayer(true);
+  }
+  if (current !== id || sheet.hidden) show(id, true);
+  if (mansionLayer.group.visible) frameSoon(id);
+});
+mansionUI.on('tour', () => startPresentation('mansions'));
+sheet.querySelector('[data-sheet="lm-return"]').addEventListener('click', returnFromMansion);
+sheet.querySelector('[data-sheet="lm-index"]').addEventListener('click', () => mansionUI.setOpen(true));
+adoptLunarPanels({
+  sync: syncChrome,
+  // a lunar page takes the dock as any panel does: the others give way
+  beforeOpen: () => {
+    closeMenus();
+    if (!presentationActive() && !sheet.hidden) close();
+    setOpen(false, false);
+  }
+});
+mansionUI.bindWorld({ canReturn: () => !!mansionReturn, returnView: returnFromMansion });
+/* read-only, as WorldSystemTours is: where a glyph is on screen, for checks
+   that click the world itself (tests/browser-ui.mjs) */
+window.WorldSystemMansions = {
+  get visible() { return mansionLayer.group.visible; },
+  get selected() { return mansionUI.selected; },
+  get loaded() { return mansionLayer.loadedCount; },
+  screenPoint(id, du = 0, dv = 0) {
+    const s = mansionLayer.byId.get(id);
+    if (!s) return null;
+    // du, dv: an offset within the glyph's own square, in fractions of its side
+    const right = new THREE.Vector3().setFromMatrixColumn(cam.matrixWorld, 0);
+    const up = new THREE.Vector3().setFromMatrixColumn(cam.matrixWorld, 1);
+    const p = s.position.clone().addScaledVector(right, du * s.scale.x).addScaledVector(up, dv * s.scale.y).project(cam);
+    const r = stage.shadowRoot.querySelector('canvas').getBoundingClientRect();
+    return { x: r.left + (p.x + 1) / 2 * r.width, y: r.top + (1 - p.y) / 2 * r.height, depth: p.z };
+  }
+};
+mansionLayer.select(mansionUI.selected);          // remembered from the last visit
+syncMansionLayer();
+syncChrome();
+
 /* ── click any part ──────────────────────────────────────────────────── */
 const canvas = stage.shadowRoot.querySelector('canvas');
 const viewportGestures = installViewportGestures({canvas, marks: marksEl, camera: cam, controls: ctr, invalidate});
@@ -7820,6 +8112,18 @@ canvas.addEventListener('pointerup', (e) => {
     -((e.clientY - r.top) / r.height) * 2 + 1
   ), cam);
   const hits = ray.intersectObjects(world.children, true);
+  /* a mansion's glyph, when the layer is shown and nothing solid stands in
+     front of it: the invisible pick collars and the luminaries' hit spheres
+     draw nothing, so they do not hide a glyph */
+  const glyph = mansionLayer.pick(ray);
+  if (glyph && !presentationActive()) {
+    const solid = hits.find((h) => visibleInScene(h.object) && !h.object.userData.pickOnly);
+    if (!solid || glyph.distance < solid.distance) {
+      pausePlay();
+      mansionUI.select(glyph.id, { source: 'scene' });
+      return;
+    }
+  }
   // Match the illustration overlay's visual priority when numbers are hidden.
   if (mandala) hits.sort((a, b) => Number(!!b.object.userData.artwork) - Number(!!a.object.userData.artwork) || a.distance - b.distance);
   for (const hit of hits) {
@@ -7857,6 +8161,7 @@ window.addEventListener('keydown', (e) => {
     else if (mode === 'game' && rbCardUp()) rbHideCard(true);
     else if (mode === 'game' && gameFocus) gameFocusEl.querySelector('[data-world="return"]').click();
     else if (document.body.classList.contains('index-open')) setOpen(false);
+    else if (lunarPanelsOpen()) closeLunarPanels();
     else if (!sheet.hidden) close();
     else if (touring) endTour();
     else if (mode === 'wheel' && !wheelView.isHome()) wheelView.home();

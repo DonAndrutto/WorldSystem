@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+<!-- lm_tha_skar: tha skar / Aśvinī — Horse head and neck (primary; White Beryl L:10130, p. 313) -->
+<defs><radialGradient id="h"><stop offset="0" stop-color="#fbf6e8" stop-opacity=".84"/><stop offset=".86" stop-color="#fbf6e8" stop-opacity=".84"/><stop offset="1" stop-color="#fbf6e8" stop-opacity="0"/></radialGradient></defs>
+<circle cx="128" cy="128" r="127" fill="url(#h)"/>
+<circle cx="128" cy="128" r="110" fill="none" stroke="#2b2a40" stroke-width="4"/>
+<g transform="translate(0 4)" stroke="#2b2a40" stroke-width="7" stroke-linejoin="round" stroke-linecap="round">
+<path d="M170 184 C174 142 170 98 152 72 L150 46 L138 62 C122 64 102 76 86 92 C73 105 60 112 60 125 C60 136 73 140 87 135 C101 131 111 131 119 139 C127 150 129 168 127 184 Z" fill="#e3bf66"/><path d="M161 78 l15 7 M167 98 l15 5 M171 118 l15 3 M173 138 l15 1 M174 158 l15 0" fill="none"/><circle cx="111" cy="92" r="4.5" fill="#2b2a40" stroke="none"/><path d="M70 122 q6 -4 10 1" fill="none"/>
+</g>
+<circle cx="146.7" cy="224.2" r="5.2" fill="#e3bf66" stroke="#2b2a40" stroke-width="2.2"/><circle cx="128.0" cy="226.0" r="5.2" fill="#e3bf66" stroke="#2b2a40" stroke-width="2.2"/><circle cx="109.3" cy="224.2" r="5.2" fill="#e3bf66" stroke="#2b2a40" stroke-width="2.2"/>
+</svg>

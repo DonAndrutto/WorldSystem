@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+<!-- lm_dbo: dbo / Uttaraphalgunī — Throne (primary; White Beryl L:10327, p. 319) -->
+<defs><radialGradient id="h"><stop offset="0" stop-color="#fbf6e8" stop-opacity=".84"/><stop offset=".86" stop-color="#fbf6e8" stop-opacity=".84"/><stop offset="1" stop-color="#fbf6e8" stop-opacity="0"/></radialGradient></defs>
+<circle cx="128" cy="128" r="127" fill="url(#h)"/>
+<circle cx="128" cy="128" r="110" fill="none" stroke="#2b2a40" stroke-width="4"/>
+<g transform="translate(0 4)" stroke="#2b2a40" stroke-width="7" stroke-linejoin="round" stroke-linecap="round">
+<path d="M76 120 V66 C76 52 180 52 180 66 V120 Z" fill="#f3e3b4"/><path d="M66 140 H84 V178 H66 Z M172 140 H190 V178 H172 Z" fill="#e3bf66"/><path d="M58 118 H198 V140 H58 Z" fill="#e3bf66"/><path d="M84 154 Q128 170 172 154 M88 104 H168" fill="none"/>
+</g>
+<circle cx="137.4" cy="225.5" r="5.2" fill="#e3bf66" stroke="#2b2a40" stroke-width="2.2"/><circle cx="118.6" cy="225.5" r="5.2" fill="#e3bf66" stroke="#2b2a40" stroke-width="2.2"/>
+</svg>
