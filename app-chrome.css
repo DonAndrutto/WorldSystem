@@ -14,7 +14,7 @@ html, body { touch-action: pan-x pan-y pinch-zoom; }
   display: flex; align-items: center; gap: 4px; padding: 4px 6px;
   border-radius: var(--radius); background: var(--menu); pointer-events: auto;
 }
-.app-brand { font-size: 21px; line-height: 1; padding: 0 12px 0 6px; }
+.app-brand { font-family: inherit; color: inherit; background: transparent; border: 0; cursor: pointer; min-height: 44px; font-size: 21px; line-height: 1; padding: 0 12px 0 6px; }
 .app-brand span { display: block; }
 .app-header .btn, .help-close {
   min-height: 44px; min-width: 44px; display: inline-flex;
@@ -131,7 +131,7 @@ body.world-only .board-view, body.world-only.index-open .board-view {
 body.game-setup .app-header { visibility: hidden; }
 body.tour-view .compass { top: calc(86px + var(--sa-t)); }
 @media (min-width: 701px) and (max-width: 1080px) {
-  .app-brand { display: none; }
+  .app-brand { font-size: 18px; padding-right: 6px; }
   .app-header { left: 14px; }
   .controls { right: 14px; }
 }

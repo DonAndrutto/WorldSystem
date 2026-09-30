@@ -25,7 +25,7 @@
    current shelf or the runtime one, so old versions do not accumulate. */
 
 /* ── written by scripts/build-sw.cjs — do not edit below ─────────────── */
-const VERSION = '3d5c8a8e3985600d';
+const VERSION = '30914b880690b55a';
 const SHELL = [
   "app-chrome.css",
   "app-chrome.js",
@@ -91,6 +91,7 @@ const SHELL = [
   "assets/wheel/wheel-yama-gods.webp",
   "assets/wheel/wheel.webp",
   "continent-models.js",
+  "docs/NAKSHATRA-ENGINE.md",
   "favicon-32.png",
   "favicon.ico",
   "game-camera.js",

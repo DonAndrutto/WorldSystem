@@ -55,7 +55,7 @@ const {window} = dom, document = window.document;
 // The lunar pages build their DOM when imported (lunar-panels.js runs ahead of
 // the page's own script and needs no WebGL), so they are imported against this
 // document, and their exports handed to the page as its import lines would.
-Object.assign(globalThis, {document, localStorage: window.localStorage, Event: window.Event,
+Object.assign(globalThis, {document, localStorage: window.localStorage, Event: window.Event, CustomEvent: window.CustomEvent,
   matchMedia: q => window.matchMedia ? window.matchMedia(q) : {matches:false}});
 const lunarMansions = await import(pathToFileURL(repo + '/lunar-mansions.js'));
 const mansionLayerModule = await import(pathToFileURL(repo + '/mansion-layer.js'));
@@ -82,6 +82,7 @@ Object.assign(window, {createOfferingModels, OFFERING_ART, offeringBackground, T
   glyphUrl: lunarMansions.glyphUrl, evidenceLine: lunarMansions.evidenceLine, CATALOGUE_SOURCE: lunarMansions.CATALOGUE_SOURCE,
   createMansionLayer: mansionLayerModule.createMansionLayer,
   mansionRows: mansionUiModule.associations, mansionNotes: mansionUiModule.readingNotes,
+  openCalculator: lunarPanels.openCalculator,
   mansionUI: lunarPanels.mansionUI, adoptLunarPanels: lunarPanels.adopt,
   lunarPanelsOpen: lunarPanels.lunarPanelsOpen, closeLunarPanels: lunarPanels.closeLunarPanels
 });
@@ -1207,7 +1208,7 @@ assert.equal(strip.length,3,'index, view, options');
 assert.deepEqual(strip.map(el=>el.tagName),['BUTTON','DETAILS','DETAILS']);
 for (const act of ['motion','night','full','home'])
   assert.ok(q('[data-menu="options"] [data-act="'+act+'"]'),act+' is under Options');
-for (const m of ['explore','mandala','game'])
+for (const m of ['explore','mandala','game','wheel','worlds','astrology'])
   assert.ok(q('[data-menu="mode"] [data-mode="'+m+'"]'),m+' is under the view menu');
 // the closed view menu says which view you are in
 const modeFace = q('[data-menu="mode"] > .btn');
@@ -1454,7 +1455,7 @@ assert.equal(app.zoomBtn.disabled, false);
 reduced = true;
 app.zoomBtn.click(); advance(200);
 assert.equal(app.guidedMode(), 'worlds'); panel('.tour-panel');
-assert.equal(app.state().mode, 'explore', 'zoomed out from Explorer');
+assert.equal(app.state().mode, 'worlds', 'zoomed out in the first-class Billion worlds mode');
 assert.equal(app.tourPlayer.state().index, 1, 'the note zooms out to the first thousand');
 assert.equal(app.cosmos().level, 1);
 const distances = [];
@@ -1494,6 +1495,23 @@ app.startPresentation('worlds', 2); advance(2500);
 app.setMode('mandala'); advance(1200);
 assert.equal(app.cosmos().level, 0); assert.equal(app.cosmos().group.visible, false, 'another view puts the orders away at once');
 assert.ok(app.skyMat.map !== null);
+app.setMode('explore'); advance(1200);
+key('j'); advance(1200);
+assert.equal(app.state().mode, 'astrology');
+assert.equal(q('[data-mode="astrology"]').getAttribute('aria-pressed'), 'true');
+assert.equal(lunarPanels.calculator.panel.hidden, false);
+assert.equal(lunarPanels.mansionUI.layer, true);
+lunarPanels.mansionUI.select('lm_tha_skar', {source:'show'}); advance(200);
+assert.equal(app.state().mode, 'astrology', 'Show in world keeps Astrology');
+app.setMode('game'); advance(200);
+key('b'); advance(200);
+assert.equal(app.state().mode, 'game', 'B still changes the Game board layout');
+app.setMode('explore'); advance(200);
+q('[data-act="jyotisha"]').click(); advance(200);
+assert.equal(app.state().mode, 'astrology', 'Options opens the Astrology workspace');
+app.startPresentation('astrology'); advance(200);
+assert.equal(app.guidedMode(), 'mansions');
+assert.equal(app.state().mode, 'astrology');
 app.setMode('explore'); advance(1200);
 reduced = false;
 

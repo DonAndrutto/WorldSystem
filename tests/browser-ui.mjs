@@ -25,7 +25,7 @@ try {
     page.on('pageerror', error => errors.push(error.message));
     await page.goto(url);
     await page.waitForFunction(() => window.WorldSystemReady);
-    assert.equal(await page.locator('.intro-mode').count(), 4);
+    assert.equal(await page.locator('.intro-mode').count(), 6);
     await page.locator('.app-intro').waitFor({state:'hidden'});
     assert.ok(await page.locator('.app-header').evaluate(e=>e.scrollWidth<=e.clientWidth), 'header contents fit');
     assert.ok(await page.locator('.controls').evaluate(c=>[...c.querySelectorAll(':scope > .btn, .menu > .btn')].every(b=>b.scrollWidth<=b.clientWidth+1)), 'control bar labels fit');
@@ -33,6 +33,11 @@ try {
       await page.locator('[data-menu=mode] > summary').click();
       await page.locator('[data-mode='+id+']').click();
     };
+    await mode('astrology');
+    assert.equal(await page.locator('[data-mode=astrology]').getAttribute('aria-pressed'), 'true');
+    await page.locator('.jy-panel').waitFor({state:'visible'});
+    await page.locator('.app-brand').click();
+    await page.locator('.sheet').waitFor({state:'visible'});
     await mode('game');
     const accessibleThrow = await page.locator('[data-game=throw]').evaluate(button => {
       const b = button.getBoundingClientRect(), h = document.querySelector('.app-header').getBoundingClientRect();
@@ -79,7 +84,7 @@ try {
     // The billion worlds: from the View menu, four stops zooming out from the one world, and the way back in.
     await mode('explore');
     await page.locator('[data-menu=mode] > summary').click();
-    await page.locator('[data-act=worlds]').click();
+    await page.locator('[data-mode=worlds]').click();
     await page.locator('.tour-panel').waitFor({state:'visible'});
     assert.equal(await page.locator('#tour-jump option').count(), 4);
     assert.equal(await page.evaluate(()=>WorldSystemTours.state().index), 1, 'the menu zooms out to the first thousand');

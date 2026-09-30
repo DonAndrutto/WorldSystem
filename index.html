@@ -1829,14 +1829,14 @@
   <div class="controls card">
     <button class="btn" data-act="index" type="button" aria-pressed="false" title="Index — i"><span class="g">☰</span><span class="t">Index</span></button>
     <details class="menu" data-menu="mode">
-      <summary class="btn" title="Explorer e · Mandala m · Game g · Wheel l"><span class="g">✦</span><span class="t">Explorer</span><span class="chev">▾</span></summary>
+      <summary class="btn" title="Explorer e · Mandala m · Game g · Wheel l · Billion worlds b · Astrology j"><span class="g">✦</span><span class="t">Explorer</span><span class="chev">▾</span></summary>
       <div class="menu-body card" role="group" aria-label="View">
         <button class="btn" data-mode="explore" type="button" aria-pressed="true" title="Explorer — e"><span class="g">✦</span><span class="t">Explorer</span></button>
         <button class="btn" data-mode="mandala" type="button" aria-pressed="false" title="Mandala — m"><span class="g">◎</span><span class="t">Mandala</span></button>
         <button class="btn" data-mode="game" type="button" aria-pressed="false" title="Game of rebirth — g"><span class="g">☸</span><span class="t">Game</span></button>
         <button class="btn" data-mode="wheel" type="button" aria-pressed="false" title="Wheel of life — l"><span class="g">❂</span><span class="t">Wheel</span></button>
-        <!-- the guided tour is put in front of this by app-chrome.js -->
-        <button class="btn" data-act="worlds" type="button" title="Zoom out from this world to the trichiliocosm — b">A billion worlds</button>
+        <button class="btn" data-mode="worlds" type="button" aria-pressed="false" title="Billion worlds — b"><span class="g">✧</span><span class="t">Billion worlds</span></button>
+        <button class="btn" data-mode="astrology" type="button" aria-pressed="false" title="Astrology — j"><span class="g">☽</span><span class="t">Astrology</span></button>
       </div>
     </details>
     <details class="menu" data-menu="options">
@@ -2147,7 +2147,7 @@ import { composeGameFocus, composeGameOverview, orbitFlightPoint } from './game-
 import { MANSIONS, MANSION_BY_ID, ringAngle, glyphUrl, evidenceLine, CATALOGUE_SOURCE } from './lunar-mansions.js';
 import { createMansionLayer } from './mansion-layer.js';
 import { associations as mansionRows, readingNotes as mansionNotes } from './mansion-ui.js';
-import { mansionUI, adopt as adoptLunarPanels, lunarPanelsOpen, closeLunarPanels } from './lunar-panels.js';
+import { mansionUI, openCalculator, adopt as adoptLunarPanels, lunarPanelsOpen, closeLunarPanels } from './lunar-panels.js';
 const stage = document.querySelector('three-d-stage');
 /* Everything below this line is built on three.js, and three.js arrives over
    the network. Where it does not — a phone that lost the connection between
@@ -3529,6 +3529,12 @@ def('about', {
       'A visual study aid for practitioners learning and visualizing mandala offerings, and for anyone studying Buddhist cosmology.',
       'Every part of the model is a click away from its entry: its name in Sanskrit and Tibetan, its measure, and what the texts say stands there. The index lists all of them, and takes a filter. <b>Mandala view</b> lays the world out heap by heap in the order the thirty-seven-point offering names it. <b>Motion</b> sets the sun and moon on their circuit and lets the view turn. The light follows the sun around Meru, or the moon in night mode, from a higher angle chosen for visibility. The small compass rose turns with the view; in the mandala view the four directions are lettered in English and Tibetan at the edge of the plate.',
       'The <b>Wheel</b> view is the wheel of life, the bhavacakra, as a painted relief: the three poisons at the hub, the paths of karma, the six realms, the twelve links on the rim, and Yama holding the whole of it. Every part of it is an entry. It can be brought close and turned a little on its wall, but not around.',
+      "Six modes share one model: Explorer visits worlds and realms; Mandala follows the 37 offerings; Game follows paths of rebirth; Wheel studies the cycle of life; Billion worlds moves through the thousandfold systems; Astrology opens the lunar-mansion layer and the Jyotiṣa calculator.",
+      "Choose Start a guided tour from the mode menu or Help. Each mode has a tour; Astrology tours the 28 Tibetan catalogue entries. After the first complete download, the model, tours and calculator work offline. An update notice offers a reload when a new version is ready.",
+      "<b>Astrology.</b> Open Astrology in the mode menu (J), or the calculator in Options. The White Beryl layer, index and tour contain 28 Tibetan lunar mansions, with one Abhijit entry. The Indian Jyotiṣa calculator uses 27 equal sidereal sectors and Lahiri ayanamsa. These are separate systems: Show in world passes only a catalogue ID. The sprites and their ring are illustrative, not astronomical positions.",
+      "For a birth or another moment, enter the Gregorian date, local clock time, place coordinates and time zone or explicit UTC offset. Repeated local times require an earlier/later choice; nonexistent local times are refused. Inputs are processed in this browser and are not stored or sent anywhere.",
+      "The calculator uses astronomy-engine 2.1.19 (MIT). Lahiri follows the published definition of 23°15′00.658″ on 21 March 1956, carried forward by precession; Spica is not the primary definition. Frozen Swiss Ephemeris output fixtures are used only for regression tests. See <a href=\"docs/NAKSHATRA-ENGINE.md\" target=\"_blank\" rel=\"noopener\">the engine method and verification</a>.",
+      "Interpretation is reserved for the White Beryl fruit text in chapter 33, shown through a collapsed summary and optional tabs. The Indian calculation supplies the moment; White Beryl supplies the reading. This release contains a source-review skeleton, with no electional, natal or remedy readings. Damaged OCR requires checking against the source; combinations are partial and need a source check. These historical readings are study material, not advice. Polish localization of interpretation strings is pending; the interpretation area is explicitly marked as English.",
       'Each continent takes its colour and shape from the face of Meru it stands opposite, and is flanked by two subcontinents of the same shape and half the size.',
       'The model uses schematic changes of scale, shape, placement, and lighting to make its features readable. <b>The scale of this drawing</b> describes the principal adaptations.',
       'The model is the work of <b>Andrzej R. Rybszleger</b>, built from the sources named below.'],
@@ -6217,12 +6223,12 @@ function endTour(overview = true) {
   if (overview) mandalaFly(700);
 }
 function startPresentation(next = mode, at = 0) {
+  if (next === 'astrology') next = 'mansions';
   if (!['explore', 'mandala', 'game', 'wheel', 'worlds', 'mansions'].includes(next)) return;
   if (next === 'mandala') { startTour(); return; }
   if (presentationActive()) endPresentation(false);
-  // the thousand worlds are zoomed out to from the world itself, in Explorer;
-  // the tour of the 28 visits their glyphs there, showing the layer for its length
-  setMode(next === 'worlds' || next === 'mansions' ? 'explore' : next);
+  // The tour uses its mode without reopening that mode’s default workspace.
+  setMode(next === 'mansions' ? 'astrology' : next, { workspace: false });
   if (next === 'mansions') {
     closeLunarPanels();
     tourPreviousLayer = mansionUI.layer;
@@ -6344,6 +6350,7 @@ function endPresentation(overview = true) {
     if (cosmos.setLevel(0, { instant: !overview || reducedMotion() })) invalidate(4);
     setSky(night);
   }
+  if (overview && previous === 'worlds') { mode = 'explore'; syncModeButtons(); syncMansionLayer(); document.dispatchEvent(new CustomEvent('ws-mode-change', { detail: { mode } })); }
   if (overview) {
     if (previous === 'wheel') wheelView.home();
     else if (previous === 'game') { if (!rbFrameFollow(700)) reframeGame(); }
@@ -7749,7 +7756,7 @@ function leaveGame() {
 const controlsEl = document.querySelector('.controls');
 const MENUS = [...controlsEl.querySelectorAll('.menu')];
 const closeMenus = (except) => MENUS.forEach((m) => { if (m !== except) m.open = false; });
-const MODE_FACE = { explore: ['\u2726', 'Explorer'], mandala: ['\u25ce', 'Mandala'], game: ['\u2638', 'Game'], wheel: ['\u2742', 'Wheel'] };
+const MODE_FACE = { explore: ['\u2726', 'Explorer'], mandala: ['\u25ce', 'Mandala'], game: ['\u2638', 'Game'], wheel: ['\u2742', 'Wheel'], worlds: ['✧', 'Billion worlds'], astrology: ['☽', 'Astrology'] };
 function syncModeButtons() {
   document.querySelectorAll('[data-mode]').forEach(b =>
     b.setAttribute('aria-pressed', String(b.dataset.mode === mode)));
@@ -7759,9 +7766,15 @@ function syncModeButtons() {
   face.querySelector('.g').textContent = glyph;
   face.querySelector('.t').textContent = label;
 }
-function setMode(next) {
-  if (next === mode) return;
+function setMode(next, { workspace = true } = {}) {
+  if (!Object.hasOwn(MODE_FACE, next)) return;
+  if (next === mode) {
+    if (workspace && next === 'astrology') { mansionUI.setLayer(true); openCalculator(true); }
+    if (workspace && next === 'worlds' && guidedMode !== 'worlds') startPresentation('worlds', 1);
+    return;
+  }
   if (presentationActive()) endPresentation(false);
+  if (mode === 'astrology') closeLunarPanels();
   if (mode === 'game') leaveGame();
   if (mode === 'wheel') leaveWheel();
   if (next === 'mandala') setMandala(true);
@@ -7778,6 +7791,8 @@ function setMode(next) {
   syncMansionLayer();
   document.dispatchEvent(new CustomEvent('ws-mode-change', { detail: { mode } }));
   invalidate(4);
+  if (workspace && next === 'worlds') startPresentation('worlds', 1);
+  if (workspace && next === 'astrology') { mansionUI.setLayer(true); home(); openCalculator(true); }
 }
 
 /* ── the two menus ──────────────────────────────────────────────────────
@@ -7805,7 +7820,7 @@ controlsEl.addEventListener('click', (ev) => {
   if (act.dataset.mode) setMode(act.dataset.mode);
   if (act.dataset.act === 'motion') setMotion(!motion);
   if (act.dataset.act === 'night') applyTheme(!night);
-  if (act.dataset.act === 'worlds') startPresentation('worlds', 1);
+  if (act.dataset.act === 'worlds') setMode('worlds');
   if (act.dataset.act === 'home') {
     if (guidedMode === 'worlds') endPresentation();   // the reset from a thousand worlds is the one world
     else { close(); if (mode === 'wheel') wheelView.home(); else if (mode !== 'explore') setMode('explore'); else home(); }
@@ -7869,6 +7884,8 @@ window.addEventListener('keyup', () => setTimeout(syncHome, 60));
 
 /* ── about ───────────────────────────────────────────────────────────── */
 document.querySelector('.title').addEventListener('click', () => show('about', true));
+document.addEventListener('ws-about-open', () => show('about', true));
+document.addEventListener('ws-astrology-open', () => setMode('astrology'));
 
 /* ── the one-time hint ───────────────────────────────────────────────── */
 (() => {
@@ -8002,7 +8019,7 @@ syncHome();
    so it can be returned to. */
 let mansionFramed = null;
 function syncMansionLayer() {
-  const on = mansionUI.layer && mode === 'explore';
+  const on = mansionUI.layer && ['explore', 'astrology'].includes(mode);
   if (on === mansionLayer.group.visible) return;
   mansionLayer.setVisible(on);
   if (on) mansionLayer.ensureLoaded().then((r) => {
@@ -8053,7 +8070,7 @@ mansionUI.on('select', (id, source) => {
   if (source === 'entry') { if (mansionLayer.group.visible) frameSoon(id); return; }
   if (source === 'show') {
     if (presentationActive()) endPresentation(false);
-    if (mode !== 'explore') { setMode('explore'); mansionReturn = { p: HOME.p.clone(), t: HOME.t.clone() }; }
+    if (!['explore', 'astrology'].includes(mode)) { setMode('explore'); mansionReturn = { p: HOME.p.clone(), t: HOME.t.clone() }; }
     if (!mansionUI.layer) mansionUI.setLayer(true);
   }
   if (current !== id || sheet.hidden) show(id, true);
@@ -8182,10 +8199,11 @@ window.addEventListener('keydown', (e) => {
   if ((e.key === 't' || e.key === 'T') && mode === 'game') rbSetTibetan();
   if (e.key === 'e' || e.key === 'E') setMode('explore');
   if (e.key === 'l' || e.key === 'L') setMode(mode === 'wheel' ? 'explore' : 'wheel');
+  if (e.key === 'j' || e.key === 'J') { e.preventDefault(); setMode('astrology'); }
   // b: out to the billion worlds, and back to the one (the game keeps b for its board)
   if ((e.key === 'b' || e.key === 'B') && mode !== 'game') {
     e.preventDefault();
-    if (guidedMode === 'worlds') endPresentation(); else startPresentation('worlds', 1);
+    setMode(mode === 'worlds' ? 'explore' : 'worlds');
   }
   // on the wheel, the keys that zoom and pan a map do the same to the wall
   if (mode === 'wheel' && sheet.hidden && !document.body.classList.contains('index-open')) {

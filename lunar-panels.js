@@ -41,9 +41,13 @@ mansionUI.on('panel', (open) => {
   if (open) { calculator.panel.hidden = true; adopted?.beforeOpen(); }
   syncDock();
 });
-mansionUI.on('calculator', () => openCalculator(true));
+const requestCalculator = () => {
+  if (adopted) document.dispatchEvent(new CustomEvent('ws-astrology-open'));
+  else openCalculator(true);
+};
+mansionUI.on('calculator', requestCalculator);
 calculator.on('close', () => openCalculator(false));
-document.querySelector('[data-act="jyotisha"]')?.addEventListener('click', () => openCalculator(calculator.panel.hidden));
+document.querySelector('[data-act="jyotisha"]')?.addEventListener('click', requestCalculator);
 calculator.on('show', (id) => {
   // the calculator's link into the catalogue: by id, never by ring position
   mansionUI.select(id, { source: 'show' });
