@@ -25,7 +25,7 @@
    current shelf or the runtime one, so old versions do not accumulate. */
 
 /* ── written by scripts/build-sw.cjs — do not edit below ─────────────── */
-const VERSION = '3f709378daa7d593';
+const VERSION = 'abfb4c343fa4116b';
 const SHELL = [
   "app-chrome.css",
   "app-chrome.js",
@@ -91,6 +91,7 @@ const SHELL = [
   "assets/wheel/wheel-yama-gods.webp",
   "assets/wheel/wheel.webp",
   "continent-models.js",
+  "data/nakshatra_interpretation.json",
   "docs/NAKSHATRA-ENGINE.md",
   "favicon-32.png",
   "favicon.ico",
@@ -102,7 +103,11 @@ const SHELL = [
   "icon-512.png",
   "icon-maskable-512.png",
   "index.html",
+  "interpretation-data.js",
+  "interpretation-ui.js",
+  "interpretation.css",
   "jyotisha-engine.js",
+  "jyotisha-interpret.js",
   "jyotisha-panel.js",
   "jyotisha.js",
   "locales/pl-texts.js",

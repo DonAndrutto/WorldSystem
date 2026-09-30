@@ -15,6 +15,8 @@
  */
 import { MANSIONS, MANSION_BY_ID, RULERS, DIRECTIONS, CATALOGUE_SOURCE } from './lunar-mansions.js';
 
+import { createInterpretation } from './interpretation-ui.js';
+
 export const LAYER_KEY = 'ws-mansions';
 export const SELECTED_KEY = 'ws-mansion';
 
@@ -120,6 +122,7 @@ export function createMansionUI({ doc = document, panel, menu } = {}) {
         ${readingNotes(m).map((n) => '<p class="lm-reading">' + esc(n) + '</p>').join('')}
         <button class="btn" type="button" data-lm-show="${m.id}" hidden>Show in world</button>
       </details>`;
+    li.append(createInterpretation({ doc, id: m.id }));
     list.appendChild(li);
   }
 

@@ -1805,6 +1805,7 @@
 <link rel="stylesheet" href="game-ui.css">
 <link rel="stylesheet" href="presentation-tours.css">
 <link rel="stylesheet" href="app-chrome.css">
+<link rel="stylesheet" href="interpretation.css">
 </head>
 <body>
 
@@ -2128,6 +2129,7 @@
 import { createOfferingModels, OFFERING_ART, offeringBackground } from './mandala-offerings.js';
 import { TOUR_NOTES } from './mandala-tour.js';
 import { createPresentationTours, createPresentationPlayer, WORLD_ORDERS } from './presentation-tours.js';
+import { createInterpretation } from './interpretation-ui.js';
 import { createThousandWorlds, framingDistance as worldsFramingDistance } from './thousand-worlds.js';
 import { installViewportGestures } from './viewport-gestures.js';
 import { createGoldenRangeGeometry, createWaterNormalMap, createWaterMaterial, createWaterGeometry } from './world-surfaces.js';
@@ -4828,6 +4830,7 @@ function show(id, reveal) {
   sList.innerHTML = (e.f || []).map((r) => '<dt>' + r[0] + '</dt><dd>' + r[1] + '</dd>').join('');
   sList.hidden = !(e.f || []).length;
   sBodies.innerHTML = [].concat(e.b || []).map(bodyBlock).join('');
+  if (MANSION_BY_ID.has(id)) sBodies.append(createInterpretation({ id }));
   const more = [].concat(e.more || []);
   sMore.hidden = !more.length;
   sMore.open = false;

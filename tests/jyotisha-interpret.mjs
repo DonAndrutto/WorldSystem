@@ -1,0 +1,100 @@
+import fs from 'node:fs';
+import assert from 'node:assert/strict';
+import { createRequire } from 'node:module';
+import { JSDOM } from 'jsdom';
+import { MANSIONS } from '../lunar-mansions.js';
+import { getInterpretation, getActiveSbyorBa, getAfflictionStatus, getRemedies, isCompleteMoment } from '../jyotisha-interpret.js';
+import { createInterpretation } from '../interpretation-ui.js';
+import { createJyotishaPanel } from '../jyotisha-panel.js';
+import { createMansionUI } from '../mansion-ui.js';
+const read = file => fs.readFileSync(new URL('../'+file, import.meta.url), 'utf8');
+const data = JSON.parse(read('data/nakshatra_interpretation.json'));
+assert.equal(Object.keys(data).length,28);
+assert.deepEqual(Object.keys(data).sort(), MANSIONS.map(m=>m.id).sort());
+assert.equal(Object.values(data).filter(m=>m.sanskrit==='Abhijit').length,1);
+for (const m of MANSIONS) {
+  const x=data[m.id];
+  assert.deepEqual(getInterpretation(m.id),x);
+  assert.deepEqual([x.id,x.tibetan,x.wylie,x.sanskrit,x.symbol],[m.id,m.tibetan,m.wylie,m.sanskrit,m.form.en]);
+  for (const key of ['element','nag_rtsis_element','deity']) assert.equal(x[key],null);
+  assert.deepEqual(x.electional,{favorable:[],unfavorable:[],notes:null,source:null});
+  assert.ok(Object.values(x.natal).every(v=>v===null));
+  assert.ok(Object.values(x.remedies).every(v=>v===null));
+  assert.deepEqual(x.enemy_star_ids,[]); assert.deepEqual(x.death_star_ids,[]);
+  assert.deepEqual(x.combinations,{status:'partial',classes:{}});
+  assert.equal(x.needs_source_review,true);
+}
+assert.equal(getInterpretation('lm_punarvasu'),null);
+assert.equal(getInterpretation('__proto__'),null);
+assert.equal(read('interpretation-data.js'),createRequire(import.meta.url)('../scripts/build-interpretation.cjs').build());
+const moment={date:'2025-07-01',time:'12:00',utcMs:Date.UTC(2025,6,1,10),zoneResolved:true,vara:'Maṅgala'};
+assert.equal(isCompleteMoment(moment),true);
+for(const key of Object.keys(moment)) assert.equal(isCompleteMoment({...moment,[key]:null}),false,key);
+assert.equal(getActiveSbyorBa(moment),'unknown');
+assert.deepEqual(getAfflictionStatus('lm_tha_skar',{moment}),{afflicted:false,kinds:[],natalCompared:false});
+assert.equal(getAfflictionStatus('lm_tha_skar',{natalId:'lm_lag',moment}).natalCompared,true);
+assert.equal(getAfflictionStatus('lm_tha_skar',{natalId:'invalid'}).natalCompared,false);
+assert.equal(getRemedies('lm_tha_skar','afflicted'),null);
+assert.equal(getRemedies('lm_tha_skar','__proto__'),null);
+const dom=new JSDOM('<div id="root"></div><div id="calc"></div><div id="mansions"></div>');
+const doc=dom.window.document;
+const originalFetch=globalThis.fetch;
+let requests=0;
+globalThis.fetch=()=>{requests++;throw new Error('Interpretation must never fetch');};
+dom.window.fetch=globalThis.fetch;
+dom.window.XMLHttpRequest=class{constructor(){requests++;throw new Error('No XHR');}};
+try {
+  const root=doc.querySelector('#root');
+  const ui=createInterpretation({doc,id:'lm_tha_skar'}); root.append(ui);
+  assert.equal(ui.querySelector('details').open,false);
+  assert.match(ui.querySelector('summary').textContent,/Interpretation: Aśvinī — Source text pending/);
+  assert.match(ui.textContent,/Polish translation pending/);
+  assert.equal(ui.querySelectorAll('[role=tab]').length,4);
+  assert.equal(ui.querySelectorAll('[role=tabpanel]:not([hidden])').length,1);
+  assert.match(ui.querySelector('[role=tabpanel]').textContent,/Electional readings not loaded yet/);
+  const tabs=ui.querySelectorAll('[role=tab]');
+  tabs[1].click();
+  assert.match(ui.querySelector('[role=tabpanel]:not([hidden])').textContent,/Natal readings not loaded yet/);
+  assert.equal(ui.querySelectorAll('[role=tabpanel] details').length,0,'no More without extra fields');
+  tabs[2].click(); assert.match(ui.querySelector('[role=tabpanel]:not([hidden])').textContent,/Enter a moment/);
+  tabs[3].click();
+  assert.equal(ui.querySelector('.interpretation-empty').textContent,'');
+  ui.querySelector('[type=checkbox]').click();
+  assert.equal(ui.querySelector('.interpretation-empty'),null);
+  assert.equal(ui.querySelectorAll('[role=tabpanel]')[3].textContent,'Show remedies','null remedies render nothing');
+  tabs[3].dispatchEvent(new dom.window.KeyboardEvent('keydown',{key:'Home',bubbles:true}));
+  assert.equal(tabs[0].getAttribute('aria-selected'),'true');
+  const complete=createInterpretation({doc,id:'lm_tha_skar',moment}); root.append(complete);
+  assert.match(complete.querySelectorAll('[role=tabpanel]')[2].textContent,/Combinations partial — needs source check/);
+  assert.doesNotMatch(ui.textContent,/\bnull\b|\bunknown\b/);
+  // Synthetic fixture strings test disclosure and safe rendering, not readings.
+  const fixture=structuredClone(data.lm_tha_skar);
+  fixture.electional.favorable=Array.from({length:9},(_,i)=>'Fixture favorable '+i);
+  fixture.electional.unfavorable=Array.from({length:9},(_,i)=>'Fixture unfavorable '+i);
+  fixture.natal.character='<img src=x onerror=alert(1)>';
+  for(const key of ['lifespan','health','wealth','relationships']) fixture.natal[key]='Fixture '+key;
+  const filled=createInterpretation({doc,id:'lm_tha_skar',entry:fixture}); root.append(filled);
+  assert.deepEqual([...filled.querySelectorAll('.interpretation-columns ul')].map(x=>x.children.length),[7,7]);
+  assert.equal(filled.querySelector('img'),null,'payload is text, never HTML');
+  const natal=filled.querySelectorAll('[role=tabpanel]')[1];
+  assert.equal(natal.querySelector(':scope > ul').children.length,3);
+  assert.equal(natal.querySelector(':scope > details > ul').children.length,1);
+  assert.ok(filled.querySelector('[role=tab]').title);
+  // Both entry points use the same collapsed component.
+  const catalogue=createMansionUI({doc,panel:doc.querySelector('#mansions')});
+  assert.equal(catalogue.panel.querySelectorAll('.interpretation').length,28);
+  assert.equal(catalogue.panel.querySelectorAll('.interpretation > details[open]').length,0);
+  const calc=createJyotishaPanel({doc,panel:doc.querySelector('#calc'),provider:{ready:true,calculate:async()=>({
+    catalogueId:'lm_tha_skar',nakshatra:'Aśvinī',pada:1,vimshottariLord:'Ketu',moonSiderealLongitude:1,
+    nakshatraStart:moment.utcMs,nakshatraEnd:moment.utcMs+1000,padaEnd:moment.utcMs+1000,vara:{name:'Maṅgala'},udaya:null
+  })}});
+  const form=calc.panel.querySelector('form');
+  for(const [k,v] of Object.entries({date:'2025-07-01',time:'12:00',latitude:'52.2297',longitude:'21.0122',zone:'Europe/Warsaw'})) form.elements[k].value=v;
+  await calc.submit();
+  assert.equal(calc.resultId,'lm_tha_skar');
+  assert.equal(calc.panel.querySelector('.interpretation details').open,false);
+  assert.match(calc.panel.querySelector('.interpretation').textContent,/Combinations partial/);
+  assert.equal(requests,0);
+} finally { globalThis.fetch=originalFetch; dom.window.close(); }
+for(const file of ['jyotisha-interpret.js','interpretation-ui.js','interpretation-data.js']) assert.doesNotMatch(read(file),/\bfetch\s*\(|XMLHttpRequest|WebSocket|sendBeacon/);
+console.log('PASS: exact 28-id skeleton, generated-data parity, unknown rules, optional natal context, collapsed/empty UI, tabs, caps, safe text, both entry points, zero network.');

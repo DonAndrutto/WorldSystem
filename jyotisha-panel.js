@@ -26,6 +26,8 @@ export const PLACES = Object.freeze([
   { name: 'Sydney, Australia', latitude: -33.8688, longitude: 151.2093, zone: 'Australia/Sydney' }
 ].map(Object.freeze));
 
+import { createInterpretation } from './interpretation-ui.js';
+
 const pad = (n) => String(n).padStart(2, '0');
 const utcText = (ms) => {
   const d = new Date(ms);
@@ -115,6 +117,7 @@ export function createJyotishaPanel({ doc = document, panel, provider = createEn
           <dt>Karaṇa</dt><dd data-out="karana">—</dd>
           <dt>Vāra at the moment entered</dt><dd data-out="vara">—</dd>
         </dl>
+        <div class="jy-interpretation"></div>
         <button class="btn" type="button" data-jy="show" disabled>Show in world</button>
       </div>
     </div>`;
@@ -181,6 +184,7 @@ export function createJyotishaPanel({ doc = document, panel, provider = createEn
       .forEach((k) => { out(k).textContent = '—'; });
     showBtn.disabled = true;
     resultId = null;
+    panel.querySelector('.jy-interpretation').replaceChildren();
   }
   function showErrors(errors) {
     for (const key of ['date', 'time', 'zone', 'offset', 'latitude', 'longitude']) {
@@ -254,6 +258,11 @@ export function createJyotishaPanel({ doc = document, panel, provider = createEn
       }
       resultId = r.catalogueId || null;
       showBtn.disabled = !resultId;
+      const reading = createInterpretation({ doc, id: resultId, moment: {
+        date: form.elements.date.value, time: form.elements.time.value,
+        utcMs: v.utcMs, zoneResolved: true, vara: r.vara?.name || null
+      } });
+      if (reading) panel.querySelector('.jy-interpretation').append(reading);
       resolved.textContent = instant;
     } catch (err) {
       if (requestRevision !== revision) return;
