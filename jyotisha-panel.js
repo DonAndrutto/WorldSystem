@@ -8,8 +8,23 @@
  * in this browser, fetched the first time a calculation is asked for), does the rest.
  * A result is shown only when the engine has produced it.
  */
-import { readInput, formatOffset, YEAR_MIN, YEAR_MAX, formatLongitude, parseDate, localDayBounds, localClock } from './jyotisha.js';
+import { readInput, formatOffset, YEAR_MIN, YEAR_MAX, formatLongitude, parseDate, parseOffset, localDayBounds, localClock } from './jyotisha.js';
 import { createEngine, EngineError, ENGINE } from './jyotisha-engine.js';
+
+// Approximate city centres, offered explicitly; manual coordinates stay editable.
+// Zone names are resolved for the entered date by Intl, never fixed offsets.
+export const PLACES = Object.freeze([
+  { name: 'Warsaw, Poland', latitude: 52.2297, longitude: 21.0122, zone: 'Europe/Warsaw' },
+  { name: 'Kraków, Poland', latitude: 50.0647, longitude: 19.9450, zone: 'Europe/Warsaw' },
+  { name: 'London, United Kingdom', latitude: 51.5074, longitude: -0.1278, zone: 'Europe/London' },
+  { name: 'Paris, France', latitude: 48.8566, longitude: 2.3522, zone: 'Europe/Paris' },
+  { name: 'New York, United States', latitude: 40.7128, longitude: -74.0060, zone: 'America/New_York' },
+  { name: 'Delhi, India', latitude: 28.6139, longitude: 77.2090, zone: 'Asia/Kolkata' },
+  { name: 'Kathmandu, Nepal', latitude: 27.7172, longitude: 85.3240, zone: 'Asia/Kathmandu' },
+  { name: 'Lhasa, Tibet', latitude: 29.6520, longitude: 91.1721, zone: 'Asia/Shanghai' },
+  { name: 'Tokyo, Japan', latitude: 35.6762, longitude: 139.6503, zone: 'Asia/Tokyo' },
+  { name: 'Sydney, Australia', latitude: -33.8688, longitude: 151.2093, zone: 'Australia/Sydney' }
+].map(Object.freeze));
 
 const pad = (n) => String(n).padStart(2, '0');
 const utcText = (ms) => {
@@ -19,7 +34,7 @@ const utcText = (ms) => {
 };
 const localText = (ms, offset) => utcText(ms + offset * 1000).replace(' UTC', '');
 
-export function createJyotishaPanel({ doc = document, panel, provider = createEngine(), catalogueName = () => '' }) {
+export function createJyotishaPanel({ doc = document, panel, provider = createEngine(), catalogueName = () => '', now = () => Date.now() }) {
   const listeners = [];
   panel.innerHTML = `
     <div class="grip"><p class="eyebrow">Indian Jyotiṣa · a separate system</p>
@@ -33,7 +48,9 @@ export function createJyotishaPanel({ doc = document, panel, provider = createEn
         <p>Calculated in this browser with ${ENGINE.package} ${ENGINE.version} (MIT licence); nothing entered is sent anywhere or kept.</p>
       </details>
       <form class="jy-form" novalidate>
-        <fieldset><legend>Date and time</legend>
+        <fieldset><legend>When</legend>
+          <button class="btn" type="button" data-jy="now">Use now</button>
+          <p class="jy-hint">Uses the chosen zone or offset; if the zone is blank, uses this device’s zone.</p>
           <label for="jy-date">Date <span class="jy-hint">Gregorian calendar, ${YEAR_MIN}–${YEAR_MAX}</span></label>
           <input id="jy-date" name="date" type="date" min="${YEAR_MIN}-01-01" max="${YEAR_MAX}-12-31" required aria-describedby="jy-date-err">
           <p class="jy-err" id="jy-date-err" hidden></p>
@@ -45,7 +62,20 @@ export function createJyotishaPanel({ doc = document, panel, provider = createEn
             <label><input type="radio" name="choice" value="1"> <span></span></label>
           </fieldset>
         </fieldset>
-        <fieldset><legend>Time zone</legend>
+        <fieldset><legend>Where</legend>
+          <label for="jy-place">Find a place <span class="jy-hint">optional city preset</span></label>
+          <input id="jy-place" name="place" type="text" list="jy-places" autocomplete="off" aria-describedby="jy-place-hint">
+          <datalist id="jy-places"></datalist>
+          <p class="jy-hint" id="jy-place-hint">Choose a listed city to fill coordinates and zone, or enter coordinates below. Presets use approximate city centres.</p>
+          <p class="jy-hint jy-hint-block">Decimal degrees. North and east are positive, south and west negative.</p>
+          <label for="jy-lat">Latitude</label>
+          <input id="jy-lat" name="latitude" type="text" inputmode="decimal" autocomplete="off" aria-describedby="jy-latitude-err">
+          <p class="jy-err" id="jy-latitude-err" hidden></p>
+          <label for="jy-lon">Longitude</label>
+          <input id="jy-lon" name="longitude" type="text" inputmode="decimal" autocomplete="off" aria-describedby="jy-longitude-err">
+          <p class="jy-err" id="jy-longitude-err" hidden></p>
+        </fieldset>
+        <fieldset><legend>Zone</legend>
           <label class="jy-radio"><input type="radio" name="zoneMode" value="zone" checked> IANA time zone</label>
           <label class="jy-radio"><input type="radio" name="zoneMode" value="offset"> Explicit UTC offset</label>
           <div class="jy-zone">
@@ -60,15 +90,6 @@ export function createJyotishaPanel({ doc = document, panel, provider = createEn
             <input id="jy-offset" name="offset" type="text" inputmode="text" autocomplete="off" spellcheck="false" aria-describedby="jy-offset-err">
             <p class="jy-err" id="jy-offset-err" hidden></p>
           </div>
-        </fieldset>
-        <fieldset><legend>Place</legend>
-          <p class="jy-hint jy-hint-block">Decimal degrees. North and east are positive, south and west negative.</p>
-          <label for="jy-lat">Latitude</label>
-          <input id="jy-lat" name="latitude" type="text" inputmode="decimal" autocomplete="off" aria-describedby="jy-latitude-err">
-          <p class="jy-err" id="jy-latitude-err" hidden></p>
-          <label for="jy-lon">Longitude</label>
-          <input id="jy-lon" name="longitude" type="text" inputmode="decimal" autocomplete="off" aria-describedby="jy-longitude-err">
-          <p class="jy-err" id="jy-longitude-err" hidden></p>
         </fieldset>
         <button class="btn go" type="submit">Calculate</button>
       </form>
@@ -104,6 +125,27 @@ export function createJyotishaPanel({ doc = document, panel, provider = createEn
   const showBtn = panel.querySelector('[data-jy="show"]');
   const out = (k) => panel.querySelector('[data-out="' + k + '"]');
   let resultId = null;
+  let revision = 0;
+  const placeList = panel.querySelector('#jy-places');
+  PLACES.forEach((place) => { const option = doc.createElement('option'); option.value = place.name; placeList.append(option); });
+  form.elements.place.addEventListener('input', () => {
+    const place = PLACES.find((p) => p.name === form.elements.place.value);
+    if (!place) return;
+    form.elements.latitude.value = String(place.latitude);
+    form.elements.longitude.value = String(place.longitude);
+    form.elements.zone.value = place.zone;
+    form.elements.zoneMode.value = 'zone';
+    syncMode();
+  });
+  // An edited form invalidates a previous (or in-flight) result immediately.
+  form.addEventListener('input', (ev) => {
+    if (ev.target.name === 'choice') return;
+    revision++;
+    clearResult();
+    resolved.textContent = '';
+    choiceSet.hidden = true;
+    choiceSet.querySelectorAll('input').forEach((r) => { r.checked = false; });
+  });
 
   // the zone list, when the browser can say what it knows
   try {
@@ -129,6 +171,7 @@ export function createJyotishaPanel({ doc = document, panel, provider = createEn
   };
   form.addEventListener('change', (ev) => {
     if (ev.target.name === 'zoneMode') syncMode();
+    if (ev.target.name !== 'choice') { revision++; clearResult(); resolved.textContent = ''; }
     // a changed reading asks the question afresh
     if (ev.target.name !== 'choice') { choiceSet.hidden = true; choiceSet.querySelectorAll('input').forEach((r) => { r.checked = false; }); }
   });
@@ -150,6 +193,7 @@ export function createJyotishaPanel({ doc = document, panel, provider = createEn
   }
 
   async function submit() {
+    const requestRevision = ++revision;
     clearResult();
     const choice = choiceSet.hidden ? null : (form.elements.choice.value === '' ? null : Number(form.elements.choice.value));
     const read = readInput({
@@ -189,6 +233,7 @@ export function createJyotishaPanel({ doc = document, panel, provider = createEn
     if (!provider.ready) resolved.textContent = instant + ' Loading the calculation engine…';
     try {
       const r = await provider.calculate({ utcMs: v.utcMs, latitude: v.latitude, longitude: v.longitude, day: { date, start, end } });
+      if (requestRevision !== revision) return;
       out('nakshatra').textContent = r.nakshatra;
       out('catalogue').textContent = r.catalogueId ? catalogueName(r.catalogueId) : '—';
       out('pada').textContent = String(r.pada);
@@ -211,6 +256,7 @@ export function createJyotishaPanel({ doc = document, panel, provider = createEn
       showBtn.disabled = !resultId;
       resolved.textContent = instant;
     } catch (err) {
+      if (requestRevision !== revision) return;
       const why = err instanceof EngineError && err.kind === 'load'
         ? 'The calculation engine could not be loaded. Check the connection and calculate again.'
         : err instanceof EngineError
@@ -227,8 +273,28 @@ export function createJyotishaPanel({ doc = document, panel, provider = createEn
   panel.addEventListener('click', (ev) => {
     const t = ev.target.closest('[data-jy]');
     if (!t) return;
+    if (t.dataset.jy === 'now') {
+      try {
+        let basis;
+        if (form.elements.zoneMode.value === 'offset') {
+          const parsed = parseOffset(form.elements.offset.value);
+          if (parsed.error) { showErrors({ offset: parsed.error }); return; }
+          basis = { offsetSeconds: parsed.seconds };
+        } else {
+          const zone = form.elements.zone.value.trim() || Intl.DateTimeFormat().resolvedOptions().timeZone;
+          if (!zone) throw new Error('zone unavailable');
+          basis = { zone };
+        }
+        const clock = localClock(now(), basis);
+        if (basis.zone) form.elements.zone.value = basis.zone;
+        form.elements.date.value = clock.date;
+        form.elements.time.value = clock.time;
+        form.elements.date.dispatchEvent(new doc.defaultView.Event('input', { bubbles: true }));
+        showErrors({});
+      } catch { showErrors({ zone: 'Enter a valid IANA time zone before using now.' }); }
+    }
     if (t.dataset.jy === 'close') listeners.forEach(([n, fn]) => n === 'close' && fn());
-    if (t.dataset.jy === 'device') { form.elements.zone.value = t.dataset.zone; form.elements.zone.dispatchEvent(new Event('change', { bubbles: true })); }
+    if (t.dataset.jy === 'device') { form.elements.zone.value = t.dataset.zone; form.elements.zone.dispatchEvent(new doc.defaultView.Event('change', { bubbles: true })); }
     if (t.dataset.jy === 'show' && resultId) listeners.forEach(([n, fn]) => n === 'show' && fn(resultId));
   });
   syncMode();

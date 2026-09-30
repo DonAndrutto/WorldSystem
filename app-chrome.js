@@ -43,6 +43,12 @@
   "Astrology — j": "Astrologia — j",
   "Billion worlds — b": "Miliard światów — b"
 });
+  Object.assign(translations, {
+    'When': 'Kiedy', 'Where': 'Gdzie', 'Zone': 'Strefa', 'Use now': 'Użyj bieżącej chwili',
+    'Uses the chosen zone or offset; if the zone is blank, uses this device’s zone.': 'Używa wybranej strefy lub przesunięcia; gdy strefa jest pusta, używa strefy urządzenia.',
+    'Find a place': 'Znajdź miejsce', 'optional city preset': 'opcjonalne miasto z listy',
+    'Choose a listed city to fill coordinates and zone, or enter coordinates below. Presets use approximate city centres.': 'Wybierz miasto z listy, aby uzupełnić współrzędne i strefę, lub wpisz współrzędne poniżej. Lista wskazuje przybliżone centra miast.'
+  });
   locale?.add(translations);
   // A magnifying glass with a minus or a plus in its lens.
   const magnifier = plus => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m15.4 15.4 5.1 5.1M7.8 10.5h5.4${plus ? 'M10.5 7.8v5.4' : ''}"/></svg>`;
