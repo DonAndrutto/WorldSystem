@@ -49,6 +49,17 @@
     'Find a place': 'Znajdź miejsce', 'optional city preset': 'opcjonalne miasto z listy',
     'Choose a listed city to fill coordinates and zone, or enter coordinates below. Presets use approximate city centres.': 'Wybierz miasto z listy, aby uzupełnić współrzędne i strefę, lub wpisz współrzędne poniżej. Lista wskazuje przybliżone centra miast.'
   });
+  Object.assign(translations, {
+    'Interpretation': 'Interpretacja', 'Expand': 'Rozwiń', 'Collapse': 'Zwiń',
+    'Electional': 'Elekcyjna', 'Natal': 'Urodzeniowa', 'Combinations': 'Kombinacje', 'Remedies': 'Środki zaradcze',
+    'More…': 'Więcej…', 'Show remedies': 'Pokaż środki zaradcze',
+    '✅ Favorable': '✅ Pomyślne', '❌ Unfavorable': '❌ Niepomyślne',
+    'Interpretation text is English; Polish translation pending.': 'Tekst interpretacji jest po angielsku; polskie tłumaczenie w przygotowaniu.',
+    'Electional readings not loaded yet.': 'Interpretacje elekcyjne nie zostały jeszcze dodane.',
+    'Natal readings not loaded yet.': 'Interpretacje urodzeniowe nie zostały jeszcze dodane.',
+    'Enter a moment with date, time, resolved zone and vāra.': 'Podaj chwilę z datą, godziną, ustaloną strefą czasową i vāra.',
+    'Combinations partial — needs source check': 'Kombinacje częściowe — wymagają sprawdzenia źródła'
+  });
   locale?.add(translations);
   // A magnifying glass with a minus or a plus in its lens.
   const magnifier = plus => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m15.4 15.4 5.1 5.1M7.8 10.5h5.4${plus ? 'M10.5 7.8v5.4' : ''}"/></svg>`;

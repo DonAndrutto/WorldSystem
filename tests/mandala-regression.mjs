@@ -60,6 +60,7 @@ Object.assign(globalThis, {document, localStorage: window.localStorage, Event: w
 const lunarMansions = await import(pathToFileURL(repo + '/lunar-mansions.js'));
 const mansionLayerModule = await import(pathToFileURL(repo + '/mansion-layer.js'));
 const mansionUiModule = await import(pathToFileURL(repo + '/mansion-ui.js'));
+const { createInterpretation } = await import(pathToFileURL(repo + '/interpretation-ui.js'));
 const lunarPanels = await import(pathToFileURL(repo + '/lunar-panels.js'));
 const textureRequests = [];
 const THREE = {...RealThree, TextureLoader: class {
@@ -82,7 +83,7 @@ Object.assign(window, {createOfferingModels, OFFERING_ART, offeringBackground, T
   glyphUrl: lunarMansions.glyphUrl, evidenceLine: lunarMansions.evidenceLine, CATALOGUE_SOURCE: lunarMansions.CATALOGUE_SOURCE,
   createMansionLayer: mansionLayerModule.createMansionLayer,
   mansionRows: mansionUiModule.associations, mansionNotes: mansionUiModule.readingNotes,
-  openCalculator: lunarPanels.openCalculator,
+  createInterpretation, openCalculator: lunarPanels.openCalculator,
   mansionUI: lunarPanels.mansionUI, adoptLunarPanels: lunarPanels.adopt,
   lunarPanelsOpen: lunarPanels.lunarPanelsOpen, closeLunarPanels: lunarPanels.closeLunarPanels
 });
@@ -1503,6 +1504,7 @@ assert.equal(lunarPanels.calculator.panel.hidden, false);
 assert.equal(lunarPanels.mansionUI.layer, true);
 lunarPanels.mansionUI.select('lm_tha_skar', {source:'show'}); advance(200);
 assert.equal(app.state().mode, 'astrology', 'Show in world keeps Astrology');
+assert.equal(q('.sheet .interpretation > details').open, false);
 app.setMode('game'); advance(200);
 key('b'); advance(200);
 assert.equal(app.state().mode, 'game', 'B still changes the Game board layout');
