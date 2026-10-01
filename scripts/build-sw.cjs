@@ -23,6 +23,7 @@ const root = path.resolve(__dirname, '..');
 // them, and an installed app has no use for the 28 MB.
 const SHELL = [
   'index.html',
+  'data/nakshatra_interpretation.json',
   'docs/NAKSHATRA-ENGINE.md',
   ['.', /\.css$/],                           // all shared and mode styles
   'manifest.webmanifest',

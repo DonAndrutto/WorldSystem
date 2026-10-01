@@ -50,8 +50,8 @@ try {
     const savedGame = await page.evaluate(() => Object.fromEntries(Object.entries(localStorage).filter(([key])=>key.includes('session'))));
     for (const name of Object.keys(counts)) {
       await mode(name);
-      await page.locator('[data-menu=mode] > summary').click();
-      await page.locator('[data-start-tour]').click();
+      await page.locator('[data-menu=options] > summary').click();
+      await page.locator('[data-menu=options] [data-start-tour]').click();
       await page.locator('.tour-panel').waitFor({state:'visible'});
       assert.equal(await page.locator('#tour-jump option').count(), counts[name]);
       assert.equal(await page.locator('[data-act=motion]').getAttribute('aria-pressed'), String(!config.reduced));

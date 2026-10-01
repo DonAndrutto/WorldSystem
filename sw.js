@@ -25,7 +25,7 @@
    current shelf or the runtime one, so old versions do not accumulate. */
 
 /* ── written by scripts/build-sw.cjs — do not edit below ─────────────── */
-const VERSION = '30914b880690b55a';
+const VERSION = '99773333208cacc0';
 const SHELL = [
   "app-chrome.css",
   "app-chrome.js",
@@ -91,6 +91,7 @@ const SHELL = [
   "assets/wheel/wheel-yama-gods.webp",
   "assets/wheel/wheel.webp",
   "continent-models.js",
+  "data/nakshatra_interpretation.json",
   "docs/NAKSHATRA-ENGINE.md",
   "favicon-32.png",
   "favicon.ico",
@@ -102,7 +103,11 @@ const SHELL = [
   "icon-512.png",
   "icon-maskable-512.png",
   "index.html",
+  "interpretation-data.js",
+  "interpretation-ui.js",
+  "interpretation.css",
   "jyotisha-engine.js",
+  "jyotisha-interpret.js",
   "jyotisha-panel.js",
   "jyotisha.js",
   "locales/pl-texts.js",
@@ -114,6 +119,7 @@ const SHELL = [
   "manifest.webmanifest",
   "mansion-layer.js",
   "mansion-ui.js",
+  "places-data.js",
   "presentation-locales.js",
   "presentation-tours.css",
   "presentation-tours.js",
@@ -122,6 +128,7 @@ const SHELL = [
   "rebirth-icons.js",
   "rebirth-notes.js",
   "rebirth-sound.js",
+  "search-text.js",
   "sky-clouds.js",
   "summit-detail.js",
   "thousand-worlds.js",
@@ -136,6 +143,7 @@ const SHELL = [
   "wheel-parts.js",
   "wheel-relief.js",
   "wheel-view.js",
+  "white-beryl-rules.js",
   "world-surfaces.js"
 ];
 /* ── end of the written part ─────────────────────────────────────────── */
