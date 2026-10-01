@@ -2141,6 +2141,7 @@ import { createGame, throwDie, view as rbView, destination as rbDestination } fr
 import { SQUARE_NOTES, SQUARE_FULL } from './rebirth-notes.js';
 import { SQUARE_ART, cellBackground, createSquareArt, LIBERATION_ART } from './rebirth-icons.js';
 import { createSoundKit, voiceFor as rbVoice } from './rebirth-sound.js';
+import { searchText } from './search-text.js';
 import { PLAYER_SKINS, PLAYER_CULTURES, normalizeSkin, PLAYER_PALETTE, paintPlayer, createPlayerArt } from './game-players.js';
 import { SESSION_KEY, makeSession, restoreSession, possibleThrows } from './game-session.js';
 import { drawWheel } from './wheel-art.js';
@@ -3533,11 +3534,11 @@ def('about', {
       'Every part of the model is a click away from its entry: its name in Sanskrit and Tibetan, its measure, and what the texts say stands there. The index lists all of them, and takes a filter. <b>Mandala view</b> lays the world out heap by heap in the order the thirty-seven-point offering names it. <b>Motion</b> sets the sun and moon on their circuit and lets the view turn. The light follows the sun around Meru, or the moon in night mode, from a higher angle chosen for visibility. The small compass rose turns with the view; in the mandala view the four directions are lettered in English and Tibetan at the edge of the plate.',
       'The <b>Wheel</b> view is the wheel of life, the bhavacakra, as a painted relief: the three poisons at the hub, the paths of karma, the six realms, the twelve links on the rim, and Yama holding the whole of it. Every part of it is an entry. It can be brought close and turned a little on its wall, but not around.',
       "Six modes share one model: Explorer visits worlds and realms; Mandala follows the 37 offerings; Game follows paths of rebirth; Wheel studies the cycle of life; Billion worlds moves through the thousandfold systems; Astrology opens the lunar-mansion layer and the Jyotiṣa calculator.",
-      "Choose Start a guided tour from the mode menu or Help. Each mode has a tour; Astrology tours the 28 Tibetan catalogue entries. After the first complete download, the model, tours and calculator work offline. An update notice offers a reload when a new version is ready.",
+      "Choose Start a guided tour from About this model, Options or Help. Each mode has a tour; Astrology tours the 28 Tibetan catalogue entries. After the first complete download, the model, tours and calculator work offline. An update notice offers a reload when a new version is ready.",
       "<b>Astrology.</b> Open Astrology in the mode menu (J), or the calculator in Options. The White Beryl layer, index and tour contain 28 Tibetan lunar mansions, with one Abhijit entry. The Indian Jyotiṣa calculator uses 27 equal sidereal sectors and Lahiri ayanamsa. These are separate systems: Show in world passes only a catalogue ID. The sprites and their ring are illustrative, not astronomical positions.",
       "For a birth or another moment, enter the Gregorian date, local clock time, place coordinates and time zone or explicit UTC offset. Repeated local times require an earlier/later choice; nonexistent local times are refused. Inputs are processed in this browser and are not stored or sent anywhere.",
       "The calculator uses astronomy-engine 2.1.19 (MIT). Lahiri follows the published definition of 23°15′00.658″ on 21 March 1956, carried forward by precession; Spica is not the primary definition. Frozen Swiss Ephemeris output fixtures are used only for regression tests. See <a href=\"docs/NAKSHATRA-ENGINE.md\" target=\"_blank\" rel=\"noopener\">the engine method and verification</a>.",
-      "Interpretation is reserved for the White Beryl fruit text in chapter 33, shown through a collapsed summary and optional tabs. The Indian calculation supplies the moment; White Beryl supplies the reading. This release contains a source-review skeleton, with no electional, natal or remedy readings. Damaged OCR requires checking against the source; combinations are partial and need a source check. These historical readings are study material, not advice. Polish localization of interpretation strings is pending; the interpretation area is explicitly marked as English.",
+      "The White Beryl interpretation presents chapter 33 readings for all 28 mansions, with electional summaries, natal descriptions, traditional ritual context and Tibetan source passages. Weekday combinations use the four-element rules and selected named lists, with different traditions kept separate. The Indian calculation supplies a catalogue cross-reference, not a Tibetan calendar date. Source uncertainties are identified; these historical readings are study material. Interpretation text is English; Polish translation is pending.",
       'Each continent takes its colour and shape from the face of Meru it stands opposite, and is flanked by two subcontinents of the same shape and half the size.',
       'The model uses schematic changes of scale, shape, placement, and lighting to make its features readable. <b>The scale of this drawing</b> describes the principal adaptations.',
       'The model is the work of <b>Andrzej R. Rybszleger</b>, built from the sources named below.'],
@@ -4830,6 +4831,11 @@ function show(id, reveal) {
   sList.innerHTML = (e.f || []).map((r) => '<dt>' + r[0] + '</dt><dd>' + r[1] + '</dd>').join('');
   sList.hidden = !(e.f || []).length;
   sBodies.innerHTML = [].concat(e.b || []).map(bodyBlock).join('');
+  if (id === 'about') {
+    const tour = document.createElement('button');
+    tour.type = 'button'; tour.className = 'btn'; tour.dataset.startTour = '';
+    tour.textContent = 'Start a guided tour'; sBodies.append(tour);
+  }
   if (MANSION_BY_ID.has(id)) sBodies.append(createInterpretation({ id }));
   const more = [].concat(e.more || []);
   sMore.hidden = !more.length;
@@ -6433,8 +6439,8 @@ TREE.forEach(([group, rows]) => {
     b.className = 'row';
     b.dataset.id = e.id;
     b.innerHTML = '<span class="n">' + (label || e.t) + '</span><span class="k">' + (e.k || '') + '</span>';
-    b.dataset.search = ((label || '') + ' ' + e.t + ' ' + (e.en || '') + ' ' +
-      (e.tib || '') + ' ' + (e.meta || '') + ' ' + group).toLowerCase();
+    b.dataset.search = searchText((label || '') + ' ' + e.t + ' ' + (e.en || '') + ' ' +
+      (e.tib || '') + ' ' + (e.meta || '') + ' ' + group);
     b.addEventListener('click', () => {
       if (MANSION_BY_ID.has(e.id)) { mansionUI.select(e.id, { source: 'index' }); return; }
       show(e.id, false); goTo(e.id);
@@ -6450,7 +6456,7 @@ TREE.forEach(([group, rows]) => {
 
 const search = document.querySelector('.index input');
 search.addEventListener('input', () => {
-  const q = search.value.trim().toLowerCase();
+  const q = searchText(search.value);
   let total = 0;
   [...rowsEl.children].forEach((grp) => {
     let shown = 0, lastH4 = null, h4Shown = false;

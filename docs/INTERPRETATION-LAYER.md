@@ -1,61 +1,49 @@
-# White Beryl interpretation skeleton
+# White Beryl interpretation layer
 
-This release contains **no electional, natal, combination or remedy readings**.
-`data/nakshatra_interpretation.json` is the editable source, keyed by all and
-only the 28 IDs in `lunar-mansions.js`. The Tibetan, Wylie and Sanskrit names
-and `form.en` → `symbol` were copied directly from that catalogue, including
-its provisional forms. Names and glyphs were not re-audited. Abhijit occurs
-once as `lm_byi_bzhin`; the Indian calculator has no Abhijit sector.
+The editable source is `data/nakshatra_interpretation.json`, keyed by the 28
+catalogue IDs. All entries now include selected English electional and natal
+readings, the source Tibetan passage, chapter/body-block citations, and
+historical illness-onset ritual descriptions from `White Beryl Chapter 33.docx`.
+These are selective summaries, not a complete translation or a medical forecast.
+Uncertain deity readings are identified; unsupported fields remain empty.
+Catalogue identities and artwork remain unchanged.
 
-All other interpretation fields remain null/empty, combinations remain
-`partial`, and every entry has `needs_source_review: true`. In particular,
-`element`, `nag_rtsis_element` and `deity` have not been populated.
+Four-element weekday/mansion combinations and named day lists are implemented
+in `white-beryl-rules.js`. Alternative traditions remain separate, including
+conflicting readings. There is no aggregate auspiciousness score. The calculator
+passes its explicit catalogue mapping and sunrise-based weekday to the reader;
+it remains an Indian astronomical cross-reference, not a Tibetan calendar.
+Abhijit has its own catalogue entry and no invented Indian calculator sector.
 
-## Source review before population
+The five-element nag rtsis relationship tables appear separately as reference
+material. Their merged columns describe element groups. They do not establish
+individual natal enemy/death pairs; those personal relationship arrays stay
+empty. See `WHITE-BERYL-CH33-AUDIT.md` for source decisions.
 
-A human will review the supplied chapter 33 OCR against page images and
-`docs/WHITE-BERYL-SOURCE-EXTRACTS.txt`. Every shipped reading must have its
-exact cited **L:** line pasted in the population PR. Do not fill from memory,
-older brief examples, DeepSeek, kalacakra.org or Tibet-Encyclopaedia.
-Keep rgya_gar and rgya_nag distinct. No hybrid element/combination table is
-licensed by this skeleton.
+Readings start collapsed in the catalogue and calculator. Tibetan source text
+is expandable. English readings are excluded from automatic Polish translation;
+Polish interface text retains the existing locale mechanism. Historical ritual
+material is separately disclosed and is not prescribed for an adverse day.
 
-`getActiveSbyorBa` deliberately returns `unknown` for every input until its
-rules are attested. A complete moment requires date, time, a resolved zone or
-UTC offset, finite UTC milliseconds, and vāra. Complete data alone cannot
-make a combination known. Relationship arrays belong to the natal entry and
-name current catalogue IDs; the logic compares them only when an explicit,
-valid `natalId` is provided. There is no inferred natal star and no natal
-input in this release. No source readings are implied by this API convention;
-review it along with the eventual relationship data.
+## Rebuilding
 
-## Runtime and editing
+- `python3 scripts/extract-white-beryl.py`: reproducible OOXML extraction,
+  retaining merged-cell information and all 22 tables.
+- `node scripts/build-interpretation.cjs`: JSON to browser module.
+- `node scripts/build-places.cjs`: all 337 supplied cities to browser module.
+  Coordinates come from the supplied list; IANA zones are supplemental data in
+  `data/city-zones.json`, validated by the generator.
+- `node scripts/build-sw.cjs`: refresh offline shell and content digest.
 
-Run `node scripts/build-interpretation.cjs` after editing JSON, followed by
-`node scripts/build-sw.cjs`. The first script produces the checked-in
-`interpretation-data.js` module from the JSON verbatim. It does not regenerate
-or overwrite the JSON. The second pins both files and the UI in the offline
-shell. Interpretation modules are eagerly imported with the application;
-opening or expanding a reading performs no request, computation service,
-storage access or external navigation.
-
-The same component appears after a successful calculator result (linked by
-`catalogueId`), in the mansion index, and in the world’s mansion detail.
-It starts collapsed, hides null fields, caps each electional list at seven,
-and shows at most three natal bullets before More. Remedy text is visible
-only with a known affliction or explicit Show remedies. Empty remedy fields
-stay empty. Technical tooltips appear only with the corresponding readings.
-
-Payloads use English `textContent`, `lang="en"` and `data-no-localize`;
-Polish chrome uses the existing locale observer. A visible notice and
-About → Astrology explain that Polish interpretation localization is pending.
+City selection uses a keyboard-accessible dropdown, fills coordinates and zone,
+and offers manual coordinates only when no city matches. Latin search accents
+are folded (including Ł/ł); Tibetan vowel signs are preserved.
 
 ## Verification
 
-- `node tests/jyotisha-interpret.mjs` (jsdom): exact catalogue keys and copied
-  metadata, null policy, generated file parity, disclosure, empty states,
-  optional natal input, safe text, list limits, both panels, no network.
-- `node tests/jyotisha-panel.mjs`: birth UX, DST refusal/choice, stale results.
-- `node tests/jyotisha.mjs` and `node tests/jyotisha-engine.mjs`: unchanged
-  arithmetic, Lahiri, frozen reference fixtures and date resolution.
-- `node tests/offline.mjs`: cache digest and library integrity pins.
+`tests/jyotisha-interpret.mjs` checks all source passages, table preservation,
+196 weekday/mansion pairs, named-list identities, ambiguity handling, safe
+rendering and integration. `tests/search-places.mjs` checks city source parity,
+zone validity and accent folding. Panel tests cover city selection, manual
+fallback, DST and stale asynchronous results. Chrome tests cover tour placement.
+The astronomy and offline suites check existing calculations and cached assets.

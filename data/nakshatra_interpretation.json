@@ -4,1063 +4,2117 @@
     "tibetan": "ཐ་སྐར་",
     "wylie": "tha skar",
     "sanskrit": "Aśvinī",
-    "element": null,
-    "nag_rtsis_element": null,
-    "deity": null,
+    "element": "wind",
+    "nag_rtsis_element": "water",
+    "deity": "Gandharva (dri za)",
     "symbol": "Horse head and neck",
     "electional": {
-      "favorable": [],
-      "unfavorable": [],
-      "notes": null,
-      "source": null
+      "favorable": [
+        "Teaching Dharma",
+        "Ordination and taking vows",
+        "Trade",
+        "Hair washing and cutting hair or nails",
+        "Building wells and irrigation channels",
+        "Travel and reconciliation",
+        "Naming ceremonies"
+      ],
+      "unfavorable": [
+        "Building and laying foundations",
+        "Marriage",
+        "Moving home",
+        "Preparing medicine"
+      ],
+      "notes": "Individual mansion reading; specific exceptions take precedence over general classes.",
+      "source": "White Beryl, chapter 33, tha skar passage (DOCX body block 118; L p. 313, starting L:10130). Selective English summary; Tibetan passage below."
     },
     "natal": {
-      "character": null,
-      "lifespan": null,
+      "character": "Eloquent, attractive and skilled in music and dance; inclined toward religious practice, but restless in mind and body.",
+      "lifespan": "The historical text gives 60–80 years.",
       "health": null,
       "wealth": null,
       "relationships": null,
       "mode_of_death": null,
       "spiritual": null,
-      "source": null
+      "source": "White Beryl, chapter 33, tha skar passage (DOCX body block 118; L p. 313, starting L:10130). Selective English summary; Tibetan passage below."
     },
     "enemy_star_ids": [],
     "death_star_ids": [],
     "combinations": {
-      "status": "partial",
+      "status": "elemental_complete",
       "classes": {}
     },
     "remedies": {
       "afflicted": null,
       "enemy_star": null,
-      "death_star": null
+      "death_star": null,
+      "illness_onset": "For an illness beginning under this mansion, the passage describes a ritual using a flour effigy of a horse. This is a historical ritual description, not a treatment recommendation; details remain in the Tibetan source.",
+      "source": "White Beryl chapter 33, body block 118. Illness onset is a separate context from weekday–mansion combinations."
     },
-    "needs_source_review": true
+    "needs_source_review": false,
+    "source_block": 118,
+    "source_tibetan": "ཐ་སྐར་དབྱུ་གུ་སྐར་གསུམ་རྟ་མགོའི་མགུལ། །དུས་ནི་རྟ་འཇིག་ལྷ་དྲི་ཟ། །ཟས་ཤ་སྦྲང་རྩི་རླུང་གི་ཁམས། །དགྲ་སྐར་མི་བརྟན་རྐུན་པོའི་བླ། །ཆོས་འཆད་རབ་བྱུང་སྡོམ་པ་འབེབས། །ལྷ་གཡང་དགེ་ལེགས་དྲ་གྱོན་ཚོང་། །སྲི་མནན་དམག་དང་རོ་འདོན་རྩོད། །ཐབ་འཆའ་བ་དན་རྒྱལ་མཚན་འཛུགས། །གཤིན་ལས་དུར་སྤོ་སྐྲ་སེན་འབྲེག །སྐྲ་འཁྲུ་རྫིང་ཡུར་ཁྲོན་པ་འདྲུ། །དོན་གཉེར་བོན་ཆོག་ཕྱུགས་འདུལ་བསྡུམས། །མཆོད་བཟོ་ཕྱིར་འཇལ་ཁྱི་བསྟེན་ལམ། །དགྲ་འདུལ་རྐུན་ཇག་ཡུལ་དབྱུང་བ། །བཟློག་པ་བྱོལ་ཟོར་ཡུགས་ས་བོར། །དགྲ་སྒྲུབ་བན་རྫོང་གཏམ་ཁུངས་བཅད། །དམིགས་བསལ་མ་གཏོགས་ལས་བཞི་དང་། །རིམ་གྲོ་ལྟད་མོ་མིང་འདོགས་བཟང་། །བཙོན་ཚུད་ཞག་པོ་གསུམ་ན་ཐར། །ས་དབྱེ་འདུ་ལོང་ཆེན་པོའི་ལས། །རྒྱན་འདོགས་སྨན་སྦྱར་གསོན་ལས་གཉེན། །མཁར་ལས་གཏར་སྲེག་ཚེ་འགུགས་སྐྱས། །རྩིག་རྨང་འདིང་དང་བག་མ་དང་། །བུ་སྲིང་ཕྱིར་གཏོང་ལ་སོགས་ངན། །གང་སྐྱེས་ལོ་ནི་དྲུག་ཅུ་ནས། །བརྒྱད་ཅུའི་བར་འཚོ་ལྕེ་བདེ་ཞིང་། །གཟུགས་བཟང་ཆོས་དཀར་སྨན་པའི་རིགས། །གླུ་གར་རོལ་མོའི་སྒྲ་ལ་མཁས། །བློ་ལུས་མི་བརྟན་སྡོད་མི་ཚུགས། །ནད་བཏབ་འགྲུལ་དང་ཆུ་ཡི་ལས། །གཅན་གཟན་གོས་ལན་གཏོ་ཐབས་ལ། །རྗེན་ཕྱེའི་རྟ་ཡི་གཟུགས་ཀྱི་ཁར། །ཉ་སྐམ་དང་ནི་མེ་ཏོག་བཅུག །ནད་པར་བསྐོར་ཞིང་བསྒྱུར་བས་གྲོལ། །ཤི་ན་ཁྱིམ་མཚེས་དག་ལ་ངན། །ལྟས་བྱུང་ནང་འཁྲུག་རླུང་ཆེན་ལྡང་། །རིམས་ནད་སྔགས་བོན་རྣམས་ལ་ངན། །འདི་ལ་ཆར་བབས་ཐན་པ་འབྱུང་། །སྐར་ཆུང་དྲག་པོ་སྟོབས་ལྡན་ཞེས། །དྲག་ལས་རོ་འདྲེན་ཤིན་ཏུ་བཟང་། །སྒྲིབ་ན་རྟ་ཡི་ཐོད་པ་ནི། །རང་གི་སྟེང་དུ་བཟུང་བས་ཐུབ། །",
+    "review_notes": [],
+    "element_relationships": {
+      "system": "nag_rtsis",
+      "mother": "iron",
+      "friend": "fire",
+      "child": "wood",
+      "enemy": "earth",
+      "source_block": 363,
+      "enemy_mansion_ids": [
+        "lm_bra_nye",
+        "lm_skag",
+        "lm_sa_ga",
+        "lm_byi_bzhin"
+      ],
+      "cemetery_greater_number": 8,
+      "cemetery_lesser_number": 21,
+      "note": "These are element-group (bla skar) reference tables, not an automatically derived natal comparison. Number 21 is shared/ambiguous for gro bzhin and byi bzhin in these tables; it is not resolved into a personal death-star prediction."
+    }
   },
   "lm_bra_nye": {
     "id": "lm_bra_nye",
     "tibetan": "བྲ་ཉེ་",
     "wylie": "bra nye",
     "sanskrit": "Bharaṇī",
-    "element": null,
-    "nag_rtsis_element": null,
-    "deity": null,
+    "element": "fire",
+    "nag_rtsis_element": "earth",
+    "deity": "Yama (gshin rje)",
     "symbol": "Vulva (female genital form)",
     "electional": {
-      "favorable": [],
-      "unfavorable": [],
-      "notes": null,
-      "source": null
+      "favorable": [
+        "Buying horses and livestock",
+        "Selling land",
+        "Installing a mill",
+        "Empowerment and naming",
+        "Cremation and forceful ritual activities"
+      ],
+      "unfavorable": [
+        "Temple building and consecration",
+        "Sowing and planting trees",
+        "Travel and trade",
+        "Marriage",
+        "Peaceful and increasing rites"
+      ],
+      "notes": "Individual mansion reading; specific exceptions take precedence over general classes.",
+      "source": "White Beryl, chapter 33, bra nye passage (DOCX body block 120; L p. 314, starting L:10148). Selective English summary; Tibetan passage below."
     },
     "natal": {
-      "character": null,
-      "lifespan": null,
+      "character": "Steadfast, truthful, industrious and skilled in crafts; the text also attributes little compassion.",
+      "lifespan": "The historical text gives 36 or 95 years.",
       "health": null,
       "wealth": null,
       "relationships": null,
       "mode_of_death": null,
       "spiritual": null,
-      "source": null
+      "source": "White Beryl, chapter 33, bra nye passage (DOCX body block 120; L p. 314, starting L:10148). Selective English summary; Tibetan passage below."
     },
     "enemy_star_ids": [],
     "death_star_ids": [],
     "combinations": {
-      "status": "partial",
+      "status": "elemental_complete",
       "classes": {}
     },
     "remedies": {
       "afflicted": null,
       "enemy_star": null,
-      "death_star": null
+      "death_star": null,
+      "illness_onset": "For an illness beginning under this mansion, the passage describes a ritual using a flour effigy of a ox. This is a historical ritual description, not a treatment recommendation; details remain in the Tibetan source.",
+      "source": "White Beryl chapter 33, body block 120. Illness onset is a separate context from weekday–mansion combinations."
     },
-    "needs_source_review": true
+    "needs_source_review": false,
+    "source_block": 120,
+    "source_tibetan": "བྲ་ཉེ་སྐར་གསུམ་མོ་མཚན་དབྱིབས། །རུས་ནི་ཝརྨ་ལྷ་གཤིན་རྗེ། །ཁ་ཟས་ཏིལ་འབྲས་མེ་ཡི་ཁམས། །དམེ་སྐར་འཕུང་བྱེད་ར་ཡི་བླ། །གནག་མཚོན་འཁོར་བསྟེན་རྟ་ཕྱུགས་ཉོ། །ལིང་འདྲི་དགུ་མནན་ཡུགས་སྐྲ་འཁྲུ། །ཟོར་འཕེན་འདྲེ་བསྐྲད་ར་ཕྱུགས་ལེན། །རང་འཐག་སྐྱེད་འཛུགས་ས་གཞི་འཚོང་། །སྲི་མནན་རྐུན་མ་སྔགས་བཟླ་དང་། །རིགས་ངན་ཤིད་བྱེད་དབང་དྲག་ལས། །ཡུགས་ས་ཕོ་མོ་གསོ་བ་དང་། །ལིངས་བྱེད་བྲེས་འཆོས་གཏད་སེལ་འཛུགས། །རོ་བསྲེག་དབང་བསྐུར་མིང་འདོགས་བཟང་། །ལྷ་གསོལ་མཁར་ལས་ས་བོན་གདབ། །ལྷ་ཁང་རྟེན་བཞེངས་རྒྱལ་སར་བསྐོ། །དགེ་བཤེས་ཆེ་འདོན་ཆོ་ག་དང་། །དྲ་གྱོན་མོ་རྩིས་བང་མཛོད་བརྩིག །ཕྱིར་འཇལ་དུར་འདེབས་བཟློག་རིམ་བྱ། །ཞལ་ཆེ་དམག་དྲངས་ཁ་དབྱེ། །ར་འཇལ་ཚོང་བྱེད་གཉེན་སྦྱོར་ལམ། །མི་ཤི་གསུམ་ཟློས་མོད་ལ་སྦ། །ཞི་རྒྱས་ལས་དང་རབ་གནས་བྱ། །གཡང་བསླན་སྐྱེ་ཤིང་འཛུགས་པ་དང་། །སྨན་སྦྱོར་གཏར་སྲེག་སྦྱིན་སྲེག་གཏད། །རྒྱལ་མཚན་བ་དན་འཕྱར་འཛུགས་དང་། །དོན་གཉེར་ཚེ་ནོར་སྒྲུབ་པ་སོགས། །དག་ལས་དཀར་ཕྱོགས་བྱ་བ་འཛེམ། །བག་མ་གཏོང་ལེན་བུ་སྐྱེས་ངན། །ཕོ་མོ་གང་སྐྱེས་སེམས་བརྟན་ཞིང་། །ནད་མེད་བདེན་སྨྲ་སྙིང་རྗེ་ཆུང་། །ཚེ་ལོ་སུམ་ཅུ་རྩ་དྲུག་གམ། །རིང་ན་དགུ་བཅུ་རྩ་ལྔ་འཚོ། །བཟོ་ལ་མཁས་ཤིང་བརྩོན་འགྲུས་ཆེ། །སྙིང་རྗེ་ཤིན་ཏུ་ཆུང་བས་ན། །ཕྱི་མ་དམྱལ་བའི་གནས་སུ་སྐྱེ། །ནད་བཏབ་མྱ་ངན་སར་ཕྱིན་ལན། །རྗེན་ཕྱེའི་གླང་གི་གཟུགས་ཀྱིས་ནི། །ཁ་དང་རྣ་བར་ཡུངས་ཀར་བླུགས། །ནད་པར་བསྐོར་ཞིང་བཞི་མདོར་བསྒྱུར། །མི་ཤི་གསུམ་ཟློས་མོད་ལ་སྦ། །ལྟས་བྱུང་མགོ་ནད་མིག་ནད་དང་། །བད་ཀན་ནད་འབྱུང་འབྲུ་དཀོན་ཞིང་། །གྲོང་ཁྱེར་མེས་ཚིག་རྒྱ་ནག་ངན། །ཆར་བབས་སླར་ཡང་འབབ་པ་ཡིན། །སྐར་ཆུང་ཕུང་རྒྱབ་ཅན་ཞེས་པ། །དགྲ་འདུལ་ཡུལ་ཕྱོགས་རྩོད་པ་སོགས། །གཤིན་གྱི་ཆང་བཙོ་སྐྱེད་འཛུགས་འབྲིང་། །སྒྲིབ་ན་གླང་ལུག་ཐོད་པ་ནི། །རང་གི་ཕྱོགས་སུ་འཕྱར་བས་ཐུབ། །",
+    "review_notes": [],
+    "element_relationships": {
+      "system": "nag_rtsis",
+      "mother": "fire",
+      "friend": "water",
+      "child": "iron",
+      "enemy": "wood",
+      "source_block": 355,
+      "enemy_mansion_ids": [
+        "lm_smin_drug",
+        "lm_snar_ma",
+        "lm_mgo",
+        "lm_lag",
+        "lm_nabs_so",
+        "lm_rgyal"
+      ],
+      "cemetery_greater_number": 8,
+      "cemetery_lesser_number": 21,
+      "note": "These are element-group (bla skar) reference tables, not an automatically derived natal comparison. Number 21 is shared/ambiguous for gro bzhin and byi bzhin in these tables; it is not resolved into a personal death-star prediction."
+    }
   },
   "lm_smin_drug": {
     "id": "lm_smin_drug",
     "tibetan": "སྨིན་དྲུག་",
     "wylie": "smin drug",
     "sanskrit": "Kṛttikā",
-    "element": null,
-    "nag_rtsis_element": null,
-    "deity": null,
+    "element": "fire",
+    "nag_rtsis_element": "wood",
+    "deity": "Agni, the fire deity (me lha)",
     "symbol": "Razor",
     "electional": {
-      "favorable": [],
-      "unfavorable": [],
-      "notes": null,
-      "source": null
+      "favorable": [
+        "Studying Dharma",
+        "Restoring temples and stupas",
+        "Consecration and offerings",
+        "Adornment and celebrations",
+        "Installing a hearth",
+        "Making jewellery"
+      ],
+      "unfavorable": [
+        "Travel and building works",
+        "Sowing and planting trees",
+        "Funerary rites",
+        "Marriage",
+        "Forceful activities"
+      ],
+      "notes": "Individual mansion reading; specific exceptions take precedence over general classes.",
+      "source": "White Beryl, chapter 33, smin drug passage (DOCX body block 122; L p. 314, starting L:10168). Selective English summary; Tibetan passage below."
     },
     "natal": {
-      "character": null,
-      "lifespan": null,
+      "character": "For a son, the text describes learning, courage, growing reputation and resources, with a difficult early life and a better later life.",
+      "lifespan": "The historical text gives Long life; no number in the individual passage.",
       "health": null,
       "wealth": null,
       "relationships": null,
       "mode_of_death": null,
       "spiritual": null,
-      "source": null
+      "source": "White Beryl, chapter 33, smin drug passage (DOCX body block 122; L p. 314, starting L:10168). Selective English summary; Tibetan passage below."
     },
     "enemy_star_ids": [],
     "death_star_ids": [],
     "combinations": {
-      "status": "partial",
+      "status": "elemental_complete",
       "classes": {}
     },
     "remedies": {
       "afflicted": null,
       "enemy_star": null,
-      "death_star": null
+      "death_star": null,
+      "illness_onset": "For an illness beginning under this mansion, the passage describes a ritual using a flour effigy of a goat. This is a historical ritual description, not a treatment recommendation; details remain in the Tibetan source.",
+      "source": "White Beryl chapter 33, body block 122. Illness onset is a separate context from weekday–mansion combinations."
     },
-    "needs_source_review": true
+    "needs_source_review": false,
+    "source_block": 122,
+    "source_tibetan": "སྨིན་དྲུག་སྐར་དྲུག་སྤུ་གྲིའི་དབྱིབས། །རྗེ་རིགས་མེ་ལྷ་ཟས་ནི་ཞོ། །མེ་ཁམས་ཟློས་སྐར་བུད་མེད་བླ། །བཏང་སྙོམས་ཅན་ལ་དགེ་ཆོས་འགྲུབ། །ཆོས་སློབ་ལྷ་ཁང་མཆོད་རྟེན་གསོ། །རབ་གནས་ལྷ་གཡང་མངའ་གསོལ་བྱེད། །སྦྱིན་སྲེག་ཡོན་འབུལ་སྨན་སྦྱོར་རྩིས། །རྒྱན་འདོགས་སྐྱིད་སྟོན་རྒྱལ་སར་བསྐོ། །ཐབ་འཆའ་ཚུར་ལེན་སྦྲ་ཁྱིམ་འབུབས། །གཉེན་ཕྲད་རྟ་རྒྱུག་སྒོ་རྒྱག་པ། །ལྟད་མོ་སྐྲ་འཁྲུ་བཙོན་བཟུང་བ། །རིན་ཅེན་བཟོ་དང་བུད་མེད་བསྟེན། །ཆུ་རགས་དཀར་ཕྱོགས་བྱ་བ་བཟང་། །མཁར་ལས་ཕར་འཇལ་ལམ་ཞུགས་ཤིད། །རྒྱལ་མཚན་བ་དན་བང་མཛོད་དབྱེ། །རྫིང་ཡུར་ཞིང་འདེབས་ས་ཁང་དབྱེ། །དྲ་གྱོན་དམག་ཇག་དྲག་ལས་སྐྱེས། །གཤིན་ལས་ཤིད་སྟོན་སྲི་གནོན་དང་། །བག་མ་ཁྱོར་ངན་སྐྱེད་ཁ་འདྲེན། །བུ་འབོགས་མེ་ཏོག་ཤིང་འཛུགས་འཛེམ། །བུ་སྐྱེས་སྙན་གྲགས་ལོངས་སྤྱོད་འཕེལ། །མཁས་ཤིང་དཔའ་བ་ཚེ་སྟོད་ངན། །ཚེ་སྨད་བཟང་ཞིང་ཚེ་རིང་འགྱུར། །བུ་མོ་སྐྱེས་ན་ངན་པའོ། །ནད་བཏབ་མི་གཙང་མནོལ་གྱིས་ལེན། །རྗེན་ཕྱེའི་ར་གཟུགས་ཁར་ཞོ་བླུགས། །ནད་པར་བསྐོར་ཞིང་བསྒྱུར་ན་ཕན། །མི་ཤི་དྲུག་ཟློས་མོད་ལ་སྦ། །ལྟས་བྱུང་ཐན་པ་མགོ་ནད་དང་། །མིག་ནད་འགྲོ་ཀུན་གྲོང་ཁྱེར་འཚིག །འདི་ལ་ཆར་བབས་ཕྱིས་ནས་འཐེན། །སྐར་ཆུང་མཐེབ་ཆུང་ཟུར་ཕུད་ཅན། །ཉི་མ་རྩེ་ཤར་ཅི་ཡང་བཟང་། །སྒྲིབ་ན་སྤྲེའུའི་ཐོད་པའི་གཟུགས། །རང་གི་ཕྱོགས་ནས་བསྟན་ན་ཐུབ། །",
+    "review_notes": [],
+    "element_relationships": {
+      "system": "nag_rtsis",
+      "mother": "water",
+      "friend": "earth",
+      "child": "fire",
+      "enemy": "iron",
+      "source_block": 349,
+      "enemy_mansion_ids": [
+        "lm_lha_mtshams",
+        "lm_snon",
+        "lm_snubs",
+        "lm_chu_stod",
+        "lm_chu_smad",
+        "lm_gro_bzhin"
+      ],
+      "cemetery_greater_number": 15,
+      "cemetery_lesser_number": 1,
+      "note": "These are element-group (bla skar) reference tables, not an automatically derived natal comparison. Number 21 is shared/ambiguous for gro bzhin and byi bzhin in these tables; it is not resolved into a personal death-star prediction."
+    }
   },
   "lm_snar_ma": {
     "id": "lm_snar_ma",
     "tibetan": "སྣར་མ་",
     "wylie": "snar ma",
     "sanskrit": "Rohiṇī",
-    "element": null,
-    "nag_rtsis_element": null,
+    "element": "earth",
+    "nag_rtsis_element": "wood",
     "deity": null,
     "symbol": "Cart",
     "electional": {
-      "favorable": [],
-      "unfavorable": [],
-      "notes": null,
-      "source": null
+      "favorable": [
+        "Establishing a residence",
+        "Teaching, study and ordination",
+        "Consecration",
+        "Construction",
+        "Trade and sowing",
+        "Peaceful and increasing rites"
+      ],
+      "unfavorable": [
+        "Travel",
+        "Moving home",
+        "Marriage",
+        "Funerary work",
+        "Cutting hair or nails"
+      ],
+      "notes": "Individual mansion reading; specific exceptions take precedence over general classes.",
+      "source": "White Beryl, chapter 33, snar ma passage (DOCX body block 124; L p. 315, starting L:10185). Selective English summary; Tibetan passage below."
     },
     "natal": {
-      "character": null,
-      "lifespan": null,
+      "character": "The passage describes a son as attractive, brave, religious and comparatively free of deceit.",
+      "lifespan": "The historical text gives Long life; no number in the individual passage.",
       "health": null,
       "wealth": null,
       "relationships": null,
       "mode_of_death": null,
       "spiritual": null,
-      "source": null
+      "source": "White Beryl, chapter 33, snar ma passage (DOCX body block 124; L p. 315, starting L:10185). Selective English summary; Tibetan passage below."
     },
     "enemy_star_ids": [],
     "death_star_ids": [],
     "combinations": {
-      "status": "partial",
+      "status": "elemental_complete",
       "classes": {}
     },
     "remedies": {
       "afflicted": null,
       "enemy_star": null,
-      "death_star": null
+      "death_star": null,
+      "illness_onset": "For an illness beginning under this mansion, the passage describes a ritual using a flour effigy of a dog. This is a historical ritual description, not a treatment recommendation; details remain in the Tibetan source.",
+      "source": "White Beryl chapter 33, body block 124. Illness onset is a separate context from weekday–mansion combinations."
     },
-    "needs_source_review": true
+    "needs_source_review": false,
+    "source_block": 124,
+    "source_tibetan": "སྣར་མ་སྐར་ལྔ་ཤིང་རྟའི་དབྱིབས། །རུས་ནི་གོའུ་ཏ་མ་ལ། །ས་ཁམས་གཡང་གི་སྐར་མ་སྟེ། །ཟས་ནི་ཞོ་སྦྲང་རབ་ཏུ་བརྟན། །ཡུལ་མཁར་གནས་གཞི་བཟུང་རྒྱལ་ས། །རབ་བྱུང་འཆད་ཉན་རབ་གནས་བྱ། །སློབ་གཉེར་ལྷ་གསོལ་ཚེ་གཡང་སྐྱོབ། །ཕྱུགས་སྦྱར་སྨན་སྦྱོར་ནོར་ཕྱུགས་ལེན། །འདུན་གྲོས་མཁར་བརྩིག་བྲེས་འཆོས་པ། །ཉོ་ཚོང་གཏར་སྲེག་དགྲ་ལ་རྒོལ། །ས་བོན་རྟ་འདུལ་སྒོ་རྒྱག་རྒྱུག །བུ་ལོན་སྙེག་དང་ཕོ་མོ་བཙས། །ཀུན་ར་བརྩིག་དང་ཞི་རྒྱས་ལས། །དྲ་གྱོན་སྐྲ་འཁྲུ་བང་མཛོད་བཅའ། །དོན་གཉེར་ཤར་བཟང་ས་ཁ་དབྱེ། །སྦྲ་ཁྱིམ་ཕྱུ་ཐེར་འཚེམ་འབུབས་བཟང་། །ལམ་ཞུགས་སྟོན་མོ་ཕྱུགས་ནོར་འཇལ། །དམག་ཇག་འཕོ་སྐྱེས་རུས་བུ་སྤོ། །མི་ཤི་ནོར་ངན་ཕྱུགས་གཡང་སྐལ། །གཉེན་བྱེད་བཟློག་པ་སྐྲ་སེན་འབྲེག །བུ་སྲིང་རྫོང་དང་གཤིན་ལས་འཛེམ། །བག་མ་གཏོང་ལེན་གཉིས་ཀ་ངན། །བུ་སྐྱེས་ཚེ་རིང་གཟུགས་བཟང་མཛེས། །ཕྱུག་ཅིང་ཆོས་ལྡན་གཡོ་སྒྱུ་ཆུང་། །དཔའ་ཞིང་ཕུན་ཚོགས་དགྲ་ལས་རྒྱལ། །ནད་བཏབ་ཐབ་དང་གཞོབ་ཀྱིས་ལན། །རྗེན་ཕྱེའི་ཁྱི་ཡི་གཟུགས་ཀྱི་ཁར། །མར་བཅུག་ནད་པར་བསྐོར་ལ་བསྒྱུར། །ཕོ་མོ་གང་ཤི་ནོར་ལ་ངན། །ལྟས་བྱུང་རྒྱལ་སྲིད་བདེ་བ་དང་། །འབྲས་བུ་རྒྱས་ལ་འཁྲུག་པ་ཞི། །ཆར་བབས་ཕྱིས་ཆེ་འབྲུ་མི་སྐྱེ། །སྐར་ཆུང་ལྷ་མོ་གཡང་སྐྱོང་བྱེད། །ཕྱི་རུ་དབང་བསྐུར་གཡང་ལོན་བཟང་། །སྒྲིབ་ན་ཁྱི་ཐོད་རང་སྟེང་བསྟན། །",
+    "review_notes": [
+      "Deity identification is absent or uncertain in this transcription; no standard Jyotisha deity has been substituted."
+    ],
+    "element_relationships": {
+      "system": "nag_rtsis",
+      "mother": "water",
+      "friend": "earth",
+      "child": "fire",
+      "enemy": "iron",
+      "source_block": 349,
+      "enemy_mansion_ids": [
+        "lm_lha_mtshams",
+        "lm_snon",
+        "lm_snubs",
+        "lm_chu_stod",
+        "lm_chu_smad",
+        "lm_gro_bzhin"
+      ],
+      "cemetery_greater_number": 15,
+      "cemetery_lesser_number": 1,
+      "note": "These are element-group (bla skar) reference tables, not an automatically derived natal comparison. Number 21 is shared/ambiguous for gro bzhin and byi bzhin in these tables; it is not resolved into a personal death-star prediction."
+    }
   },
   "lm_mgo": {
     "id": "lm_mgo",
     "tibetan": "མགོ་",
     "wylie": "mgo",
     "sanskrit": "Mṛgaśīrṣa",
-    "element": null,
-    "nag_rtsis_element": null,
-    "deity": null,
+    "element": "wind",
+    "nag_rtsis_element": "wood",
+    "deity": "Moon (zla ba)",
     "symbol": "Deer head",
     "electional": {
-      "favorable": [],
-      "unfavorable": [],
-      "notes": null,
-      "source": null
+      "favorable": [
+        "Teaching, ordination and consecration",
+        "Establishing a home",
+        "Crafts and farming",
+        "Celebrations and trade",
+        "Planting trees and flowers",
+        "Naming",
+        "Receiving a bride"
+      ],
+      "unfavorable": [
+        "Travel and moving home",
+        "Sending wealth away",
+        "Funerary work",
+        "Sending a bride away"
+      ],
+      "notes": "Individual mansion reading; specific exceptions take precedence over general classes.",
+      "source": "White Beryl, chapter 33, mgo passage (DOCX body block 126; L p. 315, starting L:10203). Selective English summary; Tibetan passage below."
     },
     "natal": {
-      "character": null,
-      "lifespan": null,
+      "character": "For a son, religious discipline, truthfulness, courage, clear intelligence and abundant resources are described.",
+      "lifespan": "The historical text gives 28, 62 or 90 years.",
       "health": null,
       "wealth": null,
       "relationships": null,
       "mode_of_death": null,
       "spiritual": null,
-      "source": null
+      "source": "White Beryl, chapter 33, mgo passage (DOCX body block 126; L p. 315, starting L:10203). Selective English summary; Tibetan passage below."
     },
     "enemy_star_ids": [],
     "death_star_ids": [],
     "combinations": {
-      "status": "partial",
+      "status": "elemental_complete",
       "classes": {}
     },
     "remedies": {
       "afflicted": null,
       "enemy_star": null,
-      "death_star": null
+      "death_star": null,
+      "illness_onset": "For an illness beginning under this mansion, the passage describes a ritual using a flour effigy of a dog. This is a historical ritual description, not a treatment recommendation; details remain in the Tibetan source.",
+      "source": "White Beryl chapter 33, body block 126. Illness onset is a separate context from weekday–mansion combinations."
     },
-    "needs_source_review": true
+    "needs_source_review": false,
+    "source_block": 126,
+    "source_tibetan": "མགོ་ནི་སྐར་གསུམ་རི་དྭགས་མགོ །རུས་ནི་བྷ་ར་དྷྭ་ཛ་དང་། །ལྷ་ནི་ཟླ་བ་ཟས་སུ་ནི། །རི་དྭགས་ཤ་ཟ་རླུང་གི་ཁམས། །མྱུར་བཟང་དམེ་སྐར་བཙད་པོའི་བླ། །ཆོས་འཆད་རབ་བྱུང་རབ་གནས་གཉེན། །ཁྱིམ་གསར་སྒོ་འཛུགས་ལྷ་གསོལ་གཡང་། །གསོན་ཆོས་རྒྱན་སྤྲོད་ཤིང་བཟོ་ཁྲོམ། །ཞིང་ལས་གསོན་ལས་རྒྱལ་སར་བསྐོ། །སྨན་སྦྱོར་བློ་གྲོས་གཞི་འདིང་བ། །མཁར་ལས་ལྷ་ཁང་རྟེན་བཞེངས་ཁྲུས། །དམག་ཇག་དགྲ་འདུལ་མོ་རྩིས་བྱ། །དྲག་ཅིང་རྩུབ་པའི་ལས་རྣམས་དང་། །ཐབ་འཆའ་འདུ་ལོང་རྒྱལ་མཚན་འཛུགས། །ནོར་བླང་དྲག་ལས་འདྲེ་འདུལ་བ། །བཟློག་པ་སྲི་མནན་ས་ཁ་དབྱེ། །སྐྲ་སེན་འབྲེག་དང་རྟ་རྒྱུག་བཟོ། །རྟ་བོང་དྲེའུ་སྒ་རྒྱག་བཅོས། །སྟོན་མོ་ཚོང་དང་མིང་འདོགས་ལྟད། །ཕྱུགས་འདུལ་རྩེད་མོ་འདོད་དོན་སྒྲུབ། །དྲག་རྒྱས་བཟང་ལ་དབང་ཞི་རུང་། །དགེ་ལེགས་མེ་ཏོག་ཤིང་འཛུགས་བཟང་། །མི་ནོར་ཕྱིར་གཏོང་ལམ་ཞུགས་ཤིང་། །གཤིན་ལས་དུར་འདེབས་ཁ་སྨྲས་དང་། །འཇམ་ལས་ཞལ་ཆེ་འཕོ་སྐྱས་བྱེད། །དྲ་གྱོན་ཤི་བ་མགོ་འཆི་ངན། །བག་མ་ཚུར་བཟང་ཕར་གཏོང་ངན། །བུ་སྐྱེས་ཚེ་ལོ་ཉེར་བརྒྱད་དམ། །ཡང་ན་རེ་གཉིས་དགུ་བཅུ་འཚོ། །ཆོས་ལྡན་སྡོམ་བརྩོན་བདེན་པར་སྨྲ། །དཔའ་ཞིང་བློ་གསལ་ལོངས་སྤྱོད་ཆེ། །བུ་མོ་བཙས་པ་ཁ་དྲག་ཟེར། །ནད་བཏབ་འཁོན་དང་ཡུགས་ཀྱིས་ལན། །རྗེན་ཕྱེའི་ཁྱི་ཡི་གཟུགས་ཀྱི་ཁར། །རི་དྭགས་ཤ་བཅུག་ནད་བསྐོར་བསྒྱུར། །ལྟས་བྱུང་འཁྲུག་རྩོད་རླུང་ཆེན་ལྡང་། །རིམས་ནད་མང་ཞིང་སྔགས་བོན་དང་། །འཕགས་ཡུལ་བར་ངན་ཆར་བབས་ཆེ། །མགོ་ལག་བར་འདིར་སྐར་ཆུང་ཉིད། །མིད་པར་རྒྱུད་སྡེ་ཕལ་ཆེར་བཤད། །དུར་མཛོད་ཡོད་པར་བཤད་པ་ལྟར། །སྐར་ཆུང་མ་ནམ་ཉི་དྲོས་འོང་། །འདི་ལ་མི་ཤི་བྱུང་བ་ངན། །སྒྲིབ་ན་ཝ་ཐོད་རང་སྟེང་འཕྱར། །",
+    "review_notes": [],
+    "element_relationships": {
+      "system": "nag_rtsis",
+      "mother": "water",
+      "friend": "earth",
+      "child": "fire",
+      "enemy": "iron",
+      "source_block": 349,
+      "enemy_mansion_ids": [
+        "lm_lha_mtshams",
+        "lm_snon",
+        "lm_snubs",
+        "lm_chu_stod",
+        "lm_chu_smad",
+        "lm_gro_bzhin"
+      ],
+      "cemetery_greater_number": 15,
+      "cemetery_lesser_number": 1,
+      "note": "These are element-group (bla skar) reference tables, not an automatically derived natal comparison. Number 21 is shared/ambiguous for gro bzhin and byi bzhin in these tables; it is not resolved into a personal death-star prediction."
+    }
   },
   "lm_lag": {
     "id": "lm_lag",
     "tibetan": "ལག་",
     "wylie": "lag",
     "sanskrit": "Ārdrā",
-    "element": null,
-    "nag_rtsis_element": null,
-    "deity": null,
+    "element": "water",
+    "nag_rtsis_element": "wood",
+    "deity": "The Fierce One (gtum drag)",
     "symbol": "Point, a circular spot (thig le)",
     "electional": {
-      "favorable": [],
-      "unfavorable": [],
-      "notes": null,
-      "source": null
+      "favorable": [
+        "Ordination and consecration",
+        "Writing and craft work",
+        "Sowing and planting",
+        "Repairing irrigation",
+        "Petitions to superiors",
+        "Forceful ritual activities"
+      ],
+      "unfavorable": [
+        "Marriage",
+        "Travel and moving home",
+        "Temple and image construction",
+        "Installing a hearth",
+        "Peaceful and increasing rites"
+      ],
+      "notes": "Individual mansion reading; specific exceptions take precedence over general classes.",
+      "source": "White Beryl, chapter 33, lag passage (DOCX body block 128; L p. 316, starting L:10221). Selective English summary; Tibetan passage below."
     },
     "natal": {
-      "character": null,
-      "lifespan": null,
+      "character": "The text describes fierceness, pride and poverty; it distinguishes a son's strength from a daughter's skill in wool work.",
+      "lifespan": "The historical text gives 35 or 65 years.",
       "health": null,
       "wealth": null,
       "relationships": null,
       "mode_of_death": null,
       "spiritual": null,
-      "source": null
+      "source": "White Beryl, chapter 33, lag passage (DOCX body block 128; L p. 316, starting L:10221). Selective English summary; Tibetan passage below."
     },
     "enemy_star_ids": [],
     "death_star_ids": [],
     "combinations": {
-      "status": "partial",
+      "status": "elemental_complete",
       "classes": {}
     },
     "remedies": {
       "afflicted": null,
       "enemy_star": null,
-      "death_star": null
+      "death_star": null,
+      "illness_onset": "For an illness beginning under this mansion, the passage describes a ritual using a flour effigy of a dog. This is a historical ritual description, not a treatment recommendation; details remain in the Tibetan source.",
+      "source": "White Beryl chapter 33, body block 128. Illness onset is a separate context from weekday–mansion combinations."
     },
-    "needs_source_review": true
+    "needs_source_review": false,
+    "source_block": 128,
+    "source_tibetan": "ལག་ནི་སྐར་གཅིག་ཐིག་ལེའི་དབྱིབས། །རིགས་ནི་དམངས་པོ་ཟས་ཁྲག་ཆུ། །ལྷ་ནི་གཏུམ་དྲག་བཤན་པའི་བླ། །ཆུ་ཁམས་མགྲོན་སྐར་འབྲས་བུ་ངན། །གཡང་ལོན་བཟོ་ཡིག་ཞལ་ཆེ་གཅོད། །རབ་བྱུང་རབ་གནས་དགེ་ལས་སྒྲུབ། །རྒྱན་སྤྲོད་སྐྲ་འཁྲུ་ས་བོན་གདབ། །རོ་ལམ་བཏོད་པ་འཇལ་ལེན་བྱེད། །དམག་ཇག་དྲག་ལས་གསོད་གཅོད་རྒྱུ། །འཐབ་རྩོད་དགྲ་ཡི་སྲི་སྒྲུབ་པ། །ཚེ་འགུགས་བོན་ཆོག་སྲི་མནན་བྱ། །མོ་འདེབས་བཟློག་པ་རྫིང་ཡུར་འཆོས། །མཐོ་ལ་ཞུ་འབུལ་ཐུག་འགྱེད་པ། །མེ་ཏོག་སྐྱེ་ཤིང་འཛུགས་པ་བཟང་། །ལྷ་གསོལ་བ་དང་གཤིན་ལས་རིགས། །གཉེན་དང་ཕྱུགས་འཇལ་དོན་གཉེར་སྐྱས། །དྲ་གྱོན་ལམ་ཞུགས་རྒྱལ་ས་བསྡུམས། །ལྷ་ཁང་རྟེན་བཞེངས་བ་དན་འཛུགས། །གཏར་ཁ་མེ་བཙའ་སྦྲ་ཕྱིར་འཚེམ། །ཐབ་འཆའ་ཆུ་རགས་རྒྱག་པ་དང་། །ཞི་རྒྱས་དབང་དང་བཀྲ་ཤིས་ལས། །སྦྱིན་སྲེག་བྱ་སོགས་ཕལ་ཆེར་ངན། །བག་མ་བྱས་ན་ཁྱོ་ལ་ངན། །གང་སྐྱེས་ཚེ་ལོ་སོ་ལྔའམ། །རེ་ལྔ་ཆོམ་པོའི་ལས་ཀྱིས་འཚོ། །གཏུམ་ཞིང་གཡོ་མེད་ལག་མི་བཟོ། །དབུལ་ཞིང་ང་རྒྱལ་སྡིག་ལ་དགའ། །ཁྱད་པར་བུ་སྐྱེས་རྩལ་ཆེ་བ། །བུ་མོ་བལ་གྱི་ལས་ལ་སྐྱེན། །ནད་བཏབ་འཁོར་མང་དབུས་ཕྱིན་ལན། །ལག་པར་ནད་འོང་རྗེན་གྱི་ནི། །ཁྱི་གཟུགས་ཁ་ལ་ཁྲག་བླུགས་པ། །ནད་པར་བསྐོར་ལ་བསྐྱུར་བར་བྱ། །ལྟས་བྱུང་ཆར་བབས་སྦྲུམ་མ་བདེ། །ནད་མེད་སྨན་དང་རི་དྭགས་འཕེལ། །ལོར་ངན་ཆར་བབས་ཕྱིས་ནས་འགྱངས། །ཟེའུ་སྙིང་གར་གུང་གཉིས་འོང་། །དེ་ལ་བྱ་བ་ཐམས་ཅད་བཟང་། །སྒྲིབ་ན་བ་ཐོད་རང་སྟེང་འཕྱར། །",
+    "review_notes": [],
+    "element_relationships": {
+      "system": "nag_rtsis",
+      "mother": "water",
+      "friend": "earth",
+      "child": "fire",
+      "enemy": "iron",
+      "source_block": 349,
+      "enemy_mansion_ids": [
+        "lm_lha_mtshams",
+        "lm_snon",
+        "lm_snubs",
+        "lm_chu_stod",
+        "lm_chu_smad",
+        "lm_gro_bzhin"
+      ],
+      "cemetery_greater_number": 15,
+      "cemetery_lesser_number": 1,
+      "note": "These are element-group (bla skar) reference tables, not an automatically derived natal comparison. Number 21 is shared/ambiguous for gro bzhin and byi bzhin in these tables; it is not resolved into a personal death-star prediction."
+    }
   },
   "lm_nabs_so": {
     "id": "lm_nabs_so",
     "tibetan": "ནབས་སོ་",
     "wylie": "nabs so",
     "sanskrit": "Punarvasu",
-    "element": null,
-    "nag_rtsis_element": null,
-    "deity": null,
+    "element": "wind",
+    "nag_rtsis_element": "wood",
+    "deity": "Deity of the sun (nyi ma'i lha)",
     "symbol": "Throne leg",
     "electional": {
-      "favorable": [],
-      "unfavorable": [],
-      "notes": null,
-      "source": null
+      "favorable": [
+        "Teaching, study and ordination",
+        "Consecration and empowerment",
+        "Sowing and laying foundations",
+        "Building and trade",
+        "Travel",
+        "Naming",
+        "Receiving a bride"
+      ],
+      "unfavorable": [
+        "Aggressive expeditions",
+        "Sending wealth or sheep away",
+        "Demolishing a temple",
+        "Installing a hearth",
+        "Sending a bride away"
+      ],
+      "notes": "Individual mansion reading; specific exceptions take precedence over general classes.",
+      "source": "White Beryl, chapter 33, nabs so passage (DOCX body block 130; L p. 316, starting L:10236). Selective English summary; Tibetan passage below."
     },
     "natal": {
-      "character": null,
-      "lifespan": null,
+      "character": "Steady-minded, contented and disciplined; the passage also associates the birth with land and resources.",
+      "lifespan": "The historical text gives 50 or 60 years.",
       "health": null,
       "wealth": null,
       "relationships": null,
       "mode_of_death": null,
       "spiritual": null,
-      "source": null
+      "source": "White Beryl, chapter 33, nabs so passage (DOCX body block 130; L p. 316, starting L:10236). Selective English summary; Tibetan passage below."
     },
     "enemy_star_ids": [],
     "death_star_ids": [],
     "combinations": {
-      "status": "partial",
+      "status": "elemental_complete",
       "classes": {}
     },
     "remedies": {
       "afflicted": null,
       "enemy_star": null,
-      "death_star": null
+      "death_star": null,
+      "illness_onset": "For an illness beginning under this mansion, the passage describes a ritual using a flour effigy of a pig. This is a historical ritual description, not a treatment recommendation; details remain in the Tibetan source.",
+      "source": "White Beryl chapter 33, body block 130. Illness onset is a separate context from weekday–mansion combinations."
     },
-    "needs_source_review": true
+    "needs_source_review": false,
+    "source_block": 130,
+    "source_tibetan": "ནབས་སོ་སྐར་གཉིས་ཁྲི་རྐང་དབྱིབས། །ཉི་མའི་ལྷ་དེ་རུས་དབང་བྱེད། །ཟས་འཁུར་རླུང་ཁམས་གཡང་སྐར་ཏེ། །མྱུར་ཞིང་འགྱུར་བ་ལུག་གི་བླ། །རབ་བྱུང་རབ་གནས་ཆོས་འཆད་དབང་། །ལྷ་གསོལ་གཡང་འགུགས་སྦྱིན་སྲེག་བྱ། །སྒྲུབ་མཆོད་སློབ་གཉེར་དཀྱིལ་འཁོར་བྲི། །ས་བོན་ཐོག་འབུབས་རྩིག་རྨང་འདིང་། །སྐྱེད་འཛུགས་ཐུག་འགྱེད་བུ་ལོན་འཇལ། །ཁ་སྨྲས་ཚུར་འགུགས་འཐབ་མོ་ཤིང་། །དོན་གཉེར་རྒྱན་སྤྲོད་རྒྱལ་སར་བསྐོ། །སྨན་སྦྱོར་དྲ་གྱོན་མོ་རྩིས་བྱ། །མཁར་ལས་ཁྱིམ་འཛིན་གྲོང་ཁྱེར་བརྩིག །ལྷ་ཁང་རྟེན་བཞེངས་བཟློག་པ་ཟོར། །འཁོར་བསྟེན་ཕྲ་མོའི་ལས་རིགས་བརྩམ། །ཕྱུགས་འཇལ་གཤིན་ལས་བང་མཛོད་བཅའ། །ཞིང་འདེབས་ས་དབྱེ་སྦྲ་ཕྱིར་འཚེམ། །ལམ་ཞུགས་ཚོང་དང་ལུག་ནང་ལེན། །རྟ་བོང་སྒོ་རྒྱག་གཏར་སྲེག་བཅོས། །ཞུ་བ་གསོལ་དང་མིང་འདོགས་པ། །དབང་དང་རྒྱས་པ་ཞི་བའི་ལས། །སྟོན་མོ་གསོན་པོའི་བྱ་བ་བཟང་། །བུ་འབོགས་རོ་འདོན་འབྲིང་དུ་བྱེད། །དམག་ཇག་ཕར་རྒོལ་ལུག་འཇལ་དྲག །ནོར་གཏོང་ས་འཛིན་ལྷ་ཁང་བཤིག །ཐབ་ཁ་འཛུགས་དང་སྡིག་ལས་འཛེམ། །བག་མ་ཕར་ངན་ཚུར་ལེན་བཟང་། །བཙས་པ་ལྔ་བཅུ་དྲུག་ཅུར་འཚོ། །ཞིང་ས་ལོངས་སྤྱོད་ལྡན་པའམ། །ཆོས་སྨྲ་ཁྲིམས་ལྡན་རང་བཞིན་གླེན། །བློ་བརྟན་ནད་མེད་ཆོག་ཤེས་བྱ། །བུ་མོ་བསྲིས་ནི་སྨྲེ་བ་བྱེད། །ནད་བཏབ་མགྲོན་ཞུད་ཀྱིས་ལན་ཏེ། །སྟོད་ན་རྗེན་ཕྱེའི་ཕག་གཟུགས་ཁར། །འབྲས་གཏོར་བཅུག་ལ་ནད་བསྐོར་བསྒྱུར། །འདི་ལ་མི་ཤི་མོད་ལ་སྦ། །ལྟས་བྱུང་འཁྲུག་རྩོད་ཚོང་བར་ངན། །ཆར་འབབ་སླར་ཡང་མྱུར་དུ་འབབ། །སྐར་ཆུང་འོད་ཆུང་རྒྱལ་མོ་ཅན། །ཉི་ཕྱེད་དུས་སུ་ཞལ་ཆེ་ངན། །སྒྲིབ་ན་བག་ཐོད་རང་སྟེང་འཕྱར། །",
+    "review_notes": [],
+    "element_relationships": {
+      "system": "nag_rtsis",
+      "mother": "water",
+      "friend": "earth",
+      "child": "fire",
+      "enemy": "iron",
+      "source_block": 349,
+      "enemy_mansion_ids": [
+        "lm_lha_mtshams",
+        "lm_snon",
+        "lm_snubs",
+        "lm_chu_stod",
+        "lm_chu_smad",
+        "lm_gro_bzhin"
+      ],
+      "cemetery_greater_number": 15,
+      "cemetery_lesser_number": 1,
+      "note": "These are element-group (bla skar) reference tables, not an automatically derived natal comparison. Number 21 is shared/ambiguous for gro bzhin and byi bzhin in these tables; it is not resolved into a personal death-star prediction."
+    }
   },
   "lm_rgyal": {
     "id": "lm_rgyal",
     "tibetan": "རྒྱལ་",
     "wylie": "rgyal",
     "sanskrit": "Puṣya",
-    "element": null,
-    "nag_rtsis_element": null,
-    "deity": null,
+    "element": "fire",
+    "nag_rtsis_element": "wood",
+    "deity": "Jupiter (phur bu)",
     "symbol": "A rounded form",
     "electional": {
-      "favorable": [],
-      "unfavorable": [],
-      "notes": null,
-      "source": null
+      "favorable": [
+        "Teaching, ordination and consecration",
+        "Empowerment and offerings",
+        "Travel",
+        "Receiving wealth and livestock",
+        "Temple and image construction",
+        "Naming and planting trees",
+        "Receiving a bride"
+      ],
+      "unfavorable": [
+        "Trade and disputes",
+        "Moving home",
+        "Farming and building works",
+        "Celebrations and hair washing",
+        "Sending a bride away"
+      ],
+      "notes": "Individual mansion reading; specific exceptions take precedence over general classes.",
+      "source": "White Beryl, chapter 33, rgyal passage (DOCX body block 132; L p. 317, starting L:10256). Selective English summary; Tibetan passage below."
     },
     "natal": {
-      "character": null,
-      "lifespan": null,
+      "character": "For a son, generosity, religious commitment, diligence, eloquence and craft skills are described, alongside restlessness.",
+      "lifespan": "The historical text gives 80 years.",
       "health": null,
       "wealth": null,
       "relationships": null,
       "mode_of_death": null,
       "spiritual": null,
-      "source": null
+      "source": "White Beryl, chapter 33, rgyal passage (DOCX body block 132; L p. 317, starting L:10256). Selective English summary; Tibetan passage below."
     },
     "enemy_star_ids": [],
     "death_star_ids": [],
     "combinations": {
-      "status": "partial",
+      "status": "elemental_complete",
       "classes": {}
     },
     "remedies": {
       "afflicted": null,
       "enemy_star": null,
-      "death_star": null
+      "death_star": null,
+      "illness_onset": "For an illness beginning under this mansion, the passage describes a ritual using a flour effigy of a goat. This is a historical ritual description, not a treatment recommendation; details remain in the Tibetan source.",
+      "source": "White Beryl chapter 33, body block 132. Illness onset is a separate context from weekday–mansion combinations."
     },
-    "needs_source_review": true
+    "needs_source_review": false,
+    "source_block": 132,
+    "source_tibetan": "རྒྱལ་ནི་སྐར་གསུམ་རིལ་བའི་དབྱིབས། །རུས་ནི་རྩྭ་ཤིང་གྱོན་པའི་རིགས། །ཕུར་བུ་ལྷར་འཛིན་སྦྲང་ཡོས་ཟས། །མེ་ཁམས་འགྲུབ་སྐར་ལུག་གི་བླ། །མི་བརྟན་འགྱུར་ལ་རབ་བྱུང་དབང་། །རབ་གནས་སྒྲུབ་མཆོད་ཡུལ་གསར་འཛིན། །ཆོས་འཆད་མངའ་གསོལ་ཡོན་འབུལ་བ། །རྒྱན་སྤྲོད་དྲ་གྱོན་རྒྱལ་སར་བསྐོ། །ལྷ་གཡང་བཟློག་པ་དཀྱིལ་འཁོར་འདྲི། །སྨན་སྦྱོར་མོ་རྩིས་འཁོར་བསྟེན་གཏར། །ལམ་ཞུགས་ནོར་ཕྱུགས་ཚུར་ལེན་པ། །ལྷ་ཁང་རྟེན་བཞེངས་རྟ་གླང་འདུལ། །སྒ་རྒྱག་ཐབ་བཅའ་མཛོད་འཛིན་ལྟད། །ཞི་རྒྱས་དབང་དང་བཀྲ་ཤིས་ལས། །མྱུར་སྒྲུབ་གོང་མར་ཞུ་ནོར་འབུལ། །མིང་འདོགས་ཆུ་རགས་རྒྱལ་མཚན་འཛུགས། །གསོན་གཤིན་དོན་གཉེར་ཤིང་འཛུགས་བཟང་། །ཚོང་དང་ཁ་མཆུ་ཕར་འཇལ་སྐྱས། །རྔོན་རྐུ་ཞིང་འདེབས་མཁར་གྱི་ལས། །གཡང་ཅན་མི་ཕྱུགས་ལུག་ཕྱིར་གཏོང་། །སྟོན་མོ་སྲི་མནན་སྐྲ་འཁྲུ་འཛེམ། །ཤི་བ་ཟློས་མེད་བཟང་བ་ཡིན། །བག་མ་ཕར་ངན་ཚུར་ལེན་བཟང་། །ཁྱེའུ་གཡང་ཆེ་བརྒྱད་ཅུར་འཚོ། །ཆོས་ལྡན་སྦྱིན་གཏོང་ལས་ལ་བརྩོན། །གཟུགས་བཟང་ལྕེ་བདེ་ལག་པ་བཟོ། །བློ་ལུས་མི་བརྟན་སྡོད་མི་ཚུགས། །མཁས་ཤིང་ནོར་ལྡན་སྐལ་བ་བཟང་། །ནད་བཏབ་འཕྲུ་རློག་ཆུ་ལས་ལོན། །ལུས་ཀྱི་སྨད་ལ་ནད་འབྱུང་ཞིང་། །རྗེན་ཕྱེའི་ར་གཟུགས་ཁར་རུས་སྦལ། །བཅུག་ལ་ནད་པར་བསྐོར་ནས་བསྒྱུར། །ལྟས་བྱུང་བད་ཀན་ནད་ལྡང་ཞིང་། །ཆར་བབས་ཐན་པ་འབྱུང་བ་དང་། །སྐར་ཆུང་འགྲུལ་པོ་ནམ་ཕྱེད་འོང་། །དེ་ལ་བྱ་བ་ཅི་ཡང་ངན། །སྒྲིབ་ན་ར་མགོ་རང་སྟེང་འཕྱར། །",
+    "review_notes": [],
+    "element_relationships": {
+      "system": "nag_rtsis",
+      "mother": "water",
+      "friend": "earth",
+      "child": "fire",
+      "enemy": "iron",
+      "source_block": 349,
+      "enemy_mansion_ids": [
+        "lm_lha_mtshams",
+        "lm_snon",
+        "lm_snubs",
+        "lm_chu_stod",
+        "lm_chu_smad",
+        "lm_gro_bzhin"
+      ],
+      "cemetery_greater_number": 15,
+      "cemetery_lesser_number": 1,
+      "note": "These are element-group (bla skar) reference tables, not an automatically derived natal comparison. Number 21 is shared/ambiguous for gro bzhin and byi bzhin in these tables; it is not resolved into a personal death-star prediction."
+    }
   },
   "lm_skag": {
     "id": "lm_skag",
     "tibetan": "སྐག་",
     "wylie": "skag",
     "sanskrit": "Āśleṣā",
-    "element": null,
-    "nag_rtsis_element": null,
-    "deity": null,
+    "element": "water",
+    "nag_rtsis_element": "earth",
+    "deity": "Serpents (lto 'gro)",
     "symbol": "Expanded serpent hood",
     "electional": {
-      "favorable": [],
-      "unfavorable": [],
-      "notes": null,
-      "source": null
+      "favorable": [
+        "Trade and repaying debts",
+        "Irrigation and waterworks",
+        "Planting trees",
+        "Reaching decisions",
+        "Forceful ritual activities"
+      ],
+      "unfavorable": [
+        "Consecration and ordination",
+        "Travel and moving home",
+        "Study and empowerment",
+        "Building a home or temple",
+        "Marriage"
+      ],
+      "notes": "Individual mansion reading; specific exceptions take precedence over general classes.",
+      "source": "White Beryl, chapter 33, skag passage (DOCX body block 134; L p. 317, starting L:10273). Selective English summary; Tibetan passage below."
     },
     "natal": {
-      "character": null,
-      "lifespan": null,
+      "character": "The text gives a mixed portrait of attractive appearance, anger, strong desire and generosity; some statements are specific to daughters.",
+      "lifespan": "The historical text gives 50 or 63 years.",
       "health": null,
       "wealth": null,
       "relationships": null,
       "mode_of_death": null,
       "spiritual": null,
-      "source": null
+      "source": "White Beryl, chapter 33, skag passage (DOCX body block 134; L p. 317, starting L:10273). Selective English summary; Tibetan passage below."
     },
     "enemy_star_ids": [],
     "death_star_ids": [],
     "combinations": {
-      "status": "partial",
+      "status": "elemental_complete",
       "classes": {}
     },
     "remedies": {
       "afflicted": null,
       "enemy_star": null,
-      "death_star": null
+      "death_star": null,
+      "illness_onset": "For an illness beginning under this mansion, the passage describes a ritual using a flour effigy of a pig. This is a historical ritual description, not a treatment recommendation; details remain in the Tibetan source.",
+      "source": "White Beryl chapter 33, body block 134. Illness onset is a separate context from weekday–mansion combinations."
     },
-    "needs_source_review": true
+    "needs_source_review": false,
+    "source_block": 134,
+    "source_tibetan": "སྐག་ནི་སྐར་དྲུག་གདེངས་ཀའི་དབྱིབས། །རིགས་ནི་སྨན་རྒྱུད་ལྷ་ལྟོ་འགྲོ། །ཁ་ཟས་སྦྲུལ་ཤ་མགྲོན་སྐར་ཏེ། །ཆུ་ཁམས་འབྲས་ངན་ཁྱི་གཅན་བླ། །དམག་ཇག་གསོད་གཅོད་གྲོང་ཁྱེར་འཇོམས། །ཞུ་གསོལ་སྲི་མནན་གསེབ་གཏོང་ཚོང་། །གཡོ་བསླུས་སྒྲུབ་ཆོག་བུ་ལོན་འཇལ། །རྫིང་ཡུར་ཆུ་རགས་སྐྱེ་ཤིང་འཛུགས། །མི་ཤི་གཤིན་ཆོས་གྲོས་ཐག་གཅོད། །དྲག་ལས་ཆུ་བོ་བསྒྱུར་རྣམས་བཟང་། །ལྷ་གསོལ་རབ་གནས་སྨན་སྦྱོར་སྐྱས། །དྲ་གྱོན་རྒྱན་སྤྲོད་རྒྱལ་སར་བསྐོ། །ལྷ་ཁང་རྟེན་བཞེངས་མོ་རྩིས་བྱ། །མཁར་ལས་དོན་གཉེར་ཁྱིམ་གསར་འཛིན། །ལམ་ཞུགས་ཕྱུགས་འདུལ་འབྲེལ་སྙེག་པ། །ཐབ་བཅའ་སྦྲ་ཕྱིར་གྲོང་ཁྱེར་བརྩིག །ཞི་རྒྱས་དབང་གི་ལས་རྣམས་དང་། །བཀྲ་ཤིས་དགེ་ལེགས་དགེ་བའི་ལས། །རྟ་བོང་སྒ་བཅོས་ར་ཕྱིར་གཏོང་། །རྐུན་མ་ལྟད་མོ་ཐགས་ཁྲི་འཛུགས། །རབ་བྱུང་འཆད་ཉན་དཀྱིལ་འཁོར་འདྲི། །སློབ་གཉེར་བྱ་དང་དབང་བསྐུར་བ། །དོན་གཉེར་ཚེ་ནོར་སྒྲུབ་པ་དང་། །ཁ་མཆུ་དགེ་ཆོས་བརྟན་ལས་སྤང་། །ཁྲི་གདན་ཕྱི་ལ་བཏང་ན་འཆི། །རོ་འདོན་ངན་ལ་ཤིད་སྟོན་རུང་། །བག་མ་གཏོང་ལེན་གཉིས་ཀ་འཛེམ། །བུ་བཙས་ལྔ་བཅུ་རེ་གསུམ་འཚོ། །གླེན་ལ་བུ་མོ་སྐྱེད་ཆུང་ཞིང་། །བཞིན་མཛེས་མ་དང་འགྲོགས་ཡུན་ཐུང་། །ཁྲོ་ཞིང་སྡིག་དང་གཡེམ་ལ་དགའ། །སྲེད་ཆེ་སྟེར་ཕོད་ངན་ལས་བརྩོན། །ནད་བཏབ་བྱེས་དང་ཟས་ངན་ལན། །ཐབ་ནང་རྗེན་ཕྱེའི་ཕག་གཟུགས་ཁར། །སྦལ་བ་བཅུག་ལ་ནད་བསྐོར་བསྒྱུར། །ལྟས་བྱུང་ཧོར་བོད་གཉིས་ལ་ངན། །གཟས་བཟུང་ཆར་བབས་སྦྲུམ་མ་བདེ། །ནད་མེད་སྐུ་རྒྱལ་སྨན་དང་ལྡན། །རིག་སྔགས་འཕེལ་ཞིང་བདེ་ལེགས་ཐོབ། །ཆར་བབས་ཕྱིས་ནས་འགྱང་ཞེས་ཟེར། །སྐར་ཆུང་ཤེ་མང་འདབ་སྐར་ཞེས། །ནམ་གུང་བྱ་བ་ཅི་ཡང་ངན། །སྒྲིབ་ན་བྱི་ཐོད་རང་ཐོག་འཕྱར། །",
+    "review_notes": [],
+    "element_relationships": {
+      "system": "nag_rtsis",
+      "mother": "fire",
+      "friend": "water",
+      "child": "iron",
+      "enemy": "wood",
+      "source_block": 355,
+      "enemy_mansion_ids": [
+        "lm_smin_drug",
+        "lm_snar_ma",
+        "lm_mgo",
+        "lm_lag",
+        "lm_nabs_so",
+        "lm_rgyal"
+      ],
+      "cemetery_greater_number": 8,
+      "cemetery_lesser_number": 21,
+      "note": "These are element-group (bla skar) reference tables, not an automatically derived natal comparison. Number 21 is shared/ambiguous for gro bzhin and byi bzhin in these tables; it is not resolved into a personal death-star prediction."
+    }
   },
   "lm_mchu": {
     "id": "lm_mchu",
     "tibetan": "མཆུ་",
     "wylie": "mchu",
     "sanskrit": "Maghā",
-    "element": null,
-    "nag_rtsis_element": null,
-    "deity": null,
+    "element": "fire",
+    "nag_rtsis_element": "fire",
+    "deity": "Saturn (spen pa)",
     "symbol": "River",
     "electional": {
-      "favorable": [],
-      "unfavorable": [],
-      "notes": null,
-      "source": null
+      "favorable": [
+        "Teaching, study and ordination",
+        "Empowerment",
+        "Learning writing",
+        "Sowing",
+        "Craft work",
+        "Receiving wealth and buying livestock"
+      ],
+      "unfavorable": [
+        "Consecration",
+        "Travel",
+        "Building works",
+        "Celebrations and reconciliation",
+        "Marriage"
+      ],
+      "notes": "Individual mansion reading; specific exceptions take precedence over general classes.",
+      "source": "White Beryl, chapter 33, mchu passage (DOCX body block 136; L p. 318, starting L:10291). Selective English summary; Tibetan passage below."
     },
     "natal": {
-      "character": null,
-      "lifespan": null,
+      "character": "Craft skill, religious effort, resources and a large following are described, together with a tendency toward falsehood.",
+      "lifespan": "The historical text gives 90–95 years if the child survives age nine.",
       "health": null,
       "wealth": null,
       "relationships": null,
       "mode_of_death": null,
       "spiritual": null,
-      "source": null
+      "source": "White Beryl, chapter 33, mchu passage (DOCX body block 136; L p. 318, starting L:10291). Selective English summary; Tibetan passage below."
     },
     "enemy_star_ids": [],
     "death_star_ids": [],
     "combinations": {
-      "status": "partial",
+      "status": "elemental_complete",
       "classes": {}
     },
     "remedies": {
       "afflicted": null,
       "enemy_star": null,
-      "death_star": null
+      "death_star": null,
+      "illness_onset": "For an illness beginning under this mansion, the passage describes a ritual using a flour effigy of a pig. This is a historical ritual description, not a treatment recommendation; details remain in the Tibetan source.",
+      "source": "White Beryl chapter 33, body block 136. Illness onset is a separate context from weekday–mansion combinations."
     },
-    "needs_source_review": true
+    "needs_source_review": false,
+    "source_block": 136,
+    "source_tibetan": "མཆུ་ནི་སྐར་དྲུག་ཆུ་བོ་འདྲ། །ལྷ་ནི་སྤེན་པ་སེར་སྐྱའི་རིགས། །ཟས་ནི་ཏིལ་ཐུག་མེ་ཡི་ཁམས། །བརྟན་པའི་དོན་གྲུབ་གཏུམ་དྲག་ཅན། །དགྲ་སྐར་ཕྱུགས་དང་ཇག་པའི་བླ། །རབ་བྱུང་དགེ་སྒྲུབ་འཆད་ཉན་དབང་། །སློབ་གཉེར་སྒྲུབ་མཆོད་ལྷ་རྟེན་བཞེངས། །མོ་རྩིས་ཡིག་སློབ་དཀྱིལ་འཁོར་འདྲི། །མཐུ་བཟློག་སྲི་མནན་སྦྱིན་སྲེག་ཟོར། །ཕར་རྒོལ་དམག་ཇག་དབང་དྲག་ལས། །གཏར་བསྲེག་རྒྱས་ལས་སྦྲ་ལབ་འཛུགས། །ཁྱིམ་གསར་ས་བོན་གཡོག་བསྟེན། །ས་འཛིན་རྒྱན་སྤྲོད་བང་མཛོད་དབྱེ། །ནོར་ལེན་གཡང་ལོན་རྟ་ཕྱུགས་ཉོ། །བཟོ་དང་ཞུ་བ་སྐྲ་སེན་འབྲེག །དཀར་ཕྱོགས་ལས་འགོ་ཁྱི་བསྟེན་བཟང་། །སྐྱེས་བྱ་རབ་གནས་རྒྱལ་སར་བསྐོ། །མཁར་ལས་ལམ་ཞུགས་དོན་གཉེར་བ། །ལྷ་གསོལ་སྟོན་མོ་ཐབ་བཅའ་བ། །སྐྲ་འཁྲུ་བསྡུམ་བྱ་དྲ་གྱོན་ཤིད། །ཆུ་རགས་རྫིང་ཁྲོན་ས་ཁ་དབྱེ། །རྟ་བོང་སྒ་རྒྱུག་འདུལ་བཅོས་བྱེད། །དགེ་བཤེས་ཆེ་འདོན་བྱ་བ་དང་། །ནོར་རྫས་ཕྱིར་གཏོང་སྦྲ་ཕྱིར་འཚེམ། །བོན་ཆོག་མེ་ཏོག་ཤིང་འཛུགས་པ། །བ་དན་རྒྱལ་མཚན་འཛུགས་སོགས་འཛེམ། །བག་མ་གཏོང་ལེན་བྱར་མི་རུང་། །སྐྱེས་པ་ལོ་དགུར་མ་ཤི་ན། །དགུ་བཅུ་གོ་ལྔའི་བར་དུ་འཚོ། །བུ་སྐྱེས་ཕར་ངན་བུ་མོ་འཆི། །རྫུན་དགའ་འཁོར་མང་ལོངས་སྤྱོད་ལྡན། །བཟོ་མཁས་བཙུན་ཞིང་དགེ་བར་བརྩོན། །ནད་བཏབ་རྡོ་དང་བྲག་བརྐོས་ལན། །རྗེན་ཕྱེའི་ཕག་གཟུགས་ཁར་ཏིལ་བཅུག །ནད་པར་བསྐོར་ཞིང་བསྒྱུར་བས་གྲོལ། །མི་ཤི་བདུན་ཟློས་ཡུལ་མིར་ངན། །ས་གཡོས་ལྟས་བྱུང་བྲན་གཡོག་འཚེ། །གཟས་བཟུང་མི་ནད་འགོ་ནད་དང་། །བད་ཀན་ལྡང་ཞིང་འབྲུ་ནོར་དཀོན། །གྲོང་ཁྱེར་མེས་ཚིག་ཚན་མ་རྩུབ། །ཆར་བབས་སླར་ཡང་མྱུར་དུ་འབབ། །སྐར་ཆུང་སྲི་རྟ་རྐང་གཉིས་ཏེ། །བྱ་བ་ཀུན་ལ་ངན་པས་འཛེམ། །སྒྲིབ་ན་སྦྲུལ་ཐོད་རང་སྟེང་བསྟན། །",
+    "review_notes": [],
+    "element_relationships": {
+      "system": "nag_rtsis",
+      "mother": "wood",
+      "friend": "iron",
+      "child": "earth",
+      "enemy": "water",
+      "source_block": 352,
+      "enemy_mansion_ids": [
+        "lm_tha_skar",
+        "lm_mon_dre",
+        "lm_mon_gru",
+        "lm_khrums_stod",
+        "lm_khrums_smad",
+        "lm_nam_gru"
+      ],
+      "cemetery_greater_number": 21,
+      "cemetery_lesser_number": 8,
+      "note": "These are element-group (bla skar) reference tables, not an automatically derived natal comparison. Number 21 is shared/ambiguous for gro bzhin and byi bzhin in these tables; it is not resolved into a personal death-star prediction."
+    }
   },
   "lm_gre": {
     "id": "lm_gre",
     "tibetan": "གྲེ་",
     "wylie": "gre",
     "sanskrit": "Pūrvaphalgunī",
-    "element": null,
-    "nag_rtsis_element": null,
-    "deity": null,
+    "element": "fire",
+    "nag_rtsis_element": "fire",
+    "deity": "Vishnu (khyab 'jug)",
     "symbol": "Human leg",
     "electional": {
-      "favorable": [],
-      "unfavorable": [],
-      "notes": null,
-      "source": null
+      "favorable": [
+        "Meeting relatives",
+        "Receiving wealth and livestock",
+        "Building and establishing landholdings",
+        "Adornment",
+        "Ordination and teaching",
+        "Fire offerings"
+      ],
+      "unfavorable": [
+        "Consecration",
+        "Funerary rites",
+        "Travel",
+        "Repaying debts",
+        "Marriage",
+        "Hair washing and cutting cloth"
+      ],
+      "notes": "Individual mansion reading; specific exceptions take precedence over general classes.",
+      "source": "White Beryl, chapter 33, gre passage (DOCX body block 138; L p. 319, starting L:10309). Selective English summary; Tibetan passage below."
     },
     "natal": {
-      "character": null,
-      "lifespan": null,
+      "character": "Skilled in crafts, fond of ornaments and conversation, pleasant in speech; also described as desirous, deceptive and miserly.",
+      "lifespan": "The historical text gives 50 or 95 years if the child survives age eight.",
       "health": null,
       "wealth": null,
       "relationships": null,
       "mode_of_death": null,
       "spiritual": null,
-      "source": null
+      "source": "White Beryl, chapter 33, gre passage (DOCX body block 138; L p. 319, starting L:10309). Selective English summary; Tibetan passage below."
     },
     "enemy_star_ids": [],
     "death_star_ids": [],
     "combinations": {
-      "status": "partial",
+      "status": "elemental_complete",
       "classes": {}
     },
     "remedies": {
       "afflicted": null,
       "enemy_star": null,
-      "death_star": null
+      "death_star": null,
+      "illness_onset": "For an illness beginning under this mansion, the passage describes a ritual using a flour effigy of a monkey. This is a historical ritual description, not a treatment recommendation; details remain in the Tibetan source.",
+      "source": "White Beryl chapter 33, body block 138. Illness onset is a separate context from weekday–mansion combinations."
     },
-    "needs_source_review": true
+    "needs_source_review": false,
+    "source_block": 138,
+    "source_tibetan": "གྲེ་ནི་སྐར་གཉིས་ལྷ་ཁྱབ་འཇུག །དབྱིབས་ནི་མི་རྐང་ལྟ་བུ་སྟེ། །རུས་གཞོན་རྩེ་མོའི་ཁྱིམ་ཐབ་རྒྱུད། །ཟས་སུ་འབྲས་དང་ཏིལ་ཚིག་མ། །མེ་ཁམས་དམེ་སྐར་ཇག་པའི་བླ། །བརྟན་པའི་དོན་གྲུབ་སྐར་མ་སྟེ། །གཉེན་སྦྱོར་ནོར་བླང་ཚེ་གཡང་མདོས། །གཉེན་ཕྲད་ཚུར་འགུགས་བང་མཛོད་དབྱེ། །སྲུང་བསྟེན་གཞིས་ཚོང་ཕྱུགས་ནོར་ལེན། །ལྷ་གསོལ་དབང་བསྐུར་ས་འཛིན་མཁར། །དབང་ལས་རྒྱན་སྤྲོད་མོ་རྩིས་བྱ། །ལུག་འཇལ་ཐུག་འགྱེད་ལྷོ་ནུབ་བགྲོད། །བརྟན་ལས་ཐབ་བཅའ་ཆུ་རགས་རྒྱག །རབ་བྱུང་འཆད་ཉན་དཀྱིལ་འཁོར་འབྲི། །སྦྱིན་སྲེག་བྱ་བ་ལ་སོགས་བཟང་། །རབ་གནས་གཤིན་ལས་སྟོན་མོ་ཤིད། །དགྲ་འདུལ་དྲག་ལས་རྟ་ཉོ་ལམ། །བུ་ལོན་འཇལ་ཇག་སྨན་བཅོས་མཚོན། །གཏར་སྲེག་བོང་བུ་ནོར་རྫས་གཏོང་། །རྟ་བོང་སྒ་བཅོས་ས་ཁ་དབྱེ། །དྲ་གྱོན་སྐྲ་འཁྲུ་བང་མཛོད་བཅའ། །རྒྱལ་མཚན་བ་དན་འཛུགས་པ་དང་། །རྫིང་ཡུར་ཕྱུགས་འདུལ་མིང་འདོགས་པ། །སྦྲ་ཕྱིར་འཚེམ་དང་འབུབས་པའི་ལས། །བག་མ་གཏོང་ལེན་འཁོར་བསྟེན་ངན། །བཙས་པ་ལོ་བརྒྱད་མ་ཤི་ན། །ལྔ་བཅུ་གོ་ལྔ་གང་རིགས་འཚོ། །མ་ཤིའི་བར་དུ་རང་བཞིན་ངན། །གཡོ་དང་འདོད་ཆགས་སེར་སྣ་ཆེ། །བཟོ་མཁས་གོས་རྒྱན་གཏམ་ལ་དགའ། །སྒོ་ལེགས་ཁ་འཇམ་ཟས་ལ་ཡང་། །བུ་ཡིན་ཁ་དྲག་བུ་མོ་ཡིན། །ནད་མང་འདི་ལ་ནད་བཏབ་ན། །ཤིང་བཅད་ན་ཁ་རློག་པས་ལན། །རྗེན་ཕྱེའི་སྤྲེའུའི་གཟུགས་ཀྱི་ཁར། །ཤིང་ཏོག་བཅུག་ལ་ནད་པར་བསྐོར། །བསྒྱུར་བས་ཉིན་གཅིག་དག་ལ་གྲོལ། །མི་ཤི་བ་ནི་འབྲིང་དུ་བྱེད། །ལྟས་བྱུང་རྒྱ་གར་ཤར་ཕྱོགས་ངན། །གཟས་བཟུང་མགོ་ནད་མིག་ནད་འབྱུང་། །ཆར་བབས་སླར་ཡང་མྱུར་དུ་འབབ། །སྐར་ཆུང་ཚོ་གཟའ་ཐེའུ་རྐང་ཞེས། །ཉི་མ་ཕྱེད་ལ་ཅི་ཡང་ངན། །སྒྲིབ་ན་བྱེལ་ཐོད་རང་ཕྱོགས་སྟོན། །",
+    "review_notes": [],
+    "element_relationships": {
+      "system": "nag_rtsis",
+      "mother": "wood",
+      "friend": "iron",
+      "child": "earth",
+      "enemy": "water",
+      "source_block": 352,
+      "enemy_mansion_ids": [
+        "lm_tha_skar",
+        "lm_mon_dre",
+        "lm_mon_gru",
+        "lm_khrums_stod",
+        "lm_khrums_smad",
+        "lm_nam_gru"
+      ],
+      "cemetery_greater_number": 21,
+      "cemetery_lesser_number": 8,
+      "note": "These are element-group (bla skar) reference tables, not an automatically derived natal comparison. Number 21 is shared/ambiguous for gro bzhin and byi bzhin in these tables; it is not resolved into a personal death-star prediction."
+    }
   },
   "lm_dbo": {
     "id": "lm_dbo",
     "tibetan": "དབོ་",
     "wylie": "dbo",
     "sanskrit": "Uttaraphalgunī",
-    "element": null,
-    "nag_rtsis_element": null,
-    "deity": null,
+    "element": "wind",
+    "nag_rtsis_element": "fire",
+    "deity": "Yama (gshin rje)",
     "symbol": "Throne",
     "electional": {
-      "favorable": [],
-      "unfavorable": [],
-      "notes": null,
-      "source": null
+      "favorable": [
+        "Establishing a residence",
+        "Consecration and teaching",
+        "Construction",
+        "Marriage",
+        "Celebrations and naming",
+        "Reconciliation"
+      ],
+      "unfavorable": [
+        "Travel in general, with south and north excepted",
+        "Sowing and farming",
+        "Planting flowers and trees",
+        "Cutting hair or nails"
+      ],
+      "notes": "Individual mansion reading; specific exceptions take precedence over general classes.",
+      "source": "White Beryl, chapter 33, dbo passage (DOCX body block 140; L p. 319, starting L:10327). Selective English summary; Tibetan passage below."
     },
     "natal": {
-      "character": null,
-      "lifespan": null,
+      "character": "Generous, truthful and disciplined, with substantial resources; also described as somewhat foolish.",
+      "lifespan": "The historical text gives 100 years.",
       "health": null,
       "wealth": null,
       "relationships": null,
       "mode_of_death": null,
       "spiritual": null,
-      "source": null
+      "source": "White Beryl, chapter 33, dbo passage (DOCX body block 140; L p. 319, starting L:10327). Selective English summary; Tibetan passage below."
     },
     "enemy_star_ids": [],
     "death_star_ids": [],
     "combinations": {
-      "status": "partial",
+      "status": "elemental_complete",
       "classes": {}
     },
     "remedies": {
       "afflicted": null,
       "enemy_star": null,
-      "death_star": null
+      "death_star": null,
+      "illness_onset": "For an illness beginning under this mansion, the passage describes a ritual using a flour effigy of a pig. This is a historical ritual description, not a treatment recommendation; details remain in the Tibetan source.",
+      "source": "White Beryl chapter 33, body block 140. Illness onset is a separate context from weekday–mansion combinations."
     },
-    "needs_source_review": true
+    "needs_source_review": false,
+    "source_block": 140,
+    "source_tibetan": "དབོ་ནི་སྐར་གཉིས་ཁྲི་ཡི་དབྱིབས། །རུས་ནི་མ་ཧེ་ཁ་ཟས་ཁྲེ། །ལྷ་ནི་གཤིན་རྗེ་རླུང་གི་ཁམས། །རབ་ཏུ་བརྟན་པ་ལུག་གི་བླ། །དགྲ་སྐར་ཞེས་བྱ་འདི་ཉིད་ལ། །ལྷ་གཡང་ཡུལ་གསར་གནས་གཞི་བཟུང་། །ཚེ་སྒྲུབ་རབ་གནས་ཟོར་འཕེན་དང་། །འཆད་ཉན་ལྷ་ཁང་རྟེན་བཞེངས་བཟློག །སྐྲ་འཁྲུ་རྒྱན་སྤྲོད་རྒྱལ་སར་བསྐོ། །གཉེན་སྦྱོར་མོ་རྩིས་སྦྲ་ཕྱིར་འཚེམ། །ཆུ་རགས་མཁར་ལས་ཐབ་ཁ་བཅའ། །སྐྱེད་འཛུགས་བུ་འབོགས་འཕོ་སྐྱེས་བྱ། །སྟོན་མོ་མིང་འདོགས་རྒྱལ་མཚན་འཛུགས། །རྟ་བོང་སྒ་རྒྱག་བྲེས་བརྩིག་པ། །རྩུབ་ལས་གསོད་གཅོད་དབང་དྲག་ལས། །དགེ་ཞིང་བཀྲ་ཤིས་འཁོར་བསྟེན་པ། །བརྟག་ཅིང་བརྟན་པའི་ལས་ཀྱི་རིགས། །བག་མ་གཏོང་ལེན་ཞི་བའི་ལས། །ནོར་རྫས་ཕྱིར་གཏོང་འདུན་གྲོས་བྱ། །དོན་གཉེར་དྲ་གྱོན་སྦྲ་ཁྱིམ་འབུབས། །རྫིང་ཡུར་ཁྲོན་འདྲུ་དམག་དང་བསྡུམས། །རང་དོན་རྟ་ཕྱུགས་འདུལ་བ་བཟང་། །ལམ་ཞུགས་སྤྱིར་ངན་ལྷོ་བྱང་དགེ །ཞིང་ལས་ས་བོན་ས་ཁ་དབྱེ། །མེ་ཏོག་ཤིང་འཛུགས་བུ་སྲིང་རྫོང་། །འབྲི་གནག་ར་ལུག་ཕྱིར་གཏོང་དང་། །བཟོ་དང་སྐྲ་སེན་འབྲེག་སོགས་འཛེམ། །སྐྱེས་ལོ་བརྒྱ་འཚོ་ལོངས་སྤྱོད་ཆེ། །ཁྲིམས་ལྡན་སྦྱིན་དགའ་བདེན་པར་སྨྲ། །འགྲོ་དང་བསྙེན་གནས་ལ་དགའ་ཞིང་། །ཅུང་ཟད་བླུན་ཅིང་དུག་གིས་འཆི། །ནད་བཏབ་འཕྲུ་རློག་བྱས་པས་ལན། །རྗེན་ཕྱེའི་ཕག་གི་གཟུགས་ཀྱི་ཁར། །སྔོ་བཅུག་བསྐོར་ཞིང་བསྒྱུར་ན་གྲོལ། །མི་ཤི་ཟློས་མེད་གཤིན་ལས་འབྲིང་། །ལྟས་བྱུང་ཚོང་ངན་གཟས་བཟུང་ན། །འཁྲུག་རྩོད་རླུང་ཆེན་རིམས་ནད་ལྡང་། །སྔགས་པ་བོན་པོ་དག་ལ་ངན། །ཆར་བབས་ཕྱིས་ནས་མང་དུ་འབབ། །སྐར་ཆུང་མཚོ་གཟའ་ལྷམ་བུ་ཞེས། །ས་སྲོས་ཟས་ནི་ཕྱིར་མི་གཏོང་། །ཉིན་ཕྱེད་མཚམས་སུ་ཅི་ཡང་ངན། །སྒྲིབ་ན་དོམ་ཐོད་རང་སྟེང་འཕྱར། །",
+    "review_notes": [],
+    "element_relationships": {
+      "system": "nag_rtsis",
+      "mother": "wood",
+      "friend": "iron",
+      "child": "earth",
+      "enemy": "water",
+      "source_block": 352,
+      "enemy_mansion_ids": [
+        "lm_tha_skar",
+        "lm_mon_dre",
+        "lm_mon_gru",
+        "lm_khrums_stod",
+        "lm_khrums_smad",
+        "lm_nam_gru"
+      ],
+      "cemetery_greater_number": 21,
+      "cemetery_lesser_number": 8,
+      "note": "These are element-group (bla skar) reference tables, not an automatically derived natal comparison. Number 21 is shared/ambiguous for gro bzhin and byi bzhin in these tables; it is not resolved into a personal death-star prediction."
+    }
   },
   "lm_me_bzhi": {
     "id": "lm_me_bzhi",
     "tibetan": "མེ་བཞི་",
     "wylie": "me bzhi",
     "sanskrit": "Hasta",
-    "element": null,
-    "nag_rtsis_element": null,
-    "deity": null,
+    "element": "wind",
+    "nag_rtsis_element": "fire",
+    "deity": "Agni, the fire deity (me lha)",
     "symbol": "Hand",
     "electional": {
-      "favorable": [],
-      "unfavorable": [],
-      "notes": null,
-      "source": null
+      "favorable": [
+        "Teaching, study and ordination",
+        "Consecration and empowerment",
+        "Crafts and building a home",
+        "Farming and sowing",
+        "Celebrations and consultation",
+        "Cutting hair or nails"
+      ],
+      "unfavorable": [
+        "Travel and moving home",
+        "Cremation and carrying out a body",
+        "Digging wells",
+        "Temple and image construction",
+        "Trade",
+        "Planting flowers and trees"
+      ],
+      "notes": "Individual mansion reading; specific exceptions take precedence over general classes.",
+      "source": "White Beryl, chapter 33, me bzhi passage (DOCX body block 142; L p. 320, starting L:10345). Selective English summary; Tibetan passage below."
     },
     "natal": {
-      "character": null,
-      "lifespan": null,
+      "character": "Attractive, eloquent, skilful and confident, with resources and generosity; also restless and capable of deception.",
+      "lifespan": "The historical text gives 80 years.",
       "health": null,
       "wealth": null,
       "relationships": null,
       "mode_of_death": null,
       "spiritual": null,
-      "source": null
+      "source": "White Beryl, chapter 33, me bzhi passage (DOCX body block 142; L p. 320, starting L:10345). Selective English summary; Tibetan passage below."
     },
     "enemy_star_ids": [],
     "death_star_ids": [],
     "combinations": {
-      "status": "partial",
+      "status": "elemental_complete",
       "classes": {}
     },
     "remedies": {
       "afflicted": null,
       "enemy_star": null,
-      "death_star": null
+      "death_star": null,
+      "illness_onset": "For an illness beginning under this mansion, the passage describes a ritual using a flour effigy of a buffalo. This is a historical ritual description, not a treatment recommendation; details remain in the Tibetan source.",
+      "source": "White Beryl chapter 33, body block 142. Illness onset is a separate context from weekday–mansion combinations."
     },
-    "needs_source_review": true
+    "needs_source_review": false,
+    "source_block": 142,
+    "source_tibetan": "མེ་བཞི་སྐར་ལྔ་ལག་པའི་དབྱིབས། །རུས་ནི་འོད་སྲུངས་ལྷ་མེ་ལྷ། །བྱ་ཤ་སྲེ་དའི་ཁ་ཟས་ཟ། །ཤིང་གི་སྐར་མ་རླུང་གི་ཁམས། །མི་བརྟན་འགྱུར་བ་ལུག་གི་བླ། །མཆོད་པ་རབ་བྱུང་རབ་གནས་དབང་། །འཆད་ཉན་སྒྲུབ་མཆོད་དཀྱིལ་འཁོར་བྲི། །སློབ་གཉེར་ལྷ་གཡང་སྡོམ་པ་འབོགས། །མཁར་ལས་ཁྱིམ་གསར་རྒྱན་སྤྲོད་བཟོ། །དྲ་གྱོན་སྨན་སྦྱོར་རྒྱལ་སར་བསྐོ། །དུར་འདེབས་མོ་རྩིས་ས་བོན་གདབ། །ཞིང་ལས་ཐབ་བཅའ་གྲོང་ཁྱེར་བརྩིག །གཉེན་ཆོས་དགའ་སྟོན་འདུན་གྲོས་བྱ། །སྣ་ལེན་གཤིན་ལས་རྒོད་ཕྱུགས་འདུལ། །བསྡུམས་དང་ཤྭ་རགས་ས་ཁ་དབྱེ། །དགེ་ལེགས་འབུལ་བ་གནག་ལུག་འཛུགས། །རྟ་བོང་སྒོ་རྒྱག་ཟེ་རྔོག་འབྲེག །དོན་གཉེར་བ་དང་མྱུར་སྒྲུབ་ལས། །ཕར་རྒོལ་དམག་ཇག་སྦྲ་ཕྱིར་འཚེམ། །ཕྱུགས་བསྲེལ་མནན་པ་སྐྲ་སེན་འབྲེག །ཡུལ་བཟུང་ཡིག་བསླབ་དམིགས་བསལ་ཡིན། །དབང་དྲག་ཞི་རྒྱས་ལས་ཕལ་ཆེར། །འདི་ཉིད་ལ་ནི་བཟང་བར་བཤད། །ཕྱིར་འཇལ་སྦྲ་ཁྱིམ་རྐུན་མ་ལམ། །ཤིད་རོ་བསྲེག་འདོན་རྫིང་ཁྲོན་འདྲུ། །ལྷ་ཁང་རྟེན་བཞེངས་ལྟད་མོ་སྐྱས། །འབྲི་གནག་ལུག་གཏོང་ཕྱུགས་ནང་ལེན། །གཉའ་སྲོ་བ་དང་ཐོག་འབུབས་པ། །མེ་ཏོག་ཤིང་འཛུགས་ཚོང་བྱེད་སྤང་། །མི་ཤི་ཟློས་འབྱུང་བག་མ་ངན། །སྐྱེས་པ་མར་ངན་བརྒྱད་ཅུར་འཚོ། །གཟུགས་བཟང་ལྕེ་བདེ་ལག་པ་བཟོ། །སྤོབས་པ་ཤེད་ཆེ་སྡོད་མི་ཚུགས། །ནོར་ལྡན་མཆོད་སྦྱིན་གཡོ་སྒྱུ་ཆེ། །ཡང་ན་རྐུན་མ་སྐོམ་དད་ཅན། །ནད་བཏང་བྲེད་དངངས་དག་གིས་ལེན། །རྗེན་ཕྱེའི་མ་ཧེའི་གཟུགས་ཀྱི་ཁར། །པདྨའི་རྩ་བ་བཅུག་བྱས་ལ། །ནད་པར་བསྐོར་ཞིང་བསྒྱུར་ན་ཕན། །ལྟས་བྱུང་ཡིག་མཁན་རྫ་མཁན་ངན། །གཟས་བཟུང་འཁྲུག་རྩོད་མང་བ་དང་། །རླུང་ཆེན་རིམས་ནད་སྔགས་བོན་ངན། །འདི་ལ་ཆར་བབས་ཕྱིས་ནས་འཐེན། །སྐར་ཆུང་ལུ་གུ་སྣ་ཞེས་པ། །སྣ་འབུགས་ར་ལེན་ལ་སོགས་བཟང་། །སྒྲིབ་ན་མ་ཧེའི་ཐོད་པ་དེ། །རང་གི་ཕྱོགས་སུ་བསྟན་པས་སྒྲིབ། །",
+    "review_notes": [],
+    "element_relationships": {
+      "system": "nag_rtsis",
+      "mother": "wood",
+      "friend": "iron",
+      "child": "earth",
+      "enemy": "water",
+      "source_block": 352,
+      "enemy_mansion_ids": [
+        "lm_tha_skar",
+        "lm_mon_dre",
+        "lm_mon_gru",
+        "lm_khrums_stod",
+        "lm_khrums_smad",
+        "lm_nam_gru"
+      ],
+      "cemetery_greater_number": 21,
+      "cemetery_lesser_number": 8,
+      "note": "These are element-group (bla skar) reference tables, not an automatically derived natal comparison. Number 21 is shared/ambiguous for gro bzhin and byi bzhin in these tables; it is not resolved into a personal death-star prediction."
+    }
   },
   "lm_nag_pa": {
     "id": "lm_nag_pa",
     "tibetan": "ནག་པ་",
     "wylie": "nag pa",
     "sanskrit": "Citrā",
-    "element": null,
-    "nag_rtsis_element": null,
-    "deity": null,
+    "element": "wind",
+    "nag_rtsis_element": "fire",
+    "deity": "Sun (nyi ma)",
     "symbol": "Lotus seed-head (fruit)",
     "electional": {
-      "favorable": [],
-      "unfavorable": [],
-      "notes": null,
-      "source": null
+      "favorable": [
+        "Ordination and listening to Dharma",
+        "Empowerment and sacred images",
+        "Painting and crafts",
+        "Farming and sowing",
+        "Wearing clothes and ornaments",
+        "Cutting hair or nails"
+      ],
+      "unfavorable": [
+        "Consecration",
+        "Travel and moving home",
+        "Opening storehouses",
+        "Judicial decisions",
+        "Naming",
+        "Marriage"
+      ],
+      "notes": "Individual mansion reading; specific exceptions take precedence over general classes.",
+      "source": "White Beryl, chapter 33, nag pa passage (DOCX body block 144; L p. 320, starting L:10362). Selective English summary; Tibetan passage below."
     },
     "natal": {
-      "character": null,
-      "lifespan": null,
+      "character": "Musical, generous, eloquent and quick-witted; the text also describes strong desire, stubbornness and changeability.",
+      "lifespan": "The historical text gives 28 years.",
       "health": null,
       "wealth": null,
       "relationships": null,
       "mode_of_death": null,
       "spiritual": null,
-      "source": null
+      "source": "White Beryl, chapter 33, nag pa passage (DOCX body block 144; L p. 320, starting L:10362). Selective English summary; Tibetan passage below."
     },
     "enemy_star_ids": [],
     "death_star_ids": [],
     "combinations": {
-      "status": "partial",
+      "status": "elemental_complete",
       "classes": {}
     },
     "remedies": {
       "afflicted": null,
       "enemy_star": null,
-      "death_star": null
+      "death_star": null,
+      "illness_onset": "For an illness beginning under this mansion, the passage describes a ritual using a flour effigy of a tiger. This is a historical ritual description, not a treatment recommendation; details remain in the Tibetan source.",
+      "source": "White Beryl chapter 33, body block 144. Illness onset is a separate context from weekday–mansion combinations."
     },
-    "needs_source_review": true
+    "needs_source_review": false,
+    "source_block": 144,
+    "source_tibetan": "ནག་པ་སྐར་གཅིག་པད་སྙིང་དབྱིབས། །རིགས་ནི་སཱ་ལའི་ཤིང་གྲོང་རྒྱུད། །ལྷ་ནི་ཉི་མ་ཟས་ཤིང་ཏོག །ཟློས་སྐར་རླུང་ཁམས་གནག་དང་རའི། །བླ་སྐར་མྱུར་ལ་བཟང་བ་དེ། །རབ་བྱུང་རྟེན་བཞེངས་དཀྱིལ་འཁོར་བྲི། །དགེ་ལེགས་ཆོས་ཉན་མྱུར་ལས་སྒྲུབ། །སྒྲུབ་མཆོད་དབང་བསྐུར་བཟློག་རིམ་བྱ། །ཚེ་གཡང་རྒྱན་སྤྲོད་སྐྲ་སེན་འབྲེག །འདུན་གྲོས་དྲ་གྱོན་ནོར་ཕྱུགས་ལེན། །སྨན་སྦྱོར་སྐྲ་འཁྲུ་རི་མོ་བཟོ། །ཞིང་ལས་ས་བོན་ཁང་གསར་བཟུང་། །གཡོས་བྱ་རྟ་རྒྱུག་མདོས་གཏོར་འཕང་། །ཤིད་དང་ཕྱུགས་འདུལ་སྦྲ་ཕྱིར་འཚེམ། །ར་གནག་ཚུར་ལེན་དབང་རྒྱས་ལས། །གསོན་ལས་དཀར་ཕྱོགས་བྱ་བ་བཟང་། །རབ་གནས་ལྷ་གསོལ་རྒྱལ་སར་བསྐོ། །དགེ་བཤེས་ཆོ་འདོན་བྱ་བ་དང་། །ཞུ་བ་ར་ཕྱུགས་ཕར་འཇལ་ལམ། །དོན་གཉེར་མོ་རྩིས་སྦྲ་ཁྱིམ་འབུབས། །ངན་ཞིང་གཞིས་ཀ་ཡིན་ན་དགེ །དུར་འདེབས་དུར་ཁ་འབྱེད་དང་སྐྱས། །རྐུ་ཇག་རྫིང་ཡུར་བང་མཛོད་འབྱེད། །རྒྱལ་སྲིད་བྱ་བ་ཞུ་བསྙེན་བཀུར། །དགྲ་འཐབ་གཤིན་ལས་ཞལ་ཆེ་གཅོད། །ཞི་བ་དྲག་པོའི་ལས་ཕལ་ཆེར། །ཆུ་རགས་ལྟད་མོ་མིང་འདོགས་ངན། །བག་མ་བྱས་ན་བུ་མོ་འཆི། །བཙས་པ་ཉེར་བརྒྱད་འཚོ་བ་སྟེ། །གླུ་གར་རོལ་མོ་སྦྱིན་དགའ་མཛེས། །ལྕེ་བདེ་འདོད་སྤྱོད་བློ་རྣོ་གྲགས། །རྫུན་མེད་ངན་རྩུབ་འདོད་ཆགས་ཆེ། །གཤིས་གྱོང་འགྱུར་མདོག་ཆེ་བ་དང་། །སྣ་ཚོགས་གོས་གྱོན་ཕྲེང་བ་ཐོགས། །ནད་བཏབ་ཟས་གྲིབ་ཅན་གྱིས་ལན། །རྗེན་ཕྱེའི་སྟག་གི་གཟུགས་ཀྱི་ཁར། །མངར་བའི་འབྲས་བཅུག་བསྒྱུར་བས་གྲོལ། །མི་ཤི་ཟློས་ཆུང་མོད་ལ་སྦ། །ལྟས་བྱུང་འབྲས་ངན་འཁྲུག་རྩོད་མང་། །ཡིག་མཁན་རྫ་མཁན་སོགས་ལ་ངན། །ཆར་བབས་སླར་ཡང་མྱུར་དུ་འབབ། །སྐར་ཆུང་བག་མ་སྣ་རུམ་ཞེས། །ཕྱུགས་ར་བརྩིག་དང་གཡང་བསློན་པ། །བག་མ་རྣམས་ལ་ངན་པ་སྟེ། །སྒྲིབ་ན་སྟག་ཐོད་རང་སྟེང་བསྟན། །",
+    "review_notes": [],
+    "element_relationships": {
+      "system": "nag_rtsis",
+      "mother": "wood",
+      "friend": "iron",
+      "child": "earth",
+      "enemy": "water",
+      "source_block": 352,
+      "enemy_mansion_ids": [
+        "lm_tha_skar",
+        "lm_mon_dre",
+        "lm_mon_gru",
+        "lm_khrums_stod",
+        "lm_khrums_smad",
+        "lm_nam_gru"
+      ],
+      "cemetery_greater_number": 21,
+      "cemetery_lesser_number": 8,
+      "note": "These are element-group (bla skar) reference tables, not an automatically derived natal comparison. Number 21 is shared/ambiguous for gro bzhin and byi bzhin in these tables; it is not resolved into a personal death-star prediction."
+    }
   },
   "lm_sa_ri": {
     "id": "lm_sa_ri",
     "tibetan": "ས་རི་",
     "wylie": "sa ri",
     "sanskrit": "Svātī",
-    "element": null,
-    "nag_rtsis_element": null,
-    "deity": null,
+    "element": "wind",
+    "nag_rtsis_element": "fire",
+    "deity": "Wind deity (rlung lha)",
     "symbol": "Jewel",
     "electional": {
-      "favorable": [],
-      "unfavorable": [],
-      "notes": null,
-      "source": null
+      "favorable": [
+        "Ordination and consecration",
+        "Teaching and study",
+        "Farming and sowing",
+        "Reconciliation",
+        "Marriage and travel",
+        "Establishing a home"
+      ],
+      "unfavorable": [
+        "Construction",
+        "Giving away land or property",
+        "Opening grain stores",
+        "Moving home",
+        "Horse racing",
+        "Forceful activities"
+      ],
+      "notes": "Individual mansion reading; specific exceptions take precedence over general classes.",
+      "source": "White Beryl, chapter 33, sa ri passage (DOCX body block 146; L p. 321, starting L:10382). Selective English summary; Tibetan passage below."
     },
     "natal": {
-      "character": null,
-      "lifespan": null,
+      "character": "Intelligent in calculation, resourceful and quick to anger; a mixed account of jealousy, miserliness and a pliable nature.",
+      "lifespan": "The historical text gives 20 or 60 years.",
       "health": null,
       "wealth": null,
       "relationships": null,
       "mode_of_death": null,
       "spiritual": null,
-      "source": null
+      "source": "White Beryl, chapter 33, sa ri passage (DOCX body block 146; L p. 321, starting L:10382). Selective English summary; Tibetan passage below."
     },
     "enemy_star_ids": [],
     "death_star_ids": [],
     "combinations": {
-      "status": "partial",
+      "status": "elemental_complete",
       "classes": {}
     },
     "remedies": {
       "afflicted": null,
       "enemy_star": null,
-      "death_star": null
+      "death_star": null,
+      "illness_onset": "For an illness beginning under this mansion, the passage describes a ritual using a flour effigy of a buffalo. This is a historical ritual description, not a treatment recommendation; details remain in the Tibetan source.",
+      "source": "White Beryl chapter 33, body block 146. Illness onset is a separate context from weekday–mansion combinations."
     },
-    "needs_source_review": true
+    "needs_source_review": false,
+    "source_block": 146,
+    "source_tibetan": "ས་རི་སྐར་གཅིག་ནོར་བུའི་དབྱིབས། །རུས་ནི་པདྨ་ལྷ་རླུང་ལྷ། །ཁ་ཟས་ཏིལ་ཐུག་རྒྱལ་ཟན་པ། །རླུང་ཁམས་དགྲ་སྐར་བརྗེའི་བླ། །གནག་བླ་མི་བརྟན་འགྱུར་བ་སྟེ། །རབ་བྱུང་རབ་གནས་ཚེ་སྒྲུབ་དང་། །དཀྱིལ་འཁོར་སློབ་གཉེར་དབང་། །སྨན་སྦྱོར་ལྷ་སྒྲུབ་འཆད་ཉན་བྱ། །ལྷ་གཡང་ཞལ་གསོ་རྟེན་བཞེངས་དང་། །ཞིང་ལས་འབྲུ་འཐོར་ས་ཁ་དབྱེ། །ཚེ་འགུགས་བཟློག་པ་སྲི་མནན་བསྡུམས། །དྲ་གྱོན་རྒྱལ་ས་བང་མཛོད་འཛིན། །ཞལ་ཆེ་ཆུ་བརྒལ་སྦྲ་ཁྱིམ་འབུབས། །གཉེན་སྦྱོར་ལམ་ཞུགས་རྟ་གླང་འདུལ། །སྟོན་མོ་བག་ཁྲུས་སྦྱིན་སྲེག་བྱེད། །རྫིང་ཡུར་ཁྱིམ་གསར་སྦྲ་ཕྱིར་འཚེམ། །རྟ་བོང་དྲེའུ་སྒོ་རྒྱག་བཅོས། །གཏར་བསྲེག་ཆུ་རགས་ལྡུམ་ར་གདབ། །ཡུལ་མཁར་ཚུར་ལེན་ཤེ་བླང་སོགས། །རྒྱས་དབང་ཞི་བ་ཡིས་མཚོན་པའི། །གསོན་གཤིན་ལས་རྣམས་ཕལ་ཆེར་བཟང་། །མཁར་ལས་ས་ཞིང་ཡུལ་མཁར་གཏོང་། །ཕར་འཇལ་དོན་གཉེར་འབྲུ་བང་འབྱེད། །ལྟད་མོ་རྟ་རྒྱུག་དུར་འདེབས་སྐྱས། །རྐུ་ཇག་དྲག་ལས་ངན་པས་འཛེམ། །བཙས་ན་ཉི་ཤུ་དྲུག་ཅུར་འཚོ། །རྩིས་པ་འབྱོར་རྙེད་ཁྲོ་བར་མྱུར། །གཡོ་སྒྱུ་སེམས་ནད་ལོངས་སྤྱོད་ལྡན། །བཞིན་མཛེས་བྱམས་མས་སྡང་ཞིང་། །ཕྲག་དོག་སེར་སྣ་རང་བཞིན་མཉེན། །གྲོས་བརྩམ་སྤྲོ་ཞིང་བློ་འདུལ་སྤྱོད། །བུ་ཡིན་བཙན་ཐུབ་བུ་མོ་བཙན། །ནད་བཏབ་ཞིག་རལ་སར་ཕྱིན་ལན། །རྗེན་ཕྱེའི་མ་ཧེའི་གཟུགས་ཀྱི་ཁར། །ཤ་མོ་བཅུག་ལ་ནད་པར་བསྐོར། །མི་ཤི་ཟློས་མེད་མོད་ལ་སྦ། །ས་གཡོས་སྡིགས་དང་གཟས་བཟུང་ངན། །ལྟས་བྱུང་འཁྲུག་རྩོད་འཕེལ་བ་དང་། །ཕུ་རལ་ངན་ཞིང་ཆར་བབས་ཞོད། །སྐར་ཆུང་སྲིན་མོ་མེ་ཁྱེར་ཞེས། །དབྱར་འབྲིང་ཉིད་དེ་སྟོན་ནམ་གུང་། །དེ་ལ་ཡོ་ལང་བྱ་མི་རུང་། །སྒྲིབ་ན་མནོལ་གྱི་ཐོད་པ་དེ། །རང་སྟེང་བཞག་པས་གནོད་པ་ཞི། །",
+    "review_notes": [],
+    "element_relationships": {
+      "system": "nag_rtsis",
+      "mother": "wood",
+      "friend": "iron",
+      "child": "earth",
+      "enemy": "water",
+      "source_block": 352,
+      "enemy_mansion_ids": [
+        "lm_tha_skar",
+        "lm_mon_dre",
+        "lm_mon_gru",
+        "lm_khrums_stod",
+        "lm_khrums_smad",
+        "lm_nam_gru"
+      ],
+      "cemetery_greater_number": 21,
+      "cemetery_lesser_number": 8,
+      "note": "These are element-group (bla skar) reference tables, not an automatically derived natal comparison. Number 21 is shared/ambiguous for gro bzhin and byi bzhin in these tables; it is not resolved into a personal death-star prediction."
+    }
   },
   "lm_sa_ga": {
     "id": "lm_sa_ga",
     "tibetan": "ས་ག་",
     "wylie": "sa ga",
     "sanskrit": "Viśākhā",
-    "element": null,
-    "nag_rtsis_element": null,
-    "deity": null,
+    "element": "fire",
+    "nag_rtsis_element": "earth",
+    "deity": "Agni (me lha); the preceding dbang po belongs to an uncertain clan/deity division",
     "symbol": "Goat head (ra mgo)",
     "electional": {
-      "favorable": [],
-      "unfavorable": [],
-      "notes": null,
-      "source": null
+      "favorable": [
+        "Ordination, consecration and empowerment",
+        "Teaching and study",
+        "Repaying debts",
+        "Farming and sowing",
+        "Craft work",
+        "Receiving a bride"
+      ],
+      "unfavorable": [
+        "Travel and moving home",
+        "Construction",
+        "Trade and selling fields",
+        "Celebrations and reconciliation",
+        "Planting trees and flowers",
+        "Sending a bride away"
+      ],
+      "notes": "Individual mansion reading; specific exceptions take precedence over general classes.",
+      "source": "White Beryl, chapter 33, sa ga passage (DOCX body block 148; L p. 322, starting L:10402). Selective English summary; Tibetan passage below."
     },
     "natal": {
-      "character": null,
-      "lifespan": null,
+      "character": "The text describes splendour, intelligence, resources and a following, with a difficult early life and a better later life.",
+      "lifespan": "The historical text gives 70 years.",
       "health": null,
       "wealth": null,
       "relationships": null,
       "mode_of_death": null,
       "spiritual": null,
-      "source": null
+      "source": "White Beryl, chapter 33, sa ga passage (DOCX body block 148; L p. 322, starting L:10402). Selective English summary; Tibetan passage below."
     },
     "enemy_star_ids": [],
     "death_star_ids": [],
     "combinations": {
-      "status": "partial",
+      "status": "elemental_complete",
       "classes": {}
     },
     "remedies": {
       "afflicted": null,
       "enemy_star": null,
-      "death_star": null
+      "death_star": null,
+      "illness_onset": "For an illness beginning under this mansion, the passage describes a ritual using a flour effigy of a tiger. This is a historical ritual description, not a treatment recommendation; details remain in the Tibetan source.",
+      "source": "White Beryl chapter 33, body block 148. Illness onset is a separate context from weekday–mansion combinations."
     },
-    "needs_source_review": true
+    "needs_source_review": false,
+    "source_block": 148,
+    "source_tibetan": "ས་ག་སྐར་བཞི་རི་མགོའི་དབྱིབས། །རུས་མཚན་དབང་པོ་མེ་ལྷ་ལྷ། །ཏིལ་དང་མེ་ཏོག་རྒྱུ་སྲན་ཟས། །འགྲུབ་སྐར་མེ་ཁམས་ཞིང་གི་བླ། །བཏང་སྙོམས་ཅན་ལ་དཀྱིལ་འཁོར་བྲི། །རབ་བྱུང་རབ་གནས་དབང་བསྐུར་སྒྲུབ། །སྦྱིན་སྲེག་འཆད་ཉན་སློབ་གཉེར་བྱ། །གཉེན་སྦྱོར་དྲ་གྱོན་བུ་ལོན་འཇལ། །བཟོ་དང་ཁྱིམ་གསར་བང་མཛོད་འཛིན། །སྲི་མནན་རྟ་གླང་འདུལ་བ་དང་། །ཞིང་ལས་ས་བོན་སྐྲ་སེན་འབྲེག །ཆད་བརྩིག་དོན་གཉེར་དབང་དྲག་ལས། །ཆུ་རགས་དགྲ་འདུལ་ལས་རྣམས་བཟང་། །དུར་གདབ་ཞིང་འཚོང་བང་མཛོད་དབྱེ། །ཁྱིམ་འབུབས་མཁར་ལས་མགྲོན་འགྲོ་ལམ། །ལྷ་གཡང་ཞུ་གསོལ་ཤིང་དང་ཚོང་། །རྒྱལ་ས་ལྷ་ཁང་རྟེན་བཞེངས་པ། །སྨན་སྦྱར་ཞི་དང་རྒྱས་པའི་ལས། །འབྲུ་འཇལ་ཁ་མཆུ་བུན་གཏོང་སྐྱས། །སྟོན་མོ་སྐྲ་འཁྲུ་མོ་རྩིས་བྱ། །བསྡུམས་དང་མེ་ཏོག་ཤིང་འཛུགས་ངན། །གསོན་པོའི་ལས་དང་ཞིང་ཉོ་འབྲིང་། །བག་མ་ལེན་བཟང་གཏོང་བ་ངན། །བཙས་པ་ཚེ་ལོ་བདུན་ཅུར་འཚོ། །གཟི་བརྗིད་དཔལ་ཆེ་འཁོར་ནོར་ལྡན། །དགྲ་འདུལ་ཤེས་རབ་བུད་མེད་འདུ། །ཚེ་སྟོད་ངན་ལ་ཚེ་སྨད་བཟང་། །ནད་བཏབ་མཚན་མོའི་འགྲུལ་གྱིས་ལན། །རྗེན་ཕྱེའི་སྟག་གི་གཟུགས་ཀྱི་ཁར། །བུ་རམ་བཅུག་ལ་བསྐོར་ཞིང་བསྒྱུར། །མི་ཤི་དེ་ཡི་མོད་ལ་སྦ། །ལྟས་བྱུང་མགོ་ནད་བད་ཀན་ལྡང་། །འགྲོ་ཀུན་མེས་ཚིག་ཆོམ་རྐུན་འཆི། །ཆར་བབས་དེ་ནས་སླར་ཡང་འབབ། །སྐར་ཆུང་འབྲུ་མོ་ཐང་སྐྱོན་ཞེས། །དེ་ལ་བྱ་བ་གང་ཡང་བཟང་། །སྒྲིབ་ན་སྟག་ཐོད་རང་གནས་འཕྱར། །",
+    "review_notes": [
+      "Deity identification is absent or uncertain in this transcription; no standard Jyotisha deity has been substituted."
+    ],
+    "element_relationships": {
+      "system": "nag_rtsis",
+      "mother": "fire",
+      "friend": "water",
+      "child": "iron",
+      "enemy": "wood",
+      "source_block": 355,
+      "enemy_mansion_ids": [
+        "lm_smin_drug",
+        "lm_snar_ma",
+        "lm_mgo",
+        "lm_lag",
+        "lm_nabs_so",
+        "lm_rgyal"
+      ],
+      "cemetery_greater_number": 8,
+      "cemetery_lesser_number": 21,
+      "note": "These are element-group (bla skar) reference tables, not an automatically derived natal comparison. Number 21 is shared/ambiguous for gro bzhin and byi bzhin in these tables; it is not resolved into a personal death-star prediction."
+    }
   },
   "lm_lha_mtshams": {
     "id": "lm_lha_mtshams",
     "tibetan": "ལྷ་མཚམས་",
     "wylie": "lha mtshams",
     "sanskrit": "Anurādhā",
-    "element": null,
-    "nag_rtsis_element": null,
-    "deity": null,
+    "element": "earth",
+    "nag_rtsis_element": "iron",
+    "deity": "Sun (nyi)",
     "symbol": "Elephant (glang po)",
     "electional": {
-      "favorable": [],
-      "unfavorable": [],
-      "notes": null,
-      "source": null
+      "favorable": [
+        "Ordination and consecration",
+        "Teaching Dharma",
+        "Restoring stupas",
+        "Painting and crafts",
+        "Sowing",
+        "Travel, including long journeys",
+        "Study"
+      ],
+      "unfavorable": [
+        "Construction and moving into a new home",
+        "Consultation",
+        "Celebrations",
+        "Breaking ground and ploughing",
+        "Installing a hearth",
+        "Marriage"
+      ],
+      "notes": "Individual mansion reading; specific exceptions take precedence over general classes.",
+      "source": "White Beryl, chapter 33, lha mtshams passage (DOCX body block 150; L p. 322, starting L:10420). Selective English summary; Tibetan passage below."
     },
     "natal": {
-      "character": null,
-      "lifespan": null,
+      "character": "For a son, discipline, eloquence, intelligence, religious commitment and wealth are described.",
+      "lifespan": "The historical text gives 28 years.",
       "health": null,
       "wealth": null,
       "relationships": null,
       "mode_of_death": null,
       "spiritual": null,
-      "source": null
+      "source": "White Beryl, chapter 33, lha mtshams passage (DOCX body block 150; L p. 322, starting L:10420). Selective English summary; Tibetan passage below."
     },
     "enemy_star_ids": [],
     "death_star_ids": [],
     "combinations": {
-      "status": "partial",
+      "status": "elemental_complete",
       "classes": {}
     },
     "remedies": {
       "afflicted": null,
       "enemy_star": null,
-      "death_star": null
+      "death_star": null,
+      "illness_onset": "For an illness beginning under this mansion, the passage describes a ritual using a flour effigy of a black antelope. This is a historical ritual description, not a treatment recommendation; details remain in the Tibetan source.",
+      "source": "White Beryl chapter 33, body block 150. Illness onset is a separate context from weekday–mansion combinations."
     },
-    "needs_source_review": true
+    "needs_source_review": false,
+    "source_block": 150,
+    "source_tibetan": "ལྷ་མཚམས་སྐར་བཞི་གླང་པོའི་དབྱིབས། །རིགས་དམངས་ལྷ་ཉི་ཟས་ཆང་དང་། །སྲན་ཆུང་སྦྲང་རྩི་ས་ཡི་ཁམས། །མྱུར་བཟང་ཟློས་སྐར་བརྗེའི་བླ། །རབ་བྱུང་རབ་གནས་ལྷ་གཡང་སྨན། །དགེ་ལས་ཆོས་སྟོན་མཆོད་རྟེན་གསོ། །དྲ་གྱོན་རྒྱན་སྤྲོད་རྒྱལ་སར་བསྐོ། །སྐྲ་འཁྲུ་གཏར་སྲེག་རི་མོ་བཟོ། །དམག་ཇག་ཕར་རྒོལ་གཏད་དྲག་ལས། །དབང་དང་རྒྱས་པའི་ལས་སྤྱི་དང་། །ཚེ་སྒྲུབ་ཞིང་ལས་ས་བོན་གདབ། །ལམ་ཞུགས་རྩེད་འཇོ་མྱུར་སྒྲུབ་ལས། །རྟ་བོང་དྲེའུ་སྒོ་རྒྱག་པ། །ཞལ་ཆེ་གཤེ་སྡུད་སྐྲ་སེན་འབྲེག །ཐག་རིང་བགྲོད་དང་བལ་གཡང་བསློན། །རྙེད་ཚུར་ལེན་དང་ཕྱི་རི་དྭགས། །གཤོར་ལ་དོན་གཉེར་ལྷོ་དང་ནུབ། །ཡུལ་བཟུང་སློབ་གཉེར་ཚུར་ལེན་བཟང་། །ཁྱིམ་འབུབས་གཤིན་ལས་ཕྱིར་འཇལ་དང་། །གྲོས་འདུན་མཁར་ལས་ཁྱིམ་གསར་འཛིན། །ཞི་ལས་སྟོན་མོ་ས་ཁ་དབྱེ། །རྟ་བོང་དྲེལ་འདུལ་བཅས་བྱེད་པ། །བཟློག་པ་སྲི་མནན་གྲོང་ཁྱེར་བརྩིག །ཞིང་རྨོ་བུ་འབོགས་ཐབ་འཆའ་ངན། །བག་མ་ཁྱོ་དང་འབྲལ་བས་འཛེམ། །བུ་བཙས་ཚེ་ལོ་ཉེར་བརྒྱད་འཚོ། །ཁྲིམས་ལྡན་ལྕེ་བདེ་གཟུགས་བཟང་ཕྱུག །དབང་དུལ་ཆོས་ལྡན་བློ་གྲོས་ཆེ། །བུ་མོ་བཙས་ན་ངན་པ་དང་། །ནད་བཏབ་ཐབ་མོ་བར་ཞུགས་ལན། །རྗེན་ཕྱེའི་རི་དྭགས་ཀྲྀཥྞའི་ཁར། །སྲན་མ་བཅུག་པ་ནད་བསྐོར་བསྒྱུར། །མི་ཤི་ལྔ་ལ་ཟློས་པས་ངན། །ལྟས་བྱུང་རྒྱལ་སྲིད་བདེ་བ་དང་། །འབྲུ་བཏབ་རྒྱས་ལ་འཁྲུག་རྩོད་མེད། །ཆར་བབས་དེ་ནས་མྱུར་དུ་འབབ། །སྐར་ཆུང་བུམ་ལྡན་ཞེས་བྱ་སྟེ། །དེ་ལ་བྱ་བ་ཐམས་ཅད་འཛེམ། །སྒྲིབ་ན་ཁྲི་སྙན་ཐོད་པ་ནི། །རང་སྟེང་བཞག་པས་ཉེས་ཀུན་ཞི། །",
+    "review_notes": [],
+    "element_relationships": {
+      "system": "nag_rtsis",
+      "mother": "earth",
+      "friend": "wood",
+      "child": "water",
+      "enemy": "fire",
+      "source_block": 360,
+      "enemy_mansion_ids": [
+        "lm_mchu",
+        "lm_gre",
+        "lm_dbo",
+        "lm_me_bzhi",
+        "lm_nag_pa",
+        "lm_sa_ri"
+      ],
+      "cemetery_greater_number": 1,
+      "cemetery_lesser_number": 15,
+      "note": "These are element-group (bla skar) reference tables, not an automatically derived natal comparison. Number 21 is shared/ambiguous for gro bzhin and byi bzhin in these tables; it is not resolved into a personal death-star prediction."
+    }
   },
   "lm_snon": {
     "id": "lm_snon",
     "tibetan": "སྣོན་",
     "wylie": "snon",
     "sanskrit": "Jyeṣṭhā",
-    "element": null,
-    "nag_rtsis_element": null,
-    "deity": null,
+    "element": "earth",
+    "nag_rtsis_element": "iron",
+    "deity": "Indra (dbang po)",
     "symbol": "Steps, a ladder",
     "electional": {
-      "favorable": [],
-      "unfavorable": [],
-      "notes": null,
-      "source": null
+      "favorable": [
+        "Ordination and consecration",
+        "Study",
+        "Sowing",
+        "Planting trees and bridges",
+        "Petitions and receiving wealth",
+        "Forceful ritual activities"
+      ],
+      "unfavorable": [
+        "Travel",
+        "Construction",
+        "Craft work",
+        "Naming",
+        "Reconciliation",
+        "Marriage"
+      ],
+      "notes": "Individual mansion reading; specific exceptions take precedence over general classes.",
+      "source": "White Beryl, chapter 33, snon passage (DOCX body block 152; L p. 323, starting L:10437). Selective English summary; Tibetan passage below."
     },
     "natal": {
-      "character": null,
-      "lifespan": null,
+      "character": "The passage describes little compassion, poverty and few wants, together with increasing offerings and gifts.",
+      "lifespan": "The historical text gives 35 years.",
       "health": null,
       "wealth": null,
       "relationships": null,
       "mode_of_death": null,
       "spiritual": null,
-      "source": null
+      "source": "White Beryl, chapter 33, snon passage (DOCX body block 152; L p. 323, starting L:10437). Selective English summary; Tibetan passage below."
     },
     "enemy_star_ids": [],
     "death_star_ids": [],
     "combinations": {
-      "status": "partial",
+      "status": "elemental_complete",
       "classes": {}
     },
     "remedies": {
       "afflicted": null,
       "enemy_star": null,
-      "death_star": null
+      "death_star": null,
+      "illness_onset": "For an illness beginning under this mansion, the passage describes a ritual using a flour effigy of a monkey. This is a historical ritual description, not a treatment recommendation; details remain in the Tibetan source.",
+      "source": "White Beryl chapter 33, body block 152. Illness onset is a separate context from weekday–mansion combinations."
     },
-    "needs_source_review": true
+    "needs_source_review": false,
+    "source_block": 152,
+    "source_tibetan": "སྣོན་ནི་སྐར་གསུམ་ཐེམ་སྐས་དབྱིབས། །ལྷ་དབང་པོ་དང་རུས་ལེགས་བྱེད། །ཁ་ཟས་འབྲས་དམར་འབྲས་ཐུག་ཟ། །ས་ཁམས་མགྲོན་སྐར་ར་ཡི་བླ། །གཏུམ་དྲག་ངན་ལ་གཡུལ་གཤོམ་དང་། །མནན་གཏད་འཇོམས་འཕྲོག་དྲག་པོའི་ལས། །ཕུར་སྒྲུབ་གཡུལ་འགྱེད་བསད་པའི་ལས། །རྐུན་ཇག་ངན་འཐབ་ཞུ་བ་གསོལ། །རབ་བྱུང་རབ་གནས་ཚེ་གཡང་འགུགས། །ལྷ་གསོལ་བཀྲ་ཤིས་རྒྱལ་སར་བསྐོ། །དགེ་ལེགས་སློབ་གཉེར་ས་བོན་གདབ། །རྒྱན་སྤྲོད་ནོར་བླང་བུ་ལོན་སྙེག །སྐྱེ་ཤིང་ཟམ་འཛུགས་ཆུ་རྐ་ལེན། །གཏར་སྲེག་རྟ་ཕྱུགས་ཁྱུ་ལ་གཏོང་། །ལྷོ་དང་ནུབ་ལ་དོན་གཉེར་བ། །གྲོང་ཁྱེར་གཞོམ་དང་སྲི་མནན་པ། །མངོན་སྤྱོད་ཐུག་འགྱེད་གསོན་ལས་བཟང་། །མཁར་ལས་དྲ་གྱོན་ལམ་ཞུགས་བཟོ། །སྨན་སྦྱར་མོ་རྩིས་རྟེན་བཞེངས་འདུམས། །གཤིན་ལས་བྲན་བསྟེན་ར་ཕྱུགས་གཏོང་། །མིང་འདོགས་ཆུ་རགས་སྦྱོར་བཤས་བྱེད། །ཤི་ཆོས་དོན་གཉེར་བུ་མོ་སྐྱེས། །ཞི་རྒྱས་དབང་གི་ལས་རྣམས་དང་། །བག་མ་གཏོང་ལེན་གཉིས་ཀ་ངན། །སྐྱེས་པ་སོ་ལྔ་སྙིང་རྗེ་ཆུང་། །དབུལ་ཞིང་འདོད་ཆུང་ངན་ལ་བརྩོན། །མཆོད་སྦྱིན་འཕེལ་ཞིང་ཚེ་ཚད་ཐུང་། །ཆོས་བྱས་མྱུར་དུ་ཁྲིམས་འཆལ་འགྱུར། །ནད་བཏབ་མཚན་ལ་གྲོས་འུར་ལན། །རྗེན་ཕྱེའི་སྤྲེལ་གཟུགས་བྱས་པའི་ཁར། །རྒྱ་ཡི་སྲན་མ་བཅུག་བསྒྱུར་ཐུབ། །མི་ཤི་འབྲིང་ཡིན་བསྒྲུབས་ལ་སྦ། །ལྟས་བྱུང་འབྲུ་རྒྱས་ནད་འཁྲུག་ཞི། །ཆར་བབས་ཕྱིས་ནས་ཆུང་བ་ཡིན། །སྐར་ཆུང་ཆེན་མ་ཞེས་བྱ་ནི། །གོས་བཙེམས་ངན་ལ་གཡང་སྒོ་སྡོམ། །སྒྲིབ་ན་སྤྲེལ་ཐོད་རང་སྟེང་བསྟན། །",
+    "review_notes": [],
+    "element_relationships": {
+      "system": "nag_rtsis",
+      "mother": "earth",
+      "friend": "wood",
+      "child": "water",
+      "enemy": "fire",
+      "source_block": 360,
+      "enemy_mansion_ids": [
+        "lm_mchu",
+        "lm_gre",
+        "lm_dbo",
+        "lm_me_bzhi",
+        "lm_nag_pa",
+        "lm_sa_ri"
+      ],
+      "cemetery_greater_number": 1,
+      "cemetery_lesser_number": 15,
+      "note": "These are element-group (bla skar) reference tables, not an automatically derived natal comparison. Number 21 is shared/ambiguous for gro bzhin and byi bzhin in these tables; it is not resolved into a personal death-star prediction."
+    }
   },
   "lm_snubs": {
     "id": "lm_snubs",
     "tibetan": "སྣུབས་",
     "wylie": "snubs",
     "sanskrit": "Mūla",
-    "element": null,
-    "nag_rtsis_element": null,
-    "deity": null,
+    "element": "water",
+    "nag_rtsis_element": "iron",
+    "deity": "The one with hunters (rngon pa can)",
     "symbol": "Scorpion",
     "electional": {
-      "favorable": [],
-      "unfavorable": [],
-      "notes": null,
-      "source": null
+      "favorable": [
+        "Consecration",
+        "Trade",
+        "Construction and sowing",
+        "Adornment",
+        "Receiving wealth",
+        "Ritual offerings"
+      ],
+      "unfavorable": [
+        "Travel",
+        "Moving into a new home",
+        "Naming",
+        "Consultation",
+        "Marriage",
+        "Peaceful and increasing rites in general"
+      ],
+      "notes": "Individual mansion reading; specific exceptions take precedence over general classes.",
+      "source": "White Beryl, chapter 33, snubs passage (DOCX body block 154; L p. 323, starting L:10453). Selective English summary; Tibetan passage below."
     },
     "natal": {
-      "character": null,
-      "lifespan": null,
+      "character": "The text associates this birth with property, grain and resources, as well as pride and effort in harmful activities.",
+      "lifespan": "The historical text gives 35 or 63 years.",
       "health": null,
       "wealth": null,
       "relationships": null,
       "mode_of_death": null,
       "spiritual": null,
-      "source": null
+      "source": "White Beryl, chapter 33, snubs passage (DOCX body block 154; L p. 323, starting L:10453). Selective English summary; Tibetan passage below."
     },
     "enemy_star_ids": [],
     "death_star_ids": [],
     "combinations": {
-      "status": "partial",
+      "status": "elemental_complete",
       "classes": {}
     },
     "remedies": {
       "afflicted": null,
       "enemy_star": null,
-      "death_star": null
+      "death_star": null,
+      "illness_onset": "For an illness beginning under this mansion, the passage describes a ritual using a flour effigy of a peacock. This is a historical ritual description, not a treatment recommendation; details remain in the Tibetan source.",
+      "source": "White Beryl chapter 33, body block 154. Illness onset is a separate context from weekday–mansion combinations."
     },
-    "needs_source_review": true
+    "needs_source_review": false,
+    "source_block": 154,
+    "source_tibetan": "སྣྲུབས་ནི་སྐར་དགུ་སྡིག་པའི་དབྱིབས། །ལྷ་ནི་རྔོན་པ་ཅན་དང་ནི། །རུས་ནི་ཀཱ་ཏྱཱ་ཡ་ནའོ། །འོ་མ་ནག་རྩ་སྡོང་འབྲས་ཟ། །དམེ་སྐར་ཆུ་ཁམས་དམངས་པོའི་བླ། །འབྲས་བུ་ངན་ལ་དམག་འདྲེན་མཚོན། །བསད་དྲག་ངན་ཐབས་གྲོང་ཁྱེར་འཇོམས། །རབ་གནས་ཚེ་གཡང་རྟེན་བཞེངས་ཚོང་། །ལྷ་གསོལ་ཞལ་གསོ་སྐྱས་བྱ་བ། །མཁར་ལས་སྟོན་མོ་ས་བོན་གདབ། །གཤིན་ལས་མོ་རྩིས་སྲི་མནན་བཟློག །ཞི་ལས་སྒོ་འཛུགས་བང་བ་བརྩིག །རྒྱན་སྤྲོད་གཏམ་གཏོང་ཐུག་འགྱེད་པ། །ནོར་རྫས་ཚུར་ལེན་ལས་ཕྲ་མོ། །དབང་དྲག་ལ་སོགས་གསོན་པོའི་ལས། །མདོས་དང་གཏོར་མ་བྲན་ལས་བཟང་། །ཕར་འཇལ་ལམ་ཞུགས་རྒྱལ་སར་འཇུག །དོན་གཉེར་དྲ་གྱོན་ཤ་མར་གཏོང་། །སྦྲ་ཕྱིར་ཐབ་བཅའ་རྒྱལ་མཚན་འཛུགས། །དུར་འདེབས་སྡུད་ཁ་ཟ་འོག་འཇུག །མིང་འདོགས་ཆུ་རགས་ཁྱིམ་གསར་འཛིན། །སྦྱིན་སྲེག་བྱེས་བགྲོད་རྒྱལ་པོའི་ལས། །ཞི་བ་རྒྱས་པའི་ལས་སྤྱི་དང་། །འདུན་གྲོས་བཀྲ་ཤིས་དགེ་ལེགས་ལས། །བག་མ་གཏོང་ལེན་ངན་པས་སྤང་། །བཙས་པ་སོ་ལྔ་རེ་གསུམ་འཚོ། །སྐལ་ལྡན་ཁང་ནོར་འབྲུ་ཡི་བདག །བུ་མོ་བཙས་ན་སོས་པ་དཀའ། །ང་རྒྱལ་སྲིད་དང་ངན་ལས་བརྩོན། །ནད་བཏབ་མི་གཙང་ཤད་མར་ལན། །རྗེན་ཕྱེའི་རྨ་བྱའི་གཟུགས་ཀྱི་ཁར། །ཏིལ་བཅུག་ནད་པར་བསྐོར་ཞིང་བསྐྱུར། །མི་ཤི་ནོར་ངན་མོད་ལ་སྦ། །ལྟས་བྱུང་ཞོད་ཆེ་སྦྲུམ་མ་བདེ། །ནད་མེད་སྐུ་རྒྱལ་སྨན་རིགས་དང་། །རིག་སྔགས་ཚོང་རྣམས་འཕེལ་བར་འགྱུར། །ཚོང་པ་གྲུ་མཁན་དག་ལ་ངན། །ཆར་བབས་ཕྱིས་ནས་འཐེན་ཞེས་ཟེར། །སྐར་ཆུང་ཁྲུས་མོ་བུ་སྐྱེས་བྱ། །དེ་ལ་བུ་སྲིང་རྫོང་བ་ངན། །སྒྲིབ་ན་རྨ་བྱའི་ཐོད་པ་དེ། །རང་ཐོག་འཕྱར་བས་ཉེས་པ་ཞི། །",
+    "review_notes": [],
+    "element_relationships": {
+      "system": "nag_rtsis",
+      "mother": "earth",
+      "friend": "wood",
+      "child": "water",
+      "enemy": "fire",
+      "source_block": 360,
+      "enemy_mansion_ids": [
+        "lm_mchu",
+        "lm_gre",
+        "lm_dbo",
+        "lm_me_bzhi",
+        "lm_nag_pa",
+        "lm_sa_ri"
+      ],
+      "cemetery_greater_number": 1,
+      "cemetery_lesser_number": 15,
+      "note": "These are element-group (bla skar) reference tables, not an automatically derived natal comparison. Number 21 is shared/ambiguous for gro bzhin and byi bzhin in these tables; it is not resolved into a personal death-star prediction."
+    }
   },
   "lm_chu_stod": {
     "id": "lm_chu_stod",
     "tibetan": "ཆུ་སྟོད་",
     "wylie": "chu stod",
     "sanskrit": "Pūrvāṣāḍhā",
-    "element": null,
-    "nag_rtsis_element": null,
-    "deity": null,
+    "element": "water",
+    "nag_rtsis_element": "iron",
+    "deity": "Water deity (chu lha)",
     "symbol": "Stūpa",
     "electional": {
-      "favorable": [],
-      "unfavorable": [],
-      "notes": null,
-      "source": null
+      "favorable": [
+        "Ordination, consecration and empowerment",
+        "Gardens and sowing",
+        "Crafts",
+        "Buying land, houses and livestock",
+        "Construction",
+        "Naming",
+        "Travel and trade"
+      ],
+      "unfavorable": [
+        "Sending grain or wealth away",
+        "Opening storehouses",
+        "Moving home",
+        "Celebrations",
+        "Installing a hearth",
+        "Marriage"
+      ],
+      "notes": "Individual mansion reading; specific exceptions take precedence over general classes.",
+      "source": "White Beryl, chapter 33, chu stod passage (DOCX body block 156; L p. 324, starting L:10472). Selective English summary; Tibetan passage below."
     },
     "natal": {
-      "character": null,
-      "lifespan": null,
+      "character": "Learned, religious and skilled in crafts and activities; affectionate toward followers but proud.",
+      "lifespan": "The historical text gives 80 years.",
       "health": null,
       "wealth": null,
       "relationships": null,
       "mode_of_death": null,
       "spiritual": null,
-      "source": null
+      "source": "White Beryl, chapter 33, chu stod passage (DOCX body block 156; L p. 324, starting L:10472). Selective English summary; Tibetan passage below."
     },
     "enemy_star_ids": [],
     "death_star_ids": [],
     "combinations": {
-      "status": "partial",
+      "status": "elemental_complete",
       "classes": {}
     },
     "remedies": {
       "afflicted": null,
       "enemy_star": null,
-      "death_star": null
+      "death_star": null,
+      "illness_onset": "For an illness beginning under this mansion, the passage describes a ritual using a flour effigy of a water creature. This is a historical ritual description, not a treatment recommendation; details remain in the Tibetan source.",
+      "source": "White Beryl chapter 33, body block 156. Illness onset is a separate context from weekday–mansion combinations."
     },
-    "needs_source_review": true
+    "needs_source_review": false,
+    "source_block": 156,
+    "source_tibetan": "ཆུ་སྟོད་སྐར་བཞི་ཀཱ་ཏྱའི་རིགས། །ཆུ་ལྷ་ལྷར་འཛིན་མཆོད་རྟེན་དབྱིབས། །ཙ་གྲོ་ཏ་ནི་ཟས་སུ་ཟ། །ཆུ་ཁམས་གཡང་སྐར་བརྟན་དོན་འགྲུབ། །དམེ་སྐར་བུད་མེད་བཤན་པའི་བླ། །རབ་བྱུང་རབ་གནས་ལྷ་གཡང་དབང་། །གཉེན་སྦྱོར་རྒྱལ་ས་སྐྱེད་ཚལ་བཟོ། །ཞལ་གསོ་འཁོར་དང་བུད་མེད་བསྟེན། །ཞུ་གསོལ་ས་བོན་ནོར་ཕྱུགས་ལེན། །རྒྱན་སྤྲོད་སྐྲ་འཁྲུ་ས་ཁ་དབྱེ། །ལྟད་མོ་རྟ་ཕྱུགས་ཞིང་ཁང་ཉོ། །བཟློག་རིམ་སྦྱིན་སྲེག་བང་མཛོད་བཅའ། །མཁར་ལས་རྒྱལ་སར་བསྐོ་བ་དང་། །ཚེ་སྒྲུབ་མིང་འདོགས་དྲག་ལས་ཤིད། །ལམ་ཞུགས་སྦྲ་ཕྱིར་འཚེམ་དང་ཚོང་། །བཀྲ་ཤིས་དོན་གཉེར་ལྷོ་དང་ནུབ། །ཆོས་འཛུགས་ངོ་བསྲོ་དགྲ་དང་འཐབ། །གཉེར་སར་བསྐོ་སོགས་གསོན་ལས་བཟང་། །འབྲུ་ནོར་ཕྱིར་གཏོང་བང་ཁ་དབྱེ། །དྲ་གྱོན་གཤིན་ལས་ཐབ་ཁ་འཆའ། །འཕོ་སྐྱེས་སྟོན་མོ་རྟ་རྒྱུག་པ། །ཞི་རྒྱས་ལས་དང་ཆུ་རགས་བརྩིག །བག་མ་མི་རུང་ངན་པས་སྤང་། །བཙས་ལོ་བརྒྱད་ཅུ་ཆོས་ལྡན་ཐོས། །བཟོ་དང་བྱ་བ་ཀུན་ལ་མཁས། །འཁོར་དུངས་ང་རྒྱལ་ཆེ་ན་ཡང་། །ཚེ་རིང་ལྡན་པས་མཐོ་རིས་ཐོབ། །བུ་མོ་སྐྱེས་ན་ངན་པར་འགྱུར། །ནད་བཏབ་བྱུར་ཅན་ཡུགས་སས་ལན། །རྗེན་ཕྱེའི་ཆུ་སྲིན་གཟུགས་ཀྱི་ཁར། །ཐ་ག་བཅུག་བསྐྱུར་ནད་ལས་གྲོལ། །མི་ཤི་ནོར་ངན་ཕྱིར་དབྱུང་ངོ་། །ལྟས་བྱུང་ཆར་བབས་སྦྲུམ་མ་བདེ། །ནད་མེད་སྐུ་རྒྱལ་སྨན་སྔགས་འཕེལ། །མགར་བ་རྣམས་ལ་ངན་པ་ཙམ། །ཆར་བབས་དེ་ནས་སླར་ཡང་འབབ། །སྐར་ཆུང་ཁྱེའུ་རྒྱས་བྱེད་ལ། །ལས་དང་བྱ་བ་གང་ཡང་བཟང་། །སྒྲིབ་ན་ཆུ་སྲིན་གཟུགས་ཚང་བ། །རང་སྟེང་བཟུང་བས་ཉེས་ཀུན་ཞི། །",
+    "review_notes": [],
+    "element_relationships": {
+      "system": "nag_rtsis",
+      "mother": "earth",
+      "friend": "wood",
+      "child": "water",
+      "enemy": "fire",
+      "source_block": 360,
+      "enemy_mansion_ids": [
+        "lm_mchu",
+        "lm_gre",
+        "lm_dbo",
+        "lm_me_bzhi",
+        "lm_nag_pa",
+        "lm_sa_ri"
+      ],
+      "cemetery_greater_number": 1,
+      "cemetery_lesser_number": 15,
+      "note": "These are element-group (bla skar) reference tables, not an automatically derived natal comparison. Number 21 is shared/ambiguous for gro bzhin and byi bzhin in these tables; it is not resolved into a personal death-star prediction."
+    }
   },
   "lm_chu_smad": {
     "id": "lm_chu_smad",
     "tibetan": "ཆུ་སྨད་",
     "wylie": "chu smad",
     "sanskrit": "Uttarāṣāḍhā",
-    "element": null,
-    "nag_rtsis_element": null,
-    "deity": null,
+    "element": "earth",
+    "nag_rtsis_element": "iron",
+    "deity": "All the gods (lha thams cad)",
     "symbol": "Grain measure (bre)",
     "electional": {
-      "favorable": [],
-      "unfavorable": [],
-      "notes": null,
-      "source": null
+      "favorable": [
+        "Consecration, teaching and empowerment",
+        "Taking vows",
+        "Construction and establishing a residence",
+        "Sowing and planting",
+        "Consultation and reconciliation",
+        "Marriage",
+        "Naming"
+      ],
+      "unfavorable": [
+        "Travel",
+        "Opening storehouses",
+        "Cremation",
+        "Cutting hair or nails",
+        "Forceful activities"
+      ],
+      "notes": "Individual mansion reading; specific exceptions take precedence over general classes.",
+      "source": "White Beryl, chapter 33, chu smad passage (DOCX body block 158; L p. 324, starting L:10487). Selective English summary; Tibetan passage below."
     },
     "natal": {
-      "character": null,
-      "lifespan": null,
+      "character": "Wealthy, generous, honest and straightforward, with many children and friends.",
+      "lifespan": "The historical text gives 85 years.",
       "health": null,
       "wealth": null,
       "relationships": null,
       "mode_of_death": null,
       "spiritual": null,
-      "source": null
+      "source": "White Beryl, chapter 33, chu smad passage (DOCX body block 158; L p. 324, starting L:10487). Selective English summary; Tibetan passage below."
     },
     "enemy_star_ids": [],
     "death_star_ids": [],
     "combinations": {
-      "status": "partial",
+      "status": "elemental_complete",
       "classes": {}
     },
     "remedies": {
       "afflicted": null,
       "enemy_star": null,
-      "death_star": null
+      "death_star": null,
+      "illness_onset": "For an illness beginning under this mansion, the passage describes a ritual using a flour effigy of a garuda. This is a historical ritual description, not a treatment recommendation; details remain in the Tibetan source.",
+      "source": "White Beryl chapter 33, body block 158. Illness onset is a separate context from weekday–mansion combinations."
     },
-    "needs_source_review": true
+    "needs_source_review": false,
+    "source_block": 158,
+    "source_tibetan": "ཆུ་སྨད་སྐར་བཞི་བྲེ་ལྟ་བུ། །རིགས་ནི་རྟག་གུ་ལྷ་ཐམས་ཅད། །ཁ་ཟས་སྦྲང་ཡོས་ས་ཡི་ཁམས། །འགྲུབ་སྐར་རབ་བརྟན་འབྲུ་ཡི་བླ། །རྒྱན་འདོགས་རབ་གནས་འཆད་ཉན་དབང་། །བསྙེན་སྒྲུབ་སྡོམ་ལེན་བྲན་གཡོག་བསྟེན། །འབྲུ་ནོར་ཚུར་ལེན་སྐྱེད་པོ་འཛུགས། །རྟེན་བཞེངས་དྲ་གྱོན་རྒྱལ་སར་འཇུག །མཁར་ལས་ཡུལ་གསར་གནས་གཞི་བཟུང་། །ལྷ་གཡང་ཚེ་སྒྲུབ་མོ་རྩིས་བྱ། །སྐྱེ་ཤིང་མེ་ཏོག་སྐྲ་འཁྲུ་ཁྲུས། །འདུན་གྲོས་བཀྲ་ཤིས་བྱ་བ་དང་། །གཤིན་ལས་ས་བོན་བང་མཛོད་བཅའ། །ཟློག་རིམ་སྦྲ་ཕྱིར་འཕོ་སྐྱེས་བསྡུམས། །རྟ་བོང་དྲེའུ་སྒ་རྒྱུག་བཅོས། །རྒྱལ་མཚན་བ་དན་རྫིང་ཡུར་འཆོས། །སྨན་སྦྱོར་བག་མ་གཏོང་ལེན་བྱ། །དབང་དང་ཞི་རྒྱས་ལས་སྤྱི་དང་། །མིང་འདོགས་གསོན་པོའི་བྱ་བ་བཟང་། །ཕྱུགས་བཤུག་འབྲུ་འཇལ་མར་གཏོང་བ། །རོ་བསྲེག་ལམ་ཞུགས་བང་མཛོད་དབྱེ། །སྐྲ་སེན་ཆུ་རགས་དུར་སྦ་བཟོ། །དྲག་ལས་མཛོ་མོ་ཕྱི་ལ་གཏོང་། །སྦྲ་ཁྱིམ་འབུབས་དང་དོན་གཉེར་འཛེམ། །བཙས་ན་བརྒྱད་ཅུ་རྩ་ལྔ་འཚོ། །ཕྱུག་ཅིང་སྦྱིན་གཏོང་རྫུན་བྲལ་དྲང་། །བུ་གྲོགས་མང་ཞིང་ཁམས་རིག་བཟོ། །ནད་བཏབ་ཞིང་རྨོས་ས་ཁས་ལན། །རྗེན་ཕྱེའི་ཁྱུང་གི་གཟུགས་ཀྱི་ཁར། །སྔོ་བཅུག་ནད་པར་བསྐོར་ལ་བསྒྱུར། །ཤི་བ་ནོར་ལ་ངན་པ་ཡིན། །ཆར་བབས་སླར་ཡང་ཆེ་བར་འབབ། །ལྟས་བྱུང་རྒྱལ་སྲིད་བདེ་བ་དང་། །ནད་འཁྲུག་རྩོད་ཅིང་འབྲུ་རྣམས་རྒྱས། །མགར་བའི་རིགས་ལ་ངན་པར་བྱེད། །སྐར་ཆུང་རྡེའུ་ཐོད་དཀར་ཞེས། །བག་མ་ལེན་དང་ཤི་བ་བཟང་། །སྒྲིབ་ན་དྲེད་ཐོད་རང་སྟེང་འཕྱར། །",
+    "review_notes": [],
+    "element_relationships": {
+      "system": "nag_rtsis",
+      "mother": "earth",
+      "friend": "wood",
+      "child": "water",
+      "enemy": "fire",
+      "source_block": 360,
+      "enemy_mansion_ids": [
+        "lm_mchu",
+        "lm_gre",
+        "lm_dbo",
+        "lm_me_bzhi",
+        "lm_nag_pa",
+        "lm_sa_ri"
+      ],
+      "cemetery_greater_number": 1,
+      "cemetery_lesser_number": 15,
+      "note": "These are element-group (bla skar) reference tables, not an automatically derived natal comparison. Number 21 is shared/ambiguous for gro bzhin and byi bzhin in these tables; it is not resolved into a personal death-star prediction."
+    }
   },
   "lm_gro_bzhin": {
     "id": "lm_gro_bzhin",
     "tibetan": "གྲོ་བཞིན་",
     "wylie": "gro bzhin",
     "sanskrit": "Śravaṇa",
-    "element": null,
-    "nag_rtsis_element": null,
-    "deity": null,
+    "element": "earth",
+    "nag_rtsis_element": "iron",
+    "deity": "Vishnu (khyab 'jug)",
     "symbol": "Grain measure (bre)",
     "electional": {
-      "favorable": [],
-      "unfavorable": [],
-      "notes": null,
-      "source": null
+      "favorable": [
+        "Irrigation and waterworks",
+        "Farming and trade",
+        "Adornment and establishing a home",
+        "Travel",
+        "Reconciliation",
+        "Quick undertakings",
+        "Receiving a bride"
+      ],
+      "unfavorable": [
+        "Ordination and consecration",
+        "Enthronement",
+        "Repaying debts",
+        "Wood work",
+        "Increasing and magnetizing rites"
+      ],
+      "notes": "Individual mansion reading; specific exceptions take precedence over general classes.",
+      "source": "White Beryl, chapter 33, gro bzhin passage (DOCX body block 160; L p. 325, starting L:10503). Selective English summary; Tibetan passage below."
     },
     "natal": {
-      "character": null,
-      "lifespan": null,
+      "character": "Broad understanding, a good heart and courage; the passage also describes favour from rulers and few illnesses.",
+      "lifespan": "The historical text gives 62 years.",
       "health": null,
       "wealth": null,
       "relationships": null,
       "mode_of_death": null,
       "spiritual": null,
-      "source": null
+      "source": "White Beryl, chapter 33, gro bzhin passage (DOCX body block 160; L p. 325, starting L:10503). Selective English summary; Tibetan passage below."
     },
     "enemy_star_ids": [],
     "death_star_ids": [],
     "combinations": {
-      "status": "partial",
+      "status": "elemental_complete",
       "classes": {}
     },
     "remedies": {
       "afflicted": null,
       "enemy_star": null,
-      "death_star": null
+      "death_star": null,
+      "illness_onset": "For an illness beginning under this mansion, the passage describes a ritual using a flour effigy of a buffalo. This is a historical ritual description, not a treatment recommendation; details remain in the Tibetan source.",
+      "source": "White Beryl chapter 33, body block 160. Illness onset is a separate context from weekday–mansion combinations."
     },
-    "needs_source_review": true
+    "needs_source_review": false,
+    "source_block": 160,
+    "source_tibetan": "གྲོ་བཞིན་སྐར་གསུམ་བྲེ་ལྟ་བུ། །རུས་ནི་མོ་དགལ་ལྷ་ཁྱབ་འཇུག །ཁ་ཟས་མར་གསར་བྱ་ཤ་ཟ། །ས་ཁམས་མགྲོན་སྐར་བོན་པོའི་བླ། །མྱུར་ཞིང་འགྱུར་ལ་བློ་གྲོས་གཞི། །རྫིང་ཡུར་ཆུ་ལས་སོ་ནམ་ཚོང་། །སྐྱིད་སྟོན་དགེ་ལེགས་ཚེ་གཡང་གཉེན། །དྲ་གྱོན་རྒྱན་སྤྲོད་ཁྱིམ་གསར་འཛིན། །རྟེན་བཞེངས་བཟློག་རིམ་མོ་རྩིས་བྱ། །སྨན་སྦྱོར་གཏར་སྲེག་ཕར་རྒོལ་བསྡུམས། །ལྷ་གསོལ་འབྲུ་གདབ་ས་ཁ་དབྱེ། །བཟའ་ཆེད་ནོར་བཙལ་བང་མཛོད་དབྱེ། །ལམ་ཞུགས་དོན་གཉེར་རྟ་གླང་འདུལ། །བང་བརྩིག་ནོར་འཇལ་ལྟད་མོ་དང་། །མི་གཡང་འགུགས་རྩེད་མྱུར་ལས་བཟང་། །རབ་བྱུང་རབ་གནས་རྒྱལ་ས་བསྐོ། །གསོན་ཆོས་བྱ་དང་བོན་ཆོག་བྱ། །གཤིན་ལས་དམག་ཇག་བུ་ལོན་འཇལ། །རྟ་བོང་བྱ་གཅོད་ཡོན་སྤྲོད་པ། །སྲི་མནན་སྟོན་མོ་ཤིང་ལས་སྤང་། །བག་མ་ལེན་ལ་ཤིས་པ་ཡིན། །ཞི་དྲག་ལས་རུང་དབང་རྒྱས་ངན། །བཙས་ན་དྲུག་ཅུ་རྩ་གཉིས་འཚོ། །ཤེས་ཡངས་སེམས་བཟང་རྒྱལ་པོ་བྱམས། །དཔའ་ཞིང་ནད་དཀོན་དགྲ་ལས་རྒྱལ། །ནད་བཏབ་འཁོར་སྣ་འདྲེས་ཀྱི་སར། །ཕྱིན་ལན་རྗེན་ཕྱེའི་མ་ཧེའི་གཟུགས། །ཁ་རུ་ཁྲག་བླུགས་བསྒྱུར་ན་ཕན། །ལྟས་བྱུང་ཆར་བབས་སྦྲུམ་མ་བདེ། །སྐུ་རྒྱལ་སྨན་དང་རིག་སྔགས་འཕེལ། །ཆར་བབས་དེ་ནས་མྱུར་དུ་འབབ། །སྐར་ཆུང་རྡེའུ་མགོ་དམར་ཞེས། །གསོན་གཤིན་ལས་རྣམས་ཕལ་ཆེར་བཟང་། །སྒྲིབ་ན་གླང་ཐོད་རང་སྟེང་འཕྱར། །",
+    "review_notes": [],
+    "element_relationships": {
+      "system": "nag_rtsis",
+      "mother": "earth",
+      "friend": "wood",
+      "child": "water",
+      "enemy": "fire",
+      "source_block": 360,
+      "enemy_mansion_ids": [
+        "lm_mchu",
+        "lm_gre",
+        "lm_dbo",
+        "lm_me_bzhi",
+        "lm_nag_pa",
+        "lm_sa_ri"
+      ],
+      "cemetery_greater_number": 1,
+      "cemetery_lesser_number": 15,
+      "note": "These are element-group (bla skar) reference tables, not an automatically derived natal comparison. Number 21 is shared/ambiguous for gro bzhin and byi bzhin in these tables; it is not resolved into a personal death-star prediction."
+    }
   },
   "lm_byi_bzhin": {
     "id": "lm_byi_bzhin",
     "tibetan": "བྱི་བཞིན་",
     "wylie": "byi bzhin",
     "sanskrit": "Abhijit",
-    "element": null,
-    "nag_rtsis_element": null,
-    "deity": null,
+    "element": "earth",
+    "nag_rtsis_element": "earth",
+    "deity": "Brahma (tshangs pa)",
     "symbol": "Ox head (glang mgo)",
     "electional": {
-      "favorable": [],
-      "unfavorable": [],
-      "notes": null,
-      "source": null
+      "favorable": [
+        "Consecration",
+        "Shaving the head",
+        "Construction and sowing",
+        "Brewing",
+        "Divination",
+        "Rites for the dead"
+      ],
+      "unfavorable": [
+        "Consultation",
+        "Enthronement",
+        "Cutting and wearing clothes",
+        "Marriage",
+        "Water embankments",
+        "The four ritual activities in general, except specified cases"
+      ],
+      "notes": "Individual mansion reading; specific exceptions take precedence over general classes.",
+      "source": "White Beryl, chapter 33, byi bzhin passage (DOCX body block 162; L p. 325, starting L:10518). Selective English summary; Tibetan passage below."
     },
     "natal": {
-      "character": null,
-      "lifespan": null,
+      "character": "Learned and skilful, with little attachment, a good heart and prosperity.",
+      "lifespan": "The historical text gives 60 years.",
       "health": null,
       "wealth": null,
       "relationships": null,
       "mode_of_death": null,
       "spiritual": null,
-      "source": null
+      "source": "White Beryl, chapter 33, byi bzhin passage (DOCX body block 162; L p. 325, starting L:10518). Selective English summary; Tibetan passage below."
     },
     "enemy_star_ids": [],
     "death_star_ids": [],
     "combinations": {
-      "status": "partial",
+      "status": "elemental_complete",
       "classes": {}
     },
     "remedies": {
       "afflicted": null,
       "enemy_star": null,
-      "death_star": null
+      "death_star": null,
+      "illness_onset": "The passage refers the remaining results back to gro bzhin (Shravana); it does not give a separate illness-onset effigy here.",
+      "source": "White Beryl chapter 33, body block 162. Illness onset is a separate context from weekday–mansion combinations."
     },
-    "needs_source_review": true
+    "needs_source_review": false,
+    "source_block": 162,
+    "source_tibetan": "བྱི་བཞིན་སྐར་གསུམ་དབྱིབས་གླང་མགོ །རུས་ནི་སོ་མ་ལྷ་ཚངས་པ། །གཤིན་སྐར་རླུང་ཟ་ས་ཡི་ཁམས། །མྱུར་ལ་འགྱུར་བའི་སྐར་མ་སྟེ། །རབ་གནས་སྐྲ་བཞར་སེལ་བྱེད་པ། །དགྲ་ལྷ་གསོལ་དང་དགྲ་ལ་རྒོལ། །ཕྱིར་འཇལ་གསོན་དགེ་གཤིན་ལས་དང་། །ཆང་བཙོ་མཁར་ལས་ས་བོན་འདེབས། །སྲི་མནན་པ་དང་མོ་འདེབས་བཟང་། །འདུན་གྲོས་དོན་གཉེར་རྒྱལ་སར་བསྐོ། །དྲ་གྱོན་མཐུ་འགྱེད་གསེབ་གཏོང་བ། །བཀྲ་ཤིས་དགེ་ལེགས་བྱ་བའི་རིགས། །གཤིན་དང་ཚེ་ནོར་སྒྲུབ་པ་སོགས། །དམིགས་བསལ་མ་གཏོགས་ཞི་རྒྱས་དབང་། །དྲག་པོའི་ལས་རྣམས་ཕལ་ཆེར་ངན། །འབྲས་བུ་བྱིངས་ནི་གྲོ་བཞིན་མཚུངས། །བག་མ་གཏོང་ལེན་ཤྭ་རགས་སྤང་། །སྐྱེས་པ་དྲུག་ཅུ་འཚོ་བ་དང་། །ཐོས་ལྡན་མཁས་པ་ཆགས་སྲེད་ཆུང་། །སེམས་བཟང་དགྲ་འདུལ་འབྱོར་སྟོབས་ལྡན། །སྐར་ཆུང་ལྷ་ལྕམ་སྐར་གཅིག་ཅེས། །ཤི་བ་སྦེད་ཅིང་གླུ་བྲོ་བཟང་། །སྒྲིབ་ན་ཤ་ཐོད་རང་སྟེང་བསྟན། །",
+    "review_notes": [],
+    "element_relationships": {
+      "system": "nag_rtsis",
+      "mother": "fire",
+      "friend": "water",
+      "child": "iron",
+      "enemy": "wood",
+      "source_block": 355,
+      "enemy_mansion_ids": [
+        "lm_smin_drug",
+        "lm_snar_ma",
+        "lm_mgo",
+        "lm_lag",
+        "lm_nabs_so",
+        "lm_rgyal"
+      ],
+      "cemetery_greater_number": 8,
+      "cemetery_lesser_number": 21,
+      "note": "These are element-group (bla skar) reference tables, not an automatically derived natal comparison. Number 21 is shared/ambiguous for gro bzhin and byi bzhin in these tables; it is not resolved into a personal death-star prediction."
+    }
   },
   "lm_mon_dre": {
     "id": "lm_mon_dre",
     "tibetan": "མོན་དྲེ་",
     "wylie": "mon dre",
     "sanskrit": "Dhaniṣṭhā",
-    "element": null,
-    "nag_rtsis_element": null,
-    "deity": null,
+    "element": "water",
+    "nag_rtsis_element": "water",
+    "deity": "Wealth deities (nor lha)",
     "symbol": "Bird",
     "electional": {
-      "favorable": [],
-      "unfavorable": [],
-      "notes": null,
-      "source": null
+      "favorable": [
+        "Ordination, consecration and empowerment",
+        "Trade",
+        "Construction and establishing a home",
+        "Farming and breaking ground",
+        "Travel",
+        "Teaching Dharma",
+        "Hair washing"
+      ],
+      "unfavorable": [
+        "Moving home",
+        "Enthronement",
+        "Sending wealth and livestock away",
+        "Installing a hearth",
+        "Marriage",
+        "Peaceful and increasing rites"
+      ],
+      "notes": "Individual mansion reading; specific exceptions take precedence over general classes.",
+      "source": "White Beryl, chapter 33, mon dre passage (DOCX body block 164; L p. 326, starting L:10531). Selective English summary; Tibetan passage below."
     },
     "natal": {
-      "character": null,
-      "lifespan": null,
+      "character": "Good-hearted, generous, industrious and skilled in medicine, song and dance; also quick-tempered.",
+      "lifespan": "The historical text gives 25 or 60 years.",
       "health": null,
       "wealth": null,
       "relationships": null,
       "mode_of_death": null,
       "spiritual": null,
-      "source": null
+      "source": "White Beryl, chapter 33, mon dre passage (DOCX body block 164; L p. 326, starting L:10531). Selective English summary; Tibetan passage below."
     },
     "enemy_star_ids": [],
     "death_star_ids": [],
     "combinations": {
-      "status": "partial",
+      "status": "elemental_complete",
       "classes": {}
     },
     "remedies": {
       "afflicted": null,
       "enemy_star": null,
-      "death_star": null
+      "death_star": null,
+      "illness_onset": "For an illness beginning under this mansion, the passage describes a ritual using a flour effigy of a human figure. This is a historical ritual description, not a treatment recommendation; details remain in the Tibetan source.",
+      "source": "White Beryl chapter 33, body block 164. Illness onset is a separate context from weekday–mansion combinations."
     },
-    "needs_source_review": true
+    "needs_source_review": false,
+    "source_block": 164,
+    "source_tibetan": "མོན་དྲེ་སྐར་བཞི་བྱ་ལྟ་བུ། །རུས་ནི་གནས་འཇོག་ལྷ་ནོར་ལྷ། །ཁ་ཟས་རྒྱུ་སྲན་བྱི་བླའི་ཤ །ཆུ་ཁམས་མགྲོན་སྐར་རྟ་བོང་བླ། །མྱུར་ཞིང་འགྱུར་ལ་རབ་གནས་དབང་། །རབ་བྱུང་གཡང་འགུགས་སྨན་སྦྱོར་ཚོང་། །རྟེན་བཞེངས་མཁར་ལས་ཁྱིམ་གསར་འཛིན། །དྲ་གྱོན་རྒྱན་སྤྲོད་རྟ་གླང་འདུལ། །བྲེས་བརྩིག་ཞིང་འདེབས་ས་ཁ་དབྱེ། །ལམ་ཞུགས་དོན་གཉེར་ཞུ་བ་གསོལ། །དབང་དང་དྲག་པོའི་ལས་སྤྱི་དང་། །གསོན་ལས་དམག་ཇག་ཆོས་སྟོན་འདྲེན། །ལྷ་གསོལ་འདུན་མ་ཆད་པ་བརྩིག །སྐྲ་འཁྲུ་རྟ་བཅོས་བྱེད་སོགས་བཟང་། །གཤིན་ལས་ནོར་རྫས་རྟ་ཕྱུགས་གཏོང་། །བཟློག་པ་སྲི་མནན་རྒྱལ་སར་འཇུག །རྟ་བོང་དྲེའུ་སྒ་རྒྱུག་རྒྱུག །ཞི་རྒྱས་འཕོ་སྐྱས་ཐབ་འཆའི་གཉེན། །བག་མ་གཏོང་ལེན་ངན་པས་འཛེམ། །བཙས་པ་ཉེར་ལྔའམ་དྲུག་ཅུར་འཚོ། །སེམས་བཟང་སྨན་མཁས་བུ་ནོར་འཕེལ། །ཁྲོ་ཞིང་བྱ་བརྩོན་རང་བཞིན་ངན། །བློ་རྩིང་སྟེར་ཕོད་གླུ་གར་མཁས། །བླུན་ཞིང་ཆུ་ཡིས་འཆི་བར་འགྱུར། །བུ་མོ་བཙས་པ་མཛེས་པར་ལྡན། །སྐར་ཆུང་རྒྱལ་ནམ་གང་ཡང་བཟང་། །ནད་བཏབ་འགྲུལ་ཕྱིན་ལན་པ་སྟེ། །རྗེན་ཕྱེའི་མི་ཡི་གཟུགས་ཀྱི་ཁར། །སྔོ་བཅུག་ནད་པར་བསྐོར་ལ་བསྐྱུར། །ཤི་ན་གཅིག་ཟློས་མོད་དུར་སྦ། །ལྟས་བྱུང་རྒྱལ་སྲིད་བདེ་བ་དང་། །ནད་མེད་འཁྲུག་ཞི་འབྲུ་འཕེལ་བྱེད། །རྟ་བོང་ངན་ལ་ཆར་བབས་ཞོད། །སྒྲིབ་ན་རྟ་ཐོད་རང་སྟེང་འཕྱར། །",
+    "review_notes": [],
+    "element_relationships": {
+      "system": "nag_rtsis",
+      "mother": "iron",
+      "friend": "fire",
+      "child": "wood",
+      "enemy": "earth",
+      "source_block": 363,
+      "enemy_mansion_ids": [
+        "lm_bra_nye",
+        "lm_skag",
+        "lm_sa_ga",
+        "lm_byi_bzhin"
+      ],
+      "cemetery_greater_number": 8,
+      "cemetery_lesser_number": 21,
+      "note": "These are element-group (bla skar) reference tables, not an automatically derived natal comparison. Number 21 is shared/ambiguous for gro bzhin and byi bzhin in these tables; it is not resolved into a personal death-star prediction."
+    }
   },
   "lm_mon_gru": {
     "id": "lm_mon_gru",
     "tibetan": "མོན་གྲུ་",
     "wylie": "mon gru",
     "sanskrit": "Śatabhiṣaj",
-    "element": null,
-    "nag_rtsis_element": null,
-    "deity": null,
+    "element": "earth",
+    "nag_rtsis_element": "water",
+    "deity": "Water deity (chu lha)",
     "symbol": "Heap, or bunch, of flowers",
     "electional": {
-      "favorable": [],
-      "unfavorable": [],
-      "notes": null,
-      "source": null
+      "favorable": [
+        "Teaching, ordination and consecration",
+        "Sowing and planting trees",
+        "Taking a teaching role",
+        "Trade",
+        "Travel and reconciliation",
+        "Establishing a residence",
+        "Stable undertakings"
+      ],
+      "unfavorable": [
+        "Construction",
+        "Wearing ornaments and cutting clothes",
+        "Digging irrigation channels",
+        "Cutting hair or nails",
+        "Horse racing",
+        "Marriage"
+      ],
+      "notes": "Individual mansion reading; specific exceptions take precedence over general classes.",
+      "source": "White Beryl, chapter 33, mon gru passage (DOCX body block 166; L p. 326, starting L:10544). Selective English summary; Tibetan passage below."
     },
     "natal": {
-      "character": null,
-      "lifespan": null,
+      "character": "Generous, industrious, attractive and wealthy, but also impulsive and quick-tempered.",
+      "lifespan": "The historical text gives The passage describes an early death without a number.",
       "health": null,
       "wealth": null,
       "relationships": null,
       "mode_of_death": null,
       "spiritual": null,
-      "source": null
+      "source": "White Beryl, chapter 33, mon gru passage (DOCX body block 166; L p. 326, starting L:10544). Selective English summary; Tibetan passage below."
     },
     "enemy_star_ids": [],
     "death_star_ids": [],
     "combinations": {
-      "status": "partial",
+      "status": "elemental_complete",
       "classes": {}
     },
     "remedies": {
       "afflicted": null,
       "enemy_star": null,
-      "death_star": null
+      "death_star": null,
+      "illness_onset": "For an illness beginning under this mansion, the passage describes a ritual using a flour effigy of a human figure. This is a historical ritual description, not a treatment recommendation; details remain in the Tibetan source.",
+      "source": "White Beryl chapter 33, body block 166. Illness onset is a separate context from weekday–mansion combinations."
     },
-    "needs_source_review": true
+    "needs_source_review": false,
+    "source_block": 166,
+    "source_tibetan": "མོན་གྲུ་མི་རེང་ལྟ་བུའམ། །མེ་ཏོག་ཕུང་དབྱིབས་ལྷ་ཆུ་ལྷ། །རུས་ནི་སྐར་མའི་བུ་ཡི་བརྒྱུད། །ཁ་ཟས་ར་ཤ་ས་ཡི་ཁམས། །གཡང་སྐར་རབ་བརྟན་རྟ་བོང་བླ། །ཆོས་འཆད་རབ་གནས་རབ་བྱུང་དབང་། །སྨན་སྦྱོར་ས་བོན་རྒྱལ་སར་བསྐོ། །གཞན་གྱི་སློབ་དཔོན་གནས་གཞི་བཟུང་། །རྟེན་བཞེངས་མཛོད་བཅའ་ས་ཁ་དབྱེ། །རྟ་བཅོས་རྟ་འདུལ་རྟ་ཕྱུགས་ཉོ། །གཤིན་ཆོས་ལམ་ཞུགས་ཚུར་ལེན་བསྡུམས། །ཉོ་ཚོང་ཡུལ་བཟུང་སྐྱེ་ཤིང་འཛུགས། །དགེ་ལེགས་འདུན་གྲོས་གསོན་བརྟན་ལས། །དོན་གཉེར་སྒྲུབ་མཆོད་གཡང་ལོན་ལྷ། །དམག་ཇག་ས་འཛིན་ལྟད་མོ་སོགས། །དམིགས་བསལ་མ་གཏོགས་ཞི་རྒྱས་དབང་། །ལས་སྤྱི་བཟང་ལ་དྲག་ལས་རུང་། །རྒྱན་སྤྲོད་དྲ་གྱོན་རྫིང་ཡུར་འདྲུ། །བཟློག་པ་བཟོ་དང་སྐྲ་སེན་འབྲེག །རྟ་བོང་ནོར་གཏོང་སྣོད་ཁ་དབྱེ། །མཁར་ལས་བྱ་དང་རྐུན་མ་ཤིད། །རྟ་རྒྱུག་སྦྲ་ཕྱིར་འཚེམ་ལ་སོགས། །བག་མ་གཏོང་ལེན་གཉིས་ཀ་ངན། །བཙས་པ་མྱུར་འཆི་ཁྲོ་རྒོད་ལྡན། །ཕྱུག་ཅིང་གཟུགས་བཟང་སྟེར་ཕོད་བརྩོན། །བབ་ཅོལ་ནད་མེད་སྙིང་ཡང་ཆེ། །ནད་བཏབ་ཡུགས་སའི་ཟས་ཀྱིས་ལན། །རྗེན་ཕྱེའི་མི་གཟུགས་བཟོས་པའི་ཁར། །འབྲས་བཅུག་ནད་པར་བསྐོར་ལ་བསྒྱུར། །མི་ཤི་ཡུལ་ཚོགས་དེ་ལ་ངན། །ལྟས་བྱུང་སྲིད་བདེ་འབྲུ་འཕེལ་ཞིང་། །ནད་འཁྲུག་ཞི་ལ་ཆར་བབས་ན། །སླར་འབབ་ཆུ་ནང་སེམས་ཅན་ངན། །སྐར་ཆུང་ལྷ་མོ་གཡང་སྐར་ཞེས། །ལྷ་གསོལ་གཡང་བསླན་ཚུར་ལེན་བཟང་། །སྒྲིབ་ན་འུག་ཐོད་རང་སྟེང་བསྟན། །",
+    "review_notes": [],
+    "element_relationships": {
+      "system": "nag_rtsis",
+      "mother": "iron",
+      "friend": "fire",
+      "child": "wood",
+      "enemy": "earth",
+      "source_block": 363,
+      "enemy_mansion_ids": [
+        "lm_bra_nye",
+        "lm_skag",
+        "lm_sa_ga",
+        "lm_byi_bzhin"
+      ],
+      "cemetery_greater_number": 8,
+      "cemetery_lesser_number": 21,
+      "note": "These are element-group (bla skar) reference tables, not an automatically derived natal comparison. Number 21 is shared/ambiguous for gro bzhin and byi bzhin in these tables; it is not resolved into a personal death-star prediction."
+    }
   },
   "lm_khrums_stod": {
     "id": "lm_khrums_stod",
     "tibetan": "ཁྲུམས་སྟོད་",
     "wylie": "khrums stod",
     "sanskrit": "Pūrvabhādrapadā",
-    "element": null,
-    "nag_rtsis_element": null,
-    "deity": null,
+    "element": "fire",
+    "nag_rtsis_element": "water",
+    "deity": "'ba' zhig 'tsho ba (Tibetan deity name; identification unresolved)",
     "symbol": "Cart",
     "electional": {
-      "favorable": [],
-      "unfavorable": [],
-      "notes": null,
-      "source": null
+      "favorable": [
+        "Consecration and empowerment",
+        "Construction and reconciliation",
+        "Consultation",
+        "Learning crafts",
+        "Planting trees",
+        "Naming",
+        "Receiving wealth"
+      ],
+      "unfavorable": [
+        "Travel, especially long journeys",
+        "Judicial disputes",
+        "Farming and breaking ground",
+        "Hair washing",
+        "Marriage",
+        "Peaceful and increasing rites"
+      ],
+      "notes": "Individual mansion reading; specific exceptions take precedence over general classes.",
+      "source": "White Beryl, chapter 33, khrums stod passage (DOCX body block 168; L p. 327, starting L:10561). Selective English summary; Tibetan passage below."
     },
     "natal": {
-      "character": null,
-      "lifespan": null,
+      "character": "Attached to relatives and possessing wealth, but hostile to outsiders and reluctant to give; the portrait also attributes harmful conduct.",
+      "lifespan": "The historical text gives 95 years.",
       "health": null,
       "wealth": null,
       "relationships": null,
       "mode_of_death": null,
       "spiritual": null,
-      "source": null
+      "source": "White Beryl, chapter 33, khrums stod passage (DOCX body block 168; L p. 327, starting L:10561). Selective English summary; Tibetan passage below."
     },
     "enemy_star_ids": [],
     "death_star_ids": [],
     "combinations": {
-      "status": "partial",
+      "status": "elemental_complete",
       "classes": {}
     },
     "remedies": {
       "afflicted": null,
       "enemy_star": null,
-      "death_star": null
+      "death_star": null,
+      "illness_onset": "The illness-onset passage refers back to mon gru (Shatabhishaj).",
+      "source": "White Beryl chapter 33, body block 168. Illness onset is a separate context from weekday–mansion combinations."
     },
-    "needs_source_review": true
+    "needs_source_review": false,
+    "source_block": 168,
+    "source_tibetan": "ཁྲུམས་སྟོད་སྐར་གཉིས་ཤིང་རྟའི་དབྱིབས། །སྐྱེ་བོ་ལས་ཀྱི་རྒྱུད་ཡིན་ལ། །ལྷ་ནི་འབའ་ཞིག་འཚོ་བ་སྟེ། །ཁ་ཟས་ལུག་གི་ཤ་ཁྲག་སྤྱོད། །གཤིན་སྐར་མེ་ཁམས་བརྗེའི་བླ། །བརྟན་པའི་དོན་གྲུབ་སྐར་མ་སྟེ། །དབང་བསྐུར་རབ་གནས་ཚེ་འགུགས་གཉེན། །ལྷ་གསོལ་སྦྱིན་སྲེག་མཁར་ལས་བསྡུམས། །སྨན་སྦྱོར་གསོན་ལས་འདུན་གྲོས་སྐྱེས། །ཕྱུགས་མ་ཉོ་དང་རྟ་ཕྱུགས་འདུལ། །ནོར་ལེན་ཐབ་བཅའ་རྒྱལ་མཚན་འཛུགས། །ཤིང་འཛུགས་བྲན་བསྟེན་བཟོ་རིག་སློབ། །གཤིན་ལས་སེལ་འཛུགས་གཞི་ཡི་ཚོང་། །དགེ་བའི་ལས་དང་ཁྱི་བསྟེན་པ། །ཤྭ་རགས་བརྩིག་སོགས་ཆུ་བོ་བསྲུང་། །ས་བཟུང་སྦྲ་ཕྱིར་མིང་འདོགས་བཟང་། །ནོར་འཇལ་ཞལ་ཆེ་ཁ་སྨྲས་ལམ། །དྲ་གྱོན་སྐྲ་འཁྲུ་རྫིང་ཡུར་འདྲུ། །དོན་གཉེར་ཐག་རིང་ས་ཁ་དབྱེ། །སོ་ནམ་མགོ་འཛུགས་ཤིད་རྐུ་ཇག །རྨོས་འབྱེད་ཞིང་ལས་རྟ་རྒྱུག་པ། །བག་མ་གཏོང་ལེན་ངན་ལས་སྤང་། །དབང་དྲག་ལས་རུང་ཞི་རྒྱས་ངན། །བཙས་པ་གོ་ལྔ་གཤིས་ངན་བླུན། །རྐུ་གསོད་དམག་ཇག་གཡོ་སྒྱུ་དགའ། །གཉེན་བརྩེ་ནོར་ལྡན་ཕྱི་མི་སྡང་། །གཞན་ལ་གནོད་ཆེ་སྟེར་མི་ཕོད། །ནད་བཏབ་རྟེན་འབྲེལ་མོན་གྲུ་བཞིན། །མི་ཤི་མྱུར་དུ་བཏང་ན་བཟང་། །ལྟས་བྱུང་འགོ་ནད་མིག་ནད་ལྡང་། །འབྲུ་དཀོན་ནོར་ཚིག་བཤན་པར་ངན། །བད་ཀན་ནད་མང་ཆར་བབས་ཞོད། །སྐར་ཆུང་ལུ་གུ་གཉིས་ལྡན་ཞེས། །རབ་འགྲོ་མཁར་གང་ཡང་ངན། །སྒྲིབ་ན་རབས་ཆད་ཐོད་པ་ནི། །རང་སྟེང་བསྟན་ན་ཉེས་པ་ཞི། །",
+    "review_notes": [
+      "Deity identification is absent or uncertain in this transcription; no standard Jyotisha deity has been substituted."
+    ],
+    "element_relationships": {
+      "system": "nag_rtsis",
+      "mother": "iron",
+      "friend": "fire",
+      "child": "wood",
+      "enemy": "earth",
+      "source_block": 363,
+      "enemy_mansion_ids": [
+        "lm_bra_nye",
+        "lm_skag",
+        "lm_sa_ga",
+        "lm_byi_bzhin"
+      ],
+      "cemetery_greater_number": 8,
+      "cemetery_lesser_number": 21,
+      "note": "These are element-group (bla skar) reference tables, not an automatically derived natal comparison. Number 21 is shared/ambiguous for gro bzhin and byi bzhin in these tables; it is not resolved into a personal death-star prediction."
+    }
   },
   "lm_khrums_smad": {
     "id": "lm_khrums_smad",
     "tibetan": "ཁྲུམས་སྨད་",
     "wylie": "khrums smad",
     "sanskrit": "Uttarabhādrapadā",
-    "element": null,
-    "nag_rtsis_element": null,
-    "deity": null,
+    "element": "water",
+    "nag_rtsis_element": "water",
+    "deity": "Serpent planet (sbrul gza')",
     "symbol": "Ear",
     "electional": {
-      "favorable": [],
-      "unfavorable": [],
-      "notes": null,
-      "source": null
+      "favorable": [
+        "Travel",
+        "Painting and crafts",
+        "Consecration and teaching",
+        "Taking vows",
+        "Farming and sowing",
+        "Trade",
+        "Planting flowers and trees"
+      ],
+      "unfavorable": [
+        "Construction and establishing a home",
+        "Celebrations and reconciliation",
+        "Cutting hair or nails",
+        "Installing a hearth",
+        "Marriage",
+        "Peaceful and increasing rites"
+      ],
+      "notes": "Individual mansion reading; specific exceptions take precedence over general classes.",
+      "source": "White Beryl, chapter 33, khrums smad passage (DOCX body block 170; L p. 327, starting L:10577). Selective English summary; Tibetan passage below."
     },
     "natal": {
-      "character": null,
-      "lifespan": null,
+      "character": "Skilled in song and dance, generous and truthful, with discipline, wisdom, compassion and a following.",
+      "lifespan": "The historical text gives 50 or 60 years.",
       "health": null,
       "wealth": null,
       "relationships": null,
       "mode_of_death": null,
       "spiritual": null,
-      "source": null
+      "source": "White Beryl, chapter 33, khrums smad passage (DOCX body block 170; L p. 327, starting L:10577). Selective English summary; Tibetan passage below."
     },
     "enemy_star_ids": [],
     "death_star_ids": [],
     "combinations": {
-      "status": "partial",
+      "status": "elemental_complete",
       "classes": {}
     },
     "remedies": {
       "afflicted": null,
       "enemy_star": null,
-      "death_star": null
+      "death_star": null,
+      "illness_onset": "For an illness beginning under this mansion, the passage describes a ritual using a flour effigy of a human figure. This is a historical ritual description, not a treatment recommendation; details remain in the Tibetan source.",
+      "source": "White Beryl chapter 33, body block 170. Illness onset is a separate context from weekday–mansion combinations."
     },
-    "needs_source_review": true
+    "needs_source_review": false,
+    "source_block": 170,
+    "source_tibetan": "ཁྲུམས་སྨད་སྐར་གཉིས་རྣ་བའི་དབྱིབས། །ལྷ་ནི་སྦྲུལ་གཟའ་རུས་ནོར་རྒྱས། །ཁ་ཟས་བལ་སྲན་ཆུ་ཡི་ཁམས། །གཤིན་སྐར་མྱུར་བཟང་དྲག་ཤུལ་ཆེ། །རྒྱན་སྤྲོད་ལམ་སྨན་རི་མོ་བཟོ། །རབ་གནས་ཕྱུགས་སྤེལ་འཇལ་ལེན་བྱེད། །རྒྱལ་ས་འཆད་ཉན་དབང་སྡོམ་ལེན། །དྲ་གྱོན་འདུན་མ་འབྲུ་ནོར་སྡུད། །རྫིང་ཡུར་ཞིང་ལས་ས་བོན་གདབ། །རྟེན་བཞེངས་བཟློག་པ་སྲི་མནན་བྱ། །གཤིན་ལས་བྲན་བསྟེན་སྐྲ་འཁྲུ་ཤིད། །དབང་དྲག་མྱུར་ལས་དམག་བརྐུ་ཇག །ཆང་བཙོ་ཉོ་ཚོང་ས་ཁ་དབྱེ། །སྐྱེ་ཤིང་མེ་ཏོག་འཛུགས་པ་བཟང་། །ལྷ་གསོལ་གཡང་འགུགས་འདུ་ལོང་བྱེད། །མཁར་ལས་ཁྱིམ་འཛིན་གྲོང་ཁྱེར་བརྩིག །གཏར་སྲེག་ཐབ་བཅའ་སྦྲ་ཕྱིར་འཚེམ། །གསོན་ལས་དོན་གཉེར་སྟོན་མོ་བསྡུམས། །མཐོང་འཛུགས་ཆུ་རགས་སྐྲ་སེན་འབྲེག །ལྟད་མོ་བུ་མོ་བཙས་དང་ཤིད། །ཞི་རྒྱས་བག་མ་དུག་འདེབས་ངན། །བུ་བཙས་ལྔ་བཅུའམ་དྲུག་ཅུར་འཚོ། །གླུ་གར་རིགས་མཁས་ཆོས་སྦྱིན་བྱེད། །ཕྱུག་ཅིང་སྦྱིན་དགའ་དྲང་པོར་སྨྲ། །ཚུལ་ཁྲིམས་ཤེས་རབ་སྙིང་རྗེ་ལྡན། །འཁོར་བསྟེན་འདུ་ཞིང་དགྲ་ལས་རྒྱལ། །ནད་བཏབ་ཆང་བསིངས་འཐུངས་པས་ལན། །རྗེན་ཕྱེའི་མི་ཡི་གཟུགས་ཀྱི་ཁར། །སྔོ་བཅུག་ནད་པར་བསྐོར་ཞིང་བསྒྱུར། །སྐར་ཆུང་སྐར་དྲུག་ཅེས་བྱ་བར། །རྡེའུ་འགོ་དྲོས་ལས་མི་བྱེད། །ལྟས་བྱུང་ཆར་བབས་སྦྲུམ་མ་བདེ། །ནད་མེད་སྐུ་རྒྱལ་སྨན་རིག་འཕེལ། །བཟོ་བོའི་རིགས་ལ་ངན་པ་ཙམ། །ཆར་བབས་མྱུར་འབབ་སྒྲིབ་པའི་ཚེ། །སྦྲུལ་ཐོད་རང་སྟེང་བསྟན་པས་ཐུབ། །",
+    "review_notes": [],
+    "element_relationships": {
+      "system": "nag_rtsis",
+      "mother": "iron",
+      "friend": "fire",
+      "child": "wood",
+      "enemy": "earth",
+      "source_block": 363,
+      "enemy_mansion_ids": [
+        "lm_bra_nye",
+        "lm_skag",
+        "lm_sa_ga",
+        "lm_byi_bzhin"
+      ],
+      "cemetery_greater_number": 8,
+      "cemetery_lesser_number": 21,
+      "note": "These are element-group (bla skar) reference tables, not an automatically derived natal comparison. Number 21 is shared/ambiguous for gro bzhin and byi bzhin in these tables; it is not resolved into a personal death-star prediction."
+    }
   },
   "lm_nam_gru": {
     "id": "lm_nam_gru",
     "tibetan": "ནམ་གྲུ་",
     "wylie": "nam gru",
     "sanskrit": "Revatī",
-    "element": null,
-    "nag_rtsis_element": null,
-    "deity": null,
+    "element": "water",
+    "nag_rtsis_element": "water",
+    "deity": "Sun (nyi ma)",
     "symbol": "Boat",
     "electional": {
-      "favorable": [],
-      "unfavorable": [],
-      "notes": null,
-      "source": null
+      "favorable": [
+        "Ordination, consecration and teaching",
+        "Taking vows",
+        "Construction",
+        "Trade and sowing",
+        "Naming",
+        "Cutting hair or nails",
+        "Planting trees"
+      ],
+      "unfavorable": [
+        "Travel",
+        "Cutting cloth",
+        "Forceful activities",
+        "Installing a hearth",
+        "Reconciliation",
+        "Sending grain or wealth away",
+        "Marriage"
+      ],
+      "notes": "Individual mansion reading; specific exceptions take precedence over general classes.",
+      "source": "White Beryl, chapter 33, nam gru passage (DOCX body block 172; L p. 328, starting L:10594). Selective English summary; Tibetan passage below."
     },
     "natal": {
-      "character": null,
-      "lifespan": null,
+      "character": "Intelligent, industrious in acquiring grain and resources, and kind to others; the text says this person is not brave.",
+      "lifespan": "The historical text gives 28 or 90 years.",
       "health": null,
       "wealth": null,
       "relationships": null,
       "mode_of_death": null,
       "spiritual": null,
-      "source": null
+      "source": "White Beryl, chapter 33, nam gru passage (DOCX body block 172; L p. 328, starting L:10594). Selective English summary; Tibetan passage below."
     },
     "enemy_star_ids": [],
     "death_star_ids": [],
     "combinations": {
-      "status": "partial",
+      "status": "elemental_complete",
       "classes": {}
     },
     "remedies": {
       "afflicted": null,
       "enemy_star": null,
-      "death_star": null
+      "death_star": null,
+      "illness_onset": "For an illness beginning under this mansion, the passage describes a ritual using a flour effigy of a human figure. This is a historical ritual description, not a treatment recommendation; details remain in the Tibetan source.",
+      "source": "White Beryl chapter 33, body block 172. Illness onset is a separate context from weekday–mansion combinations."
     },
-    "needs_source_review": true
+    "needs_source_review": false,
+    "source_block": 172,
+    "source_tibetan": "ནམ་གྲུ་སྐར་མ་སུམ་ཅུ་གཉིས། །གྲུ་དབྱིབས་རུས་ནི་སྐྱེད་པའི་བུ། །ལྷ་ནི་ཉི་མ་ཕྱེ་ཤ་ཟ། །ཆུ་ཁམས་འགྲུབ་སྐར་མི་བརྟན་འགྱུར། །རབ་བྱུང་རབ་གནས་ཆོས་འཆད་དབང་། །ལྷ་སྒྲུབ་སྡོམ་འབོགས་གོས་གསར་གྱོན། །མཁར་ལས་ཞལ་ཆེ་རྒྱལ་སར་བསྐོ། །ལྷ་གཡང་སྨན་སྦྱོར་དགེ་ལེགས་ཚོང་། །སྟོན་མོ་ཕྱུགས་འགྱེད་ས་བོན་གདབ། །ཁྱིམ་འཛིན་སྐྲ་འཁྲུ་ས་ཁ་འབྱེད། །གཤིན་ལས་རོ་དྲང་ཤིད་དང་སྐྱས། །གཏར་སྲེག་མིང་འདོགས་སྐྲ་སེན་འབྲེག །ཞུ་འབུལ་འདུན་མ་རང་དོན་སྒྲུབ། །ཕྱུགས་འདུལ་ཁ་སྨྲས་རྐུ་བ་དང་། །རྟ་དང་བོང་བུའི་བྱ་གཅོད་པ། །གསོན་ལས་སྐྱེ་ཤིང་འཛུགས་པ་སོགས། །དབང་ཞིའི་ལས་བཟང་རྒྱས་པ་རུང་། །གོས་དྲ་ལམ་ཞུགས་བུ་འབོགས་འགྱེད། །དམག་དྲག་འཕྲོག་འཇོམས་བརྟན་ལས་དང་། །བཟློག་རིམ་ཐབ་འཆའ་སྦྲ་ཕྱིར་འཚེམ། །བསྡུམས་བྱ་ཆུ་རགས་བུ་མོ་འབོགས། །ཐུག་འགྱེད་བྱ་དང་ཡུལ་འདོན་དང་། །གསེབ་དོད་འབྲུ་ནོར་ཕྱིར་གཏོང་ངན། །དོན་གཉེར་བྱེས་ངན་རང་ཡུལ་བཟང་། །བག་མ་བྱས་ན་བུ་མི་སྐྱེ། །བཙས་ན་ཉེར་བརྒྱད་དགུ་བཅུ་འཚོ། །རབ་མཛངས་འབྲུ་ནོར་འབྱོར་ལ་བརྩོན། །མི་གཞན་དག་ལ་རབ་ཏུ་བཟང་། །དབང་པོ་ཚང་ཞིང་དཔའ་བ་མིན། །སྐར་ཆུང་ལས་སྔ་དྲོ་ལོད་ཅེས། །ནམ་ཕྱེད་ཉི་ཕྱེད་ལས་མི་བྱེད། །ནད་བཏབ་བུད་མེད་ཤི་བས་ལན། །རྗེན་ཕྱེའི་མི་ཡི་གཟུགས་ཀྱི་ཁར། །བུ་རམ་བཅུག་ལ་བཞི་མདོར་བསྒྱུར། །དེ་ཡིས་ཞག་གསུམ་ནད་ལས་གྲོལ། །མི་ཤི་རྩིས་མཁན་དག་ལ་ངན། །ལྟས་བྱུང་ཆར་བབས་སྦྲུམ་མ་བདེ། །སྐུ་རྒྱལ་སྨན་དང་རིག་སྔགས་འཕེལ། །རྩིས་མཁན་ལ་ངན་ཆར་བབས་ཞོད། །སྒྲིབ་ན་རབས་ཆད་མོ་ཡི་ཐོད། །རང་གི་ཕྱོགས་བསྟན་ཉེས་པ་ཞི། །",
+    "review_notes": [],
+    "element_relationships": {
+      "system": "nag_rtsis",
+      "mother": "iron",
+      "friend": "fire",
+      "child": "wood",
+      "enemy": "earth",
+      "source_block": 363,
+      "enemy_mansion_ids": [
+        "lm_bra_nye",
+        "lm_skag",
+        "lm_sa_ga",
+        "lm_byi_bzhin"
+      ],
+      "cemetery_greater_number": 8,
+      "cemetery_lesser_number": 21,
+      "note": "These are element-group (bla skar) reference tables, not an automatically derived natal comparison. Number 21 is shared/ambiguous for gro bzhin and byi bzhin in these tables; it is not resolved into a personal death-star prediction."
+    }
   }
 }

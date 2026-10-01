@@ -60,6 +60,7 @@ Object.assign(globalThis, {document, localStorage: window.localStorage, Event: w
 const lunarMansions = await import(pathToFileURL(repo + '/lunar-mansions.js'));
 const mansionLayerModule = await import(pathToFileURL(repo + '/mansion-layer.js'));
 const mansionUiModule = await import(pathToFileURL(repo + '/mansion-ui.js'));
+const { searchText } = await import(pathToFileURL(repo + '/search-text.js'));
 const { createInterpretation } = await import(pathToFileURL(repo + '/interpretation-ui.js'));
 const lunarPanels = await import(pathToFileURL(repo + '/lunar-panels.js'));
 const textureRequests = [];
@@ -83,7 +84,7 @@ Object.assign(window, {createOfferingModels, OFFERING_ART, offeringBackground, T
   glyphUrl: lunarMansions.glyphUrl, evidenceLine: lunarMansions.evidenceLine, CATALOGUE_SOURCE: lunarMansions.CATALOGUE_SOURCE,
   createMansionLayer: mansionLayerModule.createMansionLayer,
   mansionRows: mansionUiModule.associations, mansionNotes: mansionUiModule.readingNotes,
-  createInterpretation, openCalculator: lunarPanels.openCalculator,
+  searchText, createInterpretation, openCalculator: lunarPanels.openCalculator,
   mansionUI: lunarPanels.mansionUI, adoptLunarPanels: lunarPanels.adopt,
   lunarPanelsOpen: lunarPanels.lunarPanelsOpen, closeLunarPanels: lunarPanels.closeLunarPanels
 });

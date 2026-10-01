@@ -11,20 +11,9 @@
 import { readInput, formatOffset, YEAR_MIN, YEAR_MAX, formatLongitude, parseDate, parseOffset, localDayBounds, localClock } from './jyotisha.js';
 import { createEngine, EngineError, ENGINE } from './jyotisha-engine.js';
 
-// Approximate city centres, offered explicitly; manual coordinates stay editable.
-// Zone names are resolved for the entered date by Intl, never fixed offsets.
-export const PLACES = Object.freeze([
-  { name: 'Warsaw, Poland', latitude: 52.2297, longitude: 21.0122, zone: 'Europe/Warsaw' },
-  { name: 'Kraków, Poland', latitude: 50.0647, longitude: 19.9450, zone: 'Europe/Warsaw' },
-  { name: 'London, United Kingdom', latitude: 51.5074, longitude: -0.1278, zone: 'Europe/London' },
-  { name: 'Paris, France', latitude: 48.8566, longitude: 2.3522, zone: 'Europe/Paris' },
-  { name: 'New York, United States', latitude: 40.7128, longitude: -74.0060, zone: 'America/New_York' },
-  { name: 'Delhi, India', latitude: 28.6139, longitude: 77.2090, zone: 'Asia/Kolkata' },
-  { name: 'Kathmandu, Nepal', latitude: 27.7172, longitude: 85.3240, zone: 'Asia/Kathmandu' },
-  { name: 'Lhasa, Tibet', latitude: 29.6520, longitude: 91.1721, zone: 'Asia/Shanghai' },
-  { name: 'Tokyo, Japan', latitude: 35.6762, longitude: 139.6503, zone: 'Asia/Tokyo' },
-  { name: 'Sydney, Australia', latitude: -33.8688, longitude: 151.2093, zone: 'Australia/Sydney' }
-].map(Object.freeze));
+import { PLACES } from './places-data.js';
+import { searchText } from './search-text.js';
+export { PLACES };
 
 import { createInterpretation } from './interpretation-ui.js';
 
@@ -65,17 +54,18 @@ export function createJyotishaPanel({ doc = document, panel, provider = createEn
           </fieldset>
         </fieldset>
         <fieldset><legend>Where</legend>
-          <label for="jy-place">Find a place <span class="jy-hint">optional city preset</span></label>
-          <input id="jy-place" name="place" type="text" list="jy-places" autocomplete="off" aria-describedby="jy-place-hint">
-          <datalist id="jy-places"></datalist>
-          <p class="jy-hint" id="jy-place-hint">Choose a listed city to fill coordinates and zone, or enter coordinates below. Presets use approximate city centres.</p>
-          <p class="jy-hint jy-hint-block">Decimal degrees. North and east are positive, south and west negative.</p>
+          <label for="jy-place">City <span class="jy-hint">start typing to choose</span></label>
+          <input id="jy-place" name="place" type="text" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="jy-places" aria-describedby="jy-place-hint">
+          <ul id="jy-places" class="jy-places" role="listbox" aria-label="Cities" hidden></ul>
+          <button class="btn" type="button" data-jy="manual" hidden>City not listed? Enter coordinates manually</button>
+          <p class="jy-hint" id="jy-place-hint">Start typing a city name, then choose a match. City centres are approximate.</p>
+          <div class="jy-coordinates" hidden><p class="jy-hint jy-hint-block">Decimal degrees. North and east are positive, south and west negative.</p>
           <label for="jy-lat">Latitude</label>
           <input id="jy-lat" name="latitude" type="text" inputmode="decimal" autocomplete="off" aria-describedby="jy-latitude-err">
           <p class="jy-err" id="jy-latitude-err" hidden></p>
           <label for="jy-lon">Longitude</label>
           <input id="jy-lon" name="longitude" type="text" inputmode="decimal" autocomplete="off" aria-describedby="jy-longitude-err">
-          <p class="jy-err" id="jy-longitude-err" hidden></p>
+          <p class="jy-err" id="jy-longitude-err" hidden></p></div>
         </fieldset>
         <fieldset><legend>Zone</legend>
           <label class="jy-radio"><input type="radio" name="zoneMode" value="zone" checked> IANA time zone</label>
@@ -130,15 +120,72 @@ export function createJyotishaPanel({ doc = document, panel, provider = createEn
   let resultId = null;
   let revision = 0;
   const placeList = panel.querySelector('#jy-places');
-  PLACES.forEach((place) => { const option = doc.createElement('option'); option.value = place.name; placeList.append(option); });
-  form.elements.place.addEventListener('input', () => {
-    const place = PLACES.find((p) => p.name === form.elements.place.value);
-    if (!place) return;
+  const placeInput = form.elements.place;
+  const manualButton = panel.querySelector('[data-jy="manual"]');
+  const coordinates = panel.querySelector('.jy-coordinates');
+  const placeHint = panel.querySelector('#jy-place-hint');
+  let suggestions = [], activePlace = -1, selectedPlace = null;
+  const closePlaces = () => {
+    placeList.hidden = true; placeInput.setAttribute('aria-expanded', 'false');
+    placeInput.removeAttribute('aria-activedescendant'); activePlace = -1;
+  };
+  const choosePlace = place => {
+    selectedPlace = place;
+    placeInput.value = place.name;
     form.elements.latitude.value = String(place.latitude);
     form.elements.longitude.value = String(place.longitude);
     form.elements.zone.value = place.zone;
     form.elements.zoneMode.value = 'zone';
-    syncMode();
+    coordinates.hidden = true; manualButton.hidden = true;
+    placeHint.textContent = `${place.name} · ${place.latitude}, ${place.longitude} · ${place.zone}`;
+    closePlaces(); syncMode();
+    form.dispatchEvent(new doc.defaultView.Event('input', { bubbles: true }));
+  };
+  const renderPlaces = () => {
+    const query = searchText(placeInput.value);
+    suggestions = query ? PLACES.filter(p => searchText(p.name).includes(query)).slice(0, 12) : [];
+    placeList.replaceChildren(); activePlace = -1;
+    suggestions.forEach((place, i) => {
+      const option = doc.createElement('li'); option.id = 'jy-city-' + i;
+      option.setAttribute('role', 'option'); option.setAttribute('aria-selected', 'false');
+      option.textContent = place.name; option.dataset.noLocalize = '';
+      option.addEventListener('pointerdown', event => event.preventDefault());
+      option.addEventListener('click', () => choosePlace(place)); placeList.append(option);
+    });
+    placeList.hidden = !suggestions.length;
+    placeInput.setAttribute('aria-expanded', String(!!suggestions.length));
+    placeInput.removeAttribute('aria-activedescendant');
+    manualButton.hidden = !query || suggestions.length > 0;
+    placeHint.textContent = !query ? 'Start typing a city name, then choose a match. City centres are approximate.'
+      : suggestions.length ? 'Choose a city from the matches.' : 'No matching city. You can enter coordinates manually.';
+  };
+  placeInput.addEventListener('input', () => {
+    // Editing a selected name must never reuse its old coordinates or zone.
+    if (selectedPlace || !coordinates.hidden) {
+      form.elements.latitude.value = ''; form.elements.longitude.value = '';
+      form.elements.zone.value = ''; selectedPlace = null;
+    }
+    coordinates.hidden = true;
+    const exact = PLACES.find(p => searchText(p.name) === searchText(placeInput.value));
+    if (exact) choosePlace(exact); else renderPlaces();
+  });
+  placeInput.addEventListener('focus', () => { if (!selectedPlace) renderPlaces(); });
+  placeInput.addEventListener('blur', closePlaces);
+  placeInput.addEventListener('keydown', event => {
+    if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); closePlaces(); return; }
+    if (event.key === 'Enter' && !placeList.hidden && activePlace >= 0) {
+      event.preventDefault(); choosePlace(suggestions[activePlace]); return;
+    }
+    if (!['ArrowDown', 'ArrowUp'].includes(event.key)) return;
+    event.preventDefault(); if (placeList.hidden) renderPlaces();
+    if (!suggestions.length) return;
+    activePlace = (activePlace + (event.key === 'ArrowDown' ? 1 : -1) + suggestions.length) % suggestions.length;
+    [...placeList.children].forEach((el, i) => el.setAttribute('aria-selected', String(i === activePlace)));
+    const option = placeList.children[activePlace];
+    placeInput.setAttribute('aria-activedescendant', option.id); option.scrollIntoView?.({block: 'nearest'});
+  });
+  manualButton.addEventListener('click', () => {
+    coordinates.hidden = false; closePlaces(); form.elements.latitude.focus();
   });
   // An edited form invalidates a previous (or in-flight) result immediately.
   form.addEventListener('input', (ev) => {
@@ -199,6 +246,10 @@ export function createJyotishaPanel({ doc = document, panel, provider = createEn
   async function submit() {
     const requestRevision = ++revision;
     clearResult();
+    if (coordinates.hidden && (!form.elements.latitude.value || !form.elements.longitude.value)) {
+      placeHint.textContent = 'Choose a listed city, or search for your city to use manual coordinates if it is not listed.';
+      resolved.textContent = placeHint.textContent; placeInput.focus(); return;
+    }
     const choice = choiceSet.hidden ? null : (form.elements.choice.value === '' ? null : Number(form.elements.choice.value));
     const read = readInput({
       date: form.elements.date.value, time: form.elements.time.value,
@@ -260,7 +311,7 @@ export function createJyotishaPanel({ doc = document, panel, provider = createEn
       showBtn.disabled = !resultId;
       const reading = createInterpretation({ doc, id: resultId, moment: {
         date: form.elements.date.value, time: form.elements.time.value,
-        utcMs: v.utcMs, zoneResolved: true, vara: r.vara?.name || null
+        utcMs: v.utcMs, zoneResolved: true, vara: r.vara?.name || null, varaIndex: r.vara?.index, catalogueId: resultId
       } });
       if (reading) panel.querySelector('.jy-interpretation').append(reading);
       resolved.textContent = instant;

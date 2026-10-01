@@ -29,11 +29,11 @@
   };
   Object.assign(translations, {
   "Six modes share one model: Explorer visits worlds and realms; Mandala follows the 37 offerings; Game follows paths of rebirth; Wheel studies the cycle of life; Billion worlds moves through the thousandfold systems; Astrology opens the lunar-mansion layer and the Jyotiṣa calculator.": "Sześć trybów korzysta z jednego modelu: Eksplorator pokazuje światy i sfery; Mandala prowadzi przez 37 ofiar; Gra śledzi drogi odrodzeń; Koło przedstawia cykl życia; Miliard światów pokazuje kolejne tysiąckrotne systemy; Astrologia otwiera warstwę stacji księżycowych i kalkulator Jyotiṣa.",
-  "Choose Start a guided tour from the mode menu or Help. Each mode has a tour; Astrology tours the 28 Tibetan catalogue entries. After the first complete download, the model, tours and calculator work offline. An update notice offers a reload when a new version is ready.": "Wybierz Rozpocznij zwiedzanie w menu trybu lub Pomocy. Każdy tryb ma trasę; Astrologia prowadzi przez 28 haseł katalogu tybetańskiego. Po pierwszym pełnym pobraniu model, trasy i kalkulator działają bez internetu. Powiadomienie o aktualizacji pozwala odświeżyć aplikację.",
+  "Choose Start a guided tour from About this model, Options or Help. Each mode has a tour; Astrology tours the 28 Tibetan catalogue entries. After the first complete download, the model, tours and calculator work offline. An update notice offers a reload when a new version is ready.": "Wybierz Rozpocznij zwiedzanie w sekcji O modelu, Opcjach lub Pomocy. Każdy tryb ma trasę; Astrologia prowadzi przez 28 haseł katalogu tybetańskiego. Po pierwszym pełnym pobraniu model, trasy i kalkulator działają bez internetu. Powiadomienie o aktualizacji pozwala odświeżyć aplikację.",
   "<b>Astrology.</b> Open Astrology in the mode menu (J), or the calculator in Options. The White Beryl layer, index and tour contain 28 Tibetan lunar mansions, with one Abhijit entry. The Indian Jyotiṣa calculator uses 27 equal sidereal sectors and Lahiri ayanamsa. These are separate systems: Show in world passes only a catalogue ID. The sprites and their ring are illustrative, not astronomical positions.": "<b>Astrologia.</b> Otwórz Astrologię w menu trybu (J) lub kalkulator w Opcjach. Warstwa, indeks i trasa Białego Berylu obejmują 28 tybetańskich stacji księżycowych, w tym jedno hasło Abhijit. Indyjski kalkulator Jyotiṣa używa 27 równych sektorów zodiaku syderycznego i ajanamsy Lahiri. To odrębne systemy: Pokaż w świecie przekazuje tylko identyfikator katalogowy. Rysunki i pierścień są ilustracją, a nie pozycjami astronomicznymi.",
   "For a birth or another moment, enter the Gregorian date, local clock time, place coordinates and time zone or explicit UTC offset. Repeated local times require an earlier/later choice; nonexistent local times are refused. Inputs are processed in this browser and are not stored or sent anywhere.": "Dla narodzin lub innej chwili podaj datę gregoriańską, lokalny czas zegarowy, współrzędne miejsca oraz strefę czasową lub przesunięcie UTC. Przy powtórzonej godzinie trzeba wybrać wcześniejszą lub późniejszą chwilę; godziny nieistniejące są odrzucane. Dane są przetwarzane w przeglądarce, bez zapisywania i wysyłania.",
   "The calculator uses astronomy-engine 2.1.19 (MIT). Lahiri follows the published definition of 23°15′00.658″ on 21 March 1956, carried forward by precession; Spica is not the primary definition. Frozen Swiss Ephemeris output fixtures are used only for regression tests. See <a href=\"docs/NAKSHATRA-ENGINE.md\" target=\"_blank\" rel=\"noopener\">the engine method and verification</a>.": "Kalkulator używa astronomy-engine 2.1.19 (MIT). Lahiri opiera się na opublikowanej wartości 23°15′00.658″ na 21 marca 1956, przenoszonej przez precesję; Spika nie jest podstawą definicji. Zapisane wyniki Swiss Ephemeris służą wyłącznie testom regresji. Zobacz <a href=\"docs/NAKSHATRA-ENGINE.md\" target=\"_blank\" rel=\"noopener\">metodę i weryfikację silnika</a>.",
-  "Interpretation is reserved for the White Beryl fruit text in chapter 33, shown through a collapsed summary and optional tabs. The Indian calculation supplies the moment; White Beryl supplies the reading. This release contains a source-review skeleton, with no electional, natal or remedy readings. Damaged OCR requires checking against the source; combinations are partial and need a source check. These historical readings are study material, not advice. Polish localization of interpretation strings is pending; the interpretation area is explicitly marked as English.": "Interpretacja jest przeznaczona na tekst o skutkach z rozdziału 33 Białego Berylu, dostępny przez zwijane podsumowanie i zakładki. Indyjskie obliczenia określają chwilę; Biały Beryl dostarcza interpretacji. Ta wersja zawiera szkielet do sprawdzenia ze źródłem, bez interpretacji elekcyjnych, urodzeniowych ani środków zaradczych. Uszkodzony OCR wymaga kontroli źródła; kombinacje są częściowe i wymagają sprawdzenia. Historyczne interpretacje służą studiowaniu, nie są poradami. Polska lokalizacja interpretacji jest w przygotowaniu; obszar interpretacji jest wyraźnie oznaczony jako angielski.",
+  "The White Beryl interpretation presents chapter 33 readings for all 28 mansions, with electional summaries, natal descriptions, traditional ritual context and Tibetan source passages. Weekday combinations use the four-element rules and selected named lists, with different traditions kept separate. The Indian calculation supplies a catalogue cross-reference, not a Tibetan calendar date. Source uncertainties are identified; these historical readings are study material. Interpretation text is English; Polish translation is pending.": "Interpretacja Białego Berylu przedstawia odczytania rozdziału 33 dla wszystkich 28 stacji: podsumowania elekcyjne, opisy urodzeniowe, kontekst rytualny i fragmenty tybetańskiego źródła. Kombinacje dni tygodnia korzystają z czterech żywiołów oraz wybranych list, zachowując różnice tradycji. Indyjskie obliczenia wskazują hasło katalogowe, a nie datę kalendarza tybetańskiego. Niepewności źródła są oznaczone. Historyczne odczytania służą studiowaniu. Tekst interpretacji jest angielski; polskie tłumaczenie jest w przygotowaniu.",
   "Billion worlds": "Miliard światów",
   "Astrology": "Astrologia",
   "The thousandfold systems": "Systemy tysiąckrotne",
@@ -55,6 +55,18 @@
     'More…': 'Więcej…', 'Show remedies': 'Pokaż środki zaradcze',
     '✅ Favorable': '✅ Pomyślne', '❌ Unfavorable': '❌ Niepomyślne',
     'Interpretation text is English; Polish translation pending.': 'Tekst interpretacji jest po angielsku; polskie tłumaczenie w przygotowaniu.',
+    "City": "Miasto",
+    "start typing to choose": "zacznij pisać, aby wybrać",
+    "Cities": "Miasta",
+    "City not listed? Enter coordinates manually": "Brak miasta na liście? Wpisz współrzędne ręcznie",
+    "Start typing a city name, then choose a match. City centres are approximate.": "Zacznij wpisywać nazwę miasta, a następnie wybierz wynik. Współrzędne śródmieścia są przybliżone.",
+    "Choose a city from the matches.": "Wybierz miasto spośród wyników.",
+    "No matching city. You can enter coordinates manually.": "Brak pasującego miasta. Możesz wpisać współrzędne ręcznie.",
+    "Choose a listed city, or search for your city to use manual coordinates if it is not listed.": "Wybierz miasto z listy lub wyszukaj swoje miasto, aby wpisać współrzędne ręcznie, jeśli go brakuje.",
+    "Tibetan source passage": "Tybetański fragment źródłowy",
+    "Traditional astrological descriptions from White Beryl, presented for study rather than as personal predictions.": "Tradycyjne opisy astrologiczne z Białego Berylu, przeznaczone do studiowania, a nie jako osobiste przepowiednie.",
+    "Calculate a moment to see weekday–mansion combinations.": "Oblicz chwilę, aby zobaczyć kombinacje dnia tygodnia i stacji.",
+    "Illness-onset ritual in the source": "Rytuał związany z początkiem choroby w źródle",
     'Electional readings not loaded yet.': 'Interpretacje elekcyjne nie zostały jeszcze dodane.',
     'Natal readings not loaded yet.': 'Interpretacje urodzeniowe nie zostały jeszcze dodane.',
     'Enter a moment with date, time, resolved zone and vāra.': 'Podaj chwilę z datą, godziną, ustaloną strefą czasową i vāra.',
@@ -111,14 +123,11 @@
     </div><span class="intro-loading" aria-hidden="true"></span><p class="intro-status" role="status" aria-live="polite">Preparing the world…</p>
     <button class="btn intro-skip" type="button" disabled>Continue</button><button class="btn intro-skip" data-intro-reload type="button" hidden>Reload</button>`;
   document.body.append(intro);
-  // A tour is also one tap away in the mode menu, with a label rather than an icon.
+  // Tours are actions, offered at the bottom of Options.
   const tour = document.createElement('button');
   tour.className = 'btn'; tour.type = 'button'; tour.dataset.startTour = '';
   tour.textContent = 'Start a guided tour';
-  // ahead of the billion worlds, which the page lists in the same menu
-  const modeMenu = document.querySelector('[data-menu="mode"] .menu-body');
-  const worlds = modeMenu.querySelector('[data-mode="worlds"]');
-  if (worlds) worlds.before(tour); else modeMenu.append(tour);
+  document.querySelector('[data-menu="options"] .menu-body').append(tour);
   const language = header.querySelector('.app-language');
   const syncLanguage = () => { header.querySelector('[data-language-label]').textContent = locale?.language === 'pl' ? 'PL' : 'EN'; };
   header.addEventListener('click', event => {
@@ -212,10 +221,12 @@
     if (event.clientX < r.left || event.clientX > r.right || event.clientY < r.top || event.clientY > r.bottom) help.close();
   }});
   const startTour = () => {
-    help.close(); document.querySelector('[data-menu="mode"]').open = false;
+    help.close(); document.querySelectorAll('.controls details[open]').forEach(menu => { menu.open = false; });
     document.dispatchEvent(new CustomEvent('ws-start-tour'));
   };
-  tour.addEventListener('click', startTour);
+  document.addEventListener('click', event => {
+    if (event.target.closest('[data-start-tour]')) startTour();
+  });
   help.querySelector('[data-help-tour]').addEventListener('click', startTour);
 
   let ready = Boolean(window.WorldSystemReady), replay = false, dismissTimer;

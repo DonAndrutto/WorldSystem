@@ -12,3 +12,9 @@
 .interpretation-remedy-toggle { display: flex; align-items: center; gap: 8px; min-height: 44px; cursor: pointer; }
 .interpretation-empty { min-height: 1em; opacity: .5; }
 @media (max-width: 360px) { .interpretation-columns { grid-template-columns: 1fr; } }
+
+.jy-places { list-style:none; margin:.3rem 0; padding:0; max-height:14rem; overflow:auto; border:1px solid currentColor; border-radius:.4rem; }
+.jy-places [role=option] { padding:.55rem .7rem; cursor:pointer; }
+.jy-places [role=option]:hover, .jy-places [aria-selected=true] { background:rgba(180,145,85,.25); }
+.jy-places[hidden], .jy-coordinates[hidden] { display:none; }
+.interpretation-source-text { white-space:pre-wrap; font-size:1rem; line-height:1.8; }

@@ -103,7 +103,7 @@ const settle = async win => { for (let i = 0; i < 30; i++) await new Promise(r =
 // ── chrome authors English; only the locale observer turns it into Polish ────
 for (const lang of ['en', 'pl']) {
   const { doc, win } = open(lang,
-    '<div class="overlay"><details data-menu="mode"><div class="menu-body"></div></details></div>');
+    '<div class="overlay"><details data-menu="options"><div class="menu-body"></div></details><details data-menu="mode"><div class="menu-body"></div></details></div>');
   try {
     // jsdom has no layout or native modal methods; no scene/WebGL is needed.
     win.ResizeObserver = class { observe() {} };

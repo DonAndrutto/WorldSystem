@@ -25,7 +25,7 @@
    current shelf or the runtime one, so old versions do not accumulate. */
 
 /* ── written by scripts/build-sw.cjs — do not edit below ─────────────── */
-const VERSION = 'abfb4c343fa4116b';
+const VERSION = '99773333208cacc0';
 const SHELL = [
   "app-chrome.css",
   "app-chrome.js",
@@ -119,6 +119,7 @@ const SHELL = [
   "manifest.webmanifest",
   "mansion-layer.js",
   "mansion-ui.js",
+  "places-data.js",
   "presentation-locales.js",
   "presentation-tours.css",
   "presentation-tours.js",
@@ -127,6 +128,7 @@ const SHELL = [
   "rebirth-icons.js",
   "rebirth-notes.js",
   "rebirth-sound.js",
+  "search-text.js",
   "sky-clouds.js",
   "summit-detail.js",
   "thousand-worlds.js",
@@ -141,6 +143,7 @@ const SHELL = [
   "wheel-parts.js",
   "wheel-relief.js",
   "wheel-view.js",
+  "white-beryl-rules.js",
   "world-surfaces.js"
 ];
 /* ── end of the written part ─────────────────────────────────────────── */
