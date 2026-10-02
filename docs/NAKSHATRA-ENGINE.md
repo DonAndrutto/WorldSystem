@@ -7,6 +7,18 @@ Swiss Ephemeris. This page records the method, the references it was checked
 against, and the residuals. The calculator is a separate system from the White
 Beryl catalogue and is not White Beryl–authoritative.
 
+## Out of scope
+
+- This calculator provides Indian/jyotiṣa-style nakṣatra timing via
+  astronomy-engine; it is not a Tibetan White Beryl calendar engine.
+- White Beryl chapter 33 interpretation (electional, natal, remedies and sbyor)
+  is a separate data/UI layer. Calculator output is not White Beryl text.
+- Latitude and longitude do not enter the core geocentric nakṣatra sector
+  calculation. They are used for local sunrise and sunrise-based weekday
+  calculations in the form's wider result.
+- Catalogue, sprites, index, 3D mansion artwork and White Beryl extracts are
+  outside the scope of this engine document.
+
 ## Dependencies
 
 | Package | Version | Licence | Status |
