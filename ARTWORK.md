@@ -130,10 +130,19 @@ of White Beryl. They were drawn for this project on 29 September 2026 as small
 SVG line drawings, written in `scripts/build-mansion-glyphs.cjs`; the drawings'
 SVG sources are kept in `assets/mansions/src/` and are not served. No image
 generator, photograph, manuscript, thangka or printed illustration was copied or
-traced. Each glyph draws the form given in the mansion's own passage (L pp.
-313–328), as translated in [the audit](docs/WHITE-BERYL-LUNAR-MANSIONS.md): a
-contemporary interpretation of a textual description, not a reconstruction of
-any historical witness's picture.
+traced. Twenty-four glyphs draw forms read in the mansion's own passage (L pp.
+313–328); the four marked **secondary** below are secondary-table placeholders
+whose primary openings are lost in the supplied OCR. Their rings remain dashed
+and their primary star counts remain unreadable. The translations are recorded
+in [the audit](docs/WHITE-BERYL-LUNAR-MANSIONS.md). The drawings are contemporary
+interpretations of textual descriptions, not reconstructions of any historical
+witness's picture.
+
+Promoting a placeholder requires an owner-supplied page image or faithful
+transcription attached or linked in the promotion PR, identifying the printed
+page and showing the opening's Tibetan form phrase and any readable star count.
+The existing secondary form is not confirmation of the primary opening. See
+[the pending page checks](docs/LUNAR-MANSIONS-STATUS.md#source-image-checks-still-needed).
 
 One hand for the set: a single ink line of one weight (#2b2a40), one gold fill
 (#e3bf66) and a paler gold, on a soft ivory halo that keeps the glyph legible over
