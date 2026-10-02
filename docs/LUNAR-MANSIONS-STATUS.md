@@ -91,7 +91,7 @@ unchanged.
 
 | Check | Result |
 | --- | --- |
-| `tests/lunar-mansions.mjs` | Pass. The catalogue is read against the audit's own tables (order, names, Sanskrit, readable counts, both element lists, line/page, rulers, directions), plus the brief's specific points, frozen records, 28 WebP glyphs. |
+| `tests/lunar-mansions.mjs` | Pass. Catalogue parity with the project audit's tables (order, names, Sanskrit, readable counts, both element lists, line/page, rulers, directions), plus the brief's specific points, frozen records, 28 WebP glyphs. This verifies consistency, not missing primary openings or the glyphs' visual form. |
 | `tests/mansion-layer.mjs` (real three.js) | Pass. Ring directions; hidden layer fetches nothing and is never picked; retry fetches only the failure; 214 aims from 16 angles, each missed aim won by a nearer glyph, never a farther one; transparent corners pass through; dispose frees only owned resources. |
 | `tests/jyotisha.mjs` | Pass. 0°/360° wrap, all 26 sector boundaries and pada boundaries to 0.1″; Poland 30 Mar 2025 02:30 nonexistent and 26 Oct 2025 02:30 ambiguous; Kathmandu +05:30 → +05:45 on 1 Jan 1986; Warsaw +01:24 → CET in 1915; five UTC-equivalent spellings; invalid inputs; manual coordinates; tithi, karaṇa and yoga definitions; local day bounds across DST. ICU 78.2, tz 2025c. |
 | `tests/jyotisha-engine.mjs` (astronomy-engine) | Pass. Four Swiss Ephemeris reference charts matched (nakṣatra, pada, lord, tithi, yoga, karaṇa; Moon ≤ 2.2″, Lahiri ≤ 0.16″, spans ≤ 5 s); Meeus theory within 9.3″ over 240 instants 1961–2050; the owner's published table (lords, sector starts); Spica-anchored − Lahiri −33…−40″; boundaries and the 0°/360° wrap; UTC equivalence; Poland's DST ambiguity and gap; Kathmandu 1986 and Warsaw 1915; sunrise at Sydney and Tromsø (none); load failure and retry. |
@@ -133,9 +133,30 @@ measured here justifies it. Hidden, the layer adds no draw calls and no picking.
 
 - **sa ga** and **rgyal**: resolved by the owner's corrections — ར་མགོའི་དབྱིབས,
   goat head; རྒྱལ་ནི་སྐར་གསུམ་རིལ་བའི་དབྱིབས, three stars, a rounded form.
-- **The four lost openings**: snar ma (p. 315), skag (p. 317), nag pa (p. 320),
-  khrums smad (p. 327): form and count from the secondary table. Also the damaged
-  openings of gre (p. 319) and mon gru (p. 326).
+- **The four lost openings — blocked on primary page evidence**:
+
+  | Catalogue id | Printed page | Secondary-table placeholder | Secondary count |
+  | --- | --- | --- | --- |
+  | `lm_snar_ma` | 315 | Cart | 5 |
+  | `lm_skag` | 317 | Expanded serpent hood | 6 |
+  | `lm_nag_pa` | 320 | Lotus seed-head | 1 |
+  | `lm_khrums_smad` | 327 | Ear | 2 |
+
+  For all four, entry and form provenance remain `secondary`, `form.source`
+  remains empty, `stars.readable` remains null, and the glyph ring remains
+  dashed. The counts above stay in `stars.secondary`; they do not establish
+  what the primary opening says.
+
+  Promotion requires an owner-supplied page image or faithful transcription
+  attached or linked in the promotion PR, with the printed page, Tibetan form
+  phrase and any legible opening star count. Promote only the evidenced entries;
+  an empty evidence block permits docs/test labeling changes only, with no
+  artwork changes or promotion PR. Memory, Wikipedia and the secondary table
+  cannot supply the missing primary opening. Keep an entry on this list until
+  its promotion is supported by that evidence.
+- **Damaged openings**: gre (p. 319) and mon gru (p. 326) retain their current
+  primary forms and separate secondary counts. Change them only with supplied
+  primary page evidence; neither is one of the four secondary-form placeholders.
 - **Deity clauses** marked uncertain or damaged: tha skar, gre, me bzhi, nag pa,
   sa ga, lha mtshams.
 - **Star-node geometry**: the nodes give counts only; illustrations would be

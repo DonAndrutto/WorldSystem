@@ -1,7 +1,10 @@
 // Run with Node alone — no development dependencies.
-// The catalogue against its authority: every figure the audit tabulates in
+// Catalogue parity with the project audit: every figure it tabulates in
 // docs/WHITE-BERYL-LUNAR-MANSIONS.md is read out of that document here and
 // compared with lunar-mansions.js, so the two cannot drift apart unnoticed.
+// Passing these checks does not verify missing primary openings or visual form.
+// The four lost openings remain secondary-table placeholders until owner-supplied
+// page images or faithful transcriptions are attached or linked in a promotion PR.
 // Then the things the brief singles out, and the illustrative ring.
 import fs from 'node:fs';
 import path from 'node:path';
@@ -42,7 +45,7 @@ for (const [order, names, sanskrit, stars, , four, five, cite] of table) {
   const [line, page] = cite.match(/(\d+); p\. (\d+)/).slice(1).map(Number);
   assert.deepEqual([x.source.line, x.source.page], [line, page], order + ' line and page');
 }
-ok('28 records agree with the audit table: order, names, Sanskrit, readable stars, both element lists, line and page');
+ok('audit parity only: 28 records agree on order, names, Sanskrit, readable stars, both element lists, line and page');
 
 const rulerRows = rows('## 5. Seven planetary rulers');
 assert.equal(rulerRows.length, 7);
@@ -99,7 +102,7 @@ const sec = Object.fromEntries(MANSIONS.filter((x) => x.stars.secondary !== null
 assert.deepEqual(sec, { 'snar ma': 5, skag: 6, gre: 2, 'nag pa': 1, 'mon gru': 2, 'khrums smad': 2 });
 assert.equal(MANSION_BY_ID.get('lm_rgyal').stars.readable, 3, 'rgyal: three stars, as the owner corrected the line');
 assert.equal(MANSION_BY_ID.get('lm_sa_ga').form.source, 'ར་མགོའི་དབྱིབས', 'sa ga: ra mgo, not the OCR’s ri mgo');
-ok('four secondary-supported forms, with provenance on the entry and the form; secondary counts held apart from readable ones');
+ok('four lost-opening placeholders remain secondary pending primary page evidence; secondary counts held apart from readable ones');
 
 for (const x of MANSIONS) {
   assert.ok(L.ELEMENTS_FOUR.includes(x.fourElement) && L.ELEMENTS_FIVE.includes(x.fiveElement), x.id + ' elements');
