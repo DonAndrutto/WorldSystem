@@ -50,7 +50,19 @@ globalThis.fetch=()=>{requests++;throw Error('No network');};
 try {
  const ui=createInterpretation({doc,id:'lm_tha_skar',moment});doc.querySelector('#root').append(ui);
  assert.equal(ui.querySelector('details').open,false);
- assert.match(ui.querySelector('summary').textContent,/White Beryl/);
+ assert.match(ui.querySelector('summary').textContent,/Aśvinī/);
+ assert.match(ui.querySelector('.interpretation-context').textContent,/2025-07-01 at 12:00/);
+ assert.equal(ui.querySelector('.interpretation-references').open,false);
+ assert.match(ui.querySelector('.interpretation-references').textContent,/White Beryl/);
+ assert.doesNotMatch(ui.querySelector('[role=tabpanel]').textContent,/body block|Selective English|source review/);
+ assert.equal(ui.querySelectorAll('.interpretation-references a').length,3);
+ const undated=createInterpretation({doc,id:'lm_tha_skar'});
+ assert.match(undated.querySelector('.interpretation-context').textContent,/not a reading for today/);
+ const polar=createInterpretation({doc,id:'lm_tha_skar',moment:{...moment,vara:null}});
+ assert.match(polar.querySelector('.interpretation-context').textContent,/2025-07-01/);
+ assert.match(polar.querySelectorAll('[role=tabpanel]')[2].textContent,/no sunrise-based weekday/);
+ const mismatch=createInterpretation({doc,id:'lm_tha_skar',moment:{...moment,catalogueId:'lm_snar_ma'}});
+ assert.match(mismatch.querySelector('.interpretation-context').textContent,/not a reading for today/);
  assert.equal(ui.querySelectorAll('[role=tab]').length,4);
  assert.match(ui.querySelector('[role=tabpanel]').textContent,/Teaching Dharma/);
  const tabs=ui.querySelectorAll('[role=tab]');tabs[1].click();
@@ -70,6 +82,11 @@ try {
  const form=calc.panel.querySelector('form');
  for(const [k,v] of Object.entries({date:'2025-07-01',time:'12:00',latitude:'52.2297',longitude:'21.0122',zone:'Europe/Warsaw'})) form.elements[k].value=v;
  await calc.submit();assert.equal(calc.resultId,'lm_tha_skar');
- assert.match(calc.panel.querySelector('.interpretation').textContent,/Strength/);assert.equal(requests,0);
+ assert.match(calc.panel.querySelector('.interpretation').textContent,/Strength/);
+ const context=calc.panel.querySelector('.interpretation-context').textContent;
+ assert.match(context,/Europe\/Warsaw/); assert.match(context,/Europe\/Warsaw · UTC\+02:00/);
+ assert.doesNotMatch(context,/UTCUTC/);
+ assert.match(context,/Calculated mansion interval: 2025-07-01/);
+ assert.equal(requests,0);
 } finally {globalThis.fetch=originalFetch;dom.window.close();}
 console.log('PASS: 28 sourced readings, 22 extracted tables, 196 element combinations, source variants, collapsed tabs, rituals, Tibetan text, calculator linkage, no network.');

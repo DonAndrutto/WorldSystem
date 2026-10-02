@@ -54,9 +54,11 @@ export function createJyotishaPanel({ doc = document, panel, provider = createEn
           </fieldset>
         </fieldset>
         <fieldset><legend>Where</legend>
+          <div class="jy-place-picker">
           <label for="jy-place">City <span class="jy-hint">start typing to choose</span></label>
           <input id="jy-place" name="place" type="text" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="jy-places" aria-describedby="jy-place-hint">
           <ul id="jy-places" class="jy-places" role="listbox" aria-label="Cities" hidden></ul>
+          </div>
           <button class="btn" type="button" data-jy="manual" hidden>City not listed? Enter coordinates manually</button>
           <p class="jy-hint" id="jy-place-hint">Start typing a city name, then choose a match. City centres are approximate.</p>
           <div class="jy-coordinates" hidden><p class="jy-hint jy-hint-block">Decimal degrees. North and east are positive, south and west negative.</p>
@@ -121,6 +123,7 @@ export function createJyotishaPanel({ doc = document, panel, provider = createEn
   let revision = 0;
   const placeList = panel.querySelector('#jy-places');
   const placeInput = form.elements.place;
+  const placePicker = panel.querySelector('.jy-place-picker');
   const manualButton = panel.querySelector('[data-jy="manual"]');
   const coordinates = panel.querySelector('.jy-coordinates');
   const placeHint = panel.querySelector('#jy-place-hint');
@@ -149,7 +152,10 @@ export function createJyotishaPanel({ doc = document, panel, provider = createEn
       const option = doc.createElement('li'); option.id = 'jy-city-' + i;
       option.setAttribute('role', 'option'); option.setAttribute('aria-selected', 'false');
       option.textContent = place.name; option.dataset.noLocalize = '';
-      option.addEventListener('pointerdown', event => event.preventDefault());
+      // Keep mouse focus on the combobox. Touch uses native focus/click so
+      // scrolling the list is never mistaken for a selection.
+      option.tabIndex = -1;
+      option.addEventListener('mousedown', event => event.preventDefault());
       option.addEventListener('click', () => choosePlace(place)); placeList.append(option);
     });
     placeList.hidden = !suggestions.length;
@@ -170,7 +176,26 @@ export function createJyotishaPanel({ doc = document, panel, provider = createEn
     if (exact) choosePlace(exact); else renderPlaces();
   });
   placeInput.addEventListener('focus', () => { if (!selectedPlace) renderPlaces(); });
-  placeInput.addEventListener('blur', closePlaces);
+  // A tap may blur the input before the option's click. Keep the list
+  // alive while focus is moving within the picker, and through touch release.
+  let placePointer = null;
+  placeList.addEventListener('pointerdown', event => { placePointer = event.pointerId; });
+  const endPlacePointer = event => {
+    if (event.pointerId !== placePointer) return;
+    placePointer = null;
+    // Native click follows pointerup. Delay only focus cleanup, not selection.
+    doc.defaultView.setTimeout(() => {
+      if (!placePicker.contains(doc.activeElement)) closePlaces();
+    }, 0);
+  };
+  doc.addEventListener('pointerup', endPlacePointer);
+  doc.addEventListener('pointercancel', endPlacePointer);
+  placePicker.addEventListener('focusout', event => {
+    if (placePointer === null && !placePicker.contains(event.relatedTarget)) closePlaces();
+  });
+  doc.addEventListener('pointerdown', event => {
+    if (!placePicker.contains(event.target)) { placePointer = null; closePlaces(); }
+  });
   placeInput.addEventListener('keydown', event => {
     if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); closePlaces(); return; }
     if (event.key === 'Enter' && !placeList.hidden && activePlace >= 0) {
@@ -282,6 +307,11 @@ export function createJyotishaPanel({ doc = document, panel, provider = createEn
     const [start, end] = localDayBounds(date, basis);
     // a clock reading, with the date only when it is not the date entered
     const clock = (ms) => { const c = localClock(ms, basis); return (c.date === form.elements.date.value ? '' : c.date + ' ') + c.time; };
+    const momentClock = ms => {
+      if (!Number.isFinite(ms)) return null;
+      const c = localClock(ms, basis);
+      return `${c.date} ${c.time} (${formatOffset(c.offset)})`;
+    };
     const button = form.querySelector('[type=submit]');
     button.disabled = true;
     panel.querySelector('.jy-result').setAttribute('aria-busy', 'true');
@@ -311,7 +341,10 @@ export function createJyotishaPanel({ doc = document, panel, provider = createEn
       showBtn.disabled = !resultId;
       const reading = createInterpretation({ doc, id: resultId, moment: {
         date: form.elements.date.value, time: form.elements.time.value,
-        utcMs: v.utcMs, zoneResolved: true, vara: r.vara?.name || null, varaIndex: r.vara?.index, catalogueId: resultId
+        utcMs: v.utcMs, zoneResolved: true, vara: r.vara?.name || null, varaIndex: r.vara?.index, catalogueId: resultId,
+        place: selectedPlace?.name || `${v.latitude}, ${v.longitude}`,
+        zoneLabel: (v.zone ? v.zone + ' · ' : '') + formatOffset(v.offset),
+        mansionFrom: momentClock(r.nakshatraStart), mansionUntil: momentClock(r.nakshatraEnd)
       } });
       if (reading) panel.querySelector('.jy-interpretation').append(reading);
       resolved.textContent = instant;
