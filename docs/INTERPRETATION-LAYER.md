@@ -8,6 +8,14 @@ These are selective summaries, not a complete translation or a medical forecast.
 Uncertain deity readings are identified; unsupported fields remain empty.
 Catalogue identities and artwork remain unchanged.
 
+The chapter 33 life-course review fills 19 additional fields across 14 mansions:
+5 health, 5 wealth, 2 relationships, 2 mode-of-death and 5 spiritual summaries.
+The other 121 fields intentionally remain null where unsupported, ambiguous or
+already covered by character/lifespan. Null means “unsupported in selective
+extract,” not “awaiting invention.” The supporting natal clauses are recorded
+in [the chapter audit](WHITE-BERYL-CH33-AUDIT.md#natal-life-course-review);
+illness-onset passages and death-day omens are not natal predictions.
+
 Four-element weekday/mansion combinations and named day lists are implemented
 in `white-beryl-rules.js`. Alternative traditions remain separate, including
 conflicting readings. There is no aggregate auspiciousness score. The calculator

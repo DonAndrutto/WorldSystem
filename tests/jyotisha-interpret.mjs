@@ -16,6 +16,20 @@ assert.deepEqual(Object.keys(data).sort(),MANSIONS.map(m=>m.id).sort());
 assert.equal(source.filter(b=>b.table).length,22);
 const reviewIds=Object.keys(data).filter(id=>data[id].review_notes.some(note=>typeof note==='string' && note.trim()));
 for(const id of ['lm_snar_ma','lm_sa_ga','lm_khrums_stod']) assert.ok(reviewIds.includes(id));
+const lifeCourseFields=['health','wealth','relationships','mode_of_death','spiritual'];
+const checkNatal=(e)=>{
+ assert.equal(typeof e.natal.source,'string',`${e.id}: natal citation is present`);
+ assert.ok(e.natal.source.trim(),`${e.id}: natal citation is not empty`);
+ assert.ok(e.natal.source.includes(`DOCX body block ${e.source_block};`),`${e.id}: natal citation identifies its Tibetan block`);
+ assert.ok(e.natal.source.includes(`L p. ${MANSIONS.find(m=>m.id===e.id).source.page},`),`${e.id}: natal citation retains its passage page`);
+ for(const field of lifeCourseFields) {
+  const value=e.natal[field];
+  if(value===null) continue; // No minimum population: an unsupported field stays null.
+  assert.equal(typeof value,'string',`${e.id}: natal.${field} is a string or null`);
+  assert.ok(value.trim(),`${e.id}: natal.${field} is non-empty`);
+  assert.notEqual(value,e.natal.character,`${e.id}: natal.${field} is not a copy of character`);
+ }
+};
 for(const m of MANSIONS) {
  const e=getInterpretation(m.id);
  assert.deepEqual(e,data[m.id]);
@@ -26,7 +40,24 @@ for(const m of MANSIONS) {
  assert.match(e.electional.source,/chapter 33/);
  assert.ok(e.remedies.illness_onset);
  assert.deepEqual(e.enemy_star_ids,[],'do not invent a natal relationship from the bla-skar table');
+ assert.deepEqual(e.death_star_ids,[],'do not invent a personal death-star pair from element groups');
+ checkNatal(e);
 }
+// The null contract permits every entry in every life-course column to be null.
+// Exercise all 28 rather than demanding a filled example for each field.
+const allNullLifeCourse=Object.values(data).map(e=>{
+ const copy=structuredClone(e);
+ for(const field of lifeCourseFields) copy.natal[field]=null;
+ return copy;
+});
+assert.doesNotThrow(()=>allNullLifeCourse.forEach(checkNatal));
+const badNatal=structuredClone(data.lm_tha_skar);
+badNatal.natal.health=' ';
+assert.throws(()=>checkNatal(badNatal),/natal.health is non-empty/);
+badNatal.natal.health=42;
+assert.throws(()=>checkNatal(badNatal),/natal.health is a string or null/);
+badNatal.natal.health=null; badNatal.natal.source=null;
+assert.throws(()=>checkNatal(badNatal),/natal citation is present/);
 assert.equal(getInterpretation('__proto__'),null);
 assert.equal(getRemedies('lm_tha_skar','__proto__'),null);
 assert.equal(read('interpretation-data.js'),createRequire(import.meta.url)('../scripts/build-interpretation.cjs').build());
@@ -92,6 +123,8 @@ try {
   if(data[m.id].needs_source_review) assertReview(reading);
   else assert.equal(reading.querySelector('.interpretation-review'),null);
   for(const note of data[m.id].review_notes) assert.ok(reading.querySelector('.interpretation-references').textContent.includes(note));
+  const birth=reading.querySelectorAll('[role=tabpanel]')[1];
+  for(const field of lifeCourseFields) if(data[m.id].natal[field]!==null) assert.ok(birth.textContent.includes(data[m.id].natal[field]),`${m.id}: natal.${field} renders in Birth`);
  }
  let calculatedId='lm_tha_skar';
  const calc=createJyotishaPanel({doc,panel:doc.querySelector('#calc'),provider:{ready:true,calculate:async()=>({catalogueId:calculatedId,nakshatra:data[calculatedId].sanskrit,pada:1,vimshottariLord:'Ketu',moonSiderealLongitude:1,nakshatraStart:moment.utcMs,nakshatraEnd:moment.utcMs+1000,padaEnd:moment.utcMs+1000,vara:{name:moment.vara,index:2},udaya:null})}});
@@ -115,7 +148,7 @@ try {
  assert.equal(requests,0);
 } finally {globalThis.fetch=originalFetch;dom.window.close();}
 // Exercise the real locale observer, including readings created after Polish
-// is active. Test-only natal values cover labels whose source fields are null.
+// is active. Test-only natal values exercise every life-course field label.
 for(const language of ['en','pl']) {
  const localized=new JSDOM('<body></body>',{runScripts:'outside-only',url:'https://worldsystem.test/'});
  const win=localized.window, doc=win.document;
@@ -171,4 +204,4 @@ for(const language of ['en','pl']) {
   assert.equal(doc.body.innerHTML,before,'a repeated locale pass is stable');
  } finally {win.close();}
 }
-console.log('PASS: 28 sourced readings, 22 extracted tables, 196 element combinations, source review flags/disclosures, source variants, collapsed tabs, rituals, Tibetan text, calculator linkage, no network.');
+console.log('PASS: 28 sourced readings, optional natal life-course strings/citations and all-null contract, empty personal enemy/death pairs, 22 extracted tables, 196 element combinations, source review flags/disclosures, source variants, collapsed tabs, rituals, Tibetan text, calculator linkage, no network.');
