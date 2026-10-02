@@ -21,6 +21,7 @@ export function createInterpretation({ doc = document, id, moment = null, entry 
   node('span', ': ' + name, summary, true);
   const expand = node('span', 'Expand', summary); expand.className = 'interpretation-expand';
   details.addEventListener('toggle', () => { expand.textContent = details.open ? 'Collapse' : 'Expand'; });
+  if (entry.needs_source_review) node('p', 'Source review needed. See Sources and translation notes.', details, true).className = 'interpretation-review';
   const dated = !!(moment?.date && moment?.time && moment?.zoneResolved && Number.isFinite(moment?.utcMs)
     && (!moment.catalogueId || moment.catalogueId === id));
   const context = node('div', null, details); context.className = 'interpretation-context';

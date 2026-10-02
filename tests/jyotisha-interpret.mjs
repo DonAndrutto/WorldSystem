@@ -14,10 +14,13 @@ const source = JSON.parse(read('docs/WHITE-BERYL-CH33-EXTRACT.json'));
 assert.equal(Object.keys(data).length,28);
 assert.deepEqual(Object.keys(data).sort(),MANSIONS.map(m=>m.id).sort());
 assert.equal(source.filter(b=>b.table).length,22);
+const reviewIds=Object.keys(data).filter(id=>data[id].review_notes.some(note=>typeof note==='string' && note.trim()));
+for(const id of ['lm_snar_ma','lm_sa_ga','lm_khrums_stod']) assert.ok(reviewIds.includes(id));
 for(const m of MANSIONS) {
  const e=getInterpretation(m.id);
  assert.deepEqual(e,data[m.id]);
  assert.equal(e.source_tibetan,source.find(b=>b.block===e.source_block).text);
+ if(reviewIds.includes(m.id)) assert.equal(e.needs_source_review,true,`${m.id}: uncertainty notes require source review`);
  assert.equal(e.element,m.fourElement); assert.equal(e.nag_rtsis_element,m.fiveElement);
  assert.ok(e.electional.favorable.length && e.electional.unfavorable.length && e.natal.character);
  assert.match(e.electional.source,/chapter 33/);
@@ -53,6 +56,7 @@ try {
  assert.match(ui.querySelector('summary').textContent,/Aśvinī/);
  assert.match(ui.querySelector('.interpretation-context').textContent,/2025-07-01 at 12:00/);
  assert.equal(ui.querySelector('.interpretation-references').open,false);
+ assert.equal(ui.querySelector('.interpretation-review'),null);
  assert.match(ui.querySelector('.interpretation-references').textContent,/White Beryl/);
  assert.doesNotMatch(ui.querySelector('[role=tabpanel]').textContent,/body block|Selective English|source review/);
  assert.equal(ui.querySelectorAll('.interpretation-references a').length,3);
@@ -78,7 +82,19 @@ try {
  const catalogue=createMansionUI({doc,panel:doc.querySelector('#mansions')});
  assert.equal(catalogue.panel.querySelectorAll('.interpretation').length,28);
  assert.equal(catalogue.panel.querySelectorAll('.interpretation > details[open]').length,0);
- const calc=createJyotishaPanel({doc,panel:doc.querySelector('#calc'),provider:{ready:true,calculate:async()=>({catalogueId:'lm_tha_skar',nakshatra:'Aśvinī',pada:1,vimshottariLord:'Ketu',moonSiderealLongitude:1,nakshatraStart:moment.utcMs,nakshatraEnd:moment.utcMs+1000,padaEnd:moment.utcMs+1000,vara:{name:moment.vara,index:2},udaya:null})}});
+ const assertReview=reading=>{
+  assert.equal(reading.querySelector(':scope > details > .interpretation-review').textContent,'Source review needed. See Sources and translation notes.');
+  assert.equal(reading.querySelector('.interpretation-references').open,false);
+  assert.equal(reading.querySelectorAll('[role=tab]:disabled').length,0);
+ };
+ for(const m of MANSIONS) {
+  const reading=catalogue.panel.querySelector(`[data-id="${m.id}"] .interpretation`);
+  if(data[m.id].needs_source_review) assertReview(reading);
+  else assert.equal(reading.querySelector('.interpretation-review'),null);
+  for(const note of data[m.id].review_notes) assert.ok(reading.querySelector('.interpretation-references').textContent.includes(note));
+ }
+ let calculatedId='lm_tha_skar';
+ const calc=createJyotishaPanel({doc,panel:doc.querySelector('#calc'),provider:{ready:true,calculate:async()=>({catalogueId:calculatedId,nakshatra:data[calculatedId].sanskrit,pada:1,vimshottariLord:'Ketu',moonSiderealLongitude:1,nakshatraStart:moment.utcMs,nakshatraEnd:moment.utcMs+1000,padaEnd:moment.utcMs+1000,vara:{name:moment.vara,index:2},udaya:null})}});
  const form=calc.panel.querySelector('form');
  for(const [k,v] of Object.entries({date:'2025-07-01',time:'12:00',latitude:'52.2297',longitude:'21.0122',zone:'Europe/Warsaw'})) form.elements[k].value=v;
  await calc.submit();assert.equal(calc.resultId,'lm_tha_skar');
@@ -87,6 +103,15 @@ try {
  assert.match(context,/Europe\/Warsaw/); assert.match(context,/Europe\/Warsaw · UTC\+02:00/);
  assert.doesNotMatch(context,/UTCUTC/);
  assert.match(context,/Calculated mansion interval: 2025-07-01/);
+ assert.equal(calc.panel.querySelector('.interpretation-review'),null);
+ for(const id of reviewIds) {
+  calculatedId=id; await calc.submit(); assert.equal(calc.resultId,id);
+  const reading=calc.panel.querySelector('.interpretation'); assertReview(reading);
+  for(const note of data[id].review_notes) assert.ok(reading.querySelector('.interpretation-references').textContent.includes(note));
+  assert.equal(reading.querySelector('[lang=bo]').textContent,data[id].source_tibetan);
+  reading.querySelectorAll('[role=tab]')[1].click();
+  assert.ok(reading.querySelector('[role=tabpanel]:not([hidden])').textContent.includes(data[id].natal.character));
+ }
  assert.equal(requests,0);
 } finally {globalThis.fetch=originalFetch;dom.window.close();}
-console.log('PASS: 28 sourced readings, 22 extracted tables, 196 element combinations, source variants, collapsed tabs, rituals, Tibetan text, calculator linkage, no network.');
+console.log('PASS: 28 sourced readings, 22 extracted tables, 196 element combinations, source review flags/disclosures, source variants, collapsed tabs, rituals, Tibetan text, calculator linkage, no network.');
