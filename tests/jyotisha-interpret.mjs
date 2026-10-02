@@ -114,4 +114,61 @@ try {
  }
  assert.equal(requests,0);
 } finally {globalThis.fetch=originalFetch;dom.window.close();}
+// Exercise the real locale observer, including readings created after Polish
+// is active. Test-only natal values cover labels whose source fields are null.
+for(const language of ['en','pl']) {
+ const localized=new JSDOM('<body></body>',{runScripts:'outside-only',url:'https://worldsystem.test/'});
+ const win=localized.window, doc=win.document;
+ const settle=async()=>{for(let i=0;i<5;i++) await new Promise(r=>win.setTimeout(r,0));};
+ try {
+  win.localStorage.setItem('ws-language',language); win.eval(read('locales/pl.js'));
+  const readings=[];
+  for(const [i,m] of MANSIONS.entries()) {
+   readings.push(createInterpretation({doc,id:m.id}));
+   readings.push(createInterpretation({doc,id:m.id,moment:{...moment,varaIndex:i%7,place:'Warsaw, Poland',zoneLabel:'Europe/Warsaw · UTC+02:00',mansionFrom:'2025-07-01 10:00 UTC+02:00',mansionUntil:'2025-07-02 11:00 UTC+02:00'}}));
+  }
+  readings.push(createInterpretation({doc,id:'lm_tha_skar',moment:{...moment,vara:null}}));
+  const fixture=structuredClone(data.lm_tha_skar);
+  for(const key of ['lifespan','health','wealth','relationships','mode_of_death','spiritual']) fixture.natal[key]='Health';
+  readings.push(createInterpretation({doc,id:'lm_tha_skar',entry:fixture}));
+  const empty=structuredClone(data.lm_tha_skar); empty.electional.favorable=[];empty.electional.unfavorable=[];
+  empty.natal.character=null;empty.natal.lifespan=null;
+  readings.push(createInterpretation({doc,id:'lm_tha_skar',entry:empty}));
+  const payloads=[], chrome=[], attributes=[];
+  for(const reading of readings) {
+   // Include disclosed rituals in the initial pass; change them again below.
+   reading.querySelector('[type=checkbox]').click();
+   for(const el of reading.querySelectorAll('[data-no-localize]')) payloads.push([el,el.textContent,el.lang]);
+   const walker=doc.createTreeWalker(reading,win.NodeFilter.SHOW_TEXT);
+   for(let n=walker.nextNode();n;n=walker.nextNode()) if(!n.parentElement.closest('[data-no-localize]') && /\p{L}/u.test(n.nodeValue)) chrome.push([n,n.nodeValue]);
+   for(const el of reading.querySelectorAll('[title], [aria-label]')) for(const attr of ['title','aria-label']) if(el.hasAttribute(attr)) attributes.push([el,attr,el.getAttribute(attr)]);
+   doc.body.append(reading);
+  }
+  await settle();
+  for(const [node,english] of chrome) {
+   if(language==='pl') assert.notEqual(node.nodeValue,english,'untranslated interpretation chrome: '+english);
+   else assert.equal(node.nodeValue,english,'English chrome is unchanged');
+  }
+  for(const [el,attr,english] of attributes) assert.equal(el.getAttribute(attr),language==='pl'?win.WorldSystemLocale.translate(english):english);
+  for(const [el,text,lang] of payloads) {
+   assert.equal(el.textContent,text,'reading payload is unchanged'); assert.equal(el.lang,lang);
+   assert.ok(lang==='en' || lang==='bo','payload language is explicit');
+  }
+  const first=readings[0], expected=(en,pl)=>language==='pl'?pl:en;
+  assert.equal(first.querySelector('summary > span').textContent,expected('Interpretation','Interpretacja'));
+  assert.deepEqual([...first.querySelectorAll('[role=tab]')].map(el=>el.textContent),language==='pl'?['Działania','Narodziny','Połączenia','Rytuały']:['Activities','Birth','Combinations','Rituals']);
+  assert.equal(first.querySelector('.interpretation-expand').textContent,expected('Expand','Rozwiń'));
+  first.querySelector('details').open=true; await settle();
+  assert.equal(first.querySelector('.interpretation-expand').textContent,expected('Collapse','Zwiń'));
+  first.querySelector('details').open=false; await settle();
+  assert.equal(first.querySelector('.interpretation-expand').textContent,expected('Expand','Rozwiń'));
+  const checkbox=first.querySelector('[type=checkbox]');checkbox.click();await settle();
+  assert.match(first.querySelectorAll('[role=tabpanel]')[3].textContent,language==='pl'?/Te rytuały dotyczą/:/These rituals concern/);
+  checkbox.click();await settle();
+  assert.ok(first.querySelectorAll('[role=tabpanel]')[3].textContent.includes(data.lm_tha_skar.remedies.illness_onset));
+  assert.match(first.querySelectorAll('[role=tabpanel]')[3].textContent,language==='pl'?/Historyczny kontekst rytualny/:/Historical ritual context/);
+  const before=doc.body.innerHTML;win.WorldSystemLocale.apply();await settle();
+  assert.equal(doc.body.innerHTML,before,'a repeated locale pass is stable');
+ } finally {win.close();}
+}
 console.log('PASS: 28 sourced readings, 22 extracted tables, 196 element combinations, source review flags/disclosures, source variants, collapsed tabs, rituals, Tibetan text, calculator linkage, no network.');
