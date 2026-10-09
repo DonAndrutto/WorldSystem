@@ -1865,6 +1865,7 @@
         </div>
         <button class="btn" data-act="jyotisha" type="button" title="Indian Jyotiṣa calculation · Lahiri ayanamsa"><span class="g">☽</span><span class="t">Jyotiṣa calculator</span></button>
         <label class="btn sw" for="g-sound" title="Sound — the voice each square answers in"><span class="g">♪</span><span class="t">Sound</span><input type="checkbox" id="g-sound"></label>
+        <label class="btn sw" for="g-music" title="Gentle soundtrack in game mode"><span class="g">♫</span><span class="t">Music</span><input type="checkbox" id="g-music" checked></label>
         <div class="menu-row lang" role="group" aria-label="The language names are given in">
           <span class="g" aria-hidden="true">ཨ</span><span class="t">Names</span>
           <span class="seg">
@@ -2134,6 +2135,7 @@ import { createThousandWorlds, framingDistance as worldsFramingDistance } from '
 import { installViewportGestures } from './viewport-gestures.js';
 import { createGoldenRangeGeometry, createWaterNormalMap, createWaterMaterial, createWaterGeometry } from './world-surfaces.js';
 import { createSummitDetail } from './summit-detail.js';
+import { applyArchitecturalMaterials, createColonnade, createRoofDetail, createPalaceTerrace, createFacadeDetail, divineRealmLayout } from './palace-architecture.js';
 import { createContinentModels } from './continent-models.js';
 import { DAY_SKY, paintClouds } from './sky-clouds.js';
 import { SQUARES as RB_SQUARES, SPECIAL as RB_SPECIAL, START as RB_START, VICTORY as RB_VICTORY, TRAP_QUOTA, TRAP_QUOTA_NOTE64, FACES as DIE_FACES, BY_N as RB_BY_N, VARIANTS as RB_VARIANTS, zoneOf as rbZoneOf, PLAYER_COLOURS as RB_COLOURS, createBoardLayer, tibetanOf as rbTibetan } from './rebirth-board.js';
@@ -2142,6 +2144,7 @@ import { SQUARE_NOTES, SQUARE_FULL } from './rebirth-notes.js';
 import { SQUARE_ART, cellBackground, createSquareArt, LIBERATION_ART } from './rebirth-icons.js';
 import { createSoundKit, voiceFor as rbVoice } from './rebirth-sound.js';
 import { searchText } from './search-text.js';
+import { createGameSoundtrack } from './game-soundtrack.js';
 import { PLAYER_SKINS, PLAYER_CULTURES, normalizeSkin, PLAYER_PALETTE, paintPlayer, createPlayerArt } from './game-players.js';
 import { SESSION_KEY, makeSession, restoreSession, possibleThrows } from './game-session.js';
 import { drawWheel } from './wheel-art.js';
@@ -2434,6 +2437,7 @@ const M = {
 };
 
 const world = new THREE.Group();
+applyArchitecturalMaterials(THREE, M);
 world.name = 'world_system';
 const add = (mesh, name, parent) => {
   mesh.name = name;
@@ -2468,7 +2472,7 @@ function flaredRoof(half, rise, material, o = {}) {
   const hollow = o.hollow === undefined ? 1.6 : o.hollow; // how scooped the slope is
   const deep = (o.deep === undefined ? 0.16 : o.deep) * rise;   // the eave's own thickness
   const across = o.across ?? 9, up = o.up ?? 5, cols = 4 * across, stride = cols + 1;
-  const pos = [], idx = [];
+  const pos = [], idx = [], uv = [];
   // the tiles, then the same surface again beneath them: an eave with an edge
   for (let shell = 0; shell < 2; shell++) {
     for (let r = 0; r <= up; r++) {
@@ -2485,6 +2489,7 @@ function flaredRoof(half, rise, material, o = {}) {
         pos.push(px * Math.cos(a) + pz * Math.sin(a),
                  lower + rise * lift * horn - (shell ? deep : 0),
                  -px * Math.sin(a) + pz * Math.cos(a));
+        uv.push(c / across, u);
       }
     }
   }
@@ -2503,6 +2508,7 @@ function flaredRoof(half, rise, material, o = {}) {
   }
   const g = new THREE.BufferGeometry();
   g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+  g.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2));
   g.setIndex(idx);
   g.computeVertexNormals();
   const group = new THREE.Group();
@@ -2511,6 +2517,7 @@ function flaredRoof(half, rise, material, o = {}) {
   const cap = sq(half * crest, half * crest, rise * 0.09, material);
   cap.position.y = rise + rise * 0.04;
   group.add(cap);
+  if (o.detail) group.add(createRoofDetail(THREE, half, rise, o, M.goldDeep, M.wood));
   return group;
 }
 
@@ -2518,30 +2525,7 @@ function flaredRoof(half, rise, material, o = {}) {
    them, so that a level reads as somewhere with air in it. The posts are
    laid round the square as one run, so no two stand in the same place. */
 function colonnade(half, height, bays, post, wall) {
-  const g = new THREE.Group();
-  const floor = sq(half * 1.04, half * 1.06, height * 0.12, wall);
-  floor.position.y = height * 0.06;
-  g.add(floor);
-  const t = half * 0.11, up = height * 0.74;
-  const geo = new THREE.BoxGeometry(t, up, t);
-  for (let side = 0; side < 4; side++) {
-    const a = side * Math.PI / 2;
-    for (let i = 0; i < bays; i++) {
-      const u = (i / bays) * 2 - 1;
-      const px = u * half, pz = half;
-      const m = new THREE.Mesh(geo, post);
-      m.position.set(px * Math.cos(a) + pz * Math.sin(a), height * 0.12 + up / 2,
-                     -px * Math.sin(a) + pz * Math.cos(a));
-      g.add(m);
-    }
-  }
-  const back = sq(half * 0.74, half * 0.74, up, wall);      // the room behind the posts
-  back.position.y = height * 0.12 + up / 2;
-  g.add(back);
-  const lintel = sq(half * 1.06, half * 1.02, height * 0.14, post);
-  lintel.position.y = height * 0.93;
-  g.add(lintel);
-  return g;
+  return createColonnade(THREE, {half,height,bays,post,wall,timber:M.wood,shadow:M.indigo});
 }
 
 /* The gilt finial: a swelling drop over two flattened beads on a short
@@ -2677,13 +2661,13 @@ const terraceTop = yv(40000);
   const z = halfAt(terraceTop) + y(2000) - y(6000);
   const base = terraceTop;
   const gh = yv(9000), rh = yv(5000);
-  const gate = new THREE.Mesh(new THREE.BoxGeometry(y(17000), gh, y(11000)), M.gold);
-  gate.position.set(0, base + gh / 2, z);
-  gate.name = `king_${name}`;
-  const roof = new THREE.Mesh(new THREE.ConeGeometry(y(10500), rh, 4), material);
-  roof.position.set(0, base + gh + rh / 2, z);
-  roof.rotation.y = Math.PI / 4;
-  roof.name = `king_${name}`;
+  const gate = colonnade(y(7200), gh, 2, M.gold, M.pearl);
+  gate.position.set(0, base, z);
+  gate.traverse(o => { if (o.isMesh) o.name = `king_${name}`; });
+  const roof = flaredRoof(y(10500), rh, material,
+    {crest:0.20,lift:0.25,reach:0.08,detail:true});
+  roof.position.set(0, base + gh, z);
+  roof.traverse(o => { if (o.isMesh) o.name = `king_${name}`; });
   g.add(gate); g.add(roof);
   world.add(g);
 });
@@ -3137,9 +3121,11 @@ const CLUSTERS = [
    so both measures are opened up, in the same proportion to each other, and
    the buildings are sized against the stride rather than fixed, so that the
    whole stack keeps its shape against Meru below. */
-const STEP = 0.074, GAP = 0.040, PLATE_T = 0.005;
 const TOTAL = CLUSTERS.reduce((n, [, l]) => n + l.length, 0);
+const {step:STEP,gap:GAP,plate:PLATE_T} = divineRealmLayout(0,TOTAL);
+const BUILDING_UNIT = 0.074;           // preserve height while opening the gaps
 const CLOUDLESS = 'anabhraka';        // sprin med: from here up, no cloud
+const CLOUD_LEVELS = CLUSTERS.flatMap(([,names])=>names).indexOf(CLOUDLESS);
 /* One cloud bank, scalloped the way the painted ones are and squashed to a
    ledge. Built once and scaled per level, since every heaven wants the same
    shape at a different size. */
@@ -3240,16 +3226,18 @@ const HEAVEN_FIELDS = {
     g.add(open);
     up += H * 0.26;
     const eave = flaredRoof(w * 0.62, H * 0.07, M.cinnabar,
-      { crest: 0.76, lift: 0.16, reach: 0.07, deep: 0.34 });
+      { crest: 0.76, lift: 0.16, reach: 0.07, deep: 0.34, detail: true });
     eave.position.y = up;
     g.add(eave);
     up += H * 0.07;
     const gilt = sq(w * 0.42, w * 0.44, H * 0.14, M.gold);
     gilt.position.y = up + H * 0.07;
     g.add(gilt);
+    const facade = createFacadeDetail(THREE,{half:w*0.44,height:H*0.14,materials:M});
+    facade.position.y=up; g.add(facade);
     up += H * 0.14;
     const roof = flaredRoof(w, H * 0.20, M.cinnabar,
-      { crest: 0.34, lift: 0.54, reach: 0.24, hollow: 1.85 });
+      { crest: 0.34, lift: 0.54, reach: 0.24, hollow: 1.85, detail: true });
     roof.position.y = up;
     g.add(roof);
     up += H * 0.20;
@@ -3275,18 +3263,22 @@ const HEAVEN_FIELDS = {
     const body = sq(w * 0.50, w * 0.52, H * 0.22, M.indigo);
     body.position.y = up + H * 0.11;
     g.add(body);
+    const lowerFacade = createFacadeDetail(THREE,{half:w*0.52,height:H*0.22,materials:M});
+    lowerFacade.position.y=up; g.add(lowerFacade);
     up += H * 0.22;
     const low = flaredRoof(w * 0.78, H * 0.16, M.cinnabar,
-      { crest: 0.44, lift: 0.58, reach: 0.26 });
+      { crest: 0.44, lift: 0.58, reach: 0.26, detail: true });
     low.position.y = up;
     g.add(low);
     up += H * 0.16;
     const upper = sq(w * 0.34, w * 0.36, H * 0.15, M.vermilion);
     upper.position.y = up + H * 0.075;
     g.add(upper);
+    const upperFacade = createFacadeDetail(THREE,{half:w*0.36,height:H*0.15,materials:M});
+    upperFacade.position.y=up; g.add(upperFacade);
     up += H * 0.15;
     const high = flaredRoof(w * 0.56, H * 0.14, M.indigo,
-      { crest: 0.38, lift: 0.50, reach: 0.22 });
+      { crest: 0.38, lift: 0.50, reach: 0.22, detail: true });
     high.position.y = up;
     g.add(high);
     up += H * 0.14;
@@ -3312,50 +3304,59 @@ CLUSTERS.forEach(([material, names], ci) => {
   names.forEach((name) => {
     if (name === CLOUDLESS) onCloud = false;
     /* the level's extent, which grows the higher it stands */
-    const half = 0.100 + (level / (TOTAL - 1)) * 0.110;
+    const {half} = divineRealmLayout(level,TOTAL);
     const id = `heaven_${name}`;
+    const realm = new THREE.Group();
+    realm.name = id;
+    world.add(realm);
     if (onCloud) {
       const bank = new THREE.Mesh(CLOUD_GEO, M.cloud);
       bank.position.y = h - half * 0.055;
       bank.scale.set(half, half * 0.19, half);
-      add(bank, id);
+      add(bank, id, realm);
     } else {
       // "the cloudless" and the seven above it: an open ledge, nothing under it
-      const ledge = sq(half * 0.80, half * 0.84, PLATE_T, material);
+      const ledge = sq(half * 1.13, half * 1.16, PLATE_T, material);
       ledge.position.y = h - PLATE_T * 0.5;
-      add(ledge, id);
+      add(ledge, id, realm);
     }
     /* On cloud, whatever stands here stands on the bank's own crown. */
     const floor = onCloud ? h + half * 0.12 : h;
     const field = HEAVEN_FIELDS[name];
     if (field) {
-      const built = field(half * 0.34, STEP * 0.46);
+      const built = field(half * 0.34, BUILDING_UNIT * 0.46);
       built.position.y = floor;
       built.traverse((o) => { if (o.isMesh) o.name = id; });
-      world.add(built);
+      realm.add(built);
     } else {
       /* the palace the painted cosmologies give every heaven alike: a
          plinth, an open colonnade, lifted gilt eaves and a finial. */
-      const pw = half * 0.23, storey = STEP * 0.175;
-      const plinth = sq(pw * 1.5, pw * 1.7, PLATE_T, material);
-      plinth.position.y = floor + PLATE_T * 0.5;
-      add(plinth, id);
+      const pw = half * 0.26, storey = BUILDING_UNIT * 0.205;
+      const plinth = createPalaceTerrace(THREE,{half:pw,height:PLATE_T,materials:M});
+      plinth.position.y = floor;
+      plinth.traverse(o => { if (o.isMesh) o.name=id; });
+      realm.add(plinth);
       const body = colonnade(pw, storey, 3, M.gold, material);
       body.position.y = floor + PLATE_T;
       body.traverse(o => { if (o.isMesh) o.name = id; });
-      world.add(body);
+      realm.add(body);
       const roof = flaredRoof(pw * 1.55, storey * 0.95, M.gold,
-        { crest: 0.14, lift: 0.24, reach: 0.08 });
+        { crest: 0.14, lift: 0.24, reach: 0.08, detail: true });
       roof.position.y = floor + PLATE_T + storey;
       roof.traverse(o => { if (o.isMesh) o.name = id; });
-      world.add(roof);
-      const cap = new THREE.Mesh(
-        new THREE.ConeGeometry(pw * 0.26, storey * 0.60, 8), M.gold
-      );
-      cap.position.y = floor + PLATE_T + storey * 2.25;
-      add(cap, id);
+      realm.add(roof);
+      const cap = finial(Math.min(pw*0.09,storey*0.17),M.gold);
+      cap.position.y = floor + PLATE_T + storey * 2.02;
+      cap.traverse(o => { if (o.isMesh) o.name=id; });
+      realm.add(cap);
     }
-    h += STEP;
+    // Protect the next platform's underside from taller aureoles and roofs.
+    // Most levels use STEP; clearance adapts to the actual built envelope.
+    realm.updateMatrixWorld(true);
+    const realmTop = new THREE.Box3().setFromObject(realm).max.y;
+    const nextHalf = divineRealmLayout(Math.min(level+1,TOTAL-1),TOTAL).half;
+    const nextUnderside = level+1<CLOUD_LEVELS ? nextHalf*0.105 : PLATE_T;
+    h = Math.max(h+STEP,realmTop+nextUnderside+0.012);
     level++;
   });
   if (ci < CLUSTERS.length - 1) h += GAP;
@@ -3405,7 +3406,7 @@ FORMLESS.forEach((name, i) => {
   );
   s.position.y = fh;
   add(s, `formless_${name}`);
-  fh += 0.105;
+  fh += 0.120;
 });
 
 stage.setObject(world);
@@ -6674,12 +6675,8 @@ rbGrid.addEventListener('click', (ev) => {
   if (cell) show('rebirth_sq_' + cell.dataset.square, true);
 });
 
-/* — sound: off until asked for, like motion —————————————————————— */
-/* A checkbox left to itself is not off by default: a browser restores the
-   state of form controls across a reload and across a back gesture, so a page
-   that had once been asked for sound came back making it, unasked, with
-   nothing written down anywhere that said so. The setting is kept and set
-   here instead, and it starts silent. */
+/* Sound and music start enabled; explicit mute preferences survive reloads.
+   Music belongs to game mode and pauses when the page is hidden. */
 const rbKit = createSoundKit(window.AudioContext || window.webkitAudioContext);
 const rbSoundBox = document.querySelector('#g-sound');
 const rbSoundOn = () => rbSoundBox.checked;
@@ -6689,6 +6686,25 @@ rbSoundBox.checked = savedSound !== '0';     // on unless it has been turned off
 rbSoundBox.addEventListener('change', () => {
   try { localStorage.setItem('ws-sound', rbSoundBox.checked ? '1' : '0'); } catch (err) {}
 });
+const rbMusic = createGameSoundtrack({AudioClass:window.Audio});
+const rbMusicBox = document.querySelector('#g-music');
+let savedMusic = null;
+try { savedMusic = localStorage.getItem('ws-music'); } catch {}
+rbMusicBox.checked = savedMusic !== '0';
+rbMusic.setEnabled(rbMusicBox.checked);
+rbMusic.setVisible(!document.hidden);
+rbMusicBox.addEventListener('change', () => {
+  try { localStorage.setItem('ws-music',rbMusicBox.checked?'1':'0'); } catch {}
+  rbMusic.setEnabled(rbMusicBox.checked);
+});
+document.addEventListener('ws-mode-change', () => rbMusic.setActive(mode === 'game'));
+document.addEventListener('visibilitychange', () => rbMusic.setVisible(!document.hidden));
+// Bubble after the mode button has acted, so entering Game starts the score
+// in that same gesture. Browsers that block autoplay retry the next gesture.
+document.addEventListener('click', () => rbMusic.unlock());
+document.addEventListener('keydown', () => rbMusic.unlock());
+window.addEventListener('pagehide', () => rbMusic.setVisible(false));
+window.addEventListener('pageshow', () => rbMusic.setVisible(!document.hidden));
 /* Where a throw ends has a character, and which way it went has another. The
    voice comes from the square's own company on the board — the hells are not
    the heavens, the sūtra route is not the mantra route — and under it a short

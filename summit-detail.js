@@ -20,15 +20,16 @@ export function createSummitDetail(THREE, {
   function bake(geometry, material, name, matrix) {
     if (!bins.has(name)) bins.set(name, new Map());
     const entries = bins.get(name);
-    if (!entries.has(material)) entries.set(material, { positions: [], normals: [], indices: [] });
+    if (!entries.has(material)) entries.set(material, { positions: [], normals: [], uvs: [], indices: [] });
     const out = entries.get(material), offset = out.positions.length / 3;
-    const p = geometry.attributes.position, n = geometry.attributes.normal;
+    const p = geometry.attributes.position, n = geometry.attributes.normal, uv = geometry.attributes.uv;
     normals.getNormalMatrix(matrix);
     for (let i = 0; i < p.count; i++) {
       point.fromBufferAttribute(p, i).applyMatrix4(matrix);
       normal.fromBufferAttribute(n, i).applyNormalMatrix(normals);
       out.positions.push(point.x, point.y, point.z);
       out.normals.push(normal.x, normal.y, normal.z);
+      out.uvs.push(uv ? uv.getX(i) : point.x, uv ? uv.getY(i) : point.z);
     }
     const indices = geometry.index;
     for (let i = 0; i < (indices ? indices.count : p.count); i++) {
@@ -265,6 +266,7 @@ export function createSummitDetail(THREE, {
     const geometry = new THREE.BufferGeometry();
     geometry.setAttribute('position', new THREE.Float32BufferAttribute(data.positions, 3));
     geometry.setAttribute('normal', new THREE.Float32BufferAttribute(data.normals, 3));
+    geometry.setAttribute('uv', new THREE.Float32BufferAttribute(data.uvs, 2));
     geometry.setIndex(data.indices);
     geometry.computeBoundingBox();
     geometry.computeBoundingSphere();

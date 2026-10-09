@@ -7,8 +7,9 @@
  * token arrives, over a rise or a fall that says which way the throw went.
  *
  * Nothing is sampled. Everything here is built from oscillators and filtered
- * noise at the moment it sounds, so the page still loads no audio and works
- * offline. Sound is off until asked for, like motion.
+ * noise at the moment it sounds, so these effects need no audio files and
+ * work offline. Sound starts enabled and remembers an explicit mute preference.
+ * The continuous game score is managed separately in game-soundtrack.js.
  *
  * The mapping is pure and is tested; the synthesis needs a real AudioContext
  * and is not.
@@ -70,7 +71,7 @@ export function createSoundKit(AudioContextClass) {
       master.gain.value = 0.9;
       master.connect(ctx.destination);
     }
-    if (ctx.state === 'suspended') ctx.resume();
+    if (ctx.state === 'suspended') ctx.resume().catch(() => {});
     return ctx;
   }
 
