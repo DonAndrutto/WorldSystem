@@ -736,6 +736,8 @@ const T={
   "Options": "Opcje",
   "Motion": "Ruch",
   "Sound": "Dźwięk",
+  "Music": "Muzyka",
+  "Gentle soundtrack in game mode": "Łagodna muzyka w trybie gry",
   "Names": "Nazwy",
   "Full screen": "Pełny ekran",
   "Reset view": "Resetuj widok",

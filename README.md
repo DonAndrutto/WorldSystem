@@ -21,6 +21,7 @@ magnifiers in the header make the writing in every window larger or smaller.
 | `sky-clouds.js` | Tibetan cloud silhouettes, layered colour bands and day/night cloud palettes. |
 | `world-surfaces.js` | Closed mountain ridges, depth-coloured seas and one shared procedural ripple normal map. |
 | `continent-models.js` | Batched sculptures for the four continent treasures and the rose-apple tree. |
+| `palace-architecture.js` | Shared palace construction, surface maps and progressive divine realm dimensions. |
 | `viewport-gestures.js` | Routes scene gestures to the camera and prevents gestures from magnifying the menu interface. |
 | `thousand-worlds.js` | The three orders of a thousand: where the cubes of ten to a side stand around this world, the 999 proxy worlds of the first order, the clouds of a million sprites of the second and third, the canopies of the shared heavens, and their fading in and out. |
 | `tests/thousand-worlds.mjs` | The layout arithmetic and the drawing built from it, without a browser. |
@@ -34,6 +35,8 @@ magnifiers in the header make the writing in every window larger or smaller.
 | `rebirth-notes.js` | Generated. Two write-ups per square, keyed by square number. |
 | `rebirth-icons.js` | Where each square's field sits on the atlas sheets, and the billboards that carry it in the world — for every square the world does not already build in three dimensions. |
 | `rebirth-sound.js` | The voice every square answers in, and the small synthesiser that plays it. |
+| `game-soundtrack.js`, `assets/audio/still-waters.mp3` | Gentle original game music, looping playback and remembered mute control. |
+| `scripts/build-soundtrack.py` | Recreates the 128-second soundtrack using NumPy and ffmpeg, without samples. |
 | `tests/rebirth-regression.mjs` | Board and rules checks, including the routes the Rules of Play claim. |
 | `three-d-stage.js` | The `<three-d-stage>` custom element it imports: WebGL renderer, studio lighting with a soft ground shadow, orbit controls, an auto-framed camera, and OBJ + MTL / GLB export. |
 | `assets/app-icon/world-system-master.webp` | Gold-and-lapis Meru app-icon artwork; a symbolic emblem. See its source brief in `assets/app-icon/README.md`. |
@@ -343,7 +346,7 @@ they live in `rebirth-board.js` and stay as they are.
 The die runs for a couple of seconds before it resolves, ticking and slowing,
 and shows nothing of the result until it stops; then the square arrived at is
 named in the middle of the board, large enough to read from across a room, and
-the card clears itself. Sound is off until asked for, under Options, and stays
+the card clears itself. Sound and music start enabled under Options, and stay
 where it was left rather than where the browser happens to restore it.
 `prefers-reduced-motion` gets the same game without the wait.
 
@@ -383,8 +386,8 @@ which keep working on the first click.
 ### What the board sounds like
 
 On unless it has been hushed, under the board's options, and built from
-oscillators and filtered noise at the moment it sounds — the page still loads
-no audio and works offline. The die clatters as it runs down and settles with the table under it.
+oscillators and filtered noise at the moment it sounds — these effects need
+no audio downloads and work offline. The die clatters as it runs down and settles with the table under it.
 Where a throw ends has a voice, taken from the company the square keeps on the
 board: a drone under the hells, a thin reed for the pretas, a hollow knock for
 the animals, an open fifth for the human world, small bells for the heavens of
@@ -396,7 +399,19 @@ the sacred lands and buddha fields, a measured triple stroke for the acts of a
 buddha's body, and for Nirvāṇa alone everything falling away. Under each of them
 a short rise or fall, read off the row the token left and the row it reached.
 The mapping lives in `rebirth-sound.js` and is covered by the test suite; the
-synthesis needs a real audio clock and is not.
+synthesis needs a real audio clock.
+
+Game mode also plays **Still Waters**, an original 128-second seamless ambient
+piece: overlapping warm D-major chords, a sparse soft flute melody and quiet
+singing-bowl tones, without percussion or voices. **Options → Music** starts
+enabled and remembers when it is muted; the existing **Sound** switch controls
+the die and destination effects separately. Music fades in and out when entering
+or leaving game mode and pauses immediately when the page is hidden. If the
+browser requires an interaction before audio can play, entering Game or the
+next tap/key starts it. The MP3 is included in the offline app shell, with
+cached byte-range responses for playback, seeking and looping.
+The composition is reproducible with `python scripts/build-soundtrack.py`
+(NumPy and ffmpeg installed); it uses no recorded samples or downloaded music.
 
 ### Where the players are
 
@@ -752,6 +767,9 @@ node tests/rebirth-regression.mjs
 node tests/viewport-gestures.mjs
 node tests/world-surfaces.mjs
 node tests/summit-detail.mjs
+node tests/palace-architecture.mjs
+node tests/game-soundtrack.mjs
+node tests/audio-ranges.mjs
 node tests/continent-models.mjs
 node tests/game-session.mjs
 node tests/localization.mjs
@@ -782,6 +800,7 @@ npm install --no-save --package-lock=false three@0.184.0 jsdom@26 playwright
 python3 -m http.server 4174
 # In another terminal (Google Chrome installed):
 WORLDSYSTEM_URL=http://127.0.0.1:4174 node tests/browser-ui.mjs
+WORLDSYSTEM_URL=http://127.0.0.1:4174 node tests/browser-architecture-audio.mjs
 ```
 
 These checks emulate viewport sizes; physical iOS/Android and screen-reader
@@ -791,8 +810,16 @@ testing remain separate. The source review and further recommendations are in
 The summit detail uses the existing pigments and selectable entries for four
 roofed gates, corner pavilions, lattice windows, roof ribs, stairs, parapets
 and planted gardens. These are illustrative additions to the drawing. Repeated
-ornament is merged into 20 meshes (31,264 triangles), with no new textures.
-The shared heaven palaces also have open colonnades and curved roofs.
+ornament is merged into 20 meshes (31,264 triangles), sharing the palette and
+surface maps used by the other palaces.
+The summit, guardian halls and heaven palaces share columns with shaped shafts,
+stone bases and capitals, timber corbels and lintels, recessed doors and low
+balustrades. Heaven palaces also have stepped masonry terraces, four stairways,
+roof ribs and eave fascia; the two special halls have framed window relief.
+Repeated detail is merged by material, with shared procedural stone, wood and
+hammered-metal surface maps. Divine levels are spaced about 14% further apart;
+their widths increase throughout the ascent, including the change from cloud
+banks to open ledges. Width and vertical spacing are controlled independently.
 The summit checks cover finite geometry, bounded cost and open gate arches.
 
 The continent sculptures continue that detail with branching roots, layered

@@ -22,6 +22,8 @@ const gamePlayers = await import(pathToFileURL(repo + '/game-players.js'));
 const gameSession = await import(pathToFileURL(repo + '/game-session.js'));
 const gameCamera = await import(pathToFileURL(repo + '/game-camera.js'));
 const summitDetail = await import(pathToFileURL(repo + '/summit-detail.js'));
+const palaceArchitecture = await import(pathToFileURL(repo + '/palace-architecture.js'));
+const gameSoundtrack = await import(pathToFileURL(repo + '/game-soundtrack.js'));
 const continentModels = await import(pathToFileURL(repo + '/continent-models.js'));
 const wheelArt = await import(pathToFileURL(repo + '/wheel-art.js'));
 const wheelView = await import(pathToFileURL(repo + '/wheel-view.js'));
@@ -87,6 +89,9 @@ Object.assign(window, {createOfferingModels, OFFERING_ART, offeringBackground, T
   searchText, createInterpretation, openCalculator: lunarPanels.openCalculator,
   mansionUI: lunarPanels.mansionUI, adoptLunarPanels: lunarPanels.adopt,
   lunarPanelsOpen: lunarPanels.lunarPanelsOpen, closeLunarPanels: lunarPanels.closeLunarPanels
+});
+Object.assign(window,palaceArchitecture,{
+  createGameSoundtrack: options => gameSoundtrack.createGameSoundtrack({...options,AudioClass:null})
 });
 let viewport = {w:1280, h:900}, reduced = false;
 window.matchMedia = query => ({matches:query.includes('reduced-motion') ? reduced
@@ -161,6 +166,21 @@ advance(1200);
 // the 28 Lunar Mansions start hidden and cost nothing until asked for
 assert.equal(document.querySelector('.lm-row [data-lm=layer]').getAttribute('aria-pressed'), 'false', 'the mansion layer starts off');
 assert.ok(!textureRequests.some(r => String(r.url).includes('assets/mansions/')), 'no glyph is fetched while the layer is off');
+const divineBounds=new Map();
+app.world.updateMatrixWorld(true);
+app.world.traverse(o=>{
+  if(!o.isMesh || !o.name.startsWith('heaven_'))return;
+  if(!divineBounds.has(o.name))divineBounds.set(o.name,new THREE.Box3());
+  divineBounds.get(o.name).expandByObject(o);
+});
+const divineLevels=[...divineBounds].sort((a,b)=>a[1].min.y-b[1].min.y);
+assert.equal(divineLevels.length,21,'All divine levels remain in the world');
+for(let i=1;i<divineLevels.length;i++) {
+  const [id,bounds]=divineLevels[i], previous=divineLevels[i-1][1];
+  assert.ok(bounds.getSize(new THREE.Vector3()).x>previous.getSize(new THREE.Vector3()).x,
+    id+': the rendered realm is wider than the one below, across cloud/ledge transitions');
+  assert.ok(bounds.min.y>previous.max.y+.008,id+': buildings leave a clear gap before the next realm');
+}
 const panels = ['.sheet','.mandala-note','.tour-panel','.index'];
 function panel(expected) {
   const visible=panels.filter(s=>!q(s).hidden);
@@ -812,6 +832,7 @@ assert.equal(q('.bv-names').querySelectorAll('input').length,2,'a field per play
 q('[data-game="cancel-new"]').click();
 assert.equal(q('.bv-ask').hidden,true,'Keep playing shuts it again');
 assert.equal(q('#g-sound').checked,true,'The board answers aloud unless it has been hushed');
+assert.equal(q('#g-music').checked,true,'The gentle game soundtrack is enabled by default');
 newGame(1);
 assert.equal(app.rbGame().players.length,1);
 assert.equal(app.rbGame().players[0].pos,rbBoard.START);

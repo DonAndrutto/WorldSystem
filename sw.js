@@ -25,11 +25,12 @@
    current shelf or the runtime one, so old versions do not accumulate. */
 
 /* ── written by scripts/build-sw.cjs — do not edit below ─────────────── */
-const VERSION = '42c774c8f4fc0f8d';
+const VERSION = '01bb41b9ff93c8c4';
 const SHELL = [
   "app-chrome.css",
   "app-chrome.js",
   "apple-touch-icon.png",
+  "assets/audio/still-waters.mp3",
   "assets/fonts/eb-garamond-400-italic-latin-ext.woff2",
   "assets/fonts/eb-garamond-400-italic-latin.woff2",
   "assets/fonts/eb-garamond-400-normal-latin-ext.woff2",
@@ -98,6 +99,7 @@ const SHELL = [
   "game-camera.js",
   "game-players.js",
   "game-session.js",
+  "game-soundtrack.js",
   "game-ui.css",
   "icon-192.png",
   "icon-512.png",
@@ -119,6 +121,7 @@ const SHELL = [
   "manifest.webmanifest",
   "mansion-layer.js",
   "mansion-ui.js",
+  "palace-architecture.js",
   "places-data.js",
   "presentation-locales.js",
   "presentation-tours.css",
@@ -213,22 +216,43 @@ async function page(request) {
 // Everything in SHELL is immutable for this version, so it is read straight
 // off the shelf. `ignoreSearch` is what lets the page keep asking for
 // `icon-192.png?v=2` and the like and still be answered.
+// Media players may request just the next bytes, including when a track loops.
+// The shelf holds the complete MP3; return the requested slice while offline.
+async function ranged(response, request) {
+  const range = request.headers.get('range');
+  if (!range) return response;
+  const match = /^bytes=(\d*)-(\d*)$/.exec(range);
+  if (!match || (!match[1] && !match[2])) return response;
+  const data = await response.arrayBuffer(), size = data.byteLength;
+  const start = match[1] ? Number(match[1]) : Math.max(0,size-Number(match[2]));
+  const end = match[1] && match[2] ? Math.min(size-1,Number(match[2])) : size-1;
+  if (!Number.isSafeInteger(start) || !Number.isSafeInteger(end) || start>=size || end<start) {
+    return new Response(null,{status:416,headers:{'Content-Range':'bytes */'+size}});
+  }
+  const headers = new Headers(response.headers);
+  headers.set('Content-Range','bytes '+start+'-'+end+'/'+size);
+  headers.set('Content-Length',String(end-start+1));
+  headers.set('Accept-Ranges','bytes');
+  headers.delete('Content-Encoding');
+  return new Response(data.slice(start,end+1),{status:206,headers});
+}
+
 async function asset(event) {
   const cache = await caches.open(CACHE);
   const held = await cache.match(event.request, { ignoreSearch: true });
-  if (held) return held;
+  if (held) return ranged(held,event.request);
 
   // Anything else of ours — a file added after this version was built — is
   // served from last time while a fresh copy is fetched behind the page.
   const runtime = await caches.open(RUNTIME);
   const stored = await runtime.match(event.request, { ignoreSearch: true });
   const fresh = fetch(event.request).then(response => {
-    if (response.ok && response.type === 'basic') runtime.put(event.request, response.clone());
+    if (response.status === 200 && response.type === 'basic') runtime.put(event.request, response.clone());
     return response;
   });
   if (!stored) return fresh;
   event.waitUntil(fresh.catch(() => {}));
-  return stored;
+  return ranged(stored,event.request);
 }
 
 self.addEventListener('fetch', event => {
