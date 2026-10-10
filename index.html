@@ -449,10 +449,20 @@
     font-size: 10px; letter-spacing: .13em; text-transform: uppercase; color: var(--ink-3);
   }
   .index input {
-    width: 100%; padding: 7px 9px; font-family: "EB Garamond", serif; font-size: 14px;
+    width: 100%; min-height: 46px; padding: 10px 12px; font-family: "EB Garamond", serif; font-size: 18px;
     color: var(--ink); background: var(--field); border: 1px solid var(--rule-2);
     border-radius: 0;
   }
+  .search-label { display: block; margin: 4px 0 7px; font-size: 17px; color: var(--ink); }
+  .controls [data-act="index"] { border: 1px solid var(--accent); background: var(--field); color: var(--ink); padding-inline: 14px; }
+  .controls [data-act="index"] .g { font-size: 25px; line-height: 1; }
+  .controls [data-act="index"] .t { display: inline !important; }
+  .index .row.mansion-result .n { display: flex; flex-direction: column; gap: 3px; }
+  .index .row.mansion-result .k { white-space: normal; font-size: 16px; color: var(--ink); }
+  .index .row.mansion-result [lang="bo"] { font-family: "Noto Serif Tibetan", serif; font-size: 16px; }
+  .lm-search { display: block; margin: 14px 0; color: var(--ink); font-size: 17px; }
+  .lm-search input { display: block; width: 100%; min-height: 44px; margin-top: 6px; padding: 8px 10px; font: inherit; color: var(--ink); background: var(--field); border: 1px solid var(--accent); }
+  .lm-item[hidden] { display: none; }
   .index input::placeholder { color: var(--ink-3); }
   .index input:focus { outline: 1px solid var(--accent); outline-offset: -1px; }
   .index .empty {
@@ -827,7 +837,7 @@
     font-size: 19px; line-height: 1.6; font-style: normal; }
   .lm-more dd .bo, .sheet dd .bo { display: block; font-size: 17px; }
   .lm-names .wy { font-style: italic; font-size: 16px; }
-  .lm-names .sa { font-size: 15px; color: var(--ink-2); }
+  .lm-names .sa { font-size: 18px; color: var(--ink); }
   .lm-form { margin: 0 0 0 calc(1.6em + 18px); font-size: 14px; color: var(--ink-2); }
   .lm-prov, .lm-alias { font-size: 11.5px; letter-spacing: .03em; }
   .lm-prov { border: 1px dashed var(--ink-3); border-radius: 4px; padding: 0 5px; margin-left: 4px; color: var(--ink); white-space: nowrap; }
@@ -846,11 +856,15 @@
   .jy-form legend { font-size: 15px; padding: 0; }
   .jy-form label { display: block; font-size: 14px; margin: 8px 0 3px; }
   .jy-form label.jy-radio, .jy-choice label { display: flex; align-items: center; gap: 8px; min-height: 44px; margin: 2px 0; }
-  .jy-form input[type="date"], .jy-form input[type="time"], .jy-form input[type="text"] {
+  .jy-form input[type="date"], .jy-time-picker select, .jy-form input[type="text"] {
     width: 100%; min-height: 44px; font: inherit; font-size: 16px; padding: 7px 9px;
     color: var(--ink); background: var(--paper); border: 1px solid var(--rule-2); border-radius: 6px;
   }
-  .jy-form input[aria-invalid="true"] { border: 2px solid var(--accent); }
+  .jy-form .jy-clock { border: 0; margin-top: 12px; padding: 0; }
+  .jy-time-picker { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+  .jy-time-picker label { min-width: 0; }
+  .jy-time-picker select { display: block; box-sizing: border-box; margin-top: 3px; }
+  .jy-time-picker select[aria-invalid="true"], .jy-form input[aria-invalid="true"] { border: 2px solid var(--accent); }
   .jy-hint { font-size: 12px; color: var(--ink-3); }
   .jy-hint-block { margin: 2px 0 0 !important; }
   .jy-err { font-size: 13.5px; color: var(--ink) !important; margin: 4px 0 0 !important; }
@@ -1829,7 +1843,7 @@
   <!-- Three controls, and every one of them opens onto the rest. The index,
        the view you are in, and the settings that belong to no view. -->
   <div class="controls card">
-    <button class="btn" data-act="index" type="button" aria-pressed="false" title="Index — i"><span class="g">☰</span><span class="t">Index</span></button>
+    <button class="btn" data-act="index" type="button" aria-pressed="false" title="Search — i"><span class="g" aria-hidden="true">⌕</span><span class="t">Search</span></button>
     <details class="menu" data-menu="mode">
       <summary class="btn" title="Explorer e · Mandala m · Game g · Wheel l · Billion worlds b · Astrology j"><span class="g">✦</span><span class="t">Explorer</span><span class="chev">▾</span></summary>
       <div class="menu-body card" role="group" aria-label="View">
@@ -2129,7 +2143,8 @@
         <h1><button class="title" type="button" title="About this model — a">The World System<span class="i" aria-hidden="true">i</span></button></h1>
         <button class="x" type="button" data-act="close-index" title="Close the index" aria-label="Close the index">×</button>
       </div>
-      <input type="search" placeholder="Filter by name or meaning" aria-label="Filter the index">
+      <label class="search-label" for="world-search">Search the model</label>
+      <input id="world-search" type="search" placeholder="Name, realm or nakshatra…" aria-label="Search the model">
     </div>
     <div class="rows"></div>
     <p class="empty" hidden="">Nothing under that name.</p>
@@ -2165,6 +2180,8 @@ import { SQUARE_ART, cellBackground, createSquareArt, LIBERATION_ART } from './r
 import { createSoundKit, voiceFor as rbVoice } from './rebirth-sound.js';
 import { searchText } from './search-text.js';
 import { createGameSoundtrack } from './game-soundtrack.js';
+import { mansionSearchText } from './mansion-search.js';
+import { createHellRealm, createFormlessVeil } from './realm-atmospheres.js';
 import { PLAYER_SKINS, PLAYER_CULTURES, normalizeSkin, PLAYER_PALETTE, paintPlayer, createPlayerArt } from './game-players.js';
 import { SESSION_KEY, makeSession, restoreSession, possibleThrows } from './game-session.js';
 import { WALKTHROUGH_KEY, WALKTHROUGH_STEPS } from './game-walkthrough.js';
@@ -2452,7 +2469,7 @@ const M = {
   wave:    mat('wave_crest', 0xa9c7e4, 0.7, 0.02),
   halo:    mat('form_halo', 0x8fa3b2, 0.48, 0.1),
   formless: Object.assign(
-    new THREE.MeshBasicMaterial({ color: 0x8a8578, wireframe: true }),
+    new THREE.MeshBasicMaterial({ color: 0x8a8578, wireframe: true, transparent: true, opacity: .09, depthWrite: false }),
     { name: 'formless' }
   )
 };
@@ -3397,9 +3414,9 @@ const HELLS = ['sanjiva', 'kalasutra', 'samghata', 'raurava',
                'maharaurava', 'tapana', 'pratapana', 'avichi'];
 HELLS.forEach((name, i) => {
   const side = 0.075 + (i / (HELLS.length - 1)) * 0.075;
-  const slab = new THREE.Mesh(new THREE.BoxGeometry(side, 0.011, side),
-    i === HELLS.length - 1 ? M.ember : M.iron);
+  const slab = createHellRealm(THREE, { side, hot: true, depth: i });
   slab.position.set(0, UNDER - i * 0.042, R);
+  slab.traverse(o => { if (o.isMesh) o.name = `hell_${name}`; });
   add(slab, `hell_${name}`);
 });
 const shaft = new THREE.Mesh(
@@ -3412,8 +3429,9 @@ const COLD = ['arbuda', 'nirarbuda', 'atata', 'hahava', 'huhuva',
               'utpala', 'padma', 'mahapadma'];
 COLD.forEach((name, i) => {
   const side = 0.042 + (i / (COLD.length - 1)) * 0.030;
-  const slab = new THREE.Mesh(new THREE.BoxGeometry(side, 0.008, side), M.ice);
+  const slab = createHellRealm(THREE, { side, hot: false, depth: i });
   slab.position.set(-0.235, UNDER - 0.02 - i * 0.036, R + 0.04);
+  slab.traverse(o => { if (o.isMesh) o.name = `cold_${name}`; });
   add(slab, `cold_${name}`);
 });
 
@@ -3423,11 +3441,12 @@ const FORMLESS = ['akashanantyayatana', 'vijnananantyayatana',
 let fh = h + 0.06;
 FORMLESS.forEach((name, i) => {
   const s = new THREE.Mesh(
-    new THREE.SphereGeometry(0.042 + i * 0.009, 16, 10), M.formless
+    new THREE.SphereGeometry((0.042 + i * 0.009) * 1.4, 16, 10), M.formless
   );
   s.position.y = fh;
   add(s, `formless_${name}`);
-  fh += 0.120;
+  s.add(createFormlessVeil(THREE, (0.042 + i * 0.009) * 1.4));
+  fh += 0.185;
 });
 
 stage.setObject(world);
@@ -3436,7 +3455,7 @@ stage.setObject(world);
    which stand in the light's own line and would put themselves on Meru */
 world.traverse((o) => {
   if (!o.isMesh) return;
-  if (o.material === M.formless || o.userData.pickOnly ||
+  if (o.material === M.formless || o.userData.realmAtmosphere || o.userData.pickOnly ||
       o.material === M.sun || o.material === M.moonDisc || o.material === M.cloud ||
       o.material === M.sea || o.material === M.ocean) o.castShadow = false;
 });
@@ -3563,7 +3582,8 @@ def('about', {
       "The White Beryl interpretation presents chapter 33 readings for all 28 mansions, with electional summaries, natal descriptions, traditional ritual context and Tibetan source passages. Weekday combinations use the four-element rules and selected named lists, with different traditions kept separate. The Indian calculation supplies a catalogue cross-reference, not a Tibetan calendar date. Source uncertainties are identified; these historical readings are study material. Interpretation text is English; Polish translation is pending.",
       'Each continent takes its colour and shape from the face of Meru it stands opposite, and is flanked by two subcontinents of the same shape and half the size.',
       'The model uses schematic changes of scale, shape, placement, and lighting to make its features readable. <b>The scale of this drawing</b> describes the principal adaptations.',
-      'The model is the work of <b>Andrzej R. Rybszleger</b>, built from the sources named below.'],
+      'The model is the work of <b>Andrzej R. Rybszleger</b>, built from the sources named below.',
+      '<a href="mailto:translation@arybszleger.com">translation@arybszleger.com</a> · <a href="https://arybszleger.com" target="_blank" rel="noopener noreferrer">arybszleger.com</a> — more interactive apps and texts available.'],
   rel: ['about_scale', 'meru_core', 'about_mandala', 'wl_wheel'],
   src: 'Vasubandhu, <i>Abhidharmakośa</i> &amp; <i>bhāṣya</i> III.45–102 (La Vallée Poussin / Pruden); Chim Jampaiyang, <i>Ornament of Abhidharma</i>; Jamgön Kongtrul, <i>Myriad Worlds</i>; Mipham, <i>Gateway to Knowledge</i> II. '
      + 'Board, names and move graph: Tatz and Kent, <i>Rebirth: The Tibetan Game of Liberation</i> (1977), reconstructed from the printed chart, the square entries and the reverse index and cross-checked cell by cell. The write-ups on the 104 squares are a revised English edition of the square texts. '
@@ -4056,7 +4076,7 @@ FORMLESS_DATA.forEach(([id, t, tib, en, kalpas, b]) => {
         ['Aggregates present', 'four — feeling, perception, formation, consciousness; no form'],
         ['Never destroyed', 'no fire, water or wind reaches here']],
     rel: ['about_time', 'about_destruction'],
-    b: [b, 'The four formless absorptions have no place and no dimension; the Kośa says plainly that the formless realm is not a location. They are drawn as open mesh, without colour or surface, only to keep the series complete.'],
+    b: [b, 'The four formless absorptions have no place and no dimension; the Kośa says plainly that the formless realm is not a location. Faint, transparent outlines suggest these absorptions only to keep the series complete; they do not depict physical places.'],
     src: AKL
   });
 });
@@ -4749,7 +4769,7 @@ const tint = (m) => Object.assign(m.clone(),
   m.emissive ? { emissive: new THREE.Color(0x6b4a12), emissiveIntensity: 0.5 }
              : { color: new THREE.Color(0x6b4a12) });
 const tintable = (m) => m.material && !Array.isArray(m.material)
-  && m.material !== M.formless && !m.userData.pickOnly && !m.userData.artwork;
+  && m.material !== M.formless && !m.userData.realmAtmosphere && !m.userData.pickOnly && !m.userData.artwork;
 function clearPick() {
   picked.forEach((m, i) => {
     const highlight = m.material;
@@ -6463,7 +6483,12 @@ TREE.forEach(([group, rows]) => {
     b.className = 'row';
     b.dataset.id = e.id;
     b.innerHTML = '<span class="n">' + (label || e.t) + '</span><span class="k">' + (e.k || '') + '</span>';
-    b.dataset.search = searchText((label || '') + ' ' + e.t + ' ' + (e.en || '') + ' ' +
+    const mansion = MANSION_BY_ID.get(e.id);
+    if (mansion) {
+      b.classList.add('mansion-result');
+      b.innerHTML = '<span class="n" data-no-localize><span lang="bo">' + mansion.tibetan + '</span><i>' + mansion.wylie + '</i></span><span class="k" data-no-localize>' + mansion.sanskrit + '</span>';
+    }
+    b.dataset.search = (mansion ? mansionSearchText(mansion) + ' ' : '') + searchText((label || '') + ' ' + e.t + ' ' + (e.en || '') + ' ' +
       (e.tib || '') + ' ' + (e.meta || '') + ' ' + group);
     b.addEventListener('click', () => {
       if (MANSION_BY_ID.has(e.id)) { mansionUI.select(e.id, { source: 'index' }); return; }
@@ -6486,7 +6511,7 @@ search.addEventListener('input', () => {
     let shown = 0, lastH4 = null, h4Shown = false;
     [...grp.querySelector('.grp-rows').children].forEach((el) => {
       if (el.tagName === 'H4') { lastH4 = el; el.hidden = true; h4Shown = false; return; }
-      const match = !q || el.dataset.search.includes(q);
+      const match = !q || (el.dataset.search + ' ' + searchText(el.textContent)).includes(q);
       el.hidden = !match;
       if (match) {
         shown++;
@@ -6508,6 +6533,7 @@ const setOpen = (open, reframeView = true) => {
   document.body.classList.toggle('index-open', open);
   syncChrome();
   indexBtn.setAttribute('aria-pressed', String(open));
+  if (open) search.focus({ preventScroll: true });
   if (reframeView) reframeAfterPanels(340);
   try { localStorage.setItem('ws-index', open ? '1' : '0'); } catch (err) {}
 };
@@ -7323,7 +7349,7 @@ function rbNameFields(prefill) {
         const art = document.createElement('span'); paintPlayer(art, { skin: skin.id, i });
         art.setAttribute('aria-hidden', 'true'); button.appendChild(art);
         const caption = document.createElement('span'); caption.className = 'player-choice-caption';
-        caption.textContent = skin.gender === 'male' ? 'Male' : 'Female'; button.appendChild(caption);
+        caption.textContent = skin.role || (skin.gender === 'male' ? 'Male' : 'Female'); button.appendChild(caption);
         button.addEventListener('click', () => {
           rbDraft[i].skin = skin.id;
           choices.querySelectorAll('.player-choice').forEach(b => b.setAttribute('aria-pressed', String(b === button)));

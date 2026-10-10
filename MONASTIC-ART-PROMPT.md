@@ -1,0 +1,7 @@
+# Monastic travelers
+
+Asset: `assets/rebirth/monastics.png`. Generated with the built-in image-generation tool using `travelers.png` as a style reference. Transparent PNG; two equal columns, one row. Monk left, nun right. Existing traveler atlas and saved character IDs are preserved.
+
+## Final prompt
+
+Use case: stylized-concept. Create a new production transparent sprite atlas for a Himalayan board game, matching the painted realism, subtle ink details, proportions and warm mineral-pigment colors of the reference traveler atlas. Reference image is STYLE ONLY, not an edit target. Exactly TWO full-body adults in TWO equal columns on ONE square canvas, each centered in its half, heads at 6% and feet at 95% of canvas height, generous clear padding all around. LEFT: a Tibetan Vajrayana Buddhist monk, adult male with shaved head, layered maroon/red Tibetan monastic robes with a small ochre inner garment, simple shoes, dignified relaxed stance and hands naturally together. RIGHT: a Tibetan Vajrayana Buddhist nun, adult female with shaved head, layered maroon/red Tibetan monastic robes and ochre inner garment, simple shoes, calm dignified face. Distinct natural faces, restrained everyday monastic dress, no elaborate ceremonial hats. Consistent scale, same foot baseline. Genuine fully transparent alpha background around both figures. No background colors, no halos, no shadows outside figures, no scenery, no lettering, no labels, no borders. Entire body including feet must remain visible inside each cell.

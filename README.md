@@ -23,7 +23,7 @@ magnifiers in the header make the writing in every window larger or smaller.
 | `continent-models.js` | Batched sculptures for the four continent treasures and the rose-apple tree. |
 | `palace-architecture.js` | Shared palace construction, surface maps and progressive divine realm dimensions. |
 | `viewport-gestures.js` | Routes scene gestures to the camera and prevents gestures from magnifying the menu interface. |
-| `thousand-worlds.js` | The three orders of a thousand: where the cubes of ten to a side stand around this world, the 999 proxy worlds of the first order, the clouds of a million sprites of the second and third, the canopies of the shared heavens, and their fading in and out. |
+| `thousand-worlds.js` | The three orders of a thousand: where the cubes of ten to a side stand around this world, the 999 proxy worlds of the first order, the clouds of a million sprites of the second and third, the canopies of the shared heavens, and their fading in and out. Each million-member cloud shares 24 KB of coordinates; only the current order is retained after a crossfade. |
 | `tests/thousand-worlds.mjs` | The layout arithmetic and the drawing built from it, without a browser. |
 | `assets/offerings/` | Three locally served artwork sheets, with the generation prompts. |
 | `ARTWORK.md` | Image provenance, source references and iconographic adaptations. |
@@ -520,6 +520,12 @@ of the supplied OCR. The four forms whose opening lines are lost (snar ma, skag,
 nag pa, khrums smad) follow a secondary table, and say so in words and with a
 dashed ring. The audit behind all of it is `docs/WHITE-BERYL-LUNAR-MANSIONS.md`.
 
+The astrology time picker uses separate 24-hour hour, minute and second selectors,
+starting at `00:00:00`. Selecting hour `13` is sufficient for `13:00:00`;
+**Use now** updates all three selectors. The offline city list includes 32 Belgian
+places, searchable by the alternate names included in their labels, all with
+`Europe/Brussels`. Coordinate attribution is recorded in the source city list.
+
 **Options → Jyotiṣa calculator** is a separate system: the Indian nakṣatra with
 the Lahiri ayanamsa. Its form checks the date, time, place and zone and resolves
 them to one UTC instant — a time that does not exist in a zone, or that happens
@@ -807,6 +813,8 @@ python3 -m http.server 4174
 # In another terminal (Google Chrome installed):
 WORLDSYSTEM_URL=http://127.0.0.1:4174 node tests/browser-ui.mjs
 WORLDSYSTEM_URL=http://127.0.0.1:4174 node tests/browser-architecture-audio.mjs
+WORLDSYSTEM_URL=http://127.0.0.1:4174 node tests/browser-main-fixes.mjs
+WORLDSYSTEM_URL=http://127.0.0.1:4174 node tests/browser-worlds-memory.mjs
 ```
 
 These checks emulate viewport sizes; physical iOS/Android and screen-reader
@@ -883,3 +891,24 @@ To rebuild the icon assets, install Sharp as an additional development dependenc
 (`npm install --no-save --package-lock=false three@0.184.0 jsdom@26 sharp`) and run
 `node scripts/build-icons.cjs`. The artwork itself loads only as app metadata,
 not as a scene texture.
+
+## Discovery and realm detail
+
+The Search control stays labelled on phones and focuses the search field when
+opened. Search folds Latin diacritics while preserving Tibetan vowel signs;
+all 28 White Beryl nakshatras show Sanskrit beside Tibetan and accept common
+romanized spellings. The mansion catalogue has its own filter. The audited
+28-entry Tibetan order and the separate 27-sector Indian calculation are unchanged.
+
+Billion worlds uses depth shading and golden outlines of the smaller systems
+at their actual relative scale. Its million-point layers share 24 KB of position
+attributes; inactive levels are disposed after transitions. No full-screen
+postprocessing or continuously simulated particles are used. The hells use
+bounded instanced flame/ice details; the four formless outlines are larger and
+transparent. The Monastic character background adds a monk and a nun without
+changing existing saved character IDs. Artwork prompt: `MONASTIC-ART-PROMPT.md`.
+
+`node tests/discovery-realms.mjs` checks all 28 names, the catalogue filter,
+atlas cells and geometry limits. `tests/browser-discovery-realms.mjs` checks
+search, About links, character selection and rendered realms at desktop and
+phone sizes. Browser scripts take `WORLDSYSTEM_URL` and `WORLDSYSTEM_PLAYWRIGHT`.

@@ -1,3 +1,5 @@
+import { searchText } from './search-text.js';
+import { mansionSearchText } from './mansion-search.js';
 /* The 28 Lunar Mansions as a page of the interface: the layer switch, the
  * remembered selection, and the index — a list of all twenty-eight with their
  * names, forms and associations, each selectable by a native button.
@@ -78,6 +80,8 @@ export function createMansionUI({ doc = document, panel, menu } = {}) {
       <button class="x" type="button" data-lm="close" title="Close — Esc" aria-label="Close the mansion index">×</button></div>
     <div class="lm-scroll scroll">
       <h2 id="lm-title">28 Lunar Mansions</h2>
+      <label class="lm-search" for="mansion-search">Search all 28 nakshatras<input id="mansion-search" type="search" placeholder="Sanskrit or Tibetan name…"></label>
+      <p class="lm-search-empty" role="status" hidden>No matching nakshatras.</p>
       <p class="lm-lede">After Desi Sangye Gyatso’s <i>White Beryl</i> (Phug tradition), read with Mipham’s separately attributed notes.</p>
       <div class="lm-acts">
         <button class="btn" type="button" data-lm="layer" aria-pressed="false">Show in the world</button>
@@ -107,14 +111,15 @@ export function createMansionUI({ doc = document, panel, menu } = {}) {
     const li = doc.createElement('li');
     li.className = 'lm-item';
     li.dataset.id = m.id;
+    li.dataset.search = mansionSearchText(m);
     const secondary = m.provenance === 'secondary';
     const alias = m.aliases.length ? ' <span class="lm-alias">also ' + m.aliases.map((a) => esc(a.wylie)).join(', ') + '</span>' : '';
     li.innerHTML = `
       <h4 class="lm-h"><button type="button" class="lm-open" data-lm-open="${m.id}">
         <span class="lm-n">${m.order}</span>
         <span class="lm-names" data-no-localize><span class="bo" lang="bo">${m.tibetan}</span>
-        <span class="wy">${esc(m.wylie)}</span>
-        <span class="sa">${esc(m.sanskrit)}</span></span>
+        <span class="sa" lang="sa-Latn">${esc(m.sanskrit)}</span>
+        <span class="wy">${esc(m.wylie)}</span></span>
       </button></h4>
       <p class="lm-form">${esc(m.form.en)}${secondary ? ' <span class="lm-prov">Secondary source</span>' : ''}${alias}</p>
       <details class="lm-more"${wide ? ' open' : ''}><summary>Associations and source</summary>
@@ -126,6 +131,17 @@ export function createMansionUI({ doc = document, panel, menu } = {}) {
     list.appendChild(li);
   }
 
+  const search = panel.querySelector('#mansion-search');
+  function filterMansions() {
+    const query = searchText(search.value);
+    let count = 0;
+    list.querySelectorAll('.lm-item').forEach(li => {
+      li.hidden = !li.dataset.search.includes(query);
+      if (!li.hidden) count++;
+    });
+    panel.querySelector('.lm-search-empty').hidden = count > 0;
+  }
+  search.addEventListener('input', filterMansions);
   const layerButtons = () => [...panel.querySelectorAll('[data-lm="layer"]'), ...(menu ? menu.querySelectorAll('[data-lm="layer"]') : [])];
   function syncButtons() {
     layerButtons().forEach((b) => b.setAttribute('aria-pressed', String(layer)));
@@ -164,6 +180,7 @@ export function createMansionUI({ doc = document, panel, menu } = {}) {
     events.emit('panel', open);
     if (open) {
       const row = selected && list.querySelector('[data-id="' + selected + '"]');
+      if (row?.hidden) { search.value = ''; filterMansions(); }
       if (row) row.scrollIntoView?.({ block: 'center' });
     }
   }

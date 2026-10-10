@@ -254,11 +254,23 @@ Nothing is drawn, painted or generated in the relief's place. What is drawn is
 the outline of each part over it, in `wheel-parts.js`, and those are traced on
 the corrected photograph: the rims, spokes and dividers where they were measured,
 the outlines of Yama, his scarves, his bone ornaments and the offering bowl where
-the script found them by colour, and the rest by hand. The eight hot hells and
-the eight cold are outlined as the rows the relief sets them in, counted from the
-spoke; the relief does not label its rows, and the entries say so.
+the script found them by colour, and the rest by hand. The eight hot hells are individually traced in the two-column, four-row red
+grid left of the court. The two burning houses occupy the right column;
+the burning-iron scenes are on the left. The eight cold targets follow two
+panels on each of the four ice shelves to the right. Those panels are unlabelled
+and their names follow the traditional sequence, as stated in the entries.
+The hell sage has a separate outline around the halo, body and lower robe.
 
 The figures at the edges of the wall — a flying figure in red at the upper
 right, the edge of a white face at the upper left — belong to the painting that
 continues beyond the photograph. They are shown as they are seen and are not
 identified.
+
+## Monastic travelers
+
+`assets/rebirth/monastics.png` adds two transparent, full-body figures in Tibetan
+Vajrayana monastic robes. It was generated with the built-in image tool using
+the existing traveler atlas as a style reference. The monk occupies the left
+cell and the nun the right cell. The final prompt is in `MONASTIC-ART-PROMPT.md`.
+The 3D hell fire, ice and formless veils are procedural geometry and shaders
+in `realm-atmospheres.js`; the historical wheel relief remains photographic.

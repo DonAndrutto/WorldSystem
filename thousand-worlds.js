@@ -82,7 +82,7 @@ export function memberOffsets(side = SIDE) {
 
 /* How far the eye stands to take in a cube: its bounding sphere in the smaller
    side of the free rectangle, with a little air round it. */
-export function framingDistance(radius, { fov = 45, padding = 1.12, height = 1, rect = { w: 1, h: 1 } } = {}) {
+export function framingDistance(radius, { fov = 45, padding = 1.04, height = 1, rect = { w: 1, h: 1 } } = {}) {
   const half = Math.tan(fov * Math.PI / 360);
   return radius * padding / half * height / Math.max(1, Math.min(rect.w, rect.h));
 }
@@ -154,9 +154,9 @@ export function createThousandWorlds(THREE, {
     const g = new THREE.Group(), mats = [];
     const box = new THREE.LineSegments(
       new THREE.EdgesGeometry(new THREE.BoxGeometry(L.edge, L.edge, L.edge)),
-      new THREE.LineBasicMaterial({ color: 0x9db1cc, transparent: true, opacity: 0.42 }));
+      new THREE.LineBasicMaterial({ color: 0x9db1cc, transparent: true, opacity: 0.2 }));
     box.position.set(...L.centre);
-    mats.push([box.material, 0.42]);
+    mats.push([box.material, 0.2]);
     const canopy = new THREE.Mesh(new THREE.PlaneGeometry(L.edge * 0.92, L.edge * 0.92), plain(0xd6e3f5, canopyOpacity));
     canopy.rotation.x = -Math.PI / 2;
     canopy.position.set(L.centre[0], L.centre[1] + L.edge / 2 + L.pitch * 0.28, L.centre[2]);
@@ -206,28 +206,57 @@ export function createThousandWorlds(THREE, {
     const L = levels[order - 1], inner = levels[order - 2];
     const g = new THREE.Group(), mats = [];
     const cells = cellOffsets(), members = memberOffsets();
-    const positions = new Float32Array((cells.length + 1) * members.length * 3);
-    let n = 0;
-    for (const cell of [[0, 0, 0], ...cells]) {
-      const cx = L.origin[0] + cell[0] * L.pitch, cy = L.origin[1] + cell[1] * L.pitch, cz = L.origin[2] + cell[2] * L.pitch;
-      for (const w of members) {
-        positions[n++] = cx + w[0] * inner.pitch;
-        positions[n++] = cy + w[1] * inner.pitch;
-        positions[n++] = cz + w[2] * inner.pitch;
-      }
-    }
-    const geometry = new THREE.BufferGeometry();
+    // Share one thousand-member lattice across one thousand instances. Storing
+    // all million sums costs 12 MB per cloud on both CPU and GPU; these two
+    // attributes need only 24 KB while preserving every member and its position.
+    const positions = new Float32Array(members.length * 3);
+    members.forEach((w, i) => w.forEach((v, axis) => { positions[i * 3 + axis] = v * inner.pitch; }));
+    const offsets = new Float32Array((cells.length + 1) * 3);
+    [[0, 0, 0], ...cells].forEach((cell, i) => cell.forEach((v, axis) => {
+      offsets[i * 3 + axis] = L.origin[axis] + v * L.pitch;
+    }));
+    const geometry = new THREE.InstancedBufferGeometry();
     geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    geometry.setAttribute('cloudOffset', new THREE.InstancedBufferAttribute(offsets, 3));
+    geometry.instanceCount = cells.length + 1;
     geometry.boundingSphere = new THREE.Sphere(new THREE.Vector3(...L.centre), L.radius * 1.05);
     const material = new THREE.PointsMaterial({
       map: sprite(ink), size: memberSpan / Math.tan(fov * Math.PI / 360), sizeAttenuation: true,
       transparent: true, depthWrite: false, alphaTest: 0.08, color: 0xffffff
     });
+    material.onBeforeCompile = shader => {
+      shader.uniforms.cloudEdge = { value: L.edge };
+      shader.uniforms.cloudCentre = { value: new THREE.Vector3(...L.centre) };
+      shader.vertexShader = 'attribute vec3 cloudOffset; uniform float cloudEdge; uniform vec3 cloudCentre; varying float cloudDepth; varying float cloudTint; varying float cloudCoverage;\n' + shader.vertexShader;
+      shader.vertexShader = shader.vertexShader.replace('#include <begin_vertex>',
+        '#include <begin_vertex>\ntransformed += cloudOffset;');
+      shader.vertexShader = shader.vertexShader.replace('#include <project_vertex>', `
+        #include <project_vertex>
+        float centreDepth = (modelViewMatrix * vec4(cloudCentre, 1.0)).z;
+        cloudDepth = clamp(.5 + (mvPosition.z - centreDepth) / cloudEdge, 0., 1.);
+        cloudTint = fract(sin(dot(cloudOffset / cloudEdge, vec3(12.9898,78.233,39.425))) * 43758.5453);
+      `);
+      // WebGL clamps subpixel points to a full pixel. Compensate their opacity
+      // by projected area so small phone views retain depth instead of filling in.
+      shader.vertexShader = shader.vertexShader.replace('#include <logdepthbuf_vertex>',
+        'cloudCoverage = min(1., gl_PointSize * gl_PointSize);\n#include <logdepthbuf_vertex>');
+      shader.fragmentShader = 'varying float cloudDepth; varying float cloudTint; varying float cloudCoverage;\n' + shader.fragmentShader;
+      shader.fragmentShader = shader.fragmentShader.replace('#include <alphatest_fragment>',
+        '#include <alphatest_fragment>\ndiffuseColor.a *= cloudCoverage;');
+      shader.fragmentShader = shader.fragmentShader.replace('#include <color_fragment>', `
+        #include <color_fragment>
+        vec3 distant = vec3(.22, .40, .73);
+        vec3 near = mix(vec3(.64,.83,1.), vec3(1.,.78,.42), cloudTint * .7);
+        diffuseColor.rgb *= mix(distant, near, cloudDepth);
+        diffuseColor.a *= .3 + .7 * cloudDepth;
+      `);
+    };
+    material.customProgramCacheKey = () => 'world-cloud-instances-depth-v3';
     const points = new THREE.Points(geometry, material);
     mats.push([material, opacity]);   // thinner the further out, so the cubes within can be seen
     g.add(points);
     /* the heaven each cloud shares: a canopy the size of the cube it stands over */
-    const canopyMat = plain(0xd6e3f5, 0.14);
+    const canopyMat = plain(0x94bce8, 0.025);
     const canopies = new THREE.InstancedMesh(
       new THREE.PlaneGeometry(inner.edge * 0.92, inner.edge * 0.92).rotateX(-Math.PI / 2), canopyMat, cells.length);
     const m = new THREE.Matrix4();
@@ -238,10 +267,20 @@ export function createThousandWorlds(THREE, {
       canopies.setMatrixAt(i, m);
     });
     canopies.instanceMatrix.needsUpdate = true;
-    mats.push([canopyMat, 0.14]);
+    mats.push([canopyMat, 0.025]);
     g.add(canopies);
-    const f = frame(L, 0.12);
+    const f = frame(L, 0.045);
     g.add(f.g); mats.push(...f.mats);
+    // The previously explored systems stay visible as nested golden outlines.
+    // This is their true location and scale, using only 24 vertices per outline.
+    for (let n = 0; n < order - 1; n++) {
+      const home = levels[n];
+      const outline = new THREE.LineSegments(
+        new THREE.EdgesGeometry(new THREE.BoxGeometry(home.edge, home.edge, home.edge)),
+        new THREE.LineBasicMaterial({color: 0xffd585, transparent:true, opacity:.85, depthWrite:false}));
+      outline.position.set(...home.centre);
+      g.add(outline); mats.push([outline.material,.85]);
+    }
     return { g, mats };
   }
 
@@ -251,7 +290,8 @@ export function createThousandWorlds(THREE, {
     if (layers[order]) return layers[order];
     const made = order === 1 ? worldLayer()
       : order === 2 ? cloudLayer(2, WORLD_INK, rim * 2, 0.9)
-      : cloudLayer(3, CUBE_INK, levels[0].edge * 0.55, 0.6);
+      : cloudLayer(3, CUBE_INK, levels[0].edge * 0.34, 0.88);
+    made.order = order;
     made.g.traverse(quiet);
     made.g.visible = false;
     made.k = 0;
@@ -267,25 +307,40 @@ export function createThousandWorlds(THREE, {
     made.g.visible = k > 0;
   }
 
-  /* Show the orders up to `level`, fading what changes over `dur` milliseconds
-     — or at once. Returns true if a fade is now running, so the page can keep
-     drawing frames until tick() says it is done. */
+  // Release hidden layers, including instance buffers and sprite textures.
+  // Re-entering an order rebuilds its small shared geometry on demand.
+  function release(made) {
+    group.remove(made.g);
+    const materials = new Set();
+    made.g.traverse(o => {
+      o.geometry?.dispose();
+      if (o.isInstancedMesh) o.dispose();
+      if (o.material) materials.add(o.material);
+    });
+    materials.forEach(m => { m.map?.dispose(); m.dispose(); });
+    layers[made.order] = null;
+  }
+
+  /* Only the current order is needed: its home cloud already represents the
+     smaller orders. Keep the outgoing layer only for the crossfade. */
   function setLevel(level, { instant = false, dur = 900 } = {}) {
     const next = Math.max(0, Math.min(3, Math.floor(level)));
     state.level = next;
     group.visible = true;
-    let running = false;
     for (let order = 1; order <= 3; order++) {
-      const want = order <= next ? 1 : 0;
-      const made = want || layers[order] ? layer(order) : null;
-      if (!made || made.k === want) continue;
+      const want = order === next ? 1 : 0;
+      const made = want ? layer(order) : layers[order];
+      if (!made) continue;
       for (let i = fading.length - 1; i >= 0; i--) if (fading[i].made === made) fading.splice(i, 1);
-      if (instant) { place(made, want); continue; }
+      if (instant || dur <= 0 || made.k === want) {
+        place(made, want);
+        if (!want) release(made);
+        continue;
+      }
       fading.push({ made, from: made.k, to: want, t0: null, dur });
-      running = true;
     }
-    if (!running && next === 0) group.visible = false;
-    return running;
+    if (!fading.length && next === 0) group.visible = false;
+    return fading.length > 0;
   }
 
   /* Advance the fades. Returns true while any is still running. */
@@ -296,7 +351,10 @@ export function createThousandWorlds(THREE, {
       if (f.t0 === null) f.t0 = now;
       const k = Math.min(1, (now - f.t0) / f.dur);
       place(f.made, f.from + (f.to - f.from) * ease(k));
-      if (k >= 1) fading.splice(i, 1);
+      if (k >= 1) {
+        fading.splice(i, 1);
+        if (f.to === 0) release(f.made);
+      }
     }
     if (!fading.length && state.level === 0) group.visible = false;
     return fading.length > 0;

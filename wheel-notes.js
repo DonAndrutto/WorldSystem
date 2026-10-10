@@ -207,7 +207,7 @@ export const WHEEL_ENTRIES = {
         ['Eighteen hells', 'eight hot, eight cold, the neighbouring and the ephemeral'],
         ['At the centre', 'Yama the judge, with the mirror'],
         ['Sage', 'dark, holding fire and water'],
-        ['In this relief', 'the hot hells in rows of red iron lattice on the left, the cold in rows of ice on the right, the court in the middle, and the torments and the cauldron below it']],
+        ['In this relief', 'eight hot-hell panels in a red grid on the left, eight cold-hell panels on ice shelves on the right, the court in the middle, and the torments and the cauldron below it']],
     b: ['Anger ripens as a world that is all weapon. The Tibetan teachers count eighteen hells: eight hot, eight cold, the neighbouring hells at the gates of the hot ones, and the ephemeral hells scattered in the world above. Life in them is long past reckoning, and it ends only when the karma that made it is spent.',
         'The relief gives the hells more of the wheel than any other realm — nearly a third of it. On the left the hot hells are rows of burning iron lattice, crowded with the tormented; on the right the cold hells are rows of ice, each with its huddled, naked beings. Between them, in a gold pavilion, the Lord of Death sits in judgement with his mirror, and below his court are the rack, the iron pillar, the swamp of corpses, the trees of blades, a demon lifting a body over his head, and the cauldron.'],
     rel: ['wl_hell_judge', 'wl_hell_sanjiva', 'wl_cold_arbuda', 'wl_hell_neighbouring', 'wl_hell_ephemeral', 'wl_muni_hells'],
@@ -489,7 +489,7 @@ export const WHEEL_ENTRIES = {
     meta: 'The eight hot hells · the first',
     f: [['The torment', 'on ground of burning iron, beings kill one another with weapons that appear in their hands'],
         ['Revived by', 'a cool wind, or a voice that says “revive”'],
-        ['In this relief', 'the first of the eight red rows of iron lattice, counted from the spoke above them']],
+        ['In this relief', 'the red grid on the left — upper row, left panel: fighting']],
     b: ['Here each being sees every other as an enemy, and weapons form in their hands. They fight until they fall, and then a cold wind blows, or a voice from the sky says “Revive!”, and they stand and begin again — until the karma that made the place runs out.'],
     rel: ['hell_sanjiva', 'wl_hell_kalasutra', 'rebirth_sq_6'], src: PATRUL + '. ' + RELIEF + '.'
   },
@@ -497,7 +497,7 @@ export const WHEEL_ENTRIES = {
     t: 'Black Line', tib: 'ཐིག་ནག', en: '<i>thig nag</i> · Kālasūtra', k: 'hot · 2',
     meta: 'The eight hot hells · the second',
     f: [['The torment', 'black lines are drawn on the body — four, eight, sixteen, more — and it is cut along them'],
-        ['In this relief', 'the second of the eight red rows of iron lattice, counted from the spoke above them']],
+        ['In this relief', 'the red grid on the left — upper row, right panel: cutting']],
     b: ['Yama\'s servants lay a body down on burning iron and mark it with black lines, in fours and eights and sixteens, and then cut along them with saws and axes. The pieces join again, and the lines are drawn again.'],
     rel: ['hell_kalasutra', 'wl_hell_samghata', 'rebirth_sq_5'], src: PATRUL + '. ' + RELIEF + '.'
   },
@@ -505,7 +505,7 @@ export const WHEEL_ENTRIES = {
     t: 'Crushing', tib: 'བསྡུས་འཇོམས།', en: '<i>bsdus \'joms</i> · Saṃghāta', k: 'hot · 3',
     meta: 'The eight hot hells · the third',
     f: [['The torment', 'crushed between iron mountains shaped like the heads of animals; pressed in iron mortars'],
-        ['In this relief', 'the third of the eight red rows of iron lattice, counted from the spoke above them']],
+        ['In this relief', 'the red grid on the left — second row, left panel: crushing']],
     b: ['Two iron mountains with the faces of beasts close on one another and crush everything between them, until the blood runs out in rivers; then they part, and close again. Beings are also pounded in iron mortars, and pressed like sesame for oil.'],
     rel: ['hell_samghata', 'wl_hell_raurava', 'rebirth_sq_5'], src: PATRUL + '. ' + RELIEF + '.'
   },
@@ -513,7 +513,7 @@ export const WHEEL_ENTRIES = {
     t: 'Howling', tib: 'ངུ་འབོད།', en: '<i>ngu \'bod</i> · Raurava', k: 'hot · 4',
     meta: 'The eight hot hells · the fourth',
     f: [['The torment', 'shut in a burning iron house with no door, looking for shelter'],
-        ['In this relief', 'the fourth of the eight red rows of iron lattice, counted from the spoke above them']],
+        ['In this relief', 'the red grid on the left — second row, right panel: the first burning house']],
     b: ['Beings look for somewhere to hide, and find an iron house; the door shuts behind them and the house begins to burn. The hell is named for the sound they make.'],
     rel: ['hell_raurava', 'wl_hell_maharaurava', 'rebirth_sq_4'], src: PATRUL + '. ' + RELIEF + '.'
   },
@@ -521,7 +521,7 @@ export const WHEEL_ENTRIES = {
     t: 'Great Howling', tib: 'ངུ་འབོད་ཆེན་པོ།', en: '<i>ngu \'bod chen po</i> · Mahāraurava', k: 'hot · 5',
     meta: 'The eight hot hells · the fifth',
     f: [['The torment', 'the same iron house, with a second wall around the first'],
-        ['In this relief', 'the fifth of the eight red rows of iron lattice, counted from the spoke above them']],
+        ['In this relief', 'the red grid on the left — third row, right panel: the second burning house']],
     b: ['As in Howling, but the house has two walls, and even if the first were passed there would be the second. The cry is louder, and the hope is less.'],
     rel: ['hell_maharaurava', 'wl_hell_raurava', 'rebirth_sq_4'], src: PATRUL + '. ' + RELIEF + '.'
   },
@@ -529,7 +529,7 @@ export const WHEEL_ENTRIES = {
     t: 'Hot', tib: 'ཚ་བ།', en: '<i>tsha ba</i> · Tapana', k: 'hot · 6',
     meta: 'The eight hot hells · the sixth',
     f: [['The torment', 'boiled in cauldrons of molten metal; skewered on a burning iron stake'],
-        ['In this relief', 'the sixth of the eight red rows of iron lattice, counted from the spoke above them']],
+        ['In this relief', 'the red grid on the left — third row, left panel: burning iron']],
     b: ['Beings are thrown into iron cauldrons of molten bronze and boiled, and skewered on burning stakes that come out at the crown of the head, so that flames pour from the eyes and mouth. The cauldron at the bottom of the wheel belongs here.'],
     rel: ['hell_tapana', 'wl_hell_cauldron', 'wl_hell_pratapana', 'rebirth_sq_3'], src: PATRUL + '. ' + RELIEF + '.'
   },
@@ -537,7 +537,7 @@ export const WHEEL_ENTRIES = {
     t: 'Intense Heat', tib: 'རབ་ཏུ་ཚ་བ།', en: '<i>rab tu tsha ba</i> · Pratāpana', k: 'hot · 7',
     meta: 'The eight hot hells · the seventh',
     f: [['The torment', 'pierced by a burning trident through the body; wrapped in sheets of burning iron'],
-        ['In this relief', 'the seventh of the eight red rows of iron lattice, counted from the spoke above them']],
+        ['In this relief', 'the red grid on the left — bottom row, left panel: intense heat']],
     b: ['Hotter again: a trident is driven up through the body until its prongs come out at the head and both shoulders, and the body is wrapped in sheets of red-hot iron. Half an intermediate kalpa, the texts say, before it ends.'],
     rel: ['hell_pratapana', 'wl_hell_avichi', 'rebirth_sq_3'], src: PATRUL + '. ' + RELIEF + '.'
   },
@@ -546,7 +546,7 @@ export const WHEEL_ENTRIES = {
     meta: 'The eight hot hells · the eighth and deepest',
     f: [['The torment', 'fire and body indistinguishable; nothing to tell a being is there but its cry'],
         ['Why the name', 'no gap in the suffering, in time or in the body'],
-        ['In this relief', 'the eighth of the eight red rows of iron lattice, counted from the spoke above them']],
+        ['In this relief', 'the red grid on the left — bottom row, right panel: unrelenting fire']],
     b: ['The deepest hell. The iron ground and walls burn so fiercely that the beings in them cannot be told from the fire; only their cries show where they are. Its name means that there is no interval — no pause in the pain, and nowhere in the body it does not reach. It is the ripening of the gravest acts.'],
     rel: ['hell_avichi', 'rebirth_sq_2', 'rebirth_sq_1'], src: PATRUL + '. ' + RELIEF + '.'
   },
@@ -554,7 +554,7 @@ export const WHEEL_ENTRIES = {
     t: 'Blisters', tib: 'ཆུ་བུར་ཅན།', en: '<i>chu bur can</i> · Arbuda', k: 'cold · 1',
     meta: 'The eight cold hells · the first',
     f: [['The torment', 'naked in an icy dark among snow mountains and blizzards; the body breaks out in blisters'],
-        ['In this relief', 'the first of the eight rows of ice, counted from the spoke above them']],
+        ['In this relief', 'ice shelf 1 on the right, upper panel; the unlabelled panels are read in the traditional order']],
     b: ['The cold hells lie in a darkness without sun or moon, among glaciers, under snow and wind. In the first the cold raises blisters all over the body. The seven after it are each colder, and each lasts twenty times as long.'],
     rel: ['cold_arbuda', 'wl_cold_nirarbuda', 'rebirth_sq_7'], src: PATRUL + '. ' + RELIEF + '.'
   },
@@ -562,7 +562,7 @@ export const WHEEL_ENTRIES = {
     t: 'Bursting Blisters', tib: 'ཆུ་བུར་རྡོལ་བ།', en: '<i>chu bur rdol ba</i> · Nirarbuda', k: 'cold · 2',
     meta: 'The eight cold hells · the second',
     f: [['The torment', 'the blisters burst, and the sores freeze'],
-        ['In this relief', 'the second of the eight rows of ice, counted from the spoke above them']],
+        ['In this relief', 'ice shelf 1 on the right, lower panel; the unlabelled panels are read in the traditional order']],
     b: ['Colder: the blisters burst and run, and the wounds freeze over.'],
     rel: ['cold_nirarbuda', 'wl_cold_atata', 'rebirth_sq_7'], src: PATRUL + '. ' + RELIEF + '.'
   },
@@ -570,7 +570,7 @@ export const WHEEL_ENTRIES = {
     t: 'Chattering Teeth', tib: 'སོ་ཐམ་ཐམ་པ།', en: '<i>so tham tham pa</i> · Aṭaṭa', k: 'cold · 3',
     meta: 'The eight cold hells · the third',
     f: [['The torment', 'the jaw clenches and the teeth chatter; nothing else can move'],
-        ['In this relief', 'the third of the eight rows of ice, counted from the spoke above them']],
+        ['In this relief', 'ice shelf 2 on the right, upper panel; the unlabelled panels are read in the traditional order']],
     b: ['Named for the sound: the cold is such that the teeth clench and chatter and the being can do nothing else.'],
     rel: ['cold_atata', 'wl_cold_hahava', 'rebirth_sq_7'], src: PATRUL + '. ' + RELIEF + '.'
   },
@@ -578,7 +578,7 @@ export const WHEEL_ENTRIES = {
     t: 'Lamentation', tib: 'ཨ་ཆུ་ཟེར་བ།', en: '<i>a chu zer ba</i> · Hahava', k: 'cold · 4',
     meta: 'The eight cold hells · the fourth',
     f: [['The torment', 'a cry of “achu!” is all the voice that is left'],
-        ['In this relief', 'the fourth of the eight rows of ice, counted from the spoke above them']],
+        ['In this relief', 'ice shelf 2 on the right, lower panel; the unlabelled panels are read in the traditional order']],
     b: ['Named, like the one before, for a sound: the long cry of pain and cold, <i>a chu</i>, is all that can be made.'],
     rel: ['cold_hahava', 'wl_cold_huhuva', 'rebirth_sq_7'], src: PATRUL + '. ' + RELIEF + '.'
   },
@@ -586,7 +586,7 @@ export const WHEEL_ENTRIES = {
     t: 'Groaning', tib: 'ཀྱི་ཧུད་ཟེར་བ།', en: '<i>kyi hud zer ba</i> · Huhuva', k: 'cold · 5',
     meta: 'The eight cold hells · the fifth',
     f: [['The torment', 'the voice fails to a groan, “kyi hu”'],
-        ['In this relief', 'the fifth of the eight rows of ice, counted from the spoke above them']],
+        ['In this relief', 'ice shelf 3 on the right, upper panel; the unlabelled panels are read in the traditional order']],
     b: ['Colder still: even the cry gives out, and there is only a groan, <i>kyi hu</i>.'],
     rel: ['cold_huhuva', 'wl_cold_utpala', 'rebirth_sq_7'], src: PATRUL + '. ' + RELIEF + '.'
   },
@@ -594,7 +594,7 @@ export const WHEEL_ENTRIES = {
     t: 'Split like a Blue Lotus', tib: 'ཨུཏྤལ་ལྟར་གས་པ།', en: '<i>utpal ltar gas pa</i> · Utpala', k: 'cold · 6',
     meta: 'The eight cold hells · the sixth',
     f: [['The torment', 'the skin turns blue and splits into four, like the petals of a blue lotus'],
-        ['In this relief', 'the sixth of the eight rows of ice, counted from the spoke above them']],
+        ['In this relief', 'ice shelf 3 on the right, lower panel; the unlabelled panels are read in the traditional order']],
     b: ['The skin goes blue with cold and splits open in four, like an utpala flower opening.'],
     rel: ['cold_utpala', 'wl_cold_padma', 'rebirth_sq_7'], src: PATRUL + '. ' + RELIEF + '.'
   },
@@ -602,7 +602,7 @@ export const WHEEL_ENTRIES = {
     t: 'Split like a Lotus', tib: 'པདྨ་ལྟར་གས་པ།', en: '<i>padma ltar gas pa</i> · Padma', k: 'cold · 7',
     meta: 'The eight cold hells · the seventh',
     f: [['The torment', 'the flesh turns red and splits in eight, like a lotus'],
-        ['In this relief', 'the seventh of the eight rows of ice, counted from the spoke above them']],
+        ['In this relief', 'ice shelf 4 on the right, upper panel; the unlabelled panels are read in the traditional order']],
     b: ['From blue to red: the flesh is exposed and splits in eight, and more, like a lotus opening.'],
     rel: ['cold_padma', 'wl_cold_mahapadma', 'rebirth_sq_7'], src: PATRUL + '. ' + RELIEF + '.'
   },
@@ -610,7 +610,7 @@ export const WHEEL_ENTRIES = {
     t: 'Split like a Great Lotus', tib: 'པདྨ་ཆེན་པོ་ལྟར་གས་པ།', en: '<i>padma chen po ltar gas pa</i> · Mahāpadma', k: 'cold · 8',
     meta: 'The eight cold hells · the eighth and deepest',
     f: [['The torment', 'the flesh splits in a hundred, a thousand places, and creatures burrow into it'],
-        ['In this relief', 'the eighth of the eight rows of ice, counted from the spoke above them']],
+        ['In this relief', 'ice shelf 4 on the right, lower panel; the unlabelled panels are read in the traditional order']],
     b: ['The deepest of the cold hells. The body turns dark red and splits into countless pieces, and small creatures with iron mouths get into the wounds and eat.'],
     rel: ['cold_mahapadma', 'rebirth_sq_7'], src: PATRUL + '. ' + RELIEF + '.'
   },

@@ -63,11 +63,14 @@ Object.assign(globalThis, {document, localStorage: window.localStorage, Event: w
 const lunarMansions = await import(pathToFileURL(repo + '/lunar-mansions.js'));
 const mansionLayerModule = await import(pathToFileURL(repo + '/mansion-layer.js'));
 const mansionUiModule = await import(pathToFileURL(repo + '/mansion-ui.js'));
+const realmAtmospheres = await import(pathToFileURL(repo + '/realm-atmospheres.js'));
+const mansionSearch = await import(pathToFileURL(repo + '/mansion-search.js'));
 const { searchText } = await import(pathToFileURL(repo + '/search-text.js'));
 const { createInterpretation } = await import(pathToFileURL(repo + '/interpretation-ui.js'));
 const lunarPanels = await import(pathToFileURL(repo + '/lunar-panels.js'));
 const textureRequests = [];
 const THREE = {...RealThree, TextureLoader: class {
+  loadAsync(url) { return new Promise((resolve,reject)=>this.load(url,resolve,undefined,reject)); }
   load(url, success, progress, failure) { textureRequests.push({url, success, failure}); }
 }};
 Object.assign(window, {createOfferingModels, OFFERING_ART, offeringBackground, TOUR_NOTES, createPresentationTours, createPresentationPlayer, WORLD_ORDERS, installViewportGestures}, surfaces, skyClouds, gameCamera, gamePlayers, gameSession, gameWalkthrough, summitDetail, continentModels, wheelView, wheelNotes, {drawWheel: wheelArt.drawWheel}, {
@@ -91,7 +94,7 @@ Object.assign(window, {createOfferingModels, OFFERING_ART, offeringBackground, T
   mansionUI: lunarPanels.mansionUI, adoptLunarPanels: lunarPanels.adopt,
   lunarPanelsOpen: lunarPanels.lunarPanelsOpen, closeLunarPanels: lunarPanels.closeLunarPanels
 });
-Object.assign(window,palaceArchitecture,{
+Object.assign(window,realmAtmospheres,mansionSearch,palaceArchitecture,{
   createGameSoundtrack: options => gameSoundtrack.createGameSoundtrack({...options,AudioClass:null})
 });
 let viewport = {w:1280, h:900}, reduced = false;
@@ -1285,6 +1288,8 @@ assert.equal(cellOf(24).querySelector('[data-p="0"]').style.getPropertyValue('--
 const skinRequest = textureRequests.find(r => r.url === gamePlayers.PLAYER_ATLAS);
 assert.ok(skinRequest, 'skin texture is requested on entering game');
 skinRequest.success(new THREE.Texture());
+textureRequests.find(r => r.url === gamePlayers.MONASTIC_ATLAS).success(new THREE.Texture());
+await new Promise(resolve => setImmediate(resolve));
 assert.equal(app.rbBoard.tokens[0].children.at(-1).isSprite, true);
 assert.equal(app.rbBoard.tokens[0].children.at(-1).material.map.offset.x, 1 / 6);
 assert.equal(app.rbBoard.tokens[0].children.at(-1).material.map.offset.y, 0);
@@ -1496,7 +1501,7 @@ for (let level = 0; level < 4; level++) {
 for (let level = 1; level < 4; level++) {
   assert.ok(distances[level] > distances[level - 1] * 6, 'each order stands an order further off: ' + distances.map(d => d.toFixed(1)).join(' → '));
 }
-assert.ok(app.cosmos().group.visible && [1, 2, 3].every(order => app.cosmos().built(order)), 'all three orders drawn');
+assert.ok(app.cosmos().group.visible && app.cosmos().built(3) && !app.cosmos().built(1) && !app.cosmos().built(2), 'only the current order remains allocated');
 assert.equal(q('[data-tour="next"]').textContent, 'Finish tour');
 app.tourPlayer.go(2); advance(2500);
 assert.equal(q('[data-tour="next"]').textContent, 'Zoom out'); assert.equal(q('[data-tour="prev"]').textContent, 'Zoom in');

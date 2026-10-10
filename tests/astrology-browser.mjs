@@ -45,7 +45,7 @@ try {
    await cdp.detach();
   }
   await choose('Warsaw','Warsaw, Poland');
-  await page.locator('#jy-date').fill('2025-07-01'); await page.locator('#jy-time').fill('12:00:00');
+  await page.locator('#jy-date').fill('2025-07-01'); await page.locator('#jy-hour').selectOption('12');
   await page.locator('.jy-form [type=submit]').click();
   const reading=page.locator('.jy-interpretation .interpretation'); await reading.waitFor();
   await reading.locator(':scope > details > summary').click();

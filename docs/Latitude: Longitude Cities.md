@@ -128,7 +128,37 @@ Europe
 	•	Rotterdam, Netherlands — 51.9225, 4.4792 
 	•	The Hague, Netherlands — 52.0705, 4.3007 
 	•	Brussels, Belgium — 50.8503, 4.3517 
-	•	Antwerp, Belgium — 51.2194, 4.4025 
+	•	Antwerp, Belgium — 51.2194, 4.4025
+	•	Ghent (Gent / Gand), Belgium — 51.0500, 3.7167
+	•	Bruges (Brugge), Belgium — 51.2089, 3.2242
+	•	Liège (Luik), Belgium — 50.6337, 5.5675
+	•	Charleroi, Belgium — 50.4114, 4.4445
+	•	Namur (Namen), Belgium — 50.4669, 4.8675
+	•	Leuven (Louvain), Belgium — 50.8796, 4.7009
+	•	Mons (Bergen), Belgium — 50.4541, 3.9523
+	•	Mechelen (Malines), Belgium — 51.0257, 4.4776
+	•	La Louvière, Belgium — 50.4866, 4.1879
+	•	Kortrijk (Courtrai), Belgium — 50.8280, 3.2649
+	•	Hasselt, Belgium — 50.9311, 5.3378
+	•	Genk, Belgium — 50.9650, 5.5008
+	•	Ieper (Ypres), Belgium — 50.8511, 2.8857
+	•	Roeselare (Roulers), Belgium — 50.9465, 3.1227
+	•	Ostend (Oostende), Belgium — 51.2155, 2.9270
+	•	Wavre (Waver), Belgium — 50.7172, 4.6014
+	•	Waterloo, Belgium — 50.7147, 4.3991
+	•	Verviers, Belgium — 50.5891, 5.8624
+	•	Tournai (Doornik), Belgium — 50.6072, 3.3893
+	•	Tongeren (Tongres), Belgium — 50.7805, 5.4648
+	•	Sint-Truiden (Saint-Trond), Belgium — 50.8168, 5.1865
+	•	Anderlecht, Belgium — 50.8362, 4.3145
+	•	Ixelles (Elsene), Belgium — 50.8333, 4.3667
+	•	Schaerbeek (Schaarbeek), Belgium — 50.8694, 4.3774
+	•	Uccle (Ukkel), Belgium — 50.8022, 4.3394
+	•	Mol, Belgium — 51.1919, 5.1166
+	•	Maaseik, Belgium — 51.0980, 5.7838
+	•	Lommel, Belgium — 51.2307, 5.3135
+	•	Geel, Belgium — 51.1656, 4.9892
+	•	Beringen, Belgium — 51.0495, 5.2261 
 	•	Vienna, Austria — 48.2082, 16.3738 
 	•	Salzburg, Austria — 47.8095, 13.0550 
 	•	Zurich, Switzerland — 47.3769, 8.5417 
@@ -363,3 +393,6 @@ Rest of the World
 	•	Johannesburg, South Africa — -26.2041, 28.0473 
 	•	Nairobi, Kenya — -1.2921, 36.8219 
 	•	Lagos, Nigeria — 6.5244, 3.3792
+
+
+Belgian additions (10 October 2026): city-centre coordinates rounded to four decimals from GeoNames, https://www.geonames.org/advanced-search.html?country=BE (CC BY 4.0). Dutch/French alternate names are included for search. All use Europe/Brussels.
