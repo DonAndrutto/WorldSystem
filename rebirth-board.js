@@ -164,6 +164,46 @@ const ZONE_OF_CAT = {
 
 export const zoneOf = (square) => ZONE_OF_CAT[square.cat] || 'human';
 
+// Reading the board is separate from its printed categories and spatial bands.
+// In particular, an anchored heaven is still samsara, and the ten bhumis must
+// follow attainment order, not a numeric cutoff (sacred lands are interleaved).
+export const BHUMI_ROUTES = {
+  sutra: [71, 80, 79, 78, 88, 87, 86, 96, 95, 94],
+  tantra: [66, 73, 74, 75, 81, 82, 83, 89, 90, 91]
+};
+export const REALMS = {
+  lower: { label: 'Lower realms & spirits', short: 'Lower realms', color: '#963f36', note: 'Hells, hungry ghosts, animals and the board’s troubled spirit states belong to saṃsāra.' },
+  higher: { label: 'Higher realms · saṃsāra', short: 'Higher realms', color: '#a87416', note: 'Human and heavenly rebirths remain within saṃsāra. Even the highest formless absorption is not liberation.' },
+  worldly: { label: 'Worldly states · saṃsāra', short: 'Worldly states', color: '#926431', note: 'The board places these worldly powers and attainments within saṃsāra, distinct from the Buddhist paths.' },
+  path: { label: 'Path & practice', short: 'The path', color: '#365aa2', note: 'Training, realization and liberation on the Buddhist paths. These are stages of practice, not higher rebirths.' },
+  bhumi: { label: 'Bhūmis 1–10', short: 'Bhūmis 1–10', color: '#087768', note: 'The ten bhūmis have their own numbered markers, distinct from the preparatory paths and the heavens.' },
+  sacred: { label: 'Sacred lands', short: 'Sacred lands', color: '#68518d', note: 'Sacred lands associated with practice; the board treats them separately from its numbered bhūmis.' },
+  field: { label: 'Buddha fields', short: 'Buddha fields', color: '#68518d', note: 'Buddha fields belong to the game’s symbolic path beyond the ordinary Meru world system.' },
+  awakening: { label: 'Buddhahood & activities', short: 'Buddhahood', color: '#8a5412', note: 'The bodies and activities of a Buddha culminate in the game’s Nirvana square.' }
+};
+export function realmOf(square) {
+  const n = square.n;
+  for (const [route, squares] of Object.entries(BHUMI_ROUTES)) {
+    const bhumi = squares.indexOf(n) + 1;
+    if (bhumi) return { ...REALMS.bhumi, key: 'bhumi', bhumi, route,
+      detail: (route === 'sutra' ? 'Sutra' : 'Tantra') + ' · Bhūmi ' + bhumi + ' of 10',
+      note: route === 'sutra'
+        ? 'From the first bhūmi, the noble bodhisattva path begins with direct realization. The remaining bhūmis deepen that realization toward Buddhahood.'
+        : 'The game’s ten Vajrayāna bhūmis begin at square 66. They are shown separately from tantric preparation and worldly siddhis.' };
+  }
+  let key;
+  if (n === 15 || n === 62 || n === 65) key = 'worldly';
+  else if (n <= 16) key = 'lower';
+  else if (n >= 92 && n !== 94 && n !== 95 && n !== 96) key = 'awakening';
+  else if (square.cat === 'Buddha fields') key = 'field';
+  else if (square.cat === 'Mythic and sacred lands') key = 'sacred';
+  else if (square.band === 'sutra' || square.band === 'tantra' || n === 69) key = 'path';
+  else key = 'higher';
+  return { ...REALMS[key], key, bhumi: null, route: null, detail: REALMS[key].label,
+    note: n === 84 ? 'This Akaniṣṭha is a Buddha field, distinct from the samsaric heaven of the same name.' : REALMS[key].note };
+}
+
+
 // Band colours follow the world's own palette: gold for what rises, lapis for
 // the sutra route, cinnabar for tantra, white for the fields beyond the rim.
 // One colour per player, shared by the board, the trail and the world.
@@ -249,7 +289,7 @@ export function createBoardLayer(THREE, ctx) {
      the same hundred and four at a quarter weight is a map with a few lit
      places on it. */
   const mats = {}, faint = {};
-  for (const [band, color] of Object.entries(BAND_COLOUR)) {
+  for (const [band, color] of Object.entries(REALMS).map(([key, realm]) => [key, realm.color])) {
     mats[band] = new THREE.MeshStandardMaterial({
       color, roughness: 0.36, metalness: 0.55,
       emissive: new THREE.Color(color).multiplyScalar(0.10)
@@ -289,11 +329,12 @@ export function createBoardLayer(THREE, ctx) {
   const nodes = new Map();
   for (const s of SQUARES) {
     const beyond = s.n === VICTORY;
+    const realm = realmOf(s);
     const holder = new THREE.Group();
     holder.name = 'rebirth_node_' + s.n;
-    const mark = new THREE.Mesh(markGeo, beyond ? beyondMat : faint[s.band]);
+    const mark = new THREE.Mesh(markGeo, beyond ? beyondMat : faint[realm.key]);
     mark.name = 'rebirth_square_' + s.n;
-    mark.userData.band = s.band;
+    mark.userData.band = realm.key;
     mark.userData.square = s.n;
     mark.castShadow = false;
     mark.receiveShadow = false;
@@ -324,6 +365,18 @@ export function createBoardLayer(THREE, ctx) {
         aura.renderOrder = OVER_WATER;
         holder.add(aura);
       }
+    }
+    if (realm.bhumi) {
+      const halo = new THREE.Mesh(
+        new THREE.RingGeometry(ctx.SUMMIT * 0.047, ctx.SUMMIT * 0.060, 32),
+        new THREE.MeshBasicMaterial({ color: REALMS.bhumi.color, side: THREE.DoubleSide,
+          transparent: true, opacity: 0.8, depthWrite: false })
+      );
+      halo.rotation.x = -Math.PI / 2;
+      halo.position.y = ctx.SUMMIT * 0.008;
+      halo.renderOrder = OVER_WATER;
+      halo.name = 'rebirth_bhumi_' + realm.bhumi;
+      holder.add(halo);
     }
     const hit = new THREE.Mesh(pickGeo, pick);
     hit.name = 'rebirth_square_' + s.n;

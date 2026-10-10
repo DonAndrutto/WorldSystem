@@ -74,7 +74,7 @@ Object.assign(window, {createOfferingModels, OFFERING_ART, offeringBackground, T
   RB_SQUARES: rbBoard.SQUARES, RB_SPECIAL: rbBoard.SPECIAL, RB_START: rbBoard.START,
   RB_VICTORY: rbBoard.VICTORY, TRAP_QUOTA: rbBoard.TRAP_QUOTA, TRAP_QUOTA_NOTE64: rbBoard.TRAP_QUOTA_NOTE64,
   DIE_FACES: rbBoard.FACES, RB_BY_N: rbBoard.BY_N, createBoardLayer: rbBoard.createBoardLayer,
-  RB_VARIANTS: rbBoard.VARIANTS, rbZoneOf: rbBoard.zoneOf, SQUARE_NOTES, SQUARE_FULL,
+  RB_VARIANTS: rbBoard.VARIANTS, rbZoneOf: rbBoard.zoneOf, rbRealmOf: rbBoard.realmOf, RB_REALMS: rbBoard.REALMS, SQUARE_NOTES, SQUARE_FULL,
   RB_COLOURS: rbBoard.PLAYER_COLOURS, SQUARE_ART: rbIcons.SQUARE_ART,
   cellBackground: rbIcons.cellBackground, createSquareArt: rbIcons.createSquareArt,
   LIBERATION_ART: rbIcons.LIBERATION_ART, rbTibetan: rbBoard.tibetanOf,
@@ -506,7 +506,7 @@ for (const sq of rbBoard.SQUARES) {
   assert.ok(cell,'square '+sq.n+' has a cell');
   assert.equal(cell.querySelector('.n').textContent,String(sq.n));
   assert.equal(cell.querySelector('.nm').textContent,sq.name,'square '+sq.n+' keeps its name');
-  assert.equal(cell.style.getPropertyValue('--zone'),'var(--z-'+rbBoard.zoneOf(sq)+')');
+  assert.equal(cell.style.getPropertyValue('--zone'),rbBoard.realmOf(sq).color);
 }
 assert.ok(cellOf(rbBoard.START).hasAttribute('data-start'));
 assert.ok(cellOf(1).hasAttribute('data-trap') && cellOf(48).hasAttribute('data-trap'));
