@@ -4,12 +4,13 @@ Built on main after the stage 1 camera and popup-navigation change (#26).
 
 ## Playing
 
-- The first visit to Game opens traveler setup. Choose 1–4 players, names, one of twelve characters (male and female Bhutanese, Tibetan, Indian, Chinese, Thai and Western travelers), and independent player colours. Duplicate characters are allowed. Appearance does not change the rules.
+- The first visit to Game opens a nine-step guided practice game with chosen legal throws. Dismiss it at any time; Game → Replay guided game starts it again. It never saves over the real game. Finishing the first practice opens traveler setup. Choose 1–4 players, names, one of twelve characters (male and female Bhutanese, Tibetan, Indian, Chinese, Thai and Western travelers), and independent player colours. Duplicate characters are allowed. Appearance does not change the rules.
 - The selected artwork appears in setup, player tabs, board tokens and camera-facing 3D figures. If the world texture fails, coloured markers remain; entering Game again retries it.
 - Board is the default for new visitors. Existing view and language preferences still apply. Board and World have visible labels.
 - Destinations previews all six outcomes for the player holding the die, including dead faces and trap counts. Its entries open the corresponding descriptions.
 - A throw highlights possible destinations alongside the die, holds the final result, then moves the traveler directly to the destination. It never counts intervening squares. The arrival card gives the short description, next player's throw, world focus and full entry.
-- The Game menu contains New game, Move log, animation pace (Calm, Quick, Instant), a larger-square scrolling board, save status and rules. Skip animation finishes the already chosen result. Reduced-motion preference bypasses dice, movement and board-transition animation.
+- Quick, Instant and reduced-motion play use one fixed throw button above the bottom navigation. Result cards leave this target uncovered, and tapping it both replaces the result and advances the next turn. Quick ignores taps while a throw is in flight.
+- The Game menu contains Replay guided game, New game, Move log, animation pace (Calm, Quick, Instant), a larger-square scrolling board, save status and rules. Skip animation finishes the already chosen result. Reduced-motion preference bypasses dice, movement and board-transition animation.
 - Switching between the board and world plays a short, staggered assembly/disassembly of the board tiles. This is a presentation transition, not a morph of the physical world or a change to the board's mapping.
 - Reaching Nirvana shows each player's throw and journey totals and Play again. The ceremonial stupa throw cannot change the winner.
 
@@ -21,8 +22,8 @@ Built on main after the stage 1 camera and popup-navigation change (#26).
   Nothing below the rail belongs to the rail, so the grid keeps the rest of the
   height. Each row is written against `.bv-rail`, once, rather than three times
   over by each arrangement.
-- The throw is gold in every arrangement, not only on the printed board, and so
-  are the card's "throw for the next player" and the setup dialog's Start. It
+- Calm play uses the gold throw control in the rail. Quick and Instant use a
+  blue fixed button with white text; the setup dialog retains its gold Start. It
   never prints past its own edge: a long player name is cut, not spilled.
 - The turn line over the throw is dropped on a phone — the button carries the
   same name — and the middle arrangement drops the player row as well, which the

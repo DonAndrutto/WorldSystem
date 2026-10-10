@@ -9,7 +9,7 @@ try {
   for(const viewport of [{width:1440,height:1000},{width:390,height:844}]) {
     const context=await browser.newContext({viewport,serviceWorkers:'block'});
     await context.addInitScript(()=>{
-      localStorage.setItem('ws-game-onboarded','1');localStorage.setItem('ws-game-view','world');
+      localStorage.setItem('ws-game-onboarded','1'); localStorage.setItem('ws-game-walkthrough-v1','dismissed');localStorage.setItem('ws-game-view','world');
       localStorage.setItem('ws-index','0');localStorage.setItem('ws-hint','1');localStorage.setItem('ws-motion','0');
       const NativeAudio=window.Audio;
       window.Audio=function(src){const audio=new NativeAudio(src);window.__score=audio;return audio;};
@@ -93,7 +93,7 @@ try {
   // A fresh installed copy must play the soundtrack after network access ends.
   const context=await browser.newContext({viewport:{width:390,height:844}});
   await context.addInitScript(()=>{
-    localStorage.setItem('ws-game-onboarded','1');localStorage.setItem('ws-motion','0');
+    localStorage.setItem('ws-game-onboarded','1'); localStorage.setItem('ws-game-walkthrough-v1','dismissed');localStorage.setItem('ws-motion','0');
     const NativeAudio=window.Audio;
     window.Audio=function(src){const a=new NativeAudio(src);window.__score=a;return a;};
   });

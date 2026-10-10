@@ -19,6 +19,7 @@ const {SQUARE_NOTES, SQUARE_FULL} = await import(pathToFileURL(repo + '/rebirth-
 const rbIcons = await import(pathToFileURL(repo + '/rebirth-icons.js'));
 const rbSound = await import(pathToFileURL(repo + '/rebirth-sound.js'));
 const gamePlayers = await import(pathToFileURL(repo + '/game-players.js'));
+const gameWalkthrough = await import(pathToFileURL(repo + '/game-walkthrough.js'));
 const gameSession = await import(pathToFileURL(repo + '/game-session.js'));
 const gameCamera = await import(pathToFileURL(repo + '/game-camera.js'));
 const summitDetail = await import(pathToFileURL(repo + '/summit-detail.js'));
@@ -69,7 +70,7 @@ const textureRequests = [];
 const THREE = {...RealThree, TextureLoader: class {
   load(url, success, progress, failure) { textureRequests.push({url, success, failure}); }
 }};
-Object.assign(window, {createOfferingModels, OFFERING_ART, offeringBackground, TOUR_NOTES, createPresentationTours, createPresentationPlayer, WORLD_ORDERS, installViewportGestures}, surfaces, skyClouds, gameCamera, gamePlayers, gameSession, summitDetail, continentModels, wheelView, wheelNotes, {drawWheel: wheelArt.drawWheel}, {
+Object.assign(window, {createOfferingModels, OFFERING_ART, offeringBackground, TOUR_NOTES, createPresentationTours, createPresentationPlayer, WORLD_ORDERS, installViewportGestures}, surfaces, skyClouds, gameCamera, gamePlayers, gameSession, gameWalkthrough, summitDetail, continentModels, wheelView, wheelNotes, {drawWheel: wheelArt.drawWheel}, {
   createThousandWorlds: thousandWorlds.createThousandWorlds, worldsFramingDistance: thousandWorlds.framingDistance,
   RB_SQUARES: rbBoard.SQUARES, RB_SPECIAL: rbBoard.SPECIAL, RB_START: rbBoard.START,
   RB_VICTORY: rbBoard.VICTORY, TRAP_QUOTA: rbBoard.TRAP_QUOTA, TRAP_QUOTA_NOTE64: rbBoard.TRAP_QUOTA_NOTE64,
@@ -99,7 +100,7 @@ window.matchMedia = query => ({matches:query.includes('reduced-motion') ? reduce
   : query.includes('max-width: 980px') ? viewport.w <= 980
   : query.includes('max-width: 1080px') ? viewport.w <= 1080 : false});
 window.ResizeObserver = class {observe(){} disconnect(){}};
-window.localStorage.setItem('ws-game-view','both'); window.localStorage.setItem('ws-game-onboarded','1');
+window.localStorage.setItem('ws-game-view','both'); window.localStorage.setItem('ws-game-onboarded','1'); window.localStorage.setItem('ws-game-walkthrough-v1','dismissed');
 window.localStorage.setItem('ws-hint','1'); window.localStorage.setItem('ws-index','0');
 let now = 0, serial = 0, renderLoop = () => {};
 const timers = new Map();

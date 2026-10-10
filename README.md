@@ -239,7 +239,13 @@ The index runs from the ground up:
 
 ## The game of rebirth
 
-The game now opens with traveler selection and defaults to the Board view.
+The first visit to Game opens a nine-step guided practice game in Board view.
+Chosen legal throws demonstrate lower and higher realms, preparation, a dead
+face, and the first tantric bhūmi. Dismiss it at any time or choose **Game →
+Replay guided game**. Practice preserves the real saved game; finishing a first
+practice opens traveler selection. The dismissal is remembered on this device.
+Quick and Instant play keep one throw button fixed above the bottom navigation,
+so the same screen position advances each turn even when result cards change.
 Twelve male/female characters from six backgrounds, destination previews, direct token movement,
 board assembly transitions, pace controls and automatic local resume are
 described in [GAME-UI.md](GAME-UI.md). The Game menu also offers larger,

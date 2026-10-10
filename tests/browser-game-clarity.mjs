@@ -19,7 +19,7 @@ try {
   for (const config of configs.filter(c => !process.env.WORLDSYSTEM_TOUCH_ONLY || (c.touch && !c.language && !c.night && c.width !== 320 && c.height > 480))) {
     const context = await browser.newContext({viewport:config, hasTouch:!!config.touch, isMobile:!!config.touch, deviceScaleFactor:1, serviceWorkers:'block',reducedMotion:'reduce'});
     await context.addInitScript(config=>{
-      Object.entries({'ws-game-onboarded':'1','ws-game-view':'board','ws-game-pace':'instant','ws-index':'0','ws-motion':'0','ws-sound':'0','ws-music':'0','ws-game-follow':'0'}).forEach(([k,v])=>localStorage.setItem(k,v));
+      Object.entries({'ws-game-walkthrough-v1':'dismissed','ws-game-onboarded':'1','ws-game-view':'board','ws-game-pace':'instant','ws-index':'0','ws-motion':'0','ws-sound':'0','ws-music':'0','ws-game-follow':'0'}).forEach(([k,v])=>localStorage.setItem(k,v));
       if(config.language)localStorage.setItem('ws-language',config.language);
     },config);
     const page = await context.newPage(), errors=[];

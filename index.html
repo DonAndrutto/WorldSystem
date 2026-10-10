@@ -1927,6 +1927,11 @@
       <i class="bv-orb"></i>
       <p class="bv-mark">WorldSystem<span>Rebirth Board Game</span></p>
     </header>
+    <section class="bv-walkthrough card" aria-label="Guided game" hidden>
+      <div class="bv-walkthrough-top"><span>Guided game</span><span class="bv-walkthrough-count"></span><button class="btn" type="button" data-game="dismiss-guide">Dismiss</button></div>
+      <div aria-live="polite" aria-atomic="true"><h2></h2><p class="bv-walkthrough-copy"></p><p class="bv-walkthrough-location"></p></div>
+    </section>
+    <div class="bv-advance" hidden></div>
     <div class="bv-mapbar">
       <details class="bv-guide card">
         <summary><span class="bv-guide-title">Realms &amp; path</span><span class="bv-guide-key"><span data-realm="lower">Lower realms</span><span data-realm="higher">Higher realms</span><span data-realm="path">The path</span><span data-realm="bhumi">Bhūmis 1–10</span></span></summary>
@@ -1986,6 +1991,7 @@
       <label class="sw"><input type="checkbox" id="g-large-board"> Larger board squares (scroll)</label>
       <p class="bv-save" role="status"></p>
       <p>Throw the die to follow its destination. A missing destination means stay and pass. In a trap, collect the required faces; a needed face gives another throw. Reach 104 to win.</p>
+      <button class="btn" type="button" data-game="replay-guide">Replay guided game</button>
       <button class="btn bv-new" type="button" data-game="ask-new" title="Start a new game — asks first">New game</button>
       <details class="bv-more">
         <summary class="btn" title="Every throw of this game, in order">Move log</summary>
@@ -2161,6 +2167,7 @@ import { searchText } from './search-text.js';
 import { createGameSoundtrack } from './game-soundtrack.js';
 import { PLAYER_SKINS, PLAYER_CULTURES, normalizeSkin, PLAYER_PALETTE, paintPlayer, createPlayerArt } from './game-players.js';
 import { SESSION_KEY, makeSession, restoreSession, possibleThrows } from './game-session.js';
+import { WALKTHROUGH_KEY, WALKTHROUGH_STEPS } from './game-walkthrough.js';
 import { drawWheel } from './wheel-art.js';
 import { createWheelView } from './wheel-view.js';
 import { WHEEL_ENTRIES, WHEEL_TREE, WHEEL_ALSO } from './wheel-notes.js';
@@ -6265,6 +6272,7 @@ function startPresentation(next = mode, at = 0) {
   closeMenus();
   rememberTourMotion();
   if (next === 'game') {
+    if (rbWalkthrough) rbEndWalkthrough();
     rbCloseAsk(); rbHideCard(); rbCancelTransition(); rbClearFocus();
     tourReturnLayout = rbView3D;
     tourPreviousSelection = rbSelected;
@@ -6616,6 +6624,7 @@ function positionOfEntry(id) {
 
 let rbGame = createGame({ players: 2 });
 let rbSession = null, rbEvents = [], rbPending = null;
+let rbWalkthrough = null, rbGuideSeen = false;
 const rbPlayerArt = createPlayerArt(THREE, rbBoard.tokens, SUMMIT, () => invalidate(3));
 const rbEscape = value => String(value).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
@@ -6640,6 +6649,9 @@ const rbGrid = boardEl.querySelector('.bv-grid');
 const rbLabel = document.querySelector('.rb-label');
 let rbSelected = null;
 const rbThrowBtn = boardEl.querySelector('[data-game="throw"]');
+const rbThrowHome = rbThrowBtn.parentElement;
+const rbAdvance = boardEl.querySelector('.bv-advance');
+const rbWalkthroughEl = boardEl.querySelector('.bv-walkthrough');
 const RB_PIPS = { 1: [4], 2: [0, 8], 3: [0, 4, 8], 4: [0, 2, 6, 8], 5: [0, 2, 4, 6, 8], 6: [0, 2, 3, 5, 6, 8] };
 const rbNamed = (n) => n + ' ' + RB_BY_N.get(n).name;
 
@@ -7021,6 +7033,7 @@ function rbSync() {
     : rbGame.over ? (rbGame.stupa === null ? 'Stupa throw' : 'Game over')
     : (player.trap ? 'Throw (trapped)' : 'Throw for ' + player.name);
   rbThrowBtn.disabled = rbRolling || (rbGame.over && rbGame.stupa !== null);
+  if (rbWalkthrough) rbThrowBtn.textContent = WALKTHROUGH_STEPS[rbWalkthrough.step].face ? 'Try the next throw' : 'Finish guided game';
   rbTurnEl.textContent = rbGame.over
     ? (rbGame.stupa === null ? 'The stupa throw' : 'The game is over')
     : player.name + '\u2019s turn';
@@ -7097,7 +7110,7 @@ function rbShowCard(face, title, name, note, closing) {
      going back to the rail between turns. There is nothing to offer once the
      stupa throw has been made. */
   const spent = rbGame.over && rbGame.stupa !== null;
-  rbCardGo.hidden = spent;
+  rbCardGo.hidden = spent || rbFastAction();
   if (!spent) {
     const next = rbGame.players[rbGame.turn];
     const label = rbGame.over ? 'the stupa throw' : 'for ' + next.name;
@@ -7136,7 +7149,7 @@ function rbHideCard(fade) {
 const rbCardUp = () => !rbCard.hidden && !rbCard.classList.contains('out');
 function rbDismissCard(target) {
   if (!rbCardUp()) return false;
-  if (target && target.closest && target.closest('.bv-card-in')) return false;
+  if (target && target.closest && target.closest('.bv-card-in,.bv-advance')) return false;
   rbHideCard(true);
   return true;
 }
@@ -7173,6 +7186,7 @@ function rbTumble(final, done) {
   rbTumbleTimer = setTimeout(step, at(1));
 }
 function rbThrow() {
+  if (rbWalkthrough) { rbNextGuidedThrow(); return; }
   if (rbRolling || rbGame.over && rbGame.stupa !== null) return;
   rbClearFocus();
   rbHideCard();
@@ -7327,6 +7341,7 @@ function rbNameFields(prefill) {
   }
 }
 function rbAskNew() {
+  if (rbWalkthrough) rbEndWalkthrough();
   close(); setOpen(false);
   rbFinishThrow();
   rbHideCard();
@@ -7385,6 +7400,8 @@ boardEl.addEventListener('click', (ev) => {
   if (!b) return;
   if (b.dataset.game === 'skip') rbFinishThrow();
   if (b.dataset.game === 'throw') rbThrow();
+  if (b.dataset.game === 'replay-guide') rbStartWalkthrough();
+  if (b.dataset.game === 'dismiss-guide') rbEndWalkthrough();
   if (b.dataset.game === 'ask-new') rbAskNew();
   if (b.dataset.game === 'cancel-new') rbCloseAsk();
   if (b.dataset.game === 'card-close') rbHideCard(true);
@@ -7457,9 +7474,78 @@ const rbInstant = () => reducedMotion() || rbPace.value === 'instant';
 rbPace.addEventListener('change', () => {
   rbFinishThrow(); rbCancelTransition();
   try { localStorage.setItem('ws-game-pace', rbPace.value); } catch {}
+  rbUpdateActionLayout();
 });
+// The same physical button owns every fast throw, even while a result card is up.
+function rbFastAction() { return !!rbWalkthrough || rbPace.value !== 'calm' || reducedMotion(); }
+function rbUpdateActionLayout() {
+  const fixed = mode === 'game' && rbFastAction();
+  const parent = fixed ? rbAdvance : rbThrowHome;
+  if (rbThrowBtn.parentElement !== parent) parent.appendChild(rbThrowBtn);
+  rbAdvance.hidden = !fixed;
+  document.body.classList.toggle('game-fast', fixed);
+  rbCardGo.hidden = rbFastAction() || (rbGame.over && rbGame.stupa !== null);
+}
+function rbRenderWalkthrough() {
+  const step = WALKTHROUGH_STEPS[rbWalkthrough.step];
+  rbWalkthroughEl.querySelector('.bv-walkthrough-count').textContent = (rbWalkthrough.step + 1) + ' / ' + WALKTHROUGH_STEPS.length;
+  rbWalkthroughEl.querySelector('h2').textContent = step.title;
+  rbWalkthroughEl.querySelector('.bv-walkthrough-copy').textContent = step.copy;
+  rbWalkthroughEl.querySelector('.bv-walkthrough-location').textContent = step.location;
+  rbWalkthroughEl.dataset.realm = rbRealmOf(RB_BY_N.get(rbGame.players[0].pos)).key;
+  rbWalkthroughEl.scrollTop = 0;
+  rbSync();
+}
+function rbStartWalkthrough() {
+  if (rbWalkthrough) return;
+  rbFinishThrow(); rbCancelTransition(); rbClearFocus(); rbHideCard();
+  close(); setOpen(false);
+  if (!rbAsk.hidden) rbCloseAsk();
+  rbMenus.forEach(menu => { menu.open = false; });
+  // Keep the real objects intact. Practice never writes to the session store.
+  rbWalkthrough = { step: 0, game: rbGame, session: rbSession, events: rbEvents,
+    selected: rbSelected, layout: rbView3D, pace: rbPace.value,
+    feed: rbFeed.innerHTML, say: rbSay.innerHTML };
+  rbGame = createGame({ players: 1, names: ['Practice traveler'] });
+  rbSession = makeSession(rbGame); rbEvents = []; rbFeed.textContent = '';
+  rbPace.value = 'instant';
+  rbPlayerArt.load(rbGame.players); rbSetDie(1);
+  rbWalkthroughEl.hidden = false;
+  document.body.classList.add('guided-game');
+  rbLayout('board', false); rbSelect(RB_START, false);
+  rbUpdateActionLayout(); rbRenderWalkthrough();
+  rbThrowBtn.focus({ preventScroll: true });
+}
+function rbNextGuidedThrow() {
+  const face = WALKTHROUGH_STEPS[rbWalkthrough.step].face;
+  if (!face) {
+    const needsSetup = !rbWalkthrough.session && !rbOnboarded;
+    rbEndWalkthrough('complete');
+    if (needsSetup) { rbOnboarded = true; rbAskNew(); }
+    return;
+  }
+  close(); rbClearFocus(); rbHideCard();
+  rbWalkthrough.step += 1;
+  rbSetDie(face); rbResolve(face, false); rbHideCard();
+  rbSelect(rbGame.players[0].pos, false);
+  rbRenderWalkthrough();
+}
+function rbEndWalkthrough(status = 'dismissed') {
+  if (!rbWalkthrough) return;
+  const saved = rbWalkthrough;
+  rbWalkthrough = null; rbGuideSeen = true;
+  try { localStorage.setItem(WALKTHROUGH_KEY, status); } catch {}
+  rbGame = saved.game; rbSession = saved.session; rbEvents = saved.events;
+  rbFeed.innerHTML = saved.feed; rbSay.innerHTML = saved.say;
+  rbPace.value = saved.pace; rbRollOptions = []; rbFollowed = rbGame.turn;
+  rbWalkthroughEl.hidden = true; document.body.classList.remove('guided-game');
+  rbHideCard(); rbPlayerArt.load(rbGame.players); rbSetDie(rbSession?.rolls.at(-1) || 1);
+  rbLayout(saved.layout, false); rbSelect(saved.selected ?? rbGame.players[rbGame.turn].pos, false);
+  rbUpdateActionLayout(); rbSync();
+  rbThrowBtn.focus({ preventScroll: true });
+}
 function rbSave() {
-  if (!rbSession) return;
+  if (!rbSession || rbWalkthrough) return;
   const status = boardEl.querySelector('.bv-save');
   try { localStorage.setItem(SESSION_KEY, JSON.stringify(rbSession)); status.textContent = 'Saved on this device.'; }
   catch { status.textContent = 'Saving is unavailable. Keep this tab open to continue this game.'; }
@@ -7846,9 +7932,15 @@ function enterGame() {
   invalidate(4);
   rbTransition('world', rbView3D, true);
   if (rbGame.over) rbShowCard(rbSession?.rolls.at(-1) || 1, rbGame.players[rbGame.winner].name + ' wins', RB_VICTORY, rbGame.stupa === null ? 'One ceremonial stupa throw remains.' : 'The game is complete.', true);
-  if (!rbSession && !rbOnboarded) { rbOnboarded = true; rbAskNew(); }
+  rbUpdateActionLayout();
+  try { rbGuideSeen ||= !!localStorage.getItem(WALKTHROUGH_KEY); } catch {}
+  if (!rbGuideSeen) rbStartWalkthrough();
+  else if (!rbSession && !rbOnboarded) { rbOnboarded = true; rbAskNew(); }
 }
 function leaveGame() {
+  if (rbWalkthrough) rbEndWalkthrough();
+  rbAdvance.hidden = true; rbThrowHome.appendChild(rbThrowBtn);
+  document.body.classList.remove('game-fast');
   clearTimeout(rbLayoutTimer);
   rbFinishThrow();
   rbCancelTransition();
@@ -8275,6 +8367,7 @@ canvas.addEventListener('pointerup', (e) => {
 });
 window.addEventListener('keydown', (e) => {
   if (e.defaultPrevented || e.ctrlKey || e.metaKey || e.altKey) return;
+  if (e.key === 'Escape' && rbWalkthrough) { rbEndWalkthrough(); e.preventDefault(); return; }
   if (e.key === 'Escape' && rbMenus.some(m => m.open)) {
     rbMenus.forEach(m => { m.open = false; }); e.target.blur?.(); e.preventDefault(); return;
   }
