@@ -25,7 +25,7 @@
    current shelf or the runtime one, so old versions do not accumulate. */
 
 /* ── written by scripts/build-sw.cjs — do not edit below ─────────────── */
-const VERSION = '277f2415cefa2287';
+const VERSION = '21869437da8bae01';
 const SHELL = [
   "app-chrome.css",
   "app-chrome.js",
@@ -101,6 +101,7 @@ const SHELL = [
   "game-session.js",
   "game-soundtrack.js",
   "game-ui.css",
+  "game-walkthrough.js",
   "icon-192.png",
   "icon-512.png",
   "icon-maskable-512.png",

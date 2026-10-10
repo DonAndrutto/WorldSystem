@@ -16,7 +16,7 @@ try {
   ]) {
     const context = await browser.newContext({viewport:config, serviceWorkers:'block', reducedMotion:config.reduced?'reduce':'no-preference'});
     await context.addInitScript(({language}) => {
-      localStorage.setItem('ws-game-onboarded','1'); localStorage.setItem('ws-game-view','world');
+      localStorage.setItem('ws-game-onboarded','1'); localStorage.setItem('ws-game-walkthrough-v1','dismissed'); localStorage.setItem('ws-game-view','world');
       localStorage.setItem('ws-game-pace','instant'); localStorage.setItem('ws-index','0');
       localStorage.setItem('ws-motion','0'); localStorage.setItem('ws-motion-pace','fast');
       if(language) localStorage.setItem('ws-language',language);

@@ -210,3 +210,27 @@ body.world-only .bv-mapbar { width: 100%; order: 1; }
 
 .bv-guide-body { border-radius: 14px; }
 body.world-only .board-view { flex-direction: column; }
+
+/* A stable viewport target for Quick/Instant play, independent of card height. */
+.bv-advance { position: fixed; z-index: 11; left: 50%; transform: translateX(-50%); bottom: calc(76px + var(--sa-b)); width: min(420px, calc(100vw - 28px)); }
+.bv-advance[hidden], .bv-walkthrough[hidden] { display: none; }
+.bv-advance > .btn { display: block; width: 100%; height: 52px; min-height: 52px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 15px; background: #344d68; color: #fff; border: 1px solid #263b53; box-shadow: var(--shadow); touch-action: manipulation; }
+body.game-fast .bv-act { display: none; }
+body.game-fast .bv-card { position: fixed; inset: calc(78px + var(--sa-t)) 10px calc(142px + var(--sa-b)); }
+body.game-fast .bv-card-in { max-height: 100%; box-sizing: border-box; animation: none; }
+body.game-fast.board-only .board-view { padding-bottom: calc(140px + var(--sa-b)); }
+body.game-setup .bv-advance { display: none; }
+.bv-walkthrough { flex: none; order: 1; width: min(100%, 800px); padding: 12px 18px; border-radius: 12px; border-left: 4px solid var(--realm, var(--accent)); max-height: 34dvh; overflow: auto; overscroll-behavior: contain; }
+.bv-walkthrough-top { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--ink-2); }
+.bv-walkthrough-count { margin-left: auto; font-variant-numeric: tabular-nums; }
+.bv-walkthrough-top .btn { min-height: 44px; }
+.bv-walkthrough h2 { font-size: clamp(20px, 2.5vw, 26px); font-weight: 500; line-height: 1.15; margin: 3px 0 8px; }
+.bv-walkthrough-copy { font-size: 16px; line-height: 1.4; margin: 0; }
+.bv-walkthrough-location { font-size: 13px; line-height: 1.4; margin: 9px 0 0; font-weight: 600; }
+body.guided-game .bv-rail, body.guided-game .bv-head, body.guided-game .bv-mapbar { display: none; }
+@media (max-width: 700px) {
+  .bv-walkthrough { padding: 8px 12px 12px; max-height: 36dvh; }
+  .bv-walkthrough-copy { font-size: 15px; }
+}
+/* An open reading panel sits above the persistent play action. */
+.bv-guide[open] { z-index: 12; }

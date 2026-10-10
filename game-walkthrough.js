@@ -1,0 +1,31 @@
+// Chosen legal throws teach the real rules without changing a saved game.
+export const WALKTHROUGH_KEY = 'ws-game-walkthrough-v1';
+export const WALKTHROUGH_STEPS = [
+  { square: 24, face: 6, title: 'Learn by playing',
+    copy: 'This short practice game uses chosen throws. Your saved game stays safe. The die names a destination; it does not count spaces. Tap the button below for each turn.',
+    location: 'Start · 24 · Heavenly Highway' },
+  { square: 6, face: 1, title: 'A fall into the lower realms',
+    copy: 'A 6 took us from 24 to 6. The red-brown squares mark lower realms within saṃsāra. A high die roll does not guarantee a better rebirth.',
+    location: 'Throw 6 · 24 → 6 · Lower realms' },
+  { square: 17, face: 2, title: 'A higher rebirth is still saṃsāra',
+    copy: 'A 1 brought us to human rebirth. Gold marks the higher realms: humans, demi-gods and gods. These are still within saṃsāra; reaching them is not liberation.',
+    location: 'Throw 1 · 6 → 17 · Human rebirth' },
+  { square: 25, face: 2, title: 'Entering the path',
+    copy: 'From human rebirth, a 2 led to beginning tantric practice. Blue marks the path and preparation. This is distinct from a fortunate worldly rebirth, and it is not yet the first bhūmi.',
+    location: 'Throw 2 · 17 → 25 · The path' },
+  { square: 33, face: 3, title: 'Follow destinations, not numbers',
+    copy: 'Another 2 led to 33, on the path of accumulation. Each square has its own destinations. Next, try a 3 here: this square has no destination for that face.',
+    location: 'Throw 2 · 25 → 33 · Preparation' },
+  { square: 33, face: 2, title: 'No destination: stay and pass',
+    copy: 'The 3 was a dead face: we stay at 33. With several players, the die passes to the next traveler. In this one-player practice, we simply throw again.',
+    location: 'Throw 3 · Stay at 33' },
+  { square: 42, face: 2, title: 'Preparation continues',
+    copy: 'A 2 led to greater accumulation. The blue path squares remain distinct from the bhūmis. You can inspect any square during a real game to read its full entry.',
+    location: 'Throw 2 · 33 → 42 · Preparation' },
+  { square: 50, face: 2, title: 'Approaching the first bhūmi',
+    copy: 'We have reached the path of application. This is still preparation. The next chosen throw crosses into the first tantric bhūmi.',
+    location: 'Throw 2 · 42 → 50 · Preparation' },
+  { square: 66, face: null, title: 'The first bhūmi: a distinct threshold',
+    copy: 'Green, a double border and a numbered badge mark the bhūmis. Tantra begins at 66; sutra begins at 71. The game continues toward 104, Nirvana. Traps at 1 and 48 require collecting die faces. You are ready to play; replay this guide from the Game menu anytime.',
+    location: 'Throw 2 · 50 → 66 · Tantra · Bhūmi 1 of 10' }
+];
