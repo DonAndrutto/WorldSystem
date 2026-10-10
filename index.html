@@ -1927,6 +1927,19 @@
       <i class="bv-orb"></i>
       <p class="bv-mark">WorldSystem<span>Rebirth Board Game</span></p>
     </header>
+    <div class="bv-mapbar">
+      <details class="bv-guide card">
+        <summary><span class="bv-guide-title">Realms &amp; path</span><span class="bv-guide-key"><span data-realm="lower">Lower realms</span><span data-realm="higher">Higher realms</span><span data-realm="path">The path</span><span data-realm="bhumi">Bhūmis 1–10</span></span></summary>
+        <div class="bv-guide-body card">
+          <div class="bv-guide-heading"><h2>Reading the game</h2><button class="btn" type="button" data-game="guide-close" aria-label="Close">×</button></div>
+          <p>Lower and higher rebirths are both within saṃsāra. The path leads toward liberation; the first bhūmi marks a distinct threshold of realization.</p>
+          <div class="bv-guide-groups"></div>
+          <p class="bv-guide-rule">Throw the die to follow a destination. Square numbers identify places on the board; they do not measure spiritual attainment.</p>
+          <div class="bv-guide-bhumis"><button class="btn" type="button" data-realm-square="71">First sutra bhūmi · 71</button><button class="btn" type="button" data-realm-square="66">First tantra bhūmi · 66</button></div>
+        </div>
+      </details>
+      <button class="btn bv-size-toggle" type="button" data-game="board-size" aria-pressed="false">Larger squares</button>
+    </div>
     <div class="bv-grid" role="grid" aria-label="The hundred and four squares"></div>
     <div class="bv-card" role="status" aria-live="assertive" hidden>
       <div class="bv-card-in card">
@@ -1938,6 +1951,7 @@
         <span class="nm"></span>
         <span class="tb" lang="bo"></span>
         <span class="note"></span>
+        <div class="bv-card-realm" hidden><span class="realm-badge"></span><p></p></div>
         <p class="bv-card-context"></p><div class="bv-summary" hidden></div>
         <div class="bv-card-acts">
           <button class="btn bv-again" type="button" data-game="ask-new" hidden>Play again</button>
@@ -2138,7 +2152,7 @@ import { createSummitDetail } from './summit-detail.js';
 import { applyArchitecturalMaterials, createColonnade, createRoofDetail, createPalaceTerrace, createFacadeDetail, divineRealmLayout } from './palace-architecture.js';
 import { createContinentModels } from './continent-models.js';
 import { DAY_SKY, paintClouds } from './sky-clouds.js';
-import { SQUARES as RB_SQUARES, SPECIAL as RB_SPECIAL, START as RB_START, VICTORY as RB_VICTORY, TRAP_QUOTA, TRAP_QUOTA_NOTE64, FACES as DIE_FACES, BY_N as RB_BY_N, VARIANTS as RB_VARIANTS, zoneOf as rbZoneOf, PLAYER_COLOURS as RB_COLOURS, createBoardLayer, tibetanOf as rbTibetan } from './rebirth-board.js';
+import { SQUARES as RB_SQUARES, SPECIAL as RB_SPECIAL, START as RB_START, VICTORY as RB_VICTORY, TRAP_QUOTA, TRAP_QUOTA_NOTE64, FACES as DIE_FACES, BY_N as RB_BY_N, VARIANTS as RB_VARIANTS, realmOf as rbRealmOf, REALMS as RB_REALMS, PLAYER_COLOURS as RB_COLOURS, createBoardLayer, tibetanOf as rbTibetan } from './rebirth-board.js';
 import { createGame, throwDie, view as rbView, destination as rbDestination } from './rebirth-game.js';
 import { SQUARE_NOTES, SQUARE_FULL } from './rebirth-notes.js';
 import { SQUARE_ART, cellBackground, createSquareArt, LIBERATION_ART } from './rebirth-icons.js';
@@ -4505,7 +4519,8 @@ RB_SQUARES.forEach((sqr) => {
     return [String(i + 1), to ? (to + '. ' + RB_BY_N.get(to).name) : 'dead — stay and pass'];
   });
   const special = RB_SPECIAL[sqr.n];
-  const facts = [['Square', sqr.n + ' of 104'],
+  const realm = rbRealmOf(sqr);
+  const facts = [['Realm or path', realm.detail], ['Square', sqr.n + ' of 104'],
                  ['On the board', 'row ' + (sqr.row + 1) + ', column ' + (sqr.col + 1) + ' from the right'],
                  ['Stands', RB_BAND_LABEL[sqr.band]]];
   // What the square is drawn as is an entry in the model, so say what that
@@ -4527,7 +4542,7 @@ RB_SQUARES.forEach((sqr) => {
   const placement = sqr.n === 84
     ? 'This Buddha field rises above the tenth stages in the game’s symbolic ascent. The samsaric heaven of the same name remains in the world below.'
     : RB_BAND_NOTE[sqr.band];
-  const body = [SQUARE_NOTES[sqr.n], placement];
+  const body = [realm.note, SQUARE_NOTES[sqr.n], placement];
   if (special && special.kind === 'tally') {
     body.push('A trap. Throws that are still needed let you keep going in the same turn; a throw you no longer need ends it, and the counts are kept until the next. Twenty-one useful throws in all.');
   }
@@ -6631,6 +6646,24 @@ const rbNamed = (n) => n + ' ' + RB_BY_N.get(n).name;
 /* The board is built once and then only updated. Thirteen rows of eight, read
    right to left and rising from the bottom, so square 104 is the top left cell
    and square 1 the bottom right — the order the board itself is numbered in. */
+const rbGuide = boardEl.querySelector('.bv-guide');
+const rbGuideGroups = rbGuide.querySelector('.bv-guide-groups');
+for (const [key, realm] of Object.entries(RB_REALMS)) {
+  const item = document.createElement('div');
+  item.dataset.realm = key;
+  const label = document.createElement('strong'); label.textContent = realm.label;
+  const note = document.createElement('p'); note.textContent = realm.note;
+  item.append(label, note); rbGuideGroups.appendChild(item);
+}
+rbGuide.querySelector('[data-game="guide-close"]').addEventListener('click', () => {
+  rbGuide.open = false; rbGuide.querySelector('summary').focus();
+});
+rbGuide.querySelectorAll('[data-realm-square]').forEach(button => button.addEventListener('click', () => {
+  rbGuide.open = false; show('rebirth_sq_' + button.dataset.realmSquare, true);
+}));
+rbGuide.addEventListener('keydown', event => {
+  if (event.key === 'Escape') { event.stopPropagation(); rbGuide.open = false; rbGuide.querySelector('summary').focus(); }
+});
 const rbCells = new Map();
 for (let row = 12; row >= 0; row -= 1) {
   for (let col = 7; col >= 0; col -= 1) {
@@ -6638,7 +6671,9 @@ for (let row = 12; row >= 0; row -= 1) {
     const cell = document.createElement('button');
     cell.type = 'button';
     cell.className = 'bv-sq';
-    cell.style.setProperty('--zone', 'var(--z-' + rbZoneOf(sq) + ')');
+    const realm = rbRealmOf(sq);
+    cell.dataset.realm = realm.key;
+    cell.style.setProperty('--zone', realm.color);
     cell.dataset.square = String(sq.n);
     cell.style.setProperty('--tile-delay', (12 - row) * 16 + 'ms');
     cell.setAttribute('role', 'gridcell');
@@ -6650,6 +6685,18 @@ for (let row = 12; row >= 0; row -= 1) {
     cell.innerHTML = '<i class="bv-icon" aria-hidden="true" hidden></i>'
       + '<span class="n"></span><span class="nm"></span><span class="tb" lang="bo"></span>'
       + '<span class="bv-toks"></span>';
+    if (realm.bhumi) {
+      const badge = document.createElement('span');
+      badge.className = 'bv-bhumi';
+      badge.textContent = String(realm.bhumi);
+      badge.setAttribute('aria-hidden', 'true');
+      cell.appendChild(badge);
+      cell.dataset.bhumi = String(realm.bhumi);
+    }
+    const description = document.createElement('span');
+    description.id = 'square-realm-' + sq.n; description.hidden = true;
+    description.textContent = realm.detail; cell.appendChild(description);
+    cell.setAttribute('aria-describedby', description.id);
     cell.querySelector('.n').textContent = String(sq.n);
     cell.querySelector('.nm').textContent = sq.name;
     cell.querySelector('.tb').textContent = tib;
@@ -6749,15 +6796,31 @@ function rbLight() {
   rbBoard.showActive(active);
   rbArt.showActive(active);
 }
+// Layout and localization can change the rail height after a selection. Scroll
+// only the grid once its final size is known, without moving the whole page.
+function rbScrollSelected() {
+  requestAnimationFrame(() => {
+    if (boardEl.hidden || !boardEl.classList.contains('large-squares') || rbGrid.clientHeight === 0) return;
+    const cell = rbCells.get(rbSelected);
+    if (!cell) return;
+    const grid = rbGrid.getBoundingClientRect(), box = cell.getBoundingClientRect();
+    rbGrid.scrollTop += box.top - grid.top - (rbGrid.clientHeight - box.height) / 2;
+    rbGrid.scrollLeft += box.left - grid.left - (rbGrid.clientWidth - box.width) / 2;
+  });
+}
 function rbSelect(n, moveCamera) {
   rbSelected = n;
-  if (boardEl.classList.contains('large-squares')) rbCells.get(n)?.scrollIntoView?.({ block: 'nearest', inline: 'nearest' });
+  rbScrollSelected();
   rbCells.forEach((cell, sq) => cell.setAttribute('aria-selected', String(sq === n)));
   // the squares this one's faces lead to, drawn and lit on the board
   const reached = new Set(rbBoard.showLinks(n));
   rbCells.forEach((cell, sq) => cell.classList.toggle('reached', reached.has(sq)));
   rbNameLabel(n);
   rbWhereEl.textContent = rbCalled(n) + ' \u2014 square ' + n;
+  const badge = document.createElement('span');
+  badge.className = 'realm-badge'; badge.dataset.realm = rbRealmOf(RB_BY_N.get(n)).key;
+  badge.textContent = rbRealmOf(RB_BY_N.get(n)).detail;
+  rbWhereEl.appendChild(badge);
   rbWhereEl.lang = rbTib && rbTibetan(n) ? 'bo' : 'en';
   rbLight();
   if (moveCamera && mode === 'game') reframeGame(700, rbBoard.positionOf(n));
@@ -6766,6 +6829,10 @@ function rbSelect(n, moveCamera) {
 function rbNameLabel(n) {
   rbLabel.querySelector('.n').textContent = String(n);
   rbLabel.querySelector('.t').textContent = rbCalled(n);
+  let realm = rbLabel.querySelector('.rb-realm');
+  if (!realm) { realm = document.createElement('span'); realm.className = 'rb-realm'; rbLabel.appendChild(realm); }
+  const info = rbRealmOf(RB_BY_N.get(n));
+  realm.textContent = info.detail; rbLabel.dataset.realm = info.key;
   rbLabel.querySelector('.t').lang = rbTib && rbTibetan(n) ? 'bo' : 'en';
 }
 /* The label rides the selected square, projected each frame like the maṇḍala's
@@ -6928,7 +6995,7 @@ function rbSyncTrail() {
     chip.type = 'button';
     chip.className = 'bv-chip' + (i === all.length - 1 ? ' last' : '');
     chip.dataset.square = String(step.to);
-    chip.style.setProperty('--zone', 'var(--z-' + rbZoneOf(RB_BY_N.get(step.to)) + ')');
+    chip.style.setProperty('--zone', rbRealmOf(RB_BY_N.get(step.to)).color);
     chip.title = 'threw ' + (DIE_FACES.indexOf(step.face) + 1) + ': ' + step.from + ' → ' + rbNamed(step.to);
     chip.innerHTML = '<span class="f"></span><span class="t"></span>';
     chip.querySelector('.f').textContent = String(DIE_FACES.indexOf(step.face) + 1);
@@ -6998,6 +7065,14 @@ function rbShowCard(face, title, name, note, closing) {
   rbCard.querySelector('.nm').textContent = name === null ? '' : RB_BY_N.get(name).name;
   rbCard.querySelector('.tb').textContent = name === null ? '' : rbTibetan(name);
   rbCard.querySelector('.note').textContent = note || '';
+  const realmBox = rbCard.querySelector('.bv-card-realm');
+  realmBox.hidden = name === null;
+  if (name !== null) {
+    const realm = rbRealmOf(RB_BY_N.get(name));
+    realmBox.dataset.realm = realm.key;
+    realmBox.querySelector('.realm-badge').textContent = realm.detail;
+    realmBox.querySelector('p').textContent = realm.note;
+  }
   rbCard.querySelector('.bv-card-context').innerHTML = name === null ? '' : (SQUARE_NOTES[name] || '');
   const summary = rbCard.querySelector('.bv-summary');
   summary.hidden = !rbGame.over;
@@ -7360,13 +7435,20 @@ rbFollowBox.addEventListener('change', () => {
   if (rbFollowing()) rbFrameFollow(700);
   else if (rbView3D === 'world' && !gameFocus) reframeGame(700);
 });
-rbLargeBoard.addEventListener('change', () => {
+const rbSizeToggle = boardEl.querySelector('[data-game="board-size"]');
+rbSizeToggle.addEventListener('click', () => rbLargeBoard.click());
+function rbSyncBoardSize() {
+  rbSizeToggle.setAttribute('aria-pressed', String(rbLargeBoard.checked));
+  rbSizeToggle.textContent = rbLargeBoard.checked ? 'Whole board' : 'Larger squares';
   boardEl.classList.toggle('large-squares', rbLargeBoard.checked);
-  if (rbLargeBoard.checked) rbCells.get(rbSelected)?.scrollIntoView?.({ block: 'center', inline: 'center' });
-});
+  rbScrollSelected();
+}
+rbLargeBoard.addEventListener('change', rbSyncBoardSize);
+if (window.matchMedia('(max-width: 360px), (max-width: 700px) and (max-height: 700px)').matches) rbLargeBoard.checked = true;
+rbSyncBoardSize();
 let rbOnboarded = false, rbRollOptions = [], rbMovement = null;
 let rbTransitionTimer = null, rbTransitionGhost = null, rbLayoutTimer = null;
-const rbMenus = [...boardEl.querySelectorAll('.bv-tools,.bv-options')];
+const rbMenus = [...boardEl.querySelectorAll('.bv-tools,.bv-options,.bv-guide')];
 rbMenus.forEach(menu => menu.addEventListener('toggle', () => { if (menu.open) rbMenus.forEach(other => { if (other !== menu) other.open = false; }); }));
 document.addEventListener('pointerdown', ev => rbMenus.forEach(menu => { if (!menu.contains(ev.target)) menu.open = false; }));
 try { rbPace.value = localStorage.getItem('ws-game-pace') || 'calm'; } catch {}
@@ -7407,6 +7489,10 @@ function rbSyncOptions() {
     button.dataset.face = String(DIE_FACES.indexOf(option.face) + 1);
     button.textContent = button.dataset.face + ' → ' + (option.label || rbNamed(option.target));
     if (option.target) {
+      const realm = rbRealmOf(RB_BY_N.get(option.target));
+      button.dataset.realm = realm.key;
+      const badge = document.createElement('span'); badge.className = 'realm-badge';
+      badge.textContent = realm.detail; button.appendChild(badge);
       button.title = rbNamed(option.target);
       button.addEventListener('click', () => { boardEl.querySelector('.bv-options').open = false; show('rebirth_sq_' + option.target, true); });
     } else button.disabled = true;
@@ -7516,6 +7602,7 @@ function rbApplyLayout() {
   const playing = mode === 'game';
   document.body.classList.toggle('world-only', playing && rbView3D === 'world');
   document.body.classList.toggle('board-only', playing && rbView3D === 'board');
+  if (playing && rbView3D === 'board') rbScrollSelected();
   boardEl.querySelectorAll('[data-layout]').forEach((b) =>
     b.setAttribute('aria-pressed', String(b.dataset.layout === rbView3D)));
 }
@@ -7981,6 +8068,7 @@ const chromeRO = new ResizeObserver(() => syncChrome());
 chromeRO.observe(noteEl);
 chromeRO.observe(tourEl);
 chromeRO.observe(boardEl);
+new ResizeObserver(rbScrollSelected).observe(rbGrid);
 syncChrome();
 let reframe = null;
 window.addEventListener('resize', () => {

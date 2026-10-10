@@ -287,4 +287,34 @@ check('the upper spire leaves space for its billboard artwork', () => {
   }
 });
 
+check('realm meanings distinguish samsara, preparation, bhumis and Buddha fields', () => {
+  const realm = n => board.realmOf(board.BY_N.get(n));
+  for (const n of [1, 6, 10, 11, 12, 13]) assert.equal(realm(n).key, 'lower');
+  for (const n of [17, 20, 27, 35, 36, 37]) assert.equal(realm(n).key, 'higher');
+  for (const n of [25, 33, 38, 40, 47, 48, 51, 52, 58, 64, 69, 72]) assert.equal(realm(n).key, 'path');
+  for (const n of [70, 76, 77, 84, 85]) assert.equal(realm(n).key, 'field');
+  assert.equal(realm(59).key, 'sacred');
+  assert.equal(realm(104).key, 'awakening');
+  for (const square of SQUARES) {
+    const result = board.realmOf(square);
+    assert.ok(board.REALMS[result.key], 'classified square ' + square.n);
+    assert.ok(result.detail && result.note && result.color);
+  }
+});
+check('each route has exactly ten bhumis in attainment order', () => {
+  assert.equal(SQUARES.filter(s => board.realmOf(s).bhumi).length, 20);
+  for (const [route, squares] of Object.entries(board.BHUMI_ROUTES)) {
+    assert.equal(squares.length, 10);
+    squares.forEach((n, i) => {
+      const realm = board.realmOf(board.BY_N.get(n));
+      assert.equal(realm.bhumi, i + 1);
+      assert.equal(realm.route, route);
+    });
+  }
+  assert.equal(board.realmOf(board.BY_N.get(66)).bhumi, 1);
+  assert.equal(board.realmOf(board.BY_N.get(71)).bhumi, 1);
+  for (const n of [67, 68, 69, 70, 72, 76, 77, 84, 85, 92, 93, 104])
+    assert.equal(board.realmOf(board.BY_N.get(n)).bhumi, null, 'interleaved square ' + n);
+});
+
 console.log('\n' + checks + ' checks passed.');
