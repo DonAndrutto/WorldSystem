@@ -232,3 +232,5 @@ body.guided-game .bv-rail, body.guided-game .bv-head, body.guided-game .bv-mapba
   .bv-walkthrough { padding: 8px 12px 12px; max-height: 36dvh; }
   .bv-walkthrough-copy { font-size: 15px; }
 }
+/* An open reading panel sits above the persistent play action. */
+.bv-guide[open] { z-index: 12; }
