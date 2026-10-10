@@ -45,8 +45,13 @@ export function createJyotishaPanel({ doc = document, panel, provider = createEn
           <label for="jy-date">Date <span class="jy-hint">Gregorian calendar, ${YEAR_MIN}–${YEAR_MAX}</span></label>
           <input id="jy-date" name="date" type="date" min="${YEAR_MIN}-01-01" max="${YEAR_MAX}-12-31" required aria-describedby="jy-date-err">
           <p class="jy-err" id="jy-date-err" hidden></p>
-          <label for="jy-time">Local time <span class="jy-hint">clock time at the place, to the second if known</span></label>
-          <input id="jy-time" name="time" type="time" step="1" required aria-describedby="jy-time-err">
+          <fieldset class="jy-clock" aria-describedby="jy-time-err">
+            <legend>Local time <span class="jy-hint">clock time at the place, to the second if known</span></legend>
+            <div class="jy-time-picker">${[['hour', 'Hour (0–23)', 24], ['minute', 'Minutes', 60], ['second', 'Seconds', 60]].map(([part, label, count]) => `
+              <label for="jy-${part}">${label}<select id="jy-${part}" data-time-part="${part}" aria-describedby="jy-time-err">${Array.from({length:count}, (_, n) => `<option value="${pad(n)}">${pad(n)}</option>`).join('')}</select></label>`).join('')}
+            </div>
+          </fieldset>
+          <input id="jy-time" name="time" type="hidden" value="00:00:00">
           <p class="jy-err" id="jy-time-err" hidden></p>
           <fieldset class="jy-choice" hidden><legend>This time occurs twice. Which one is meant?</legend>
             <label><input type="radio" name="choice" value="0"> <span></span></label>
@@ -115,6 +120,16 @@ export function createJyotishaPanel({ doc = document, panel, provider = createEn
     </div>`;
 
   const form = panel.querySelector('.jy-form');
+  const timeParts = [...panel.querySelectorAll('[data-time-part]')];
+  const syncTimeParts = () => {
+    const values = form.elements.time.value.split(':');
+    timeParts.forEach((part, i) => { part.value = values[i] || '00'; });
+  };
+  timeParts.forEach(part => part.addEventListener('change', () => {
+    form.elements.time.value = timeParts.map(part => part.value).join(':');
+    form.elements.time.dispatchEvent(new doc.defaultView.Event('input', { bubbles: true }));
+  }));
+  form.elements.time.addEventListener('input', syncTimeParts);
   const resolved = panel.querySelector('.jy-resolved');
   const choiceSet = panel.querySelector('.jy-choice');
   const showBtn = panel.querySelector('[data-jy="show"]');
@@ -264,7 +279,9 @@ export function createJyotishaPanel({ doc = document, panel, provider = createEn
       const input = form.elements[key];
       p.hidden = !errors[key];
       p.textContent = errors[key] || '';
-      if (input) { if (errors[key]) input.setAttribute('aria-invalid', 'true'); else input.removeAttribute('aria-invalid'); }
+      for (const control of key === 'time' ? timeParts : [input].filter(Boolean)) {
+        if (errors[key]) control.setAttribute('aria-invalid', 'true'); else control.removeAttribute('aria-invalid');
+      }
     }
   }
 
@@ -382,6 +399,7 @@ export function createJyotishaPanel({ doc = document, panel, provider = createEn
         if (basis.zone) form.elements.zone.value = basis.zone;
         form.elements.date.value = clock.date;
         form.elements.time.value = clock.time;
+        syncTimeParts();
         form.elements.date.dispatchEvent(new doc.defaultView.Event('input', { bubbles: true }));
         showErrors({});
       } catch { showErrors({ zone: 'Enter a valid IANA time zone before using now.' }); }

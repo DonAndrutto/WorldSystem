@@ -1,5 +1,5 @@
 /* Shared skin atlas; the square canvas contains six columns and two rows. */
-.player-art { background: url('assets/rebirth/travelers.png') var(--skin-x) var(--skin-y) / 600% 200% no-repeat; }
+.player-art { background: var(--skin-image, url('assets/rebirth/travelers.png')) var(--skin-x) var(--skin-y) / var(--skin-size, 600% 200%) no-repeat; }
 .bv-person { min-width: 0; border: 1px solid var(--line); border-radius: 12px; padding: 10px; display: grid; grid-template-columns: 1fr auto; gap: 10px; }
 .bv-person legend { font-size: 12px; padding: 0 6px; color: var(--ink-2); }
 .bv-person input { min-width: 0; width: 100%; }

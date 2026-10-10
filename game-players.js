@@ -1,9 +1,13 @@
-// One atlas shared by setup, portraits, board pieces and world billboards.
-export const PLAYER_CULTURES = ['Bhutanese', 'Tibetan', 'Indian', 'Chinese', 'Thai', 'Western'];
-export const PLAYER_SKINS = ['male', 'female'].flatMap(gender => PLAYER_CULTURES.map(culture => ({
+// Shared atlas metadata keeps setup, portraits, board pieces and billboards aligned.
+const LAY_CULTURES = ['Bhutanese', 'Tibetan', 'Indian', 'Chinese', 'Thai', 'Western'];
+export const PLAYER_CULTURES = [...LAY_CULTURES, 'Monastic'];
+export const PLAYER_SKINS = ['male', 'female'].flatMap(gender => LAY_CULTURES.map(culture => ({
   id: culture.toLowerCase() + '-' + gender, culture, gender,
   name: culture + ' · ' + (gender === 'male' ? 'Male' : 'Female')
-})));
+}))).concat([
+  { id: 'monastic-male', culture: 'Monastic', gender: 'male', role: 'Monk', name: 'Monk · Tibetan Vajrayana' },
+  { id: 'monastic-female', culture: 'Monastic', gender: 'female', role: 'Nun', name: 'Nun · Tibetan Vajrayana' }
+]);
 const LEGACY_SKINS = { ochre: 'bhutanese-male', sage: 'tibetan-male', indigo: 'chinese-male',
   terracotta: 'bhutanese-female', plum: 'indian-female', teal: 'tibetan-female' };
 // Preserve the gender of existing saves while migrating the original six skins.
@@ -13,12 +17,19 @@ export function normalizeSkin(id, player = 0) {
 }
 export const PLAYER_PALETTE = ['#bb6249', '#428b90', '#bc9236', '#8870b0'];
 export const PLAYER_ATLAS = 'assets/rebirth/travelers.png';
+export const MONASTIC_ATLAS = 'assets/rebirth/monastics.png';
+export const skinAtlas = n => n < 12
+  ? { url: PLAYER_ATLAS, columns: 6, rows: 2, cell: n }
+  : { url: MONASTIC_ATLAS, columns: 2, rows: 1, cell: n - 12 };
 export const skinIndex = skin => PLAYER_SKINS.findIndex(s => s.id === normalizeSkin(skin));
 export function paintPlayer(el, player) {
   const n = skinIndex(player.skin);
   el.classList.add('player-art');
-  el.style.setProperty('--skin-x', (n % 6) * 20 + '%');
-  el.style.setProperty('--skin-y', Math.floor(n / 6) * 100 + '%');
+  const {url, columns, rows, cell} = skinAtlas(n);
+  el.style.setProperty('--skin-image', `url("${url}")`);
+  el.style.setProperty('--skin-size', `${columns * 100}% ${rows * 100}%`);
+  el.style.setProperty('--skin-x', (cell % columns) / (columns - 1) * 100 + '%');
+  el.style.setProperty('--skin-y', rows > 1 ? Math.floor(cell / columns) / (rows - 1) * 100 + '%' : '0%');
   el.style.setProperty('--player-colour', PLAYER_PALETTE[player.colour] || PLAYER_PALETTE[player.i % 4]);
 }
 export function createPlayerArt(THREE, tokens, size, invalidate) {
@@ -39,15 +50,17 @@ export function createPlayerArt(THREE, tokens, size, invalidate) {
     sync(players);
     if (state === 'loading' || state === 'ready') return;
     state = 'loading';
-    new THREE.TextureLoader().load(PLAYER_ATLAS, texture => {
-      texture.colorSpace = THREE.SRGBColorSpace;
-      for (let i = 0; i < 12; i++) {
-        const map = texture.clone();
-        map.repeat.set(1 / 6, 1 / 2);
-        map.offset.set((i % 6) / 6, 1 / 2 - Math.floor(i / 6) / 2);
+    const loader = new THREE.TextureLoader();
+    Promise.all([PLAYER_ATLAS, MONASTIC_ATLAS].map(url => loader.loadAsync(url))).then(textures => {
+      textures.forEach(texture => { texture.colorSpace = THREE.SRGBColorSpace; });
+      PLAYER_SKINS.forEach((skin, i) => {
+        const {columns, rows, cell} = skinAtlas(i);
+        const map = textures[i < 12 ? 0 : 1].clone();
+        map.repeat.set(1 / columns, 1 / rows);
+        map.offset.set((cell % columns) / columns, 1 - (Math.floor(cell / columns) + 1) / rows);
         map.needsUpdate = true;
         maps.push(map);
-      }
+      });
       tokens.forEach((token, i) => {
         const material = new THREE.SpriteMaterial({ map: maps[0], transparent: true, alphaTest: .08, depthWrite: false, depthTest: false });
         const sprite = new THREE.Sprite(material);
@@ -64,7 +77,7 @@ export function createPlayerArt(THREE, tokens, size, invalidate) {
         sprites[i] = sprite;
       });
       state = 'ready'; sync(currentPlayers); invalidate();
-    }, undefined, () => { state = 'failed'; });
+    }).catch(() => { state = 'failed'; });
   }
   return { load, sync };
 }

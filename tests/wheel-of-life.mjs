@@ -144,9 +144,9 @@ for (const [ids, spoke, side] of [[HOT_HELLS, span.wl_realm_hells[1], -1], [COLD
     assert.ok(a > span.wl_realm_hells[0] && a < span.wl_realm_hells[1], row.id + ' is in the hells');
     assert.ok(Math.sign(row.cx - C.x) === side, row.id + (side < 0 ? ' is on the left' : ' is on the right'));
   });
-  r.forEach((row, k) => { if (k) assert.ok(row.off > r[k - 1].off, row.id + ' lies further from its spoke than the row before'); });
+  assert.ok(ids.every(id => PARTS.find(p => p.id === id).shapes[0][0] === 'poly'), 'individual traced panels');
 }
-ok('eight hot hells in rows on the left of the realm, eight cold on the right, each further from its spoke');
+ok('eight individual hot panels on the left, eight cold panels on the right');
 
 // ── parts and entries ───────────────────────────────────────────────────────
 const parts = [...w.boxes.keys()];

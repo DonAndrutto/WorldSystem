@@ -727,6 +727,186 @@ export const PLACES = Object.freeze([
     "zone": "Europe/Brussels"
   },
   {
+    "name": "Ghent (Gent / Gand), Belgium",
+    "latitude": 51.05,
+    "longitude": 3.7167,
+    "zone": "Europe/Brussels"
+  },
+  {
+    "name": "Bruges (Brugge), Belgium",
+    "latitude": 51.2089,
+    "longitude": 3.2242,
+    "zone": "Europe/Brussels"
+  },
+  {
+    "name": "Liège (Luik), Belgium",
+    "latitude": 50.6337,
+    "longitude": 5.5675,
+    "zone": "Europe/Brussels"
+  },
+  {
+    "name": "Charleroi, Belgium",
+    "latitude": 50.4114,
+    "longitude": 4.4445,
+    "zone": "Europe/Brussels"
+  },
+  {
+    "name": "Namur (Namen), Belgium",
+    "latitude": 50.4669,
+    "longitude": 4.8675,
+    "zone": "Europe/Brussels"
+  },
+  {
+    "name": "Leuven (Louvain), Belgium",
+    "latitude": 50.8796,
+    "longitude": 4.7009,
+    "zone": "Europe/Brussels"
+  },
+  {
+    "name": "Mons (Bergen), Belgium",
+    "latitude": 50.4541,
+    "longitude": 3.9523,
+    "zone": "Europe/Brussels"
+  },
+  {
+    "name": "Mechelen (Malines), Belgium",
+    "latitude": 51.0257,
+    "longitude": 4.4776,
+    "zone": "Europe/Brussels"
+  },
+  {
+    "name": "La Louvière, Belgium",
+    "latitude": 50.4866,
+    "longitude": 4.1879,
+    "zone": "Europe/Brussels"
+  },
+  {
+    "name": "Kortrijk (Courtrai), Belgium",
+    "latitude": 50.828,
+    "longitude": 3.2649,
+    "zone": "Europe/Brussels"
+  },
+  {
+    "name": "Hasselt, Belgium",
+    "latitude": 50.9311,
+    "longitude": 5.3378,
+    "zone": "Europe/Brussels"
+  },
+  {
+    "name": "Genk, Belgium",
+    "latitude": 50.965,
+    "longitude": 5.5008,
+    "zone": "Europe/Brussels"
+  },
+  {
+    "name": "Ieper (Ypres), Belgium",
+    "latitude": 50.8511,
+    "longitude": 2.8857,
+    "zone": "Europe/Brussels"
+  },
+  {
+    "name": "Roeselare (Roulers), Belgium",
+    "latitude": 50.9465,
+    "longitude": 3.1227,
+    "zone": "Europe/Brussels"
+  },
+  {
+    "name": "Ostend (Oostende), Belgium",
+    "latitude": 51.2155,
+    "longitude": 2.927,
+    "zone": "Europe/Brussels"
+  },
+  {
+    "name": "Wavre (Waver), Belgium",
+    "latitude": 50.7172,
+    "longitude": 4.6014,
+    "zone": "Europe/Brussels"
+  },
+  {
+    "name": "Waterloo, Belgium",
+    "latitude": 50.7147,
+    "longitude": 4.3991,
+    "zone": "Europe/Brussels"
+  },
+  {
+    "name": "Verviers, Belgium",
+    "latitude": 50.5891,
+    "longitude": 5.8624,
+    "zone": "Europe/Brussels"
+  },
+  {
+    "name": "Tournai (Doornik), Belgium",
+    "latitude": 50.6072,
+    "longitude": 3.3893,
+    "zone": "Europe/Brussels"
+  },
+  {
+    "name": "Tongeren (Tongres), Belgium",
+    "latitude": 50.7805,
+    "longitude": 5.4648,
+    "zone": "Europe/Brussels"
+  },
+  {
+    "name": "Sint-Truiden (Saint-Trond), Belgium",
+    "latitude": 50.8168,
+    "longitude": 5.1865,
+    "zone": "Europe/Brussels"
+  },
+  {
+    "name": "Anderlecht, Belgium",
+    "latitude": 50.8362,
+    "longitude": 4.3145,
+    "zone": "Europe/Brussels"
+  },
+  {
+    "name": "Ixelles (Elsene), Belgium",
+    "latitude": 50.8333,
+    "longitude": 4.3667,
+    "zone": "Europe/Brussels"
+  },
+  {
+    "name": "Schaerbeek (Schaarbeek), Belgium",
+    "latitude": 50.8694,
+    "longitude": 4.3774,
+    "zone": "Europe/Brussels"
+  },
+  {
+    "name": "Uccle (Ukkel), Belgium",
+    "latitude": 50.8022,
+    "longitude": 4.3394,
+    "zone": "Europe/Brussels"
+  },
+  {
+    "name": "Mol, Belgium",
+    "latitude": 51.1919,
+    "longitude": 5.1166,
+    "zone": "Europe/Brussels"
+  },
+  {
+    "name": "Maaseik, Belgium",
+    "latitude": 51.098,
+    "longitude": 5.7838,
+    "zone": "Europe/Brussels"
+  },
+  {
+    "name": "Lommel, Belgium",
+    "latitude": 51.2307,
+    "longitude": 5.3135,
+    "zone": "Europe/Brussels"
+  },
+  {
+    "name": "Geel, Belgium",
+    "latitude": 51.1656,
+    "longitude": 4.9892,
+    "zone": "Europe/Brussels"
+  },
+  {
+    "name": "Beringen, Belgium",
+    "latitude": 51.0495,
+    "longitude": 5.2261,
+    "zone": "Europe/Brussels"
+  },
+  {
     "name": "Vienna, Austria",
     "latitude": 48.2082,
     "longitude": 16.3738,

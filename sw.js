@@ -25,7 +25,7 @@
    current shelf or the runtime one, so old versions do not accumulate. */
 
 /* ── written by scripts/build-sw.cjs — do not edit below ─────────────── */
-const VERSION = '21869437da8bae01';
+const VERSION = '84e9933955ac11e9';
 const SHELL = [
   "app-chrome.css",
   "app-chrome.js",
@@ -72,6 +72,7 @@ const SHELL = [
   "assets/offerings/royal-atlas.webp",
   "assets/offerings/treasure-atlas.webp",
   "assets/rebirth/liberation.webp",
+  "assets/rebirth/monastics.png",
   "assets/rebirth/squares-1.webp",
   "assets/rebirth/squares-2.webp",
   "assets/rebirth/squares-3.webp",
@@ -121,12 +122,14 @@ const SHELL = [
   "mandala-tour.js",
   "manifest.webmanifest",
   "mansion-layer.js",
+  "mansion-search.js",
   "mansion-ui.js",
   "palace-architecture.js",
   "places-data.js",
   "presentation-locales.js",
   "presentation-tours.css",
   "presentation-tours.js",
+  "realm-atmospheres.js",
   "rebirth-board.js",
   "rebirth-game.js",
   "rebirth-icons.js",

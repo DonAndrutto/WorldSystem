@@ -73,37 +73,49 @@ let picked = false;
 cosmos.group.traverse(o => { if (o.raycast && o.raycast.toString() !== '() => {}' && (o.isMesh || o.isPoints)) picked = true; });
 assert.equal(picked, false, 'and is no click target');
 
+// Memory stays bounded: only the current order survives a completed transition.
+let disposed = 0;
+instanced[0].geometry.addEventListener('dispose', () => disposed++);
 cosmos.setLevel(3, { instant: true });
+assert.equal(disposed, 1);
+assert.ok(!cosmos.built(1) && !cosmos.built(2) && cosmos.built(3));
 const points = [];
 cosmos.group.traverse(o => { if (o.isPoints) points.push(o); });
-assert.equal(points.length, 2, 'a cloud for the second order and one for the third');
-assert.ok(points.every(pt => pt.geometry.attributes.position.count === 1000 * 1000), 'a thousand sprites for each of the thousand, the home cell among them');
-const cloud = points[0].geometry.attributes.position, home = levels[1].origin;
-let atHome = 0;
-for (let i = 0; i < 1000; i++) {
-  const d = Math.hypot(cloud.getX(i) - home[0], cloud.getY(i) - home[1], cloud.getZ(i) - home[2]);
-  if (d < levels[0].edge) atHome++;
+assert.equal(points.length, 1);
+const geometry = points[0].geometry;
+assert.equal(geometry.attributes.position.count * geometry.instanceCount, 1e6, 'the full million members is retained');
+assert.equal(geometry.attributes.position.array.byteLength + geometry.attributes.cloudOffset.array.byteLength, 24000,
+  'shared positions use 24 KB instead of 12 MB');
+const cloud = geometry.attributes.position, offsets = geometry.attributes.cloudOffset;
+for (const i of [0, 499, 999]) {
+  const w = memberOffsets()[i];
+  for (const axis of [0, 1, 2]) assert.ok(Math.abs(cloud.array[i*3+axis] + offsets.array[axis]
+    - (levels[2].origin[axis] + w[axis]*levels[1].pitch)) < 0.001, 'instanced positions match the original lattice');
 }
-assert.equal(atHome, 1000, 'from the second order the home cell is a cloud like its neighbours');
-assert.ok(points[1].material.size > points[0].material.size * 8, 'a small chiliocosm is drawn larger than a world');
-const shown = [];
-cosmos.group.traverse(o => { if (o.isPoints || o.isInstancedMesh) shown.push(o); });
-assert.ok(shown.every(o => o.material.opacity > 0), 'at once means shown');
-assert.ok(instanced.every(o => o.material.opacity === 1), 'the proxies of the first order are solid');
-assert.ok(points[1].material.opacity < points[0].material.opacity, 'the further order is the thinner');
-
-// fading: the second and third orders go out over a flight, and are hidden once gone
-assert.equal(cosmos.setLevel(1, { dur: 100 }), true, 'a fade is running');
-assert.equal(cosmos.tick(1000), true); assert.equal(cosmos.tick(1050), true);
-assert.ok(points[0].material.opacity > 0 && points[0].material.opacity < 1, 'half way out');
-assert.equal(cosmos.tick(1100), false, 'done');
-assert.equal(points[0].parent.visible, false, 'the second order is put away');
-assert.equal(points[1].parent.visible, false, 'and the third');
-assert.equal(instanced[0].material.opacity, 1, 'the first stays');
-assert.equal(points[0].material.opacity, 0, 'and the others are at nothing');
-assert.equal(cosmos.setLevel(0, { dur: 100 }), true);
-cosmos.tick(2000); assert.equal(cosmos.tick(2100), false);
-assert.equal(cosmos.group.visible, false, 'back to the one world, nothing else is drawn');
-assert.equal(cosmos.setLevel(0, { dur: 100 }), false, 'nothing to fade when nothing changes');
-
-console.log('PASS: a thousand a side, three orders laid out from the one world, 999 proxies and two clouds of a million, shown and put away.');
+let textureDisposed = 0;
+points[0].material.map.addEventListener('dispose', () => textureDisposed++);
+assert.equal(cosmos.setLevel(1, { dur: 100 }), true);
+assert.ok(cosmos.built(1) && cosmos.built(3), 'outgoing layer lives through the crossfade');
+cosmos.tick(1000); cosmos.tick(1050);
+assert.ok(points[0].material.opacity > 0 && points[0].material.opacity < 0.6);
+assert.equal(cosmos.tick(1100), false);
+assert.equal(textureDisposed, 1);
+assert.equal(cosmos.group.children.length, 1);
+assert.ok(!cosmos.built(3));
+// Rapid changes and an instant interruption cannot leave a stale fade alive.
+cosmos.setLevel(2, {dur:100}); cosmos.tick(2000); cosmos.tick(2050);
+cosmos.setLevel(3, {dur:100}); cosmos.tick(2100);
+cosmos.setLevel(1, {instant:true});
+assert.equal(cosmos.fading, false);
+assert.equal(cosmos.group.children.length, 1);
+cosmos.tick(10000);
+assert.equal(cosmos.level, 1);
+for (let cycle = 0; cycle < 3; cycle++) {
+  for (const level of [3, 2, 1, 0]) {
+    cosmos.setLevel(level, {instant:true});
+    assert.equal(cosmos.group.children.length, level ? 1 : 0, 'no layer accumulation');
+  }
+}
+assert.equal(cosmos.group.visible, false);
+assert.equal(cosmos.setLevel(0), false);
+console.log('PASS: full million-member instanced clouds, 24 KB positions, disposal and interrupted transitions.');

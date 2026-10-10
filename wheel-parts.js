@@ -54,14 +54,40 @@ export const NIDANAS = [
 const DIV = DV.map((a, i) => (i && a < DV[0] ? a + 360 : a));
 export const nidanaSpan = (i) => [DIV[i], i < 11 ? DIV[i + 1] : DIV[0] + 360];
 
-/* The eight hot hells are the red rows on the left of the hells, parallel to
-   the spoke that bounds them, and the eight cold the rows of ice on the right,
-   parallel to theirs. The relief does not label its rows; they are read here
-   from the spoke outward, the first hell nearest it. */
+/* Each hell is a panel, not a strip across the entire region. These outlines
+   follow the red lattice and the ice shelves of the composited photograph.
+   The hot panels are left of the court; the cold panels are right of it.
+   Names follow the depicted torments where distinguishable, and the usual
+   sequence for the unlabelled cold panels (pairs along each ice shelf). */
 export const HOT_HELLS = ['wl_hell_sanjiva', 'wl_hell_kalasutra', 'wl_hell_samghata', 'wl_hell_raurava',
   'wl_hell_maharaurava', 'wl_hell_tapana', 'wl_hell_pratapana', 'wl_hell_avichi'];
 export const COLD_HELLS = ['wl_cold_arbuda', 'wl_cold_nirarbuda', 'wl_cold_atata', 'wl_cold_hahava',
   'wl_cold_huhuva', 'wl_cold_utpala', 'wl_cold_padma', 'wl_cold_mahapadma'];
+
+// Grid vertices run across the two hot columns, then down four rows.
+const HOT_GRID = [
+  [[466, 1025], [520, 1059], [585, 1098]],
+  [[425, 1054], [488, 1094], [566, 1140]],
+  [[389, 1081], [449, 1133], [542, 1179]],
+  [[357, 1105], [411, 1168], [519, 1211]],
+  [[329, 1125], [389, 1191], [491, 1242]]
+];
+const hotPanel = (row, col) => [HOT_GRID[row][col], HOT_GRID[row][col + 1],
+  HOT_GRID[row + 1][col + 1], HOT_GRID[row + 1][col]];
+// The two burning houses are in the right column (Howling / Great Howling).
+const HOT_PANELS = [[0,0], [0,1], [1,0], [1,1], [2,1], [2,0], [3,0], [3,1]]
+  .map(([row, col]) => hotPanel(row, col));
+// Each of the four diagonal ice shelves holds two separately selectable panels.
+const COLD_PANELS = [
+  [[866,1016],[895,1037],[859,1080],[838,1062]],
+  [[838,1062],[859,1080],[809,1120],[790,1094]],
+  [[900,1041],[931,1062],[895,1107],[869,1088]],
+  [[869,1088],[895,1107],[833,1166],[810,1133]],
+  [[937,1066],[969,1088],[928,1136],[902,1114]],
+  [[902,1114],[928,1136],[852,1207],[830,1174]],
+  [[975,1092],[1003,1111],[969,1154],[933,1185],[909,1165]],
+  [[909,1165],[933,1185],[896,1214],[855,1239],[850,1215]]
+];
 
 const P = (id, layer, ...shapes) => ({ id, layer, shapes });
 export const PARTS = [
@@ -145,9 +171,9 @@ export const PARTS = [
   P('wl_preta_river', 'wheel', ['poly', [[884, 1030], [960, 1026], [1040, 1032], [1080, 1030], [1066, 1070], [1030, 1100],
     [980, 1092], [930, 1066]]], ['poly', [[762, 1024], [808, 1010], [842, 1016], [842, 1048], [800, 1062], [764, 1060]]]),
   // the hells
-  ...HOT_HELLS.map((id, k) => P(id, 'wheel', ['strip', 'hot', 8, k, SP[4]])),
-  ...COLD_HELLS.map((id, k) => P(id, 'wheel', ['strip', 'cold', 8, k, SP[3]])),
-  P('wl_muni_hells', 'wheel', ['poly', [[556, 952], [576, 940], [602, 948], [608, 986], [596, 1004], [566, 1004], [554, 980]]]),
+  ...HOT_HELLS.map((id, k) => P(id, 'wheel', ['poly', HOT_PANELS[k]])),
+  ...COLD_HELLS.map((id, k) => P(id, 'wheel', ['poly', COLD_PANELS[k]])),
+  P('wl_muni_hells', 'wheel', ['poly', [[548, 975], [563, 973], [576, 982], [583, 998], [579, 1020], [589, 1044], [576, 1060], [554, 1053], [538, 1040], [543, 1019], [538, 999]]]),
   // the court: Yama in his pavilion, the scribe and the attendants, the dead
   // brought before him, and at the foot of the throne the white god and the
   // black demon with the dead between them

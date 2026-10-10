@@ -86,7 +86,7 @@
       <button class="btn" type="button" data-text-size="-1" aria-label="Smaller text" title="Smaller text">${magnifier(false)}</button>
       <button class="btn" type="button" data-text-size="1" aria-label="Larger text" title="Larger text">${magnifier(true)}</button>
     </div>
-    <details class="app-language"><summary class="btn" aria-label="Interface language"><span aria-hidden="true">文</span><span data-language-label data-no-localize>EN</span><span aria-hidden="true">▾</span></summary>
+    <details class="app-language"><summary class="btn" aria-label="Interface language"><span data-language-flag data-no-localize aria-hidden="true">🇬🇧</span><span data-language-label data-no-localize>EN</span><span aria-hidden="true">▾</span></summary>
       <div class="app-language-menu card" role="group" aria-label="Interface language">
         <button class="btn" type="button" data-ui-lang="en" lang="en" data-no-localize aria-pressed="true">English</button>
         <button class="btn" type="button" data-ui-lang="pl" lang="pl" data-no-localize aria-pressed="false">Polski</button>
@@ -129,7 +129,11 @@
   tour.textContent = 'Start a guided tour';
   document.querySelector('[data-menu="options"] .menu-body').append(tour);
   const language = header.querySelector('.app-language');
-  const syncLanguage = () => { header.querySelector('[data-language-label]').textContent = locale?.language === 'pl' ? 'PL' : 'EN'; };
+  const syncLanguage = () => {
+    const polish = locale?.language === 'pl';
+    header.querySelector('[data-language-label]').textContent = polish ? 'PL' : 'EN';
+    header.querySelector('[data-language-flag]').textContent = polish ? '🇵🇱' : '🇬🇧';
+  };
   header.addEventListener('click', event => {
     const choice = event.target.closest('[data-ui-lang]');
     if (choice) { locale?.setLanguage(choice.dataset.uiLang); language.open = false; language.querySelector('summary').focus(); syncLanguage(); }

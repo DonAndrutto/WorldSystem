@@ -54,7 +54,7 @@ for (const bad of ['not json', '{}', '{"version":2}', JSON.stringify({...makeSes
   JSON.stringify({...makeSession(createGame()), rolls:[0]}), JSON.stringify({...makeSession(createGame()), names:[]})]) {
   assert.equal(restoreSession(bad), null, 'invalid saves are rejected');
 }
-assert.equal(PLAYER_SKINS.length, 12);
+assert.equal(PLAYER_SKINS.length, 14);
 assert.equal(createGame({skins:['missing'], colours:[99]}).players[0].skin, PLAYER_SKINS[0].id);
 console.log('PASS: session replay, pending roll recovery, both quotas, both trap exits, 624 previews, invalid saves and appearance defaults.');
 
