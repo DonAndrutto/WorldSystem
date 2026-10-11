@@ -6,6 +6,7 @@ import {fileURLToPath, pathToFileURL} from 'node:url';
 import {JSDOM} from 'jsdom';
 import * as RealThree from 'three';
 const repo = process.env.WORLDSYSTEM_REPO || fileURLToPath(new URL('../', import.meta.url));
+const {createWorldEnding} = await import(pathToFileURL(repo + '/world-ending.js'));
 const {createOfferingModels, OFFERING_ART, offeringBackground} = await import(pathToFileURL(repo + '/mandala-offerings.js'));
 const {TOUR_NOTES} = await import(pathToFileURL(repo + '/mandala-tour.js'));
 const {createPresentationTours, createPresentationPlayer, WORLD_ORDERS} = await import(pathToFileURL(repo + '/presentation-tours.js'));
@@ -73,7 +74,7 @@ const THREE = {...RealThree, TextureLoader: class {
   loadAsync(url) { return new Promise((resolve,reject)=>this.load(url,resolve,undefined,reject)); }
   load(url, success, progress, failure) { textureRequests.push({url, success, failure}); }
 }};
-Object.assign(window, {createOfferingModels, OFFERING_ART, offeringBackground, TOUR_NOTES, createPresentationTours, createPresentationPlayer, WORLD_ORDERS, installViewportGestures}, surfaces, skyClouds, gameCamera, gamePlayers, gameSession, gameWalkthrough, summitDetail, continentModels, wheelView, wheelNotes, {drawWheel: wheelArt.drawWheel}, {
+Object.assign(window, {createWorldEnding, installPanelLayout: () => {}, createOfferingModels, OFFERING_ART, offeringBackground, TOUR_NOTES, createPresentationTours, createPresentationPlayer, WORLD_ORDERS, installViewportGestures}, surfaces, skyClouds, gameCamera, gamePlayers, gameSession, gameWalkthrough, summitDetail, continentModels, wheelView, wheelNotes, {drawWheel: wheelArt.drawWheel}, {
   createThousandWorlds: thousandWorlds.createThousandWorlds, worldsFramingDistance: thousandWorlds.framingDistance,
   RB_SQUARES: rbBoard.SQUARES, RB_SPECIAL: rbBoard.SPECIAL, RB_START: rbBoard.START,
   RB_VICTORY: rbBoard.VICTORY, TRAP_QUOTA: rbBoard.TRAP_QUOTA, TRAP_QUOTA_NOTE64: rbBoard.TRAP_QUOTA_NOTE64,
@@ -813,7 +814,7 @@ window.Math.random = () => (face-1)/6 + 1e-6;
 const clearCard = () => { if (!q('.bv-card').hidden) { q('.bv-grid').click(); advance(400); } };
 const throwFace = f => {
   face=f;
-  (q('.bv-card').hidden ? q('[data-game="throw"]') : q('.bv-card-go')).click();
+  q('[data-game="throw"]').click();
   advance(3200);
 };
 /* Starting over goes through the dialog, which is also where players are
@@ -869,7 +870,9 @@ advance(12000);
 assert.equal(q('.bv-card').hidden,false,'a card stands until it is answered');
 /* It carries the next throw as well as the passage, so the turn passes from
    the card and the rail is only where a game's first throw comes from. */
-assert.equal(q('.bv-card-go').hidden,false,'the next throw is offered from the card');
+assert.equal(q('.bv-card-go').hidden,true,'the duplicate card throw stays hidden');
+assert.equal(q('.bv-advance').hidden,false,'the fixed throw remains visible beside a result');
+assert.equal(q('[data-game="throw"]').parentElement,q('.bv-advance'),'all animation paces use the fixed action');
 assert.match(q('.bv-card-go').getAttribute('aria-label'),/^Continue — throw for /,
   'and says whose it is');
 q('.bv-card-more').click(); advance(600);
@@ -986,7 +989,8 @@ assert.equal(q('.bv-card .tb').textContent,rbBoard.tibetanOf(104));
 assert.equal(q('.bv-card-end').hidden,false,'victory carries the closing painting');
 assert.match(q('.bv-card-end').getAttribute('src'),/liberation\.webp$/);
 assert.equal(q('[data-game="throw"]').textContent,'Stupa throw');
-assert.equal(q('.bv-card-go').hidden,false,'the rite is offered from the card too');
+assert.equal(q('.bv-card-go').hidden,true,'the fixed action alone offers the stupa rite');
+assert.equal(q('.bv-advance').hidden,false,'the fixed stupa action remains visible');
 throwFace(5);
 assert.equal(app.rbGame().winner,0,'the rite cannot change the winner');
 assert.equal(q('[data-game="throw"]').textContent,'Game over');

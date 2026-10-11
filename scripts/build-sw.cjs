@@ -33,6 +33,7 @@ const SHELL = [
   ['assets/fonts', /\.(css|woff2)$/],
   ['assets/offerings', /\.webp$/],            // the three offering sheets
   ['assets/rebirth', /\.(webp|png)$/],              // the board's four field sheets
+  ['assets/modes', /\.webp$/],
   ['assets/wheel', /\.webp$/],                // the wheel of life, in its layers
   ['assets/mansions', /\.webp$/],             // the 28 lunar mansion glyphs (not their SVG sources)
   ['assets/audio', /\.mp3$/],                 // the original looping game score

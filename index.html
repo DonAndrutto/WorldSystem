@@ -1820,6 +1820,7 @@
 <link rel="stylesheet" href="presentation-tours.css">
 <link rel="stylesheet" href="app-chrome.css">
 <link rel="stylesheet" href="interpretation.css">
+<link rel="stylesheet" href="world-experience.css">
 </head>
 <body>
 
@@ -1845,14 +1846,14 @@
   <div class="controls card">
     <button class="btn" data-act="index" type="button" aria-pressed="false" title="Search — i"><span class="g" aria-hidden="true">⌕</span><span class="t">Search</span></button>
     <details class="menu" data-menu="mode">
-      <summary class="btn" title="Explorer e · Mandala m · Game g · Wheel l · Billion worlds b · Astrology j"><span class="g">✦</span><span class="t">Explorer</span><span class="chev">▾</span></summary>
+      <summary class="btn" title="Explorer e · Mandala m · Game g · Wheel l · Billion worlds b · Astrology j"><span class="g"><img src="assets/modes/explore.webp" alt=""></span><span class="t">Explorer</span><span class="chev">▾</span></summary>
       <div class="menu-body card" role="group" aria-label="View">
-        <button class="btn" data-mode="explore" type="button" aria-pressed="true" title="Explorer — e"><span class="g">✦</span><span class="t">Explorer</span></button>
-        <button class="btn" data-mode="mandala" type="button" aria-pressed="false" title="Mandala — m"><span class="g">◎</span><span class="t">Mandala</span></button>
-        <button class="btn" data-mode="game" type="button" aria-pressed="false" title="Game of rebirth — g"><span class="g">☸</span><span class="t">Game</span></button>
-        <button class="btn" data-mode="wheel" type="button" aria-pressed="false" title="Wheel of life — l"><span class="g">❂</span><span class="t">Wheel</span></button>
-        <button class="btn" data-mode="worlds" type="button" aria-pressed="false" title="Billion worlds — b"><span class="g">✧</span><span class="t">Billion worlds</span></button>
-        <button class="btn" data-mode="astrology" type="button" aria-pressed="false" title="Astrology — j"><span class="g">☽</span><span class="t">Astrology</span></button>
+        <button class="btn" data-mode="explore" type="button" aria-pressed="true" title="Explorer — e"><span class="g"><img src="assets/modes/explore.webp" alt="" width="72" height="45"></span><span class="t">Explorer</span></button>
+        <button class="btn" data-mode="mandala" type="button" aria-pressed="false" title="Mandala — m"><span class="g"><img src="assets/modes/mandala.webp" alt="" width="72" height="45"></span><span class="t">Mandala</span></button>
+        <button class="btn" data-mode="game" type="button" aria-pressed="false" title="Game of rebirth — g"><span class="g"><img src="assets/modes/game.webp" alt="" width="72" height="45"></span><span class="t">Game</span></button>
+        <button class="btn" data-mode="wheel" type="button" aria-pressed="false" title="Wheel of life — l"><span class="g"><img src="assets/modes/wheel.webp" alt="" width="72" height="45"></span><span class="t">Wheel</span></button>
+        <button class="btn" data-mode="worlds" type="button" aria-pressed="false" title="Billion worlds — b"><span class="g"><img src="assets/modes/worlds.webp" alt="" width="72" height="45"></span><span class="t">Billion worlds</span></button>
+        <button class="btn" data-mode="astrology" type="button" aria-pressed="false" title="Astrology — j"><span class="g"><img src="assets/modes/astrology.webp" alt="" width="72" height="45"></span><span class="t">Astrology</span></button>
       </div>
     </details>
     <details class="menu" data-menu="options">
@@ -1946,19 +1947,6 @@
       <div aria-live="polite" aria-atomic="true"><h2></h2><p class="bv-walkthrough-copy"></p><p class="bv-walkthrough-location"></p></div>
     </section>
     <div class="bv-advance" hidden></div>
-    <div class="bv-mapbar">
-      <details class="bv-guide card">
-        <summary><span class="bv-guide-title">Realms &amp; path</span><span class="bv-guide-key"><span data-realm="lower">Lower realms</span><span data-realm="higher">Higher realms</span><span data-realm="path">The path</span><span data-realm="bhumi">Bhūmis 1–10</span></span></summary>
-        <div class="bv-guide-body card">
-          <div class="bv-guide-heading"><h2>Reading the game</h2><button class="btn" type="button" data-game="guide-close" aria-label="Close">×</button></div>
-          <p>Lower and higher rebirths are both within saṃsāra. The path leads toward liberation; the first bhūmi marks a distinct threshold of realization.</p>
-          <div class="bv-guide-groups"></div>
-          <p class="bv-guide-rule">Throw the die to follow a destination. Square numbers identify places on the board; they do not measure spiritual attainment.</p>
-          <div class="bv-guide-bhumis"><button class="btn" type="button" data-realm-square="71">First sutra bhūmi · 71</button><button class="btn" type="button" data-realm-square="66">First tantra bhūmi · 66</button></div>
-        </div>
-      </details>
-      <button class="btn bv-size-toggle" type="button" data-game="board-size" aria-pressed="false">Larger squares</button>
-    </div>
     <div class="bv-grid" role="grid" aria-label="The hundred and four squares"></div>
     <div class="bv-card" role="status" aria-live="assertive" hidden>
       <div class="bv-card-in card">
@@ -1997,12 +1985,23 @@
         <button class="btn" type="button" data-layout="board" aria-pressed="true" title="The board alone — a diagram of positions"><span class="g">▦</span><span class="t">Board</span></button>
         <button class="btn" type="button" data-layout="world" aria-pressed="false" title="The world alone, in three dimensions"><span class="g">◉</span><span class="t">World</span></button>
       </div>
+      <details class="bv-guide card">
+        <summary><span class="bv-guide-title">Realms &amp; path</span><span class="bv-guide-key" aria-hidden="true"><span data-realm="lower">Lower realms</span><span data-realm="higher">Higher realms</span><span data-realm="path">The path</span><span data-realm="bhumi">Bhūmis 1–10</span></span></summary>
+        <div class="bv-guide-body card">
+          <div class="bv-guide-heading"><h2>Reading the game</h2><button class="btn" type="button" data-game="guide-close" aria-label="Close">×</button></div>
+          <p>Lower and higher rebirths are both within saṃsāra. The path leads toward liberation; the first bhūmi marks a distinct threshold of realization.</p>
+          <div class="bv-guide-groups"></div>
+          <p class="bv-guide-rule">Throw the die to follow a destination. Square numbers identify places on the board; they do not measure spiritual attainment.</p>
+          <div class="bv-guide-bhumis"><button class="btn" type="button" data-realm-square="71">First sutra bhūmi · 71</button><button class="btn" type="button" data-realm-square="66">First tantra bhūmi · 66</button></div>
+        </div>
+      </details>
       <button class="btn bv-skip" type="button" data-game="skip" hidden>Skip animation</button>
       <details class="bv-options"><summary class="btn" title="The six possible destinations for this turn">Destinations</summary><div class="bv-options-body card"></div></details>
       <details class="bv-tools"><summary class="btn">Game</summary><div class="bv-tools-body card">
       <label>Animation pace <select id="g-pace"><option value="calm">Calm</option><option value="quick">Quick</option><option value="instant">Instant</option></select></label>
       <label class="sw"><input type="checkbox" id="g-follow" checked> Camera follows the traveler</label>
       <label class="sw"><input type="checkbox" id="g-large-board"> Larger board squares (scroll)</label>
+      <button class="btn bv-size-toggle" type="button" data-game="board-size" aria-pressed="false">Larger squares</button>
       <p class="bv-save" role="status"></p>
       <p>Throw the die to follow its destination. A missing destination means stay and pass. In a trap, collect the required faces; a needed face gives another throw. Reach 104 to win.</p>
       <button class="btn" type="button" data-game="replay-guide">Replay guided game</button>
@@ -2162,6 +2161,8 @@
 <script src="app-chrome.js"></script>
 <script type="module" src="lunar-panels.js"></script>
 <script type="module">
+import { createWorldEnding } from './world-ending.js';
+import { installPanelLayout } from './panel-layout.js';
 import { createOfferingModels, OFFERING_ART, offeringBackground } from './mandala-offerings.js';
 import { TOUR_NOTES } from './mandala-tour.js';
 import { createPresentationTours, createPresentationPlayer, WORLD_ORDERS } from './presentation-tours.js';
@@ -2390,10 +2391,18 @@ const cloudTex = (dark) => canvasTex(2048, 1024, (ctx, w, h) => {
 });
 
 const waterNormalMap = createWaterNormalMap(THREE);
+const goldEnvironment = canvasTex(512, 256, (x, w, h) => {
+  const wash = x.createLinearGradient(0, 0, 0, h);
+  wash.addColorStop(0, '#f9f4e8'); wash.addColorStop(.35, '#fffdf4');
+  wash.addColorStop(.55, '#7d745f'); wash.addColorStop(1, '#c8aa63');
+  x.fillStyle = wash; x.fillRect(0, 0, w, h);
+  x.fillStyle = '#ffffff'; x.fillRect(w * .16, h * .12, w * .15, h * .3);
+});
+goldEnvironment.mapping = THREE.EquirectangularReflectionMapping;
 const M = {
-  gold:    mat('gold', 0xc9a24b, 0.42, 0.35),
+  gold:    mat('gold', 0xffc83d, 0.24, 0.55, { emissive: 0x7a4505, emissiveIntensity: 0.12, envMap: goldEnvironment, envMapIntensity: .65 }),
   goldDeep:mat('gold_shadowed', 0xa9822f, 0.5, 0.3),
-  goldRange: mat('gold_range', 0xffffff, 0.38, 0.32, { vertexColors: true, flatShading: true }),
+  goldRange: mat('gold_range', 0xffffff, 0.25, 0.5, { vertexColors: true, flatShading: true, emissive: 0x7a4505, emissiveIntensity: 0.1, envMap: goldEnvironment, envMapIntensity: .65 }),
   crystal: mat('crystal_east', 0xdfe3e6, 0.32, 0.10),
   lapis:   mat('lapis_south', 0x35558c, 0.52, 0.05),
   ruby:    mat('ruby_west', 0x9e3f43, 0.44, 0.05),
@@ -4796,6 +4805,11 @@ const prevBtn = sheet.querySelector('.prev');
 const nextBtn = sheet.querySelector('.next');
 const indexEl = document.querySelector('.index');
 
+const worldEndEntryButton = document.createElement('button');
+worldEndEntryButton.type = 'button'; worldEndEntryButton.className = 'btn world-end-entry';
+worldEndEntryButton.textContent = 'Watch the world end'; worldEndEntryButton.hidden = true;
+sheet.querySelector('.bodies').before(worldEndEntryButton);
+let worldEnding = null;
 let order = [];   // flat reading order, filled when the index is built
 let touring = false, tourIndex = 0;
 let guidedMode = null, tourPlayer = null, tourReturnLayout = null, tourPreviousMotion = null, tourPreviousSelection = null;
@@ -4903,6 +4917,7 @@ function show(id, reveal) {
   zoomBtn.disabled = !ms.length && !(mode === 'wheel' && wheelPart(id)) && worldsStop(id) === null && !MANSION_BY_ID.has(id);
   syncZoom();
   sheet.hidden = false;
+  worldEndEntryButton.hidden = id !== 'about_destruction';
   sScroll.scrollTop = 0;
   const art = OFFERING_ART.get(id);
   const square = /^rebirth_sq_(\d+)$/.exec(id);
@@ -5693,13 +5708,19 @@ function syncChrome() {
   if (mode === 'wheel' && dock.hidden !== dockWas && wheelView) setTimeout(() => wheelView.resize(), 90);
   /* the board yields width to an open panel, so the world it leaves changes
      shape as well as size: frame it again whenever the dock comes or goes */
-  if (dock.hidden !== dockWas && (mode === 'game' || tightScreen())) reframeAfterPanels();
+  if (dock.hidden !== dockWas) reframeAfterPanels();
   artStatus.hidden = !mandala || !imageStates.some(s => s === 'loading' || s === 'failed');
   document.body.classList.toggle('panel-open', !dock.hidden);
   document.body.classList.toggle('min-menus', minPlay);
   document.body.classList.toggle('tour-view', touring);
   document.body.classList.toggle('presentation-view', presentationActive());
   document.body.classList.toggle('game-view', mode === 'game');
+  if (mode === 'game') {
+    const rail = boardEl.querySelector('.bv-rail').getBoundingClientRect();
+    document.documentElement.style.setProperty('--world-card-top', Math.ceil(rail.bottom + 10) + 'px');
+    const focusHeight = gameFocusEl.hidden ? 0 : gameFocusEl.getBoundingClientRect().height;
+    document.documentElement.style.setProperty('--world-focus-clearance', Math.ceil((tightScreen() ? 140 : 88) + focusHeight + 12) + 'px');
+  }
   // measured here rather than per frame; the label reads it every frame
   rbLabelClip = (mode === 'game' && !boardEl.hidden && !document.body.classList.contains('world-only'))
     ? boardEl.getBoundingClientRect() : null;
@@ -5747,7 +5768,16 @@ function freeRect() {
     const edge = q.top + q.height / 2 < h / 2 ? 't' : 'b';
     ins[edge] = Math.max(ins[edge], edge === 't' ? q.bottom : h - q.top);
   }
-  [dock, boardEl, document.querySelector('.game-focus')].forEach(eat);
+
+  // In the desktop world view, descriptions and the persistent action share
+  // a side column. Meru keeps the same clear space when a result card opens.
+  if (mode === 'game' && document.body.classList.contains('world-only') && !tightScreen() && !rbAdvance.hidden) {
+    const action = rbAdvance.getBoundingClientRect();
+    if (action.width > 6) ins.r = Math.max(ins.r, w - action.left);
+  }
+  [dock, boardEl, document.querySelector('.game-focus'),
+    document.querySelector('body.world-only .bv-card'), rbAdvance,
+    document.querySelector('.world-ending:not([hidden])')].forEach(eat);
   const pad = 14;
   /* a dock panel may claim two fifths of the width; the board claims most of it */
   const side = mode === 'game' ? 0.76 : presentationActive() ? 0.55 : 0.4;
@@ -6431,7 +6461,7 @@ window.WorldSystemTours = {
 document.addEventListener('ws-start-tour', event => startPresentation(event.detail?.mode || mode));
 document.addEventListener('visibilitychange', () => { if (document.hidden) tourPlayer.pause(); });
 window.addEventListener('ws-help-open', () => pausePlay());
-window.addEventListener('ws-layout-change', () => reframeAfterPanels());
+window.addEventListener('ws-layout-change', () => { syncChrome(); reframeAfterPanels(); });
 window.addEventListener('resize', () => { if (presentationActive()) reframeAfterPanels(); });
 // Exploring by hand pauses the presentation before a timed advance can move it.
 ctr.addEventListener('start', () => { if (presentationActive()) tourPlayer.pause(); });
@@ -7176,6 +7206,7 @@ const rbCardUp = () => !rbCard.hidden && !rbCard.classList.contains('out');
 function rbDismissCard(target) {
   if (!rbCardUp()) return false;
   if (target && target.closest && target.closest('.bv-card-in,.bv-advance')) return false;
+  if (target?.closest?.('.controls,.app-header,.bv-guide,.bv-options,.bv-tools')) { rbHideCard(false); return false; }
   rbHideCard(true);
   return true;
 }
@@ -7502,10 +7533,10 @@ rbPace.addEventListener('change', () => {
   try { localStorage.setItem('ws-game-pace', rbPace.value); } catch {}
   rbUpdateActionLayout();
 });
-// The same physical button owns every fast throw, even while a result card is up.
-function rbFastAction() { return !!rbWalkthrough || rbPace.value !== 'calm' || reducedMotion(); }
+// The same physical button owns every throw at every animation pace.
+function rbFastAction() { return mode === 'game'; }
 function rbUpdateActionLayout() {
-  const fixed = mode === 'game' && rbFastAction();
+  const fixed = mode === 'game';
   const parent = fixed ? rbAdvance : rbThrowHome;
   if (rbThrowBtn.parentElement !== parent) parent.appendChild(rbThrowBtn);
   rbAdvance.hidden = !fixed;
@@ -7932,13 +7963,14 @@ function reframeExplore(dur = 420) {
 /* Panels open, fold and resize under all three views; the model is framed in
    whatever they leave, so the same answer is asked of whichever one is up. */
 function reframeCurrent(dur = 420) {
+  if (worldEnding?.active) { worldEnding.reframe(); return; }
   if (presentationActive()) { framePresentationStop(); return; }
   if (mandala) reframeOffering();
   else if (mode === 'game') {
     if (gameFocus) rbFrameFocus(dur);
     else if (!rbFrameFollow(dur)) reframeGame(dur, rbSelected === null ? null : rbBoard.positionOf(rbSelected));
   } else if (mansionFramed && mansionLayer.group.visible) frameMansion(mansionFramed, false);
-  else if (tightScreen() && !dock.hidden) reframeExplore(dur);
+  else if (mode === 'explore') { if (!dock.hidden) reframeExplore(dur); else home(); }
 }
 function enterGame() {
   close();
@@ -7993,12 +8025,14 @@ function syncModeButtons() {
     b.setAttribute('aria-pressed', String(b.dataset.mode === mode)));
   // the closed menu shows the view you are in, not the word "Mode"
   const face = controlsEl.querySelector('[data-menu="mode"] > .btn');
+  face.dataset.currentMode = mode;
   const [glyph, label] = MODE_FACE[mode] || MODE_FACE.explore;
-  face.querySelector('.g').textContent = glyph;
+  face.querySelector('.g').innerHTML = '<img src="assets/modes/' + mode + '.webp" alt="">';
   face.querySelector('.t').textContent = label;
 }
 function setMode(next, { workspace = true } = {}) {
   if (!Object.hasOwn(MODE_FACE, next)) return;
+  if (worldEnding?.active && next !== mode) worldEnding.close();
   if (next === mode) {
     if (workspace && next === 'astrology') { mansionUI.setLayer(true); openCalculator(true); }
     if (workspace && next === 'worlds' && guidedMode !== 'worlds') startPresentation('worlds', 1);
@@ -8186,6 +8220,7 @@ const chromeRO = new ResizeObserver(() => syncChrome());
 chromeRO.observe(noteEl);
 chromeRO.observe(tourEl);
 chromeRO.observe(boardEl);
+chromeRO.observe(gameFocusEl);
 new ResizeObserver(rbScrollSelected).observe(rbGrid);
 syncChrome();
 let reframe = null;
@@ -8467,6 +8502,37 @@ window.addEventListener('keydown', (e) => {
 });
 framedDist = cam.position.distanceTo(ctr.target);
 applyZoomLimits();
+
+let endingReturnMotion = false, endingMotionChoice = null;
+worldEnding = createWorldEnding(THREE, {
+  scene: stage._scene, world, radius: RIM, floor: FLOOR,
+  invalidate: () => invalidate(2),
+  begin: () => {
+    setMode('explore'); close(); endingReturnMotion = motion;
+    try { endingMotionChoice = localStorage.getItem('ws-motion'); } catch {}
+    setMotion(false, false);
+  },
+  frame: ({ boundary, kind }) => {
+    const fr = freeRect(), half = Math.tan(cam.fov * Math.PI / 360);
+    const centre = V3(0, (boundary + FLOOR) / 2, 0);
+    const spread = kind === 'fire' ? 1.7 : kind === 'wind' ? 1.9 : 1.2;
+    const span = Math.hypot(RIM * spread, (boundary - FLOOR) / 2) * 1.07;
+    aimAt(centre, span / half * stage.clientHeight / Math.min(fr.w, fr.h), fr, HOME_DIR, 600);
+  },
+  finish: () => {
+    let unchanged = true;
+    try { unchanged = localStorage.getItem('ws-motion') === endingMotionChoice; } catch {}
+    if (unchanged) setMotion(endingReturnMotion, false);
+    reshadow(); reframeCurrent(300);
+  },
+});
+worldEndEntryButton.addEventListener('click', () => worldEnding.open('fire'));
+const endingOption = document.createElement('button');
+endingOption.type = 'button'; endingOption.className = 'btn';
+endingOption.innerHTML = '<span class="g" aria-hidden="true">☀</span><span class="t">World endings</span>';
+endingOption.addEventListener('click', () => { closeMenus(); worldEnding.open('fire'); });
+controlsEl.querySelector('[data-menu="options"] .menu-body').append(endingOption);
+installPanelLayout();
 window.WorldSystemReady = true;
 window.dispatchEvent(new CustomEvent('ws-app-ready'));
 </script>
@@ -8532,6 +8598,7 @@ window.dispatchEvent(new CustomEvent('ws-app-ready'));
     });
   });
 })();
+
 </script>
 
 </body></html>
