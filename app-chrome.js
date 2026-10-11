@@ -72,6 +72,17 @@
     'Enter a moment with date, time, resolved zone and vāra.': 'Podaj chwilę z datą, godziną, ustaloną strefą czasową i vāra.',
     'Combinations partial — needs source check': 'Kombinacje częściowe — wymagają sprawdzenia źródła'
   });
+  Object.assign(translations, {
+    'How a world ends': 'Jak kończy się świat', 'World endings': 'Kres światów',
+    'Watch the world end': 'Zobacz kres świata', 'Seven suns': 'Siedem słońc',
+    'Water': 'Woda', 'Wind': 'Wiatr', 'Restart': 'Od początku',
+    'Close world endings': 'Zamknij prezentację kresu świata',
+    'World ending timeline': 'Oś czasu kresu świata',
+    'Choose a world ending': 'Wybierz kres świata',
+    'World endings presentation': 'Prezentacja kresu światów',
+    'Resize panel; double-click to collapse or expand': 'Zmień wysokość panelu; kliknij dwukrotnie, aby zwinąć lub rozwinąć',
+    'Drag to resize · double-click to collapse or expand · arrow keys to resize': 'Przeciągnij, aby zmienić wysokość · kliknij dwukrotnie, aby zwinąć lub rozwinąć · użyj strzałek, aby zmienić wysokość',
+  });
   locale?.add(translations);
   // A magnifying glass with a minus or a plus in its lens.
   const magnifier = plus => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m15.4 15.4 5.1 5.1M7.8 10.5h5.4${plus ? 'M10.5 7.8v5.4' : ''}"/></svg>`;
@@ -95,14 +106,29 @@
     <button class="btn" type="button" data-help-open aria-label="Help with the controls" aria-haspopup="dialog" aria-controls="app-help"><span class="app-help-symbol" aria-hidden="true">?</span><span class="app-help-label">Help</span></button>`;
   document.querySelector('.overlay').append(header);
   header.querySelector('.app-brand').addEventListener('click', () => document.dispatchEvent(new CustomEvent('ws-about-open')));
+  const controls = document.querySelector('.controls');
   const measureHeader = () => {
-    const clearance = Math.ceil(header.getBoundingClientRect().bottom + 10) + 'px';
-    if (document.documentElement.style.getPropertyValue('--header-clearance') === clearance) return;
-    document.documentElement.style.setProperty('--header-clearance', clearance);
-    window.dispatchEvent(new CustomEvent('ws-layout-change'));
+    const root = document.documentElement, rect = header.getBoundingClientRect();
+    const width = rect.width + 'px', clearance = Math.ceil(rect.bottom + 10) + 'px';
+    const previousWidth = root.style.getPropertyValue('--utility-width');
+    const previousClearance = root.style.getPropertyValue('--header-clearance');
+    const previousWorkspace = root.style.getPropertyValue('--chrome-clearance');
+    root.style.setProperty('--utility-width', width);
+    root.style.setProperty('--utility-half', rect.width / 2 + 'px');
+    root.style.setProperty('--header-clearance', clearance);
+    // Stack only when both cards cannot fit, and reserve the entire header.
+    root.dataset.headerRows = innerWidth > 700 && innerWidth < rect.width * 2 + 56 ? '2' : '1';
+    const menuRect = controls.getBoundingClientRect();
+    const menuBottom = menuRect.height > 0 && menuRect.top < innerHeight / 2 ? menuRect.bottom : 0;
+    const workspace = Math.ceil(Math.max(rect.bottom, menuBottom) + 10) + 'px';
+    root.style.setProperty('--chrome-clearance', workspace);
+    if (previousWidth !== width || previousClearance !== clearance || previousWorkspace !== workspace)
+      window.dispatchEvent(new CustomEvent('ws-layout-change'));
   };
-  new ResizeObserver(measureHeader).observe(header);
+  const headerObserver = new ResizeObserver(measureHeader);
+  headerObserver.observe(header); headerObserver.observe(controls);
   window.addEventListener('resize', measureHeader);
+  document.addEventListener('ws-mode-change', measureHeader);
   measureHeader();
 
   const help = document.createElement('dialog');
@@ -119,7 +145,7 @@
   intro.innerHTML = `<div class="intro-emblem" aria-hidden="true">✦</div><div class="help-eyebrow">Six ways to explore</div><h1 id="intro-title">One world, six ways in.</h1>
     <p class="intro-description">Explore worlds, offer a mandala, play the game of rebirth, study the wheel of life, visit a billion worlds, or open Astrology.</p>
     <div class="intro-modes">
-      ${[['explore','✦','Explorer','Worlds & realms'],['mandala','◎','Mandala','The 37 offerings'],['game','☸','Game','Paths of rebirth'],['wheel','❂','Wheel','The cycle of life'],['worlds','✧','Billion worlds','The thousandfold systems'],['astrology','☽','Astrology','Mansions & moments']].map(([id, icon, name, copy]) => `<button class="intro-mode" type="button" data-intro-mode="${id}" disabled><span aria-hidden="true">${icon}</span><strong>${name}</strong><small>${copy}</small></button>`).join('')}
+      ${[['explore','✦','Explorer','Worlds & realms'],['mandala','◎','Mandala','The 37 offerings'],['game','☸','Game','Paths of rebirth'],['wheel','❂','Wheel','The cycle of life'],['worlds','✧','Billion worlds','The thousandfold systems'],['astrology','☽','Astrology','Mansions & moments']].map(([id, icon, name, copy]) => `<button class="intro-mode" type="button" data-intro-mode="${id}" disabled><img src="assets/modes/${id}.webp" alt="" width="240" height="150"><strong>${name}</strong><small>${copy}</small></button>`).join('')}
     </div><span class="intro-loading" aria-hidden="true"></span><p class="intro-status" role="status" aria-live="polite">Preparing the world…</p>
     <button class="btn intro-skip" type="button" disabled>Continue</button><button class="btn intro-skip" data-intro-reload type="button" hidden>Reload</button>`;
   document.body.append(intro);

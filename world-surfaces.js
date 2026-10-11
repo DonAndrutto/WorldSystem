@@ -34,8 +34,8 @@ export function createGoldenRangeGeometry(THREE, { inner, outer, top, seat, peak
   const segments = peaks * 14, columns = segments + 1;
   const steps = [0, 0.035, 0.12, 0.23, 0.35, 0.43, 0.49, 0.56, 0.67, 0.79, 0.90, 0.965, 1];
   const positions = [], colours = [], uvs = [], indices = [];
-  const low = new THREE.Color(0x936022), middle = new THREE.Color(0xc59643);
-  const high = new THREE.Color(0xf1d68d), colour = new THREE.Color();
+  const low = new THREE.Color(0xbb7e0c), middle = new THREE.Color(0xf0b924);
+  const high = new THREE.Color(0xffe893), colour = new THREE.Color();
   const width = outer - inner;
   for (let row = 0; row < steps.length; row++) {
     const u = steps[row];

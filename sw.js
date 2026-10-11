@@ -25,7 +25,7 @@
    current shelf or the runtime one, so old versions do not accumulate. */
 
 /* ── written by scripts/build-sw.cjs — do not edit below ─────────────── */
-const VERSION = '84e9933955ac11e9';
+const VERSION = 'fac1f6606d3479e7';
 const SHELL = [
   "app-chrome.css",
   "app-chrome.js",
@@ -68,6 +68,12 @@ const SHELL = [
   "assets/mansions/lm_snon.webp",
   "assets/mansions/lm_snubs.webp",
   "assets/mansions/lm_tha_skar.webp",
+  "assets/modes/astrology.webp",
+  "assets/modes/explore.webp",
+  "assets/modes/game.webp",
+  "assets/modes/mandala.webp",
+  "assets/modes/wheel.webp",
+  "assets/modes/worlds.webp",
   "assets/offerings/goddess-atlas.webp",
   "assets/offerings/royal-atlas.webp",
   "assets/offerings/treasure-atlas.webp",
@@ -125,6 +131,7 @@ const SHELL = [
   "mansion-search.js",
   "mansion-ui.js",
   "palace-architecture.js",
+  "panel-layout.js",
   "places-data.js",
   "presentation-locales.js",
   "presentation-tours.css",
@@ -151,6 +158,8 @@ const SHELL = [
   "wheel-relief.js",
   "wheel-view.js",
   "white-beryl-rules.js",
+  "world-ending.js",
+  "world-experience.css",
   "world-surfaces.js"
 ];
 /* ── end of the written part ─────────────────────────────────────────── */
