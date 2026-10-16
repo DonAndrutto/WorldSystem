@@ -25,12 +25,17 @@
    current shelf or the runtime one, so old versions do not accumulate. */
 
 /* ── written by scripts/build-sw.cjs — do not edit below ─────────────── */
-const VERSION = 'fac1f6606d3479e7';
+const VERSION = 'fc03c9585ba5caeb';
 const SHELL = [
   "app-chrome.css",
   "app-chrome.js",
   "apple-touch-icon.png",
+  "assets/audio/far-horizons.mp3",
   "assets/audio/still-waters.mp3",
+  "assets/audio/the-turning.mp3",
+  "assets/audio/thirty-seven-offerings.mp3",
+  "assets/audio/thousandfold.mp3",
+  "assets/audio/twenty-eight-mansions.mp3",
   "assets/fonts/eb-garamond-400-italic-latin-ext.woff2",
   "assets/fonts/eb-garamond-400-italic-latin.woff2",
   "assets/fonts/eb-garamond-400-normal-latin-ext.woff2",
@@ -101,6 +106,7 @@ const SHELL = [
   "continent-models.js",
   "data/nakshatra_interpretation.json",
   "docs/NAKSHATRA-ENGINE.md",
+  "ending-sound.js",
   "favicon-32.png",
   "favicon.ico",
   "game-camera.js",
@@ -130,6 +136,7 @@ const SHELL = [
   "mansion-layer.js",
   "mansion-search.js",
   "mansion-ui.js",
+  "mode-soundtrack.js",
   "palace-architecture.js",
   "panel-layout.js",
   "places-data.js",
@@ -145,8 +152,10 @@ const SHELL = [
   "search-text.js",
   "sky-clouds.js",
   "summit-detail.js",
+  "synth.js",
   "thousand-worlds.js",
   "three-d-stage.js",
+  "ui-sound.js",
   "vendor/astronomy-engine@2.1.19/astronomy.js",
   "vendor/three@0.184.0/build/three.core.js",
   "vendor/three@0.184.0/build/three.module.js",

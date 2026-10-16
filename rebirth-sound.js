@@ -7,13 +7,15 @@
  * token arrives, over a rise or a fall that says which way the throw went.
  *
  * Nothing is sampled. Everything here is built from oscillators and filtered
- * noise at the moment it sounds, so these effects need no audio files and
- * work offline. Sound starts enabled and remembers an explicit mute preference.
- * The continuous game score is managed separately in game-soundtrack.js.
+ * noise (synth.js) at the moment it sounds, so these effects need no audio
+ * files and work offline. Sound starts enabled and remembers an explicit
+ * mute preference. The scores are managed separately in mode-soundtrack.js.
  *
  * The mapping is pure and is tested; the synthesis needs a real AudioContext
  * and is not.
  */
+
+import { createSynth } from './synth.js';
 
 /* One voice per family. Squares that are not named here take their category's
    voice, and a category with no voice of its own falls back to 'human'. */
@@ -60,78 +62,9 @@ export function voiceFor(square) {
    A handful of primitives, and one recipe per voice written in terms of
    them. Everything is scheduled ahead of the clock so nothing depends on
    the main thread keeping time. */
-export function createSoundKit(AudioContextClass) {
-  let ctx = null, master = null, noise = null;
-
-  function open() {
-    if (!ctx) {
-      if (!AudioContextClass) return null;
-      try { ctx = new AudioContextClass(); } catch (err) { return null; }
-      master = ctx.createGain();
-      master.gain.value = 0.9;
-      master.connect(ctx.destination);
-    }
-    if (ctx.state === 'suspended') ctx.resume().catch(() => {});
-    return ctx;
-  }
-
-  /* One second of white noise, made once and replayed as often as wanted. */
-  function noiseBuffer() {
-    if (!noise) {
-      noise = ctx.createBuffer(1, ctx.sampleRate, ctx.sampleRate);
-      const data = noise.getChannelData(0);
-      for (let i = 0; i < data.length; i += 1) data[i] = Math.random() * 2 - 1;
-    }
-    return noise;
-  }
-
-  /* A plain voiced tone: one oscillator through its own envelope. */
-  function tone(at, { f = 220, to = null, dur = 0.3, type = 'sine', gain = 0.1,
-                      attack = 0.008, detune = 0 }) {
-    const osc = ctx.createOscillator(), amp = ctx.createGain();
-    osc.type = type;
-    osc.detune.value = detune;
-    osc.frequency.setValueAtTime(f, at);
-    if (to) osc.frequency.exponentialRampToValueAtTime(Math.max(20, to), at + dur);
-    amp.gain.setValueAtTime(0.0001, at);
-    amp.gain.exponentialRampToValueAtTime(Math.max(0.0002, gain), at + attack);
-    amp.gain.exponentialRampToValueAtTime(0.0001, at + dur);
-    osc.connect(amp).connect(master);
-    osc.start(at);
-    osc.stop(at + dur + 0.05);
-  }
-
-  /* Filtered noise: skins, rattles, wind, the roar. */
-  function rush(at, { dur = 0.3, gain = 0.1, f = 800, q = 1, kind = 'bandpass',
-                      sweep = null, attack = 0.006 }) {
-    const src = ctx.createBufferSource(), filter = ctx.createBiquadFilter(), amp = ctx.createGain();
-    src.buffer = noiseBuffer();
-    src.loop = true;
-    filter.type = kind;
-    filter.frequency.setValueAtTime(f, at);
-    if (sweep) filter.frequency.exponentialRampToValueAtTime(Math.max(30, sweep), at + dur);
-    filter.Q.value = q;
-    amp.gain.setValueAtTime(0.0001, at);
-    amp.gain.exponentialRampToValueAtTime(Math.max(0.0002, gain), at + attack);
-    amp.gain.exponentialRampToValueAtTime(0.0001, at + dur);
-    src.connect(filter).connect(amp).connect(master);
-    src.start(at);
-    src.stop(at + dur + 0.05);
-  }
-
-  /* A struck metal body: inharmonic partials over one long decay. */
-  function struck(at, f, dur, gain, partials) {
-    partials.forEach((ratio, i) => {
-      tone(at, { f: f * ratio, dur: dur * (1 - i * 0.12), type: 'sine',
-                 gain: gain / (1.6 + i), attack: 0.004 });
-    });
-  }
-
-  /* A drum skin: a short pitch drop with a little noise on the strike. */
-  function skin(at, f, gain = 0.09) {
-    tone(at, { f, to: f * 0.55, dur: 0.16, type: 'triangle', gain, attack: 0.003 });
-    rush(at, { dur: 0.05, gain: gain * 0.5, f: f * 6, q: 0.8 });
-  }
+export function createSoundKit(AudioContextClass, synth = createSynth(AudioContextClass)) {
+  const { open, tone, rush, struck, skin } = synth;
+  const ctx = { get currentTime() { return synth.now(); } };
 
   /* ── the voices ──────────────────────────────────────────────────── */
   const RECIPES = {
@@ -250,5 +183,5 @@ export function createSoundKit(AudioContextClass) {
     tone(at, { f: 330 + done * 26, dur: 0.16, type: 'triangle', gain: 0.05 });
   }
 
-  return { dice, land, arrive, dead, count, ready: () => !!ctx, voices: RECIPES };
+  return { dice, land, arrive, dead, count, ready: synth.ready, voices: RECIPES };
 }

@@ -1879,8 +1879,8 @@
           </span>
         </div>
         <button class="btn" data-act="jyotisha" type="button" title="Indian Jyotiṣa calculation · Lahiri ayanamsa"><span class="g">☽</span><span class="t">Jyotiṣa calculator</span></button>
-        <label class="btn sw" for="g-sound" title="Sound — the voice each square answers in"><span class="g">♪</span><span class="t">Sound</span><input type="checkbox" id="g-sound"></label>
-        <label class="btn sw" for="g-music" title="Gentle soundtrack in game mode"><span class="g">♫</span><span class="t">Music</span><input type="checkbox" id="g-music" checked></label>
+        <label class="btn sw" for="g-sound" title="Sound — buttons, the voice each square answers in, and the endings of worlds"><span class="g">♪</span><span class="t">Sound</span><input type="checkbox" id="g-sound"></label>
+        <label class="btn sw" for="g-music" title="Music — a score for each mode"><span class="g">♫</span><span class="t">Music</span><input type="checkbox" id="g-music" checked></label>
         <div class="menu-row lang" role="group" aria-label="The language names are given in">
           <span class="g" aria-hidden="true">ཨ</span><span class="t">Names</span>
           <span class="seg">
@@ -1972,7 +1972,7 @@
       <div class="die-face" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
       <div class="bv-act">
         <p class="bv-turn"></p>
-        <button class="btn go" type="button" data-game="throw">Throw</button>
+        <button class="btn go" type="button" data-game="throw" data-silent>Throw</button>
       </div>
       <div class="bv-mid">
         <div class="bv-who"></div>
@@ -2180,7 +2180,10 @@ import { SQUARE_NOTES, SQUARE_FULL } from './rebirth-notes.js';
 import { SQUARE_ART, cellBackground, createSquareArt, LIBERATION_ART } from './rebirth-icons.js';
 import { createSoundKit, voiceFor as rbVoice } from './rebirth-sound.js';
 import { searchText } from './search-text.js';
-import { createGameSoundtrack } from './game-soundtrack.js';
+import { createSynth } from './synth.js';
+import { createModeSoundtrack } from './mode-soundtrack.js';
+import { createUiSound, installUiSound } from './ui-sound.js';
+import { createEndingSound } from './ending-sound.js';
 import { mansionSearchText } from './mansion-search.js';
 import { createHellRealm, createFormlessVeil } from './realm-atmospheres.js';
 import { PLAYER_SKINS, PLAYER_CULTURES, normalizeSkin, PLAYER_PALETTE, paintPlayer, createPlayerArt } from './game-players.js';
@@ -5932,7 +5935,9 @@ function setMandala(on) {
   // setMode, so the board has to be put away here as well.
   const leavingGame = on && mode === 'game', leavingWheel = on && mode === 'wheel';
   if (leavingWheel) leaveWheel();
+  const previousMode = mode;
   mode = on ? 'mandala' : (mode === 'mandala' ? 'explore' : mode);
+  if (mode !== previousMode) document.dispatchEvent(new CustomEvent('ws-mode-change', { detail: { mode } }));
   if (leavingGame) leaveGame();
   document.querySelectorAll('[data-mode]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.mode === mode)));
   document.body.classList.toggle('mandala-view', on);
@@ -6791,8 +6796,12 @@ rbGrid.addEventListener('click', (ev) => {
 });
 
 /* Sound and music start enabled; explicit mute preferences survive reloads.
-   Music belongs to game mode and pauses when the page is hidden. */
-const rbKit = createSoundKit(window.AudioContext || window.webkitAudioContext);
+   Sound covers every effect — presses, the game's dice and squares, the endings
+   of worlds — and Music the score of whichever mode is open, which pauses when
+   the page is hidden. The effects share one synth, so one audio context. */
+const audioContext = window.AudioContext || window.webkitAudioContext;
+const synth = createSynth(audioContext);
+const rbKit = createSoundKit(audioContext, synth);
 const rbSoundBox = document.querySelector('#g-sound');
 const rbSoundOn = () => rbSoundBox.checked;
 let savedSound = null;
@@ -6801,25 +6810,44 @@ rbSoundBox.checked = savedSound !== '0';     // on unless it has been turned off
 rbSoundBox.addEventListener('change', () => {
   try { localStorage.setItem('ws-sound', rbSoundBox.checked ? '1' : '0'); } catch (err) {}
 });
-const rbMusic = createGameSoundtrack({AudioClass:window.Audio});
+installUiSound({ sound: createUiSound(synth), isOn: rbSoundOn });
+const rbMusic = createModeSoundtrack({AudioClass:window.Audio});
 const rbMusicBox = document.querySelector('#g-music');
 let savedMusic = null;
 try { savedMusic = localStorage.getItem('ws-music'); } catch {}
 rbMusicBox.checked = savedMusic !== '0';
 rbMusic.setEnabled(rbMusicBox.checked);
 rbMusic.setVisible(!document.hidden);
+rbMusic.setMode(mode);
 rbMusicBox.addEventListener('change', () => {
   try { localStorage.setItem('ws-music',rbMusicBox.checked?'1':'0'); } catch {}
   rbMusic.setEnabled(rbMusicBox.checked);
 });
-document.addEventListener('ws-mode-change', () => rbMusic.setActive(mode === 'game'));
+// A mode change can pass through Explorer on its way (leaving the Mandala), so
+// the score follows the mode the change settles on and not each step of it.
+let rbScoreSync = false;
+document.addEventListener('ws-mode-change', () => {
+  if (rbScoreSync) return;
+  rbScoreSync = true;
+  Promise.resolve().then(() => { rbScoreSync = false; rbMusic.setMode(mode); });
+});
 document.addEventListener('visibilitychange', () => rbMusic.setVisible(!document.hidden));
-// Bubble after the mode button has acted, so entering Game starts the score
+// Bubble after the mode button has acted, so entering a mode starts its score
 // in that same gesture. Browsers that block autoplay retry the next gesture.
 document.addEventListener('click', () => rbMusic.unlock());
 document.addEventListener('keydown', () => rbMusic.unlock());
 window.addEventListener('pagehide', () => rbMusic.setVisible(false));
 window.addEventListener('pageshow', () => rbMusic.setVisible(!document.hidden));
+/* A world ending is heard over a quieter score, and only while it plays. */
+const endingSound = createEndingSound(synth);
+const endingAudio = {
+  update(kind, progress, playing) {
+    const heard = playing && rbSoundOn();
+    endingSound.update(kind, progress, heard);
+    rbMusic.setLevel(heard ? 0.3 : 1);
+  },
+  stop() { endingSound.stop(); rbMusic.setLevel(1); }
+};
 /* Where a throw ends has a character, and which way it went has another. The
    voice comes from the square's own company on the board — the hells are not
    the heavens, the sūtra route is not the mantra route — and under it a short
@@ -8505,7 +8533,7 @@ applyZoomLimits();
 
 let endingReturnMotion = false, endingMotionChoice = null;
 worldEnding = createWorldEnding(THREE, {
-  scene: stage._scene, world, radius: RIM, floor: FLOOR,
+  scene: stage._scene, world, radius: RIM, floor: FLOOR, sound: endingAudio,
   invalidate: () => invalidate(2),
   begin: () => {
     setMode('explore'); close(); endingReturnMotion = motion;

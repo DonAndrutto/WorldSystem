@@ -1,13 +1,16 @@
-/* Still Waters: a quiet looping score, streamed from the offline app shell.
-   The caller supplies mode, mute and visibility; playback waits for a user
-   interaction if the browser blocks autoplay. Rapid toggles share one player. */
+/* One quiet looping score, streamed from the offline app shell. This is the
+   player for a single track; mode-soundtrack.js keeps one per mode. The caller
+   supplies activity, mute and visibility; playback waits for a user
+   interaction if the browser blocks autoplay. Rapid toggles share one player.
+   `setLevel` turns the track down (a world ending ducks it) without stopping it. */
 export function createGameSoundtrack({
   AudioClass, src = new URL('./assets/audio/still-waters.mp3', import.meta.url).href,
   setTimer = globalThis.setInterval, clearTimer = globalThis.clearInterval
 } = {}) {
-  const volume = 0.42;
+  const base = 0.42;
   let audio = null, active = false, enabled = true, visible = true;
-  let timer = null, pending = false, target = 0, disposed = false;
+  let timer = null, pending = false, target = 0, disposed = false, level = 1;
+  const volume = () => base * level;
   const wanted = () => active && enabled && visible && !disposed;
 
   function fade(to, immediate = false) {
@@ -41,14 +44,14 @@ export function createGameSoundtrack({
     }
     if (!audio || pending) return;
     if (!audio.paused) {
-      if (target !== volume) fade(volume);
+      if (target !== volume()) fade(volume());
       return;
     }
     pending = true;
     try {
       Promise.resolve(audio.play()).then(() => {
         pending = false;
-        if (wanted()) fade(volume);
+        if (wanted()) fade(volume());
         else fade(0, true);
       }, () => { pending = false; });  // next gesture retries blocked autoplay
     } catch { pending = false; }
@@ -58,6 +61,7 @@ export function createGameSoundtrack({
     setActive(on) { active = !!on; sync(); },
     setEnabled(on) { enabled = !!on; sync(); },
     setVisible(on) { visible = !!on; sync({immediate: !visible}); },
+    setLevel(x) { level = Math.max(0, Math.min(1, x)); sync(); },
     unlock: () => sync(),
     dispose() { disposed = true; fade(0, true); },
     state: () => ({active,enabled,visible,playing:!!audio && !audio.paused,pending})

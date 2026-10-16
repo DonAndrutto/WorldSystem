@@ -34,9 +34,13 @@ magnifiers in the header make the writing in every window larger or smaller.
 | `scripts/build-square-notes.cjs` | Turns those two files into `rebirth-notes.js`. |
 | `rebirth-notes.js` | Generated. Two write-ups per square, keyed by square number. |
 | `rebirth-icons.js` | Where each square's field sits on the atlas sheets, and the billboards that carry it in the world — for every square the world does not already build in three dimensions. |
-| `rebirth-sound.js` | The voice every square answers in, and the small synthesiser that plays it. |
-| `game-soundtrack.js`, `assets/audio/still-waters.mp3` | Gentle original game music, looping playback and remembered mute control. |
-| `scripts/build-soundtrack.py` | Recreates the 128-second soundtrack using NumPy and ffmpeg, without samples. |
+| `synth.js` | The small synthesiser every effect is built with — tones, filtered noise, struck bodies, steerable beds — and the one shared audio context. |
+| `rebirth-sound.js` | The voice every square answers in. |
+| `ui-sound.js` | The sound of the interface: a cue read off each control (press, switch, menu, tab, slider, close) and a chime for each of the six modes. |
+| `ending-sound.js` | The sound of the three world endings — fire, water and wind — as a pure function of progress, and the engine that plays it. |
+| `mode-soundtrack.js`, `game-soundtrack.js`, `assets/audio/*.mp3` | The six original looping scores, one per mode: a lazy player for each, crossfading on a change of mode, with remembered mute control. |
+| `scripts/build-soundtrack.py` | Recreates Game's 128-second *Still Waters* using NumPy and ffmpeg, without samples. |
+| `scripts/build-mode-music.py` | Recreates the other five scores the same way. |
 | `tests/rebirth-regression.mjs` | Board and rules checks, including the routes the Rules of Play claim. |
 | `three-d-stage.js` | The `<three-d-stage>` custom element it imports: WebGL renderer, studio lighting with a soft ground shadow, orbit controls, an auto-framed camera, and OBJ + MTL / GLB export. |
 | `assets/app-icon/world-system-master.webp` | Gold-and-lapis Meru app-icon artwork; a symbolic emblem. See its source brief in `assets/app-icon/README.md`. |
@@ -407,17 +411,50 @@ a short rise or fall, read off the row the token left and the row it reached.
 The mapping lives in `rebirth-sound.js` and is covered by the test suite; the
 synthesis needs a real audio clock.
 
-Game mode also plays **Still Waters**, an original 128-second seamless ambient
-piece: overlapping warm D-major chords, a sparse soft flute melody and quiet
-singing-bowl tones, without percussion or voices. **Options → Music** starts
-enabled and remembers when it is muted; the existing **Sound** switch controls
-the die and destination effects separately. Music fades in and out when entering
-or leaving game mode and pauses immediately when the page is hidden. If the
-browser requires an interaction before audio can play, entering Game or the
-next tap/key starts it. The MP3 is included in the offline app shell, with
-cached byte-range responses for playback, seeking and looping.
-The composition is reproducible with `python scripts/build-soundtrack.py`
-(NumPy and ffmpeg installed); it uses no recorded samples or downloaded music.
+### Sound
+
+Everything that can be heard is original and made on the spot — no recordings,
+no downloaded music — so it works offline and weighs almost nothing. Two
+switches under **Options** rule it, both on until you turn them off and
+remembered between visits.
+
+**Music** gives each mode a score of its own. The scores are seamless loops,
+rendered by script from oscillators and noise, and a mode's score is fetched
+only when the mode is first entered. Changing mode lets one fade out as the
+next fades in; the page being hidden pauses it at once. If the browser needs an
+interaction before it will play audio, the next tap or key starts it.
+
+| Mode | Score | Length | What it is |
+|---|---|---|---|
+| Explorer | *Far Horizons* | 96 s | F lydian: a harp wandering up and down six slow chords, with breaths of air crossing the field. |
+| Mandala | *Thirty-Seven Offerings* | 96 s | A low drone, and exactly thirty-seven singing-bowl strokes dealt round the palace's four doors in a five-note scale that turns; a long horn from far off. |
+| Game | *Still Waters* | 128 s | Overlapping warm D-major chords, a sparse soft flute and bowl tones. |
+| Wheel | *The Turning* | 108 s | A six-beat cycle at eighty a minute, turning through six roots, four cycles each: soft frame drum on the one, a plucked drone, a low reed. |
+| Billion worlds | *Thousandfold* | 112 s | A lydian stack that never resolves, under stars that thicken from one world to a thousand, a million, a billion and thin out again. |
+| Astrology | *Twenty-Eight Mansions* | 112 s | Twenty-eight glass notes, one every four seconds, rising and falling like the moon's path over A dorian, with a bell at each quarter. |
+
+**Sound** covers every effect. The interface answers presses: a short tick for a
+button, a rising or falling pair for a menu opening or closing, a pair for a
+switch going on or off, a small bright note for a tab or a held button, and a tick
+that follows a slider. Each of the six
+modes has a chime of its own when you enter it (a pluck, a bowl, a knock, a
+drum, a shimmer, a glass note). Presses the page makes on your behalf — a tour,
+the introduction — are silent, and so are disabled controls. The game keeps its
+dice, the voice each square answers in, and the rise or fall of the throw.
+
+**World endings** each sound as themselves while they play, and are silent when
+paused or scrubbed. Fire is a thin drought hiss, a swell as each of the seven
+suns appears, and a crackle that thickens to a roar as Meru burns. Water is
+rain gathering, a flood that climbs and surges, and bubbles as the lower worlds
+dissolve. Wind is a gale that climbs through the registers with whistling and
+debris rattling past. A drone sinks as the world is lost, and when it is gone,
+one bowl stroke and silence. The score drops to under a third of its volume
+for the duration.
+
+The scores are in the offline app shell, with cached byte-range responses for
+playback, seeking and looping. They are reproducible with
+`python scripts/build-soundtrack.py` (Game) and `python scripts/build-mode-music.py`
+(the rest), NumPy and ffmpeg installed.
 
 ### Where the players are
 
@@ -469,7 +506,8 @@ the entries the legend sat beside.
 | **Motion** `r` | Sets the sun and moon on their circuit around Meru and lets the view turn slowly with them. They go east, then south — clockwise, seen from above with north at the top, the way the sun is seen to go from Jambudvīpa. The sun is what lights the world, so Meru's shadow walks round the continents with it. The moon does not stand opposite it — directly behind Meru it would sit in the mountain's own shadow and never be lit at all — so it runs a little under a half-turn away. On when the model is first opened, unless the system asks for less movement; whether it stays on is kept between visits. |
 | **Speed** | Three paces for that one movement: slow, medium and fast — a circuit in 160, 80 or 40 seconds, the last of them the pace the model used to hold. Slow to begin with, so the world turns gently enough to be read against, and kept between visits. Changing the pace does not stop the circuit or send the sun back to the east. |
 | **Night** `n` | Paper or dark. At night the moon takes over the lighting, and the clouds stand against a faint field of stars. |
-| **Sound** | The voice each square answers in, under Options with the rest of the settings that belong to no view. On unless it has been hushed. |
+| **Sound** | Every effect — presses, the voice each square answers in, the endings of worlds — under Options with the rest of the settings that belong to no view. On unless it has been hushed. |
+| **Music** | The score of whichever mode is open, one for each of the six. On unless it has been muted. |
 | **Full screen** `f` | Hidden where the platform has none to give: iOS Safari, and any window already running as an installed app. |
 | **Reset view** `Esc` | Disabled when there is nothing to undo. |
 | **Text size** | Two magnifiers in the header, one with a minus and one with a plus, set the size of the writing in every panel and window — the entries, the index, the tours, the game's cards, menu and setup, help and the welcome — in six steps from 85% to 175%. Each window's contents are zoomed rather than the window, so the text rewraps inside the frame it already has. Kept between visits. |
@@ -781,6 +819,10 @@ node tests/world-surfaces.mjs
 node tests/summit-detail.mjs
 node tests/palace-architecture.mjs
 node tests/game-soundtrack.mjs
+node tests/mode-soundtrack.mjs
+node tests/ui-sound.mjs
+node tests/ending-sound.mjs
+node tests/synth.mjs
 node tests/audio-ranges.mjs
 node tests/continent-models.mjs
 node tests/game-session.mjs
@@ -813,6 +855,7 @@ python3 -m http.server 4174
 # In another terminal (Google Chrome installed):
 WORLDSYSTEM_URL=http://127.0.0.1:4174 node tests/browser-ui.mjs
 WORLDSYSTEM_URL=http://127.0.0.1:4174 node tests/browser-architecture-audio.mjs
+WORLDSYSTEM_URL=http://127.0.0.1:4174 node tests/browser-sound-effects.mjs
 WORLDSYSTEM_URL=http://127.0.0.1:4174 node tests/browser-main-fixes.mjs
 WORLDSYSTEM_URL=http://127.0.0.1:4174 node tests/browser-worlds-memory.mjs
 ```

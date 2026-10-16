@@ -32,7 +32,7 @@ export function endingState(kind, progress) {
   }
   return { kind, progress: p, suns, empty, title, copy, loss: smooth((p - .69) / .27), heat: kind === 'fire' ? smooth((p - .44) / .34) : 0, dry: kind === 'fire' ? smooth((p - .35) / .22) : 0 };
 }
-export function createWorldEnding(THREE, { scene, world, radius, floor, invalidate, begin, frame, finish }) {
+export function createWorldEnding(THREE, { scene, world, radius, floor, invalidate, begin, frame, finish, sound = null }) {
   const panel = document.createElement('aside');
   panel.className = 'world-ending card'; panel.hidden = true;
   panel.setAttribute('aria-label', 'World endings presentation');
@@ -219,6 +219,7 @@ export function createWorldEnding(THREE, { scene, world, radius, floor, invalida
     wind.forEach((w,i)=>{w.visible=kind==='wind' && progress>.05 && !s.empty;w.rotation.y=progress*(10+i*.08);w.material.opacity=(.12+.15*smooth(progress*4))*emptyFade;});
     debris.visible=kind==='wind' && progress>.2 && !s.empty;debris.material.opacity=emptyFade;
     invalidate();
+    sound?.update(kind, progress, playing);
   };
   const dispose = () => {
     if(group) scene.remove(group);
@@ -226,7 +227,7 @@ export function createWorldEnding(THREE, { scene, world, radius, floor, invalida
     allocatedMaterials.forEach(m=>m.dispose()); allocatedGeometry.forEach(g=>g.dispose()); textures.forEach(t=>t.dispose());
     group=model=null;objects=[];allocatedMaterials=[];allocatedGeometry=[];textures=[];instances=[];suns=[];waves=[];wind=[];
   };
-  const pause = () => {playing=false;if(raf!==null)cancelAnimationFrame(raf);raf=null;play.textContent='Play';play.setAttribute('aria-pressed','false');};
+  const pause = () => {playing=false;if(raf!==null)cancelAnimationFrame(raf);raf=null;play.textContent='Play';play.setAttribute('aria-pressed','false');sound?.update(kind,progress,false);};
   const loop = now => {
     if(!playing)return;
     if(!document.hidden)progress=clamp(progress+Math.min(100,now-last)/ENDINGS[kind].duration);
@@ -240,11 +241,12 @@ export function createWorldEnding(THREE, { scene, world, radius, floor, invalida
     panel.querySelectorAll('.world-ending-types button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.ending===kind)));
     render();frame({ boundary, kind });if(!reduced())start();
   };
-  const close = () => {pause();dispose();world.visible=visibleBefore;active=false;panel.hidden=true;document.body.classList.remove('world-ending-view');invalidate();finish();};
+  const close = () => {pause();sound?.stop();dispose();world.visible=visibleBefore;active=false;panel.hidden=true;document.body.classList.remove('world-ending-view');invalidate();finish();};
   panel.addEventListener('click',e=>{
     const action=e.target.closest('[data-ending]')?.dataset.ending;if(!action)return;
     if(action==='close')close();else if(Object.hasOwn(ENDINGS,action))choose(action);else if(action==='play')playing?pause():start();else if(action==='restart'){progress=0;pause();render();if(!reduced())start();}
   });
+  document.addEventListener('visibilitychange',()=>{if(document.hidden&&active)sound?.update(kind,progress,false);});
   slider.addEventListener('input',()=>{pause();progress=Number(slider.value)/1000;render();});
   document.addEventListener('keydown',e=>{if(e.key==='Escape'&&active){e.preventDefault();close();}});
   return {get active(){return active;},reframe(){if(active)frame({boundary,kind});},open(value='fire'){if(active){choose(value);return;}begin();visibleBefore=world.visible;active=true;panel.hidden=false;document.body.classList.add('world-ending-view');choose(Object.hasOwn(ENDINGS,value)?value:'fire');play.focus({preventScroll:true});},close};

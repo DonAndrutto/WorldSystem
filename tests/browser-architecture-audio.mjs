@@ -11,8 +11,8 @@ try {
     await context.addInitScript(()=>{
       localStorage.setItem('ws-game-onboarded','1'); localStorage.setItem('ws-game-walkthrough-v1','dismissed');localStorage.setItem('ws-game-view','world');
       localStorage.setItem('ws-index','0');localStorage.setItem('ws-hint','1');localStorage.setItem('ws-motion','0');
-      const NativeAudio=window.Audio;
-      window.Audio=function(src){const audio=new NativeAudio(src);window.__score=audio;return audio;};
+      const NativeAudio=window.Audio;window.__scores=[];
+      window.Audio=function(src){const audio=new NativeAudio(src);window.__scores.push(audio);window.__score=audio;return audio;};
     });
     const page=await context.newPage(),errors=[],failed=[];
     page.on('pageerror',e=>{errors.push(e.message);console.error('PAGE',e.message);});
@@ -29,8 +29,14 @@ try {
     const paused=async()=>page.waitForFunction(()=>window.__score?.paused===true);
     await page.goto(url);await ready();
     assert.equal(await page.locator('#g-music').isChecked(),true);
-    assert.equal(await page.evaluate(()=>Boolean(window.__score)),false,'Explorer leaves the score unloaded');
-    await mode('game');await playing();
+    const titles=async()=>page.evaluate(()=>__scores.map(a=>[a.src.split('/').pop(),a.paused]));
+    const only=async name=>page.waitForFunction(n=>{const on=__scores.filter(a=>!a.paused).map(a=>a.src.split('/').pop());return on.length===1&&on[0]===n;},name);
+    await page.keyboard.press('Shift');   // the first gesture lets Explorer's score start
+    await playing();
+    assert.deepEqual(await titles(),[['far-horizons.mp3',false]],'Explorer plays its own score, and only that is fetched');
+    await mode('wheel');await only('the-turning.mp3');
+    assert.deepEqual((await titles()).map(([name])=>name),['far-horizons.mp3','the-turning.mp3'],'the Wheel has another, fetched only now');
+    await mode('game');await only('still-waters.mp3');
     assert.equal(await page.evaluate(()=>__score.loop),true);
     await page.waitForFunction(()=>Number.isFinite(__score.duration));
     assert.ok(Math.abs(await page.evaluate(()=>__score.duration)-128)<.2,'The original score decodes completely');
@@ -49,10 +55,10 @@ try {
     assert.equal(await page.evaluate(()=>__score.paused),true,'Hidden tab pauses immediately');
     await page.evaluate(()=>{delete document.hidden;document.dispatchEvent(new Event('visibilitychange'));});
     await playing();
-    await mode('astrology');await paused();
+    await mode('astrology');await only('twenty-eight-mansions.mp3');
     assert.equal(await page.locator('[data-mode=astrology]').getAttribute('aria-pressed'),'true');
     await page.locator('.jy-panel').waitFor({state:'visible'});
-    await mode('explore');await paused();
+    await mode('explore');await only('far-horizons.mp3');
     const geometry=await page.evaluate(async()=>{
       const THREE=await import('three'),stage=document.querySelector('three-d-stage');
       const world=stage._object;world.updateMatrixWorld(true);

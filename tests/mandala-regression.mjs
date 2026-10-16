@@ -25,7 +25,10 @@ const gameSession = await import(pathToFileURL(repo + '/game-session.js'));
 const gameCamera = await import(pathToFileURL(repo + '/game-camera.js'));
 const summitDetail = await import(pathToFileURL(repo + '/summit-detail.js'));
 const palaceArchitecture = await import(pathToFileURL(repo + '/palace-architecture.js'));
-const gameSoundtrack = await import(pathToFileURL(repo + '/game-soundtrack.js'));
+const modeSoundtrack = await import(pathToFileURL(repo + '/mode-soundtrack.js'));
+const synthModule = await import(pathToFileURL(repo + '/synth.js'));
+const uiSound = await import(pathToFileURL(repo + '/ui-sound.js'));
+const endingSound = await import(pathToFileURL(repo + '/ending-sound.js'));
 const continentModels = await import(pathToFileURL(repo + '/continent-models.js'));
 const wheelArt = await import(pathToFileURL(repo + '/wheel-art.js'));
 const wheelView = await import(pathToFileURL(repo + '/wheel-view.js'));
@@ -96,7 +99,9 @@ Object.assign(window, {createWorldEnding, installPanelLayout: () => {}, createOf
   lunarPanelsOpen: lunarPanels.lunarPanelsOpen, closeLunarPanels: lunarPanels.closeLunarPanels
 });
 Object.assign(window,realmAtmospheres,mansionSearch,palaceArchitecture,{
-  createGameSoundtrack: options => gameSoundtrack.createGameSoundtrack({...options,AudioClass:null})
+  createSynth: synthModule.createSynth, createUiSound: uiSound.createUiSound, installUiSound: uiSound.installUiSound,
+  createEndingSound: endingSound.createEndingSound,
+  createModeSoundtrack: options => modeSoundtrack.createModeSoundtrack({...options,AudioClass:null})
 });
 let viewport = {w:1280, h:900}, reduced = false;
 window.matchMedia = query => ({matches:query.includes('reduced-motion') ? reduced
@@ -837,7 +842,7 @@ assert.equal(q('.bv-names').querySelectorAll('input').length,2,'a field per play
 q('[data-game="cancel-new"]').click();
 assert.equal(q('.bv-ask').hidden,true,'Keep playing shuts it again');
 assert.equal(q('#g-sound').checked,true,'The board answers aloud unless it has been hushed');
-assert.equal(q('#g-music').checked,true,'The gentle game soundtrack is enabled by default');
+assert.equal(q('#g-music').checked,true,'The soundtrack is enabled by default');
 newGame(1);
 assert.equal(app.rbGame().players.length,1);
 assert.equal(app.rbGame().players[0].pos,rbBoard.START);

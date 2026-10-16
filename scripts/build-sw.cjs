@@ -36,7 +36,7 @@ const SHELL = [
   ['assets/modes', /\.webp$/],
   ['assets/wheel', /\.webp$/],                // the wheel of life, in its layers
   ['assets/mansions', /\.webp$/],             // the 28 lunar mansion glyphs (not their SVG sources)
-  ['assets/audio', /\.mp3$/],                 // the original looping game score
+  ['assets/audio', /\.mp3$/],                 // the original looping scores, one per mode
   'apple-touch-icon.png', 'favicon.ico', 'favicon-32.png',
   'icon-192.png', 'icon-512.png', 'icon-maskable-512.png'
 ];
