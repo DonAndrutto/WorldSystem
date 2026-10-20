@@ -109,13 +109,14 @@ with an even border, so every square's field reads at the same size wherever it
 is shown. The cells are laid out four across and at most seven down in square
 order, which gives four WebP sheets of about 1.4 MB in total: three of 4 × 7 and
 one of 4 × 5. The closing painting keeps its own file and its own proportions.
-Nothing is fetched until game mode is first opened, and a sheet that fails can
-be retried on its own.
+The board shows them through CSS, as the background of each cell.
 
-A field is shown four ways: as the cell's own ground on the 2D board, with the
-square's name set inside it; on a billboard at the square's marker in the world,
-turning to face the camera; in the entry in the drawer; and on the card that
-announces a throw. The closing painting appears only on the card that declares
+A field is shown three ways: as the cell's own ground on the 2D board, with the
+square's name set inside it; in the entry in the drawer; and on the card that
+announces a throw. The world does not hang the paintings: each square stands
+there as a model built procedurally in `square-models.js`, with the field's
+outline as its frame or ground and the rest drawn from the square's description.
+No image or model file is downloaded for it. The closing painting appears only on the card that declares
 victory and on the stupa throw that follows it.
 
 The Tibetan name of every square was supplied with the artwork and is recorded

@@ -112,6 +112,41 @@ menu turns it off, returning to the whole-journey overview; it is on until then,
 and the choice is kept (`ws-game-follow`). An explicit Show in world, and the
 guided tour, frame their own stops as before.
 
+## Destinations in three dimensions
+
+The two arrangements show the squares in two idioms. The board keeps the
+painted fields: the cell, the throw card and the head of the entry are
+unchanged. In the world each square stands as a small model at its marker,
+where its billboard used to hang (`square-models.js`). The field's outline
+becomes part of the model: the ring, the disciples' ogee arch, the Mahāyāna
+cloud, the four-pointed cartouche of the acts, or the flame arch of the bodies
+of a Buddha stands behind the subject as an aureole, or lies flat as the ground
+of a hell. What the board leaves inside its frames is built from the square's
+description: the cauldron of the hot hells, the hungry ghost, the monk with
+bowl and staff, the vase, crown, vajra and bell of the empowerments, the
+central channel, the Buddha under the tree, the stupa of Nirvana.
+[docs/SQUARE-MODELS.md](docs/SQUARE-MODELS.md) lists what each one shows.
+
+- Ninety-seven squares have a model. The seven the world already builds — the
+  Four Kings' terrace, the Thirty-three, Tuṣita, the two highest desire
+  heavens, the form-realm emblem and Śuddhāvāsa — keep the world's own
+  geometry and have none.
+- Everything is procedural, from one kit of parts; nothing is downloaded. The
+  models are built the first time the game is opened, not when the page loads.
+- Each model turns about its own vertical to face the camera, so its front is
+  readable from anywhere in the orbit while it keeps its depth and lighting.
+- Like the markers, a square nobody is on and nobody has asked about is drawn
+  faint; the squares in play stand at full weight, and Nirvana always does.
+- Tapping any part of a model opens that square's entry.
+- Each model is merged into at most four meshes (matte, metal, glowing,
+  translucent), with its colours in the vertices. In the opening overview the
+  whole scene draws in about 580 calls and 555k triangles, against about 550
+  calls and 456k triangles with the billboards.
+- `node tests/square-models.mjs` checks that every unbuilt square has a model,
+  that each stays within its unit, that neighbours on the spiral cannot touch
+  however they are turned, the triangle and draw-call budgets, and the facing
+  and fading.
+
 ## Character artwork
 
 `assets/rebirth/travelers.png` is one transparent 6-column × 2-row sprite atlas generated with the built-in image-generation tool. It is contemporary game illustration, not an image from the historical board. The same atlas is cropped by CSS and Three.js texture coordinates; the final generated image was copied with its alpha channel intact. An image-tool background-extraction pass followed the initial generation.

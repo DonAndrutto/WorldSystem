@@ -271,19 +271,20 @@ check('advanced realization and Buddha fields clear the whole samsaric stack eve
     }
     assert.equal(position(24, ctx).y, position(24).y, 'human approach does not move with heavens');
     assert.ok(position(104, ctx).y - position(103, ctx).y > ctx.SUMMIT * 0.8,
-      'Nirvana remains clear of the final act and its artwork');
+      'Nirvana remains clear of the final act and its model');
   }
 });
 
-check('the upper spire leaves space for its billboard artwork', () => {
+check('the upper spire leaves space for each square\'s model', () => {
   const loose = SQUARES.filter(s => !s.anchor && s.n !== VICTORY);
-  // Bounding spheres around the square paintings must not intersect even
-  // when billboarding turns the planes toward another camera angle.
+  // The slot each square's model stands in must not overlap its neighbour's,
+  // whichever way the models are turned (tests/square-models.mjs measures
+  // the models themselves).
   const diameter = worldContext.SUMMIT * 0.145 * Math.SQRT2;
   for (let i = 0; i < loose.length; i++) for (const b of loose.slice(i + 1)) {
     const a = loose[i], pa = position(a.n), pb = position(b.n);
     const separation = Math.hypot(pa.x - pb.x, pa.y - pb.y, pa.z - pb.z);
-    assert.ok(separation > diameter, a.n + ' and ' + b.n + ' artwork have distinct space');
+    assert.ok(separation > diameter, a.n + ' and ' + b.n + ' models have distinct space');
   }
 });
 
