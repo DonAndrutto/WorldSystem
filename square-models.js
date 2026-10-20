@@ -78,9 +78,31 @@ const PALETTE = {
   light:    { c: 0xfff4cf, r: 0.40, e: 0xffe9a8, ei: 0.9 },
   aura:     { c: 0xcfe6ff, r: 0.20, e: 0x9fc4ff, ei: 0.5, glass: 0.45 },
   glow:     { c: 0xfff0b8, r: 0.30, e: 0xffe28a, ei: 0.8, glass: 0.40 },
-  mist:     { c: 0xe8f0ff, r: 0.40, e: 0xc8d8ff, ei: 0.3, glass: 0.22 }
+  mist:     { c: 0xe8f0ff, r: 0.40, e: 0xc8d8ff, ei: 0.3, glass: 0.22 },
+  /* the small paints of a face */
+  lip:      { c: 0xb3605a, r: 0.55 },
+  brow:     { c: 0x2b1f1a, r: 0.80 },
+  lash:     { c: 0x1a1412, r: 0.80 },
+  eyewhite: { c: 0xf1ece2, r: 0.35 },
+  coral:    { c: 0xd2563c, r: 0.45 },
+  turquoise:{ c: 0x3fb3a8, r: 0.35 },
+  hair:     { c: 0x1d2133, r: 0.55 }
 };
 export const PALETTE_KEYS = Object.keys(PALETTE);
+
+/* Any paint followed by a tilde is the same pigment in shadow: the inside of
+   a fold, the crease of a hem. Worked out once, from the paint itself. */
+const SHADE = 0.68;
+function paintOf(key) {
+  if (PALETTE[key]) return PALETTE[key];
+  if (key.endsWith('~') && PALETTE[key.slice(0, -1)]) {
+    const base = PALETTE[key.slice(0, -1)];
+    const c = base.c, k = SHADE;
+    const shade = ((Math.round(((c >> 16) & 255) * k) << 16) | (Math.round(((c >> 8) & 255) * k) << 8) | Math.round((c & 255) * k));
+    return (PALETTE[key] = { ...base, c: shade, r: Math.min(1, (base.r || 0.6) + 0.1) });
+  }
+  return null;
+}
 
 /* Paints are baked into the vertices, so a model needs one draw call for each
    kind of surface it has rather than one for each colour: matte, metal (the
@@ -157,8 +179,30 @@ function makeBuilder(THREE, kit) {
         from.clone().add(to).multiplyScalar(0.5),
         new THREE.Quaternion().setFromUnitVectors(up, to.clone().sub(from).normalize()),
         new THREE.Vector3(ra, length / 2, rc));
-      const small = Math.max(ra, rc, length / 2) < 0.035;
+      const small = Math.max(ra, rc, length / 2) * stack[stack.length - 1].getMaxScaleOnAxis() < 0.035;
       parts.push({ geometry: small ? kit.ball : kit.sphere, key, matrix: stack[stack.length - 1].clone().multiply(m) });
+      return b;
+    },
+    /* An ellipsoid at p with radii r, turned by rot: the finer sphere where it
+       will be seen at any size, the coarser where it is only a bead. */
+    ell(key, p, r, rot = 0) {
+      const radii = typeof r === 'number' ? [r, r, r] : r;
+      const size = Math.max(...radii) * stack[stack.length - 1].getMaxScaleOnAxis();
+      parts.push({ geometry: size < 0.03 ? kit.ball : kit.sphere, key,
+        matrix: stack[stack.length - 1].clone().multiply(local(p, rot || [0, 0, 0], radii)) });
+      return b;
+    },
+    /* A part laid along a direction with its flat side to a normal: a hand,
+       a foot, a petal. y runs along `along`, z towards `facing`. */
+    orient(geometry, key, p, along, facing, scale) {
+      const yv = new THREE.Vector3(...along).normalize();
+      const xv = new THREE.Vector3().crossVectors(yv, new THREE.Vector3(...facing)).normalize();
+      if (xv.lengthSq() < 1e-9) xv.set(1, 0, 0);
+      const zv = new THREE.Vector3().crossVectors(xv, yv).normalize();
+      const sc = typeof scale === 'number' ? [scale, scale, scale] : scale;
+      const m = new THREE.Matrix4().makeBasis(xv.multiplyScalar(sc[0]), yv.multiplyScalar(sc[1]), zv.multiplyScalar(sc[2]));
+      m.setPosition(p[0], p[1], p[2]);
+      parts.push({ geometry: geometry || kit.ball, key, matrix: stack[stack.length - 1].clone().multiply(m) });
       return b;
     },
     /* A rod along a list of points. */
@@ -182,7 +226,7 @@ function bake(THREE, parts) {
   const p = new THREE.Vector3(), n = new THREE.Vector3(), nm = new THREE.Matrix3();
   const colour = new THREE.Color();
   for (const { geometry, key, matrix } of parts) {
-    const paint = PALETTE[key];
+    const paint = paintOf(key);
     if (!paint) throw new Error('No paint called ' + key);
     const finish = finishOf(paint);
     colour.setHex(paint.c);
@@ -365,24 +409,48 @@ function ground(b, kind, { y = 0, w = 0.9, d = w, floor = 'earth', rimKey = 'red
 }
 
 /* A lotus seat, open upward, with an optional moon or sun disc on it. */
-function lotus(b, { x = 0, z = 0, y = 0, r = 0.22, n = 10, key = 'pink', key2 = 'white', disc = 'white', open = 0.55, tiers = 2 } = {}) {
+function lotus(b, { x = 0, z = 0, y = 0, r = 0.22, n = 10, key = 'pink', key2 = 'white', disc = 'white', open = 0.55, tiers = 2, reflex = tiers >= 2 && open < 0.95 } = {}) {
   if (x || z) {
     let top = 0;
-    b.at([x, 0, z], 0, 1, () => { top = lotus(b, { y, r, n, key, key2, disc, open, tiers }); });
+    b.at([x, 0, z], 0, 1, () => { top = lotus(b, { y, r, n, key, key2, disc, open, tiers, reflex }); });
     return top;
   }
+  const shade = (k) => (paintOf(k).glass || paintOf(k).e ? k : k + '~');
+  // the throne's lower row: petals turned down over the base, in shadow
+  if (reflex) for (let i = 0; i < n; i += 1) {
+    const a = (i + 0.25) / n * TAU, len = r * 0.5;
+    b.put(b.kit.petal, shade(key), [Math.cos(a) * r * 0.5, y + 0.042, Math.sin(a) * r * 0.5],
+      [PI / 2 + 0.3, PI / 2 - a, 0, 'YXZ'], [len * 0.55, len, len * 0.2]);
+  }
+  // the upturned petals, row within row, each row more upright than the last
   for (let t = 0; t < tiers; t += 1) {
     const count = n - t * 2, radius = r * (1 - t * 0.28), tilt = open + t * 0.35;
     const len = r * 0.62 * (1 - t * 0.12);
     for (let i = 0; i < count; i += 1) {
       const a = (i + t * 0.5) / count * TAU;
-      b.put(b.kit.petal, t % 2 ? key2 : key,
+      const key3 = t % 2 ? key2 : key;
+      b.put(b.kit.petal, key3,
         [Math.cos(a) * radius * 0.55, y + 0.02 + t * 0.03, Math.sin(a) * radius * 0.55],
         [PI / 2 - tilt, PI / 2 - a, 0, 'YXZ'], [len * 0.55, len, len * 0.22]);
+      // the vein down the middle of each petal
+      if (len > 0.06 && !paintOf(key3).glass) b.put(b.kit.petal, shade(key3),
+        [Math.cos(a) * radius * 0.56, y + 0.022 + t * 0.03, Math.sin(a) * radius * 0.56],
+        [PI / 2 - tilt - 0.04, PI / 2 - a, 0, 'YXZ'], [len * 0.12, len * 0.85, len * 0.24]);
     }
   }
+  // the seed head, ringed with stamens
   b.put(b.kit.cyl, 'gold', [0, y + 0.04, 0], 0, [r * 0.55, 0.05, r * 0.55]);
-  if (disc) b.put(b.kit.disc, disc, [0, y + 0.07, 0], 0, [r * 0.62, 0.018, r * 0.62]);
+  for (let i = 0; i < 14; i += 1) {
+    const a = i / 14 * TAU;
+    b.put(b.kit.octa, 'saffron', [Math.cos(a) * r * 0.57, y + 0.062, Math.sin(a) * r * 0.57], [0, a, 0], [0.008, 0.014, 0.008]);
+  }
+  if (disc) {
+    b.put(b.kit.disc, disc, [0, y + 0.07, 0], 0, [r * 0.62, 0.018, r * 0.62]);
+    b.put(b.kit.torus(0.12), shade(disc), [0, y + 0.072, 0], [PI / 2, 0, 0], [r * 0.62, r * 0.62, 0.12]);
+  } else for (let i = 0; i < 7; i += 1) {
+    const a = i / 7 * TAU, rr = i ? r * 0.28 : 0;
+    b.ell('ember', [Math.cos(a) * rr, y + 0.066, Math.sin(a) * rr], [0.012, 0.006, 0.012]);
+  }
   return y + 0.08;
 }
 
@@ -417,94 +485,354 @@ function flameRing(b, { cx = 0, cy = 0.5, z = -0.18, R = 0.36, n = 11, from = -0
   }
 }
 
-/* A seated figure, legs crossed, about 0.56 units tall at s = 1. */
+/* ── figures ─────────────────────────────────────────────────────────────
+   The people of the board — Buddhas, monks, yogis, bodhisattvas, a king's
+   subject under the jambu tree — share one body, built the way the painted
+   and cast figures are: a head with its face, a neck, chest and belly under
+   the robe, shoulders, arms that bend at the elbow and end in hands that make
+   the gesture, and, seated, the legs crossed with both soles turned up.
+
+   They face +z. The figure's right is towards -x, so a Buddha touching the
+   earth touches it on the viewer's left, as he does in every image of it.
+
+   What a figure wears follows from what it is:
+   - robe:  the monastic robe, over the left shoulder, the right shoulder and
+            arm bare (Buddhas, monks, arhats, solitary buddhas, panditas);
+   - bare:  the jewelled body of a bodhisattva or deity, or the bare body of
+            an ascetic, with a lower garment and a scarf;
+   - coat:  a lay coat closed over both shoulders, sleeves to the wrist. */
+
+/* The head, drawn in its own units: one unit from chin to crown, centred on
+   the middle of the face. `style` is the hair: buddha, shaved, crown, bun,
+   hat, bonhat, dread, flame. */
+function head(b, { skin = 'skin', style = 'shaved', hair = null, eyes = 'down', ears = null } = {}) {
+  const k = b.kit;
+  const hairKey = hair || (style === 'buddha' || style === 'crown' ? 'hair' : style === 'dread' ? 'earth' : 'black');
+  // skull, face, cheeks, chin
+  b.ell(skin, [0, 0.06, -0.04], [0.38, 0.44, 0.42]);
+  b.ell(skin, [0, -0.12, 0.07], [0.31, 0.36, 0.33]);
+  for (const x of [-1, 1]) b.ell(skin, [x * 0.15, -0.1, 0.19], [0.15, 0.14, 0.15]);
+  b.ell(skin, [0, -0.37, 0.17], [0.12, 0.09, 0.11]);
+  // nose
+  b.blob(skin, [0, 0.07, 0.36], [0, -0.12, 0.445], 0.05, 0.06);
+  b.ell(skin, [0, -0.13, 0.43], [0.07, 0.055, 0.06]);
+  for (const x of [-1, 1]) b.ell(skin, [x * 0.06, -0.15, 0.39], [0.045, 0.04, 0.04]);
+  // brows, the long arch of the images
+  for (const x of [-1, 1]) {
+    b.path('brow', [[x * 0.04, 0.12, 0.385], [x * 0.15, 0.155, 0.372], [x * 0.27, 0.115, 0.30]], 0.016, 0.011);
+    if (eyes === 'open') {
+      b.ell('eyewhite', [x * 0.145, 0.03, 0.34], [0.085, 0.04, 0.04]);
+      b.ell('lash', [x * 0.145, 0.03, 0.372], [0.035, 0.035, 0.012]);
+      b.path('lash', [[x * 0.06, 0.05, 0.37], [x * 0.15, 0.075, 0.37], [x * 0.235, 0.045, 0.33]], 0.012, 0.009);
+    } else {
+      // lowered lids: a full upper lid and the dark line of the lashes under it
+      b.ell(skin, [x * 0.15, 0.045, 0.33], [0.1, 0.05, 0.05]);
+      b.path('lash', [[x * 0.07, 0.02, 0.372], [x * 0.15, 0.008, 0.375], [x * 0.235, 0.022, 0.335]], 0.013, 0.009);
+    }
+  }
+  // lips
+  b.ell('lip', [0, -0.235, 0.385], [0.1, 0.024, 0.035]);
+  b.ell('lip', [0, -0.272, 0.372], [0.08, 0.03, 0.035]);
+  // ears; the long lobes of a Buddha and the gods, stretched by earrings
+  const long = ears === 'long' || (ears === null && (style === 'buddha' || style === 'crown'));
+  for (const x of [-1, 1]) {
+    b.ell(skin, [x * 0.385, 0.0, -0.02], [0.06, 0.16, 0.1], [0, x * 0.25, 0]);
+    if (long) b.ell(skin, [x * 0.40, -0.24, 0.0], [0.05, 0.16, 0.07]);
+    if (style === 'crown') b.ell('gold', [x * 0.41, -0.36, 0.02], 0.06);
+  }
+  if (style === 'buddha') {
+    b.ell('white', [0, 0.18, 0.395], 0.03);                     // the ūrṇā
+    b.ell(hairKey, [0, 0.22, -0.1], [0.42, 0.38, 0.44]);
+    // tight curls, turning to the right, over the whole of the hair
+    const n = 54;
+    for (let i = 0; i < n; i += 1) {
+      const t = (i + 0.5) / n, phi = Math.acos(1 - 2 * t), theta = i * 2.39996;
+      const dx = Math.sin(phi) * Math.cos(theta), dy = Math.cos(phi), dz = Math.sin(phi) * Math.sin(theta);
+      const p = [dx * 0.43, 0.22 + dy * 0.39, -0.1 + dz * 0.45];
+      if (p[1] < 0.12 || (p[2] > 0.18 && p[1] < 0.27)) continue;
+      b.put(k.octa, hairKey, p, [phi, theta, 0], 0.052);
+    }
+    // the uṣṇīṣa, curled too, and the jewel at its crown
+    b.ell(hairKey, [0, 0.58, -0.09], [0.22, 0.2, 0.22]);
+    for (let i = 0; i < 12; i += 1) {
+      const a = i / 12 * TAU;
+      b.put(k.octa, hairKey, [Math.cos(a) * 0.2, 0.6, -0.09 + Math.sin(a) * 0.2], [0, a, 0.4], 0.045);
+    }
+    b.ell('gold', [0, 0.78, -0.09], [0.06, 0.08, 0.06]);
+  } else if (style === 'crown') {
+    b.ell(hairKey, [0, 0.22, -0.1], [0.42, 0.38, 0.44]);
+    b.ell(hairKey, [0, 0.62, -0.1], [0.17, 0.24, 0.17]);         // the topknot
+    b.ell('gold', [0, 0.86, -0.1], 0.06);
+    for (const x of [-1, 1]) b.path(hairKey, [[x * 0.34, 0.0, -0.2], [x * 0.42, -0.3, -0.16], [x * 0.5, -0.62, -0.08]], 0.07, 0.04);
+    // the five-pointed crown on its band, a gem in every leaf
+    b.put(k.torus(0.12), 'gold', [0, 0.3, -0.06], [PI / 2 - 0.12, 0, 0], [0.43, 0.46, 0.4]);
+    for (let i = 0; i < 5; i += 1) {
+      const a = (i - 2) * 0.5, big = i === 2 ? 1.15 : 1 - Math.abs(i - 2) * 0.08;
+      const px = Math.sin(a) * 0.42, pz = -0.06 + Math.cos(a) * 0.42;
+      b.put(k.petal, 'gold', [px, 0.33, pz], [-0.18, a, 0, 'YXZ'], [0.2 * big, 0.36 * big, 0.06]);
+      b.ell(i % 2 ? 'blue' : 'red', [px * 1.04, 0.47, pz * 1.04 + 0.02], 0.05 * big);
+    }
+    for (const x of [-1, 1]) b.path('red', [[x * 0.42, 0.3, -0.12], [x * 0.55, 0.15, -0.2], [x * 0.6, -0.15, -0.22]], 0.035, 0.02);
+  } else if (style === 'bun') {
+    b.ell(hairKey, [0, 0.22, -0.1], [0.42, 0.38, 0.44]);
+    b.ell(hairKey, [0, 0.52, -0.22], [0.2, 0.19, 0.2]);
+    b.put(k.torus(0.2), 'gold', [0, 0.45, -0.2], [0.6, 0, 0], 0.15);
+  } else if (style === 'hat') {
+    // the pandita's hat: tall and pointed, with long lappets to the shoulders
+    b.put(k.torus(0.3), 'red', [0, 0.3, -0.05], [PI / 2 - 0.1, 0, 0], [0.43, 0.45, 0.45]);
+    b.put(k.cone, 'red', [0, 0.72, -0.08], [-0.12, 0, 0], [0.42, 0.85, 0.42]);
+    b.path('gold', [[0, 0.36, 0.36], [0, 0.7, 0.16], [0, 1.08, -0.02]], 0.025);
+    for (const x of [-1, 1]) b.orient(k.box, 'red', [x * 0.45, -0.18, -0.08], [x * 0.25, -1, 0], [x, 0, 0.3], [0.18, 0.75, 0.05]);
+  } else if (style === 'bonhat') {
+    b.put(k.torus(0.3), 'blue', [0, 0.3, -0.05], [PI / 2 - 0.1, 0, 0], [0.44, 0.46, 0.45]);
+    b.put(k.cone, 'blue', [0, 0.66, -0.06], 0, [0.42, 0.7, 0.42]);
+    b.put(k.torus(0.15), 'gold', [0, 0.44, -0.06], [PI / 2, 0, 0], [0.38, 0.38, 0.3]);
+    b.ell('gold', [0, 1.02, -0.06], 0.05);
+  } else if (style === 'dread') {
+    b.ell(hairKey, [0, 0.22, -0.1], [0.43, 0.39, 0.45]);
+    b.ell(hairKey, [0, 0.62, -0.1], [0.26, 0.28, 0.26]);
+    for (let i = 0; i < 7; i += 1) {
+      const a = PI * 0.15 + i / 6 * PI * 0.7;
+      b.path(hairKey, [[Math.cos(a) * 0.38, 0.2, -0.1 - Math.sin(a) * 0.35], [Math.cos(a) * 0.48, -0.25, -0.15 - Math.sin(a) * 0.32], [Math.cos(a) * 0.5, -0.7, -0.12 - Math.sin(a) * 0.3]], 0.06, 0.04);
+    }
+    b.path('ash', [[-0.2, -0.35, 0.3], [0, -0.62, 0.3], [0.2, -0.35, 0.3]], 0.07, 0.07);   // the beard
+  } else if (style === 'flame') {
+    fire(b, { y: 0.25, z: -0.1, h: 1.4, w: 0.9 });
+  }
+}
+
+/* A hand at the wrist, fingers along `dir`, palm facing `palm`. `side` is -1
+   for the right hand, +1 for the left: it tells the thumb which way to go. */
+function hand(b, key, wrist, dir, palm, side, size = 1) {
+  const d = new b.THREE.Vector3(...dir).normalize(), n = new b.THREE.Vector3(...palm).normalize();
+  const across = new b.THREE.Vector3().crossVectors(d, n).multiplyScalar(-side);
+  const at = (t, u = 0, v = 0) => [wrist[0] + d.x * t + across.x * u + n.x * v, wrist[1] + d.y * t + across.y * u + n.y * v, wrist[2] + d.z * t + across.z * u + n.z * v];
+  b.orient(b.kit.ball, key, at(0.02 * size), [d.x, d.y, d.z], [n.x, n.y, n.z], [0.019 * size, 0.022 * size, 0.009 * size]);
+  b.orient(b.kit.ball, key, at(0.05 * size, -0.002 * size, 0.002 * size), [d.x, d.y, d.z], [n.x, n.y, n.z], [0.016 * size, 0.022 * size, 0.0065 * size]);
+  const t = [d.x * 0.5 + across.x, d.y * 0.5 + across.y, d.z * 0.5 + across.z];
+  b.orient(b.kit.ball, key, at(0.022 * size, 0.018 * size, 0.004 * size), t, [n.x, n.y, n.z], [0.006 * size, 0.016 * size, 0.0065 * size]);
+}
+
+/* What a figure wears, from what it is. */
+function dressOf(o) {
+  if (o.dress) return o.dress;
+  if (o.hair === 'crown' || o.hair === 'dread' || o.thin) return 'bare';
+  if (o.hair === 'bonhat' || (o.hair === 'bun' && o.robe !== 'saffron')) return 'coat';
+  return 'robe';
+}
+
+/* Where each hand goes for each gesture, seated, as [elbow, wrist, fingers,
+   palm] for the right (-x) and the left (+x) hands. */
+const MUDRA = {
+  lap: [[[-0.17, 0.2, 0.03], [-0.075, 0.137, 0.105], [1, 0, 0.12], [0, 1, 0.1]],
+        [[0.17, 0.2, 0.03], [0.075, 0.126, 0.095], [-1, 0, 0.15], [0, 1, 0.1]]],
+  earth: [[[-0.18, 0.2, 0.05], [-0.205, 0.105, 0.135], [-0.05, -1, 0.3], [0.05, 0.25, -1]], null],
+  teach: [[[-0.16, 0.2, 0.06], [-0.052, 0.25, 0.122], [0.15, 1, 0.05], [0, 0, 1]],
+          [[0.16, 0.19, 0.06], [0.042, 0.222, 0.122], [-0.6, 0.5, 0.15], [0, 0.1, -1]]],
+  raise: [[[-0.2, 0.22, 0.06], [-0.205, 0.335, 0.1], [0.05, 1, 0.1], [0, 0, 1]], null],
+  knees: [[[-0.19, 0.2, 0.05], [-0.2, 0.1, 0.13], [0, -0.35, 1], [0, -1, 0]],
+          [[0.19, 0.2, 0.05], [0.2, 0.1, 0.13], [0, -0.35, 1], [0, -1, 0]]],
+  drum: [[[-0.17, 0.2, 0.07], [-0.07, 0.27, 0.13], [0.6, 0.5, 0.4], [0, 0, 1]],
+         [[0.2, 0.24, 0.06], [0.2, 0.36, 0.1], [0, 1, 0.1], [-1, 0, 0]]],
+  heart: [[[-0.15, 0.2, 0.07], [-0.03, 0.255, 0.125], [0.25, 1, 0.1], [0.4, 0, 1]],
+          [[0.15, 0.2, 0.07], [0.03, 0.255, 0.125], [-0.25, 1, 0.1], [-0.4, 0, 1]]]
+};
+
+/* Jewellery of the gods: a necklace at the throat, a longer one to the
+   breast, armlets and bracelets. */
+function ornaments(b, { neck, chest, shoulders, wrists }) {
+  b.put(b.kit.torus(0.12), 'gold', neck, [PI / 2 - 0.35, 0, 0], [0.068, 0.062, 0.065]);
+  b.path('gold', [[-0.075, neck[1] - 0.01, neck[2] + 0.01], [-0.045, chest[1] + 0.03, chest[2] - 0.005], [0, chest[1], chest[2]],
+    [0.045, chest[1] + 0.03, chest[2] - 0.005], [0.075, neck[1] - 0.01, neck[2] + 0.01]], 0.0055);
+  b.ell('red', chest, 0.012);
+  shoulders.forEach((p) => b.put(b.kit.torus(0.25), 'gold', p, [0, 0, PI / 2], 0.03));
+  wrists.forEach((p) => b.put(b.kit.torus(0.3), 'gold', p, [PI / 2, 0, 0], 0.021));
+}
+
+/* An arm from shoulder through elbow to wrist: sleeve or skin, a hand at its
+   end. A sleeve opens at the wrist; a bare arm narrows to it. */
+function arm(b, { shoulder, elbow, wrist, dir, palm, side, skin, sleeve = null, size = 1, thin = false }) {
+  const t = thin ? 0.72 : 1;
+  if (sleeve) {
+    b.path(sleeve, [shoulder, elbow, wrist], 0.031 * size, 0.025 * size);
+    b.orient(b.kit.torus(0.3), sleeve, wrist, [0, 0, 1], [elbow[0] - wrist[0], elbow[1] - wrist[1], elbow[2] - wrist[2]], 0.022 * size);
+    b.blob(skin, wrist, [wrist[0] + dir[0] * 0.01, wrist[1] + dir[1] * 0.01, wrist[2] + dir[2] * 0.01], 0.017 * size);
+  } else {
+    b.path(skin, [shoulder, elbow], 0.03 * size * t, 0.024 * size * t);
+    b.path(skin, [elbow, wrist], 0.024 * size * t, 0.017 * size * t);
+    b.ell(skin, elbow, 0.024 * size * t);
+  }
+  hand(b, skin, wrist, dir, palm, side, size);
+}
+
+/* A seated figure, legs crossed in the vajra posture, about 0.6 units to the
+   top of the head at s = 1. */
 function seated(b, o = {}) {
   const { x = 0, y = 0, z = 0, s = 1, robe = 'maroon', skin = 'skin', hair = 'shaved', halo = null,
     bowl = null, mudra = 'lap', thin = false, legs = robe, ry = 0, sash = null, aura = null } = o;
+  const dress = dressOf(o);
+  const body = o.body || (dress === 'bare' ? skin : robe);
+  const fold = (key) => (paintOf(key).glass ? key : key + '~');
   b.at([x, y, z], [0, ry, 0], s, () => {
     const k = b.kit;
-    b.put(k.sphere, legs, [0, 0.075, 0.02], 0, [0.25, 0.085, 0.17]);
-    const torso = k.lathe('torso', [[0, 0], [0.17, 0], [0.18, 0.06], [0.15, 0.2], [0.12, 0.27], [0.06, 0.30], [0, 0.31]]);
-    b.put(torso, o.body || robe, [0, 0.09, 0], 0, [thin ? 0.72 : 1, 1, thin ? 0.7 : 0.85]);
-    if (sash) b.put(k.box, sash, [0, 0.27, 0.035], [0, 0, 0.6], [0.05, 0.3, 0.12]);
-    b.put(k.cyl, skin, [0, 0.40, 0], 0, [0.035, 0.05, 0.035]);
-    b.put(k.sphere, skin, [0, 0.46, 0], 0, [0.068, 0.074, 0.068]);
-    if (hair === 'buddha') {
-      b.put(k.sphere, 'navy', [0, 0.475, -0.004], 0, [0.071, 0.064, 0.071]);
-      b.put(k.sphere, 'navy', [0, 0.535, 0], 0, 0.036);
-      b.put(k.sphere, 'gold', [0, 0.572, 0], 0, 0.012);
-    } else if (hair === 'crown') {
-      b.put(k.sphere, 'navy', [0, 0.475, -0.004], 0, [0.071, 0.064, 0.071]);
-      b.put(k.cone, 'navy', [0, 0.56, -0.005], 0, [0.03, 0.08, 0.03]);
-      for (let i = 0; i < 5; i += 1) {
-        const a = (i - 2) * 0.42;
-        b.put(k.petal, 'gold', [Math.sin(a) * 0.06, 0.505, Math.cos(a) * 0.06], [-0.25, a, 0, 'YXZ'], [0.03, 0.06, 0.012]);
-      }
-    } else if (hair === 'bun') {
-      b.put(k.sphere, 'black', [0, 0.475, -0.004], 0, [0.071, 0.064, 0.071]);
-      b.put(k.sphere, 'black', [0, 0.545, -0.01], 0, 0.034);
-    } else if (hair === 'hat') {
-      b.put(k.cone, 'red', [0, 0.57, -0.01], [-0.1, 0, 0], [0.062, 0.17, 0.062]);
-    } else if (hair === 'bonhat') {
-      b.put(k.cone, 'blue', [0, 0.55, -0.005], 0, [0.075, 0.13, 0.075]);
-      b.put(k.torus(0.25), 'gold', [0, 0.50, -0.004], [PI / 2, 0, 0], 0.064);
-    } else if (hair === 'flame') {
-      fire(b, { y: 0.47, z: -0.03, h: 0.2, w: 0.12 });
-    } else if (hair === 'dread') {
-      b.put(k.sphere, 'earth', [0, 0.475, -0.006], 0, [0.072, 0.066, 0.072]);
-      b.put(k.cyl, 'earth', [0, 0.56, -0.01], 0, [0.034, 0.1, 0.034]);
+    const w = thin ? 0.78 : 1;
+    // the legs, crossed, under the robe; both soles turned up
+    b.ell(legs, [0, 0.07, 0.035], [0.235, 0.07, 0.15]);
+    for (const sx of [-1, 1]) b.ell(legs, [sx * 0.2, 0.055, 0.085], [0.075, 0.055, 0.085]);
+    b.blob(legs, [0.18, 0.06, 0.125], [-0.06, 0.075, 0.16], 0.046, 0.04);
+    b.blob(legs, [-0.18, 0.058, 0.115], [0.06, 0.068, 0.15], 0.044, 0.038);
+    for (const sx of [-1, 1]) {
+      const heel = [-sx * 0.035, 0.1 + (sx > 0 ? 0.008 : 0), 0.14], toe = [-sx * 0.15, 0.105 + (sx > 0 ? 0.008 : 0), 0.105];
+      b.orient(k.ball, skin, [(heel[0] + toe[0]) / 2, heel[1], (heel[2] + toe[2]) / 2], [toe[0] - heel[0], 0, toe[2] - heel[2]], [0, 1, 0.2], [0.026, 0.062, 0.015]);
+      for (let i = 0; i < 4; i += 1) b.ell(skin, [toe[0] - sx * 0.002, toe[1] + 0.004, toe[2] + 0.006 - i * 0.011], 0.0085);
     }
-    // arms, from the shoulders to wherever the hands are
-    const hands = mudra === 'earth' ? [[-0.06, 0.17, 0.12], [0.16, 0.06, 0.15]]
-      : mudra === 'teach' ? [[-0.05, 0.31, 0.12], [0.05, 0.31, 0.12]]
-      : mudra === 'raise' ? [[-0.06, 0.17, 0.12], [0.17, 0.38, 0.08]]
-      : [[-0.055, 0.17, 0.12], [0.055, 0.17, 0.12]];
-    const arm = o.arms || robe;
-    [[-0.14, 0.36, 0], [0.14, 0.36, 0]].forEach((shoulder, i) => {
-      const hand = hands[i];
-      const elbow = [shoulder[0] * 1.35, (shoulder[1] + hand[1]) / 2 - 0.03, 0.05];
-      b.path(arm, [shoulder, elbow, hand], 0.036, 0.03);
-      b.put(k.ball, skin, hand, 0, 0.028);
+    // the hem of the robe over the lap, and the fall of cloth in front of the seat
+    b.path(fold(legs), [[-0.2, 0.098, 0.1], [-0.12, 0.112, 0.16], [0, 0.106, 0.176], [0.12, 0.112, 0.16], [0.2, 0.098, 0.1]], 0.0045);
+    for (const sx of [-1, 1]) b.path(fold(legs), [[sx * 0.25, 0.06, 0.07], [sx * 0.21, 0.035, 0.14], [sx * 0.12, 0.022, 0.18]], 0.004);
+    b.ell(legs, [0, 0.035, 0.175], [0.08, 0.035, 0.03]);
+    b.path(fold(legs), [[-0.04, 0.06, 0.2], [-0.035, 0.012, 0.205]], 0.005);
+    b.path(fold(legs), [[0.04, 0.06, 0.2], [0.035, 0.012, 0.205]], 0.005);
+    // the body: one turned profile, waist to collar, flattened front to back
+    const trunk = k.lathe('trunk', [[0, 0.085], [0.15, 0.085], [0.142, 0.13], [0.128, 0.18], [0.13, 0.22], [0.142, 0.265],
+      [0.15, 0.3], [0.146, 0.325], [0.118, 0.348], [0.06, 0.366], [0, 0.37]], 22);
+    b.put(trunk, body, [0, 0, 0], 0, [w, 1, thin ? 0.56 : 0.64]);
+    const shoulders = [[-0.142 * w, 0.305, 0], [0.142 * w, 0.305, 0]];
+    shoulders.forEach((p) => b.ell(body, [p[0] * 0.97, p[1] + 0.008, p[2]], [0.044, 0.048, 0.046]));
+    b.beam(skin, [0, 0.34, 0.0], [0, 0.41, 0.012], 0.034, 0.031);
+    const sleeves = [null, null];
+    if (dress === 'robe') {
+      // the right shoulder and breast bare, the robe over the left, its rolled edge
+      b.ell(skin, [-0.139 * w, 0.314, 0.002], [0.047, 0.05, 0.049]);
+      b.ell(skin, [-0.062, 0.305, 0.058], [0.072, 0.05, 0.04]);
+      b.ell(skin, [-0.03, 0.345, 0.035], [0.055, 0.03, 0.04]);
+      b.path(fold(robe), [[0.06, 0.368, 0.03], [0.02, 0.322, 0.093], [-0.045, 0.255, 0.098], [-0.115, 0.19, 0.088], [-0.15, 0.14, 0.06]], 0.008);
+      b.path(fold(body), [[0.09, 0.3, 0.083], [0.04, 0.21, 0.092], [-0.01, 0.13, 0.1]], 0.0035);
+      b.path(fold(body), [[0.13, 0.26, 0.055], [0.095, 0.17, 0.084]], 0.0035);
+      if (sash) {
+        b.path(sash, [[0.14, 0.33, -0.02], [0.09, 0.352, 0.05], [0.05, 0.315, 0.092]], 0.014, 0.01);
+        b.path(sash, [[0.145, 0.32, -0.03], [0.165, 0.2, -0.04], [0.17, 0.1, 0.0]], 0.016, 0.012);
+      }
+      sleeves[1] = robe;
+      // the robe hanging from the left forearm
+      b.ell(robe, [0.168, 0.2, 0.045], [0.02, 0.05, 0.034]);
+    } else if (dress === 'bare') {
+      for (const sx of [-1, 1]) b.ell(body, [sx * 0.052, 0.29, 0.068], [0.056, 0.036, 0.024]);
+      b.ell(fold(body), [0, 0.165, 0.083], 0.006);
+      if (thin) for (let i = 0; i < 4; i += 1) for (const sx of [-1, 1]) {
+        const yy = 0.27 - i * 0.024;
+        b.path(fold(body), [[sx * 0.02, yy + 0.01, 0.083], [sx * 0.06, yy, 0.077], [sx * 0.1, yy - 0.012, 0.055]], 0.0035);
+      }
+      b.ell(legs, [0, 0.11, 0.0], [0.155, 0.04, 0.115]);
+      if ((hair === 'crown' || o.jewels) && !paintOf(body).glass) ornaments(b, { neck: [0, 0.345, 0.01], chest: [0, 0.255, 0.098], shoulders: [[-0.15, 0.27, 0], [0.15, 0.27, 0]], wrists: [] });
+      if (sash) {
+        // the scarf round the shoulders, its ends falling past the elbows
+        b.path(sash, [[-0.15, 0.3, 0.02], [-0.08, 0.36, -0.06], [0.08, 0.36, -0.06], [0.15, 0.3, 0.02]], 0.014);
+        for (const sx of [-1, 1]) b.path(sash, [[sx * 0.15, 0.3, 0.02], [sx * 0.22, 0.2, 0.06], [sx * 0.24, 0.1, 0.1], [sx * 0.27, 0.03, 0.14]], 0.012, 0.008);
+      }
+    } else {
+      // a lay coat, crossed at the breast, a sash at the waist
+      b.path(fold(body), [[-0.06, 0.36, 0.05], [0.03, 0.27, 0.1], [0.08, 0.17, 0.1]], 0.008);
+      b.put(k.torus(0.12), sash || fold(body), [0, 0.15, 0], [PI / 2, 0, 0], [0.13, 0.1, 0.12]);
+      sleeves[0] = sleeves[1] = robe;
+    }
+    // arms and the gesture
+    const pose = MUDRA[mudra] || MUDRA.lap;
+    [-1, 1].forEach((side, i) => {
+      const set = pose[i] || MUDRA.lap[i];
+      const [elbow, wrist, dir, palm] = set.map((p) => [p[0], p[1], p[2]]);
+      if (thin) elbow[0] *= 0.9;
+      arm(b, { shoulder: shoulders[i], elbow, wrist, dir, palm, side, skin: o.arms || skin, sleeve: sleeves[i], thin });
+      if (dress === 'bare' && (hair === 'crown' || o.jewels) && !paintOf(skin).glass) b.put(k.torus(0.3), 'gold', wrist, [PI / 2, 0, 0], 0.02);
     });
-    if (bowl) b.put(k.bowl, bowl, [0, 0.19, 0.12], [PI, 0, 0], [0.06, 0.04, 0.06]);
-    if (halo) b.put(k.disc, halo, [0, 0.47, -0.07], [PI / 2, 0, 0], [0.12, 0.01, 0.12]);
-    if (aura) b.put(k.disc, aura, [0, 0.28, -0.1], [PI / 2, 0, 0], [0.26, 0.01, 0.3]);
+    if (bowl) {
+      b.put(k.lathe('almsbowl', [[0, 0], [0.04, 0.003], [0.058, 0.02], [0.06, 0.036], [0.054, 0.05], [0.05, 0.052], [0.04, 0.046], [0, 0.044]], 18), bowl, [0, 0.13, 0.1]);
+    }
+    // the head
+    b.at([0, 0.47, 0.018], 0, 0.135, () => head(b, { skin, style: hair, eyes: o.eyes }));
+    if (halo) {
+      b.put(k.disc, halo, [0, 0.49, -0.075], [PI / 2, 0, 0], [0.13, 0.008, 0.13]);
+      b.put(k.torus(0.06), halo === 'gold' ? 'brass' : halo, [0, 0.49, -0.07], [0, 0, 0], [0.13, 0.13, 0.06]);
+    }
+    if (aura) b.put(k.disc, aura, [0, 0.28, -0.11], [PI / 2, 0, 0], [0.26, 0.01, 0.3]);
   });
 }
 
-/* A standing figure, about 0.72 units tall at s = 1. */
+/* A standing figure, about 0.74 units to the top of the head at s = 1.
+   `rightHand` and `leftHand` are where the wrists are (the right is towards
+   -x); a staff goes in the left hand, a bowl in the right. */
 function standing(b, o = {}) {
-  const { x = 0, y = 0, z = 0, s = 1, robe = 'maroon', skin = 'skin', hair = 'shaved', staff = null, bowl = null, halo = null, ry = 0, wide = 1 } = o;
+  const { x = 0, y = 0, z = 0, s = 1, robe = 'maroon', skin = 'skin', hair = 'shaved', staff = null, bowl = null, halo = null, ry = 0, wide = 1, sash = null } = o;
+  const dress = dressOf(o);
+  const fold = (key) => (paintOf(key).glass ? key : key + '~');
   b.at([x, y, z], [0, ry, 0], s, () => {
     const k = b.kit;
-    const gown = k.lathe('gown', [[0, 0], [0.11, 0], [0.095, 0.25], [0.105, 0.45], [0.10, 0.52], [0.07, 0.56], [0, 0.57]]);
-    b.put(gown, robe, [0, 0, 0], 0, [wide, 1, wide * 0.8]);
-    b.put(k.cyl, skin, [0, 0.59, 0], 0, [0.03, 0.04, 0.03]);
-    b.put(k.sphere, skin, [0, 0.645, 0], 0, [0.06, 0.066, 0.06]);
-    if (hair === 'buddha') {
-      b.put(k.sphere, 'navy', [0, 0.66, -0.004], 0, [0.063, 0.056, 0.063]);
-      b.put(k.sphere, 'navy', [0, 0.715, 0], 0, 0.03);
-    } else if (hair === 'crown') {
-      b.put(k.sphere, 'black', [0, 0.66, -0.004], 0, [0.063, 0.056, 0.063]);
-      for (let i = 0; i < 5; i += 1) {
-        const a = (i - 2) * 0.42;
-        b.put(k.petal, 'gold', [Math.sin(a) * 0.052, 0.68, Math.cos(a) * 0.052], [-0.25, a, 0, 'YXZ'], [0.026, 0.05, 0.01]);
+    for (const sx of [-1, 1]) {
+      b.orient(k.ball, skin, [sx * 0.045, 0.012, 0.05], [sx * 0.15, 0, 1], [0, 1, 0], [0.026, 0.05, 0.013]);
+    }
+    const body = o.body || (dress === 'bare' ? skin : robe);
+    if (dress === 'bare') {
+      // the lower garment to the ankles, the bare body above it
+      const dhoti = k.lathe('dhoti', [[0, 0.03], [0.1, 0.03], [0.105, 0.05], [0.095, 0.2], [0.098, 0.32], [0.105, 0.37], [0.06, 0.385], [0, 0.39]], 22);
+      b.put(dhoti, robe, [0, 0, 0], 0, [wide, 1, wide * 0.78]);
+      for (const fx of [-0.05, 0, 0.05]) b.path(fold(robe), [[fx, 0.35, 0.075], [fx * 1.2, 0.2, 0.074], [fx * 1.3, 0.04, 0.08]], 0.005);
+      b.put(k.torus(0.12), sash || 'gold', [0, 0.36, 0], [PI / 2, 0, 0], [0.105 * wide, 0.083 * wide, 0.1]);
+      const chest = k.lathe('chest', [[0, 0.33], [0.098, 0.33], [0.092, 0.38], [0.096, 0.43], [0.11, 0.48], [0.118, 0.51], [0.114, 0.535], [0.09, 0.555], [0.045, 0.568], [0, 0.572]], 20);
+      b.put(chest, body, [0, 0, 0], 0, [1, 1, 0.66]);
+      for (const sx of [-1, 1]) b.ell(body, [sx * 0.047, 0.505, 0.056], [0.048, 0.032, 0.022]);
+      b.ell(fold(body), [0, 0.4, 0.064], 0.005);
+      if (hair === 'crown' && !paintOf(body).glass) ornaments(b, { neck: [0, 0.565, 0.008], chest: [0, 0.48, 0.08], shoulders: [[-0.125, 0.5, 0], [0.125, 0.5, 0]], wrists: [] });
+      if (sash) {
+        b.path(sash, [[-0.12, 0.52, 0.02], [-0.06, 0.575, -0.05], [0.06, 0.575, -0.05], [0.12, 0.52, 0.02]], 0.012);
+        for (const sx of [-1, 1]) b.path(sash, [[sx * 0.12, 0.52, 0.02], [sx * 0.17, 0.4, 0.05], [sx * 0.18, 0.25, 0.04], [sx * 0.2, 0.08, 0.02]], 0.01, 0.007);
       }
-    } else if (hair === 'bun') {
-      b.put(k.sphere, 'black', [0, 0.66, -0.004], 0, [0.063, 0.056, 0.063]);
-      b.put(k.sphere, 'black', [0, 0.72, -0.01], 0, 0.028);
+    } else {
+      const gown = k.lathe('robe-gown', [[0, 0.015], [0.115, 0.015], [0.119, 0.03], [0.108, 0.12], [0.1, 0.26], [0.104, 0.36],
+        [0.112, 0.44], [0.12, 0.5], [0.112, 0.545], [0.07, 0.578], [0, 0.585]], 24);
+      b.put(gown, body, [0, 0, 0], 0, [wide, 1, wide * 0.78]);
+      for (const fx of [-0.07, -0.025, 0.025, 0.07]) b.path(fold(body), [[fx, 0.42, 0.083], [fx * 1.1, 0.22, 0.077], [fx * 1.2, 0.03, 0.088]], 0.0055);
+      b.put(k.torus(0.1), fold(body), [0, 0.022, 0], [PI / 2, 0, 0], [0.117 * wide, 0.091 * wide, 0.1]);
+      if (dress === 'robe') {
+        b.ell(skin, [-0.12, 0.535, 0.0], [0.04, 0.045, 0.04]);
+        b.ell(skin, [-0.058, 0.52, 0.066], [0.056, 0.038, 0.022]);
+        b.ell(skin, [-0.03, 0.555, 0.028], [0.05, 0.022, 0.032]);
+        b.path(fold(body), [[0.065, 0.585, 0.02], [0.03, 0.54, 0.083], [-0.04, 0.47, 0.095], [-0.12, 0.4, 0.07]], 0.012);
+      } else {
+        b.path(fold(body), [[-0.05, 0.58, 0.05], [0.03, 0.5, 0.085], [0.07, 0.4, 0.08]], 0.007);
+        b.put(k.torus(0.12), sash || fold(body), [0, 0.37, 0], [PI / 2, 0, 0], [0.105, 0.083, 0.1]);
+      }
     }
-    const left = o.leftHand || [-0.12, 0.30, 0.05], right = o.rightHand || [0.12, 0.30, 0.05];
-    b.path(robe, [[-0.11, 0.52, 0], [-0.14, 0.42, 0.02], left], 0.032, 0.027);
-    b.path(robe, [[0.11, 0.52, 0], [0.14, 0.42, 0.02], right], 0.032, 0.027);
-    b.put(k.ball, skin, left, 0, 0.026);
-    b.put(k.ball, skin, right, 0, 0.026);
+    const shoulders = [[-0.118, 0.54, 0], [0.118, 0.54, 0]];
+    shoulders.forEach((p) => b.ell(dress === 'bare' ? body : body, p, 0.042));
+    b.blob(skin, [0, 0.55, 0], [0, 0.63, 0.01], 0.03, 0.03);
+    const wrists = [o.rightHand || [-0.13, 0.32, 0.06], o.leftHand || [0.13, 0.32, 0.06]];
+    [-1, 1].forEach((side, i) => {
+      const wrist = wrists[i], shoulder = shoulders[i];
+      const raised = wrist[1] > 0.4;
+      const elbow = raised ? [side * 0.165, 0.4, 0.07] : [side * 0.148, 0.42, 0.02];
+      const dir = raised ? [0, 1, 0.12] : [wrist[0] - elbow[0], wrist[1] - elbow[1], wrist[2] - elbow[2] + 0.04];
+      const palm = raised ? [0, 0, 1] : [-side, 0, 0.2];
+      const sleeve = dress === 'coat' || (dress === 'robe' && side > 0) ? body : null;
+      arm(b, { shoulder, elbow, wrist, dir, palm, side, skin, sleeve, size: 0.95 });
+      if (dress === 'robe' && side > 0) b.ell(body, [elbow[0] + 0.008, elbow[1] - 0.05, elbow[2] + 0.01], [0.022, 0.065, 0.03]);
+      if (dress === 'bare' && hair === 'crown' && !paintOf(skin).glass) b.put(k.torus(0.3), 'gold', wrist, [PI / 2, 0, 0], 0.019);
+    });
     if (staff) {
-      b.beam(staff, [right[0], 0, right[2]], [right[0], 0.82, right[2]], 0.012);
-      b.put(k.torus(0.18), staff, [right[0], 0.84, right[2]], 0, 0.035);
+      const hand2 = wrists[1];
+      b.beam(staff, [hand2[0], 0, hand2[2] + 0.012], [hand2[0], 0.84, hand2[2] + 0.012], 0.009);
+      b.put(k.torus(0.16), staff, [hand2[0], 0.865, hand2[2] + 0.012], 0, 0.035);
+      for (const sx of [-1, 1]) b.put(k.torus(0.3), staff, [hand2[0] + sx * 0.032, 0.85, hand2[2] + 0.012], [PI / 2, 0, 0], 0.01);
+      b.ell(staff, [hand2[0], 0.9, hand2[2] + 0.012], [0.008, 0.016, 0.008]);
     }
-    if (bowl) b.put(k.bowl, bowl, [left[0], left[1] + 0.02, left[2] + 0.02], [PI, 0, 0], [0.05, 0.035, 0.05]);
-    if (halo) b.put(k.disc, halo, [0, 0.65, -0.07], [PI / 2, 0, 0], [0.11, 0.01, 0.11]);
+    if (bowl) {
+      const h = wrists[0];
+      b.put(k.lathe('almsbowl', [[0, 0], [0.04, 0.003], [0.058, 0.02], [0.06, 0.036], [0.054, 0.05], [0.05, 0.052], [0.04, 0.046], [0, 0.044]], 18),
+        bowl, [h[0] + 0.01, h[1] + 0.012, h[2] + 0.03], 0, 0.85);
+    }
+    b.at([0, 0.675, 0.012], 0, 0.115, () => head(b, { skin, style: hair, eyes: o.eyes }));
+    if (halo) {
+      b.put(k.disc, halo, [0, 0.685, -0.07], [PI / 2, 0, 0], [0.115, 0.008, 0.115]);
+      b.put(k.torus(0.08), halo === 'gold' ? 'brass' : halo, [0, 0.685, -0.065], 0, 0.115);
+    }
   });
 }
 
@@ -664,17 +992,29 @@ function mountain(b, { x = 0, y = 0, z = 0, h = 0.5, r = 0.2, key = 'rock', snow
 /* A tree: trunk and a crown of rounded masses. */
 function tree(b, { x = 0, y = 0, z = 0, h = 0.6, r = 0.2, trunk = 'wood', leaf = 'leaf', fruit = null, seed = 5, n = 6 } = {}) {
   const rnd = seeded(seed);
-  b.beam(trunk, [x, y, z], [x, y + h * 0.6, z], r * 0.16, r * 0.1);
-  b.beam(trunk, [x, y + h * 0.45, z], [x - r * 0.5, y + h * 0.72, z], r * 0.08, r * 0.05);
-  b.beam(trunk, [x, y + h * 0.5, z], [x + r * 0.55, y + h * 0.75, z], r * 0.08, r * 0.05);
-  for (let i = 0; i < n; i += 1) {
-    const a = i / n * TAU + rnd();
-    const rr = r * (0.45 + rnd() * 0.25);
-    const p = [x + Math.cos(a) * r * 0.55, y + h * (0.72 + rnd() * 0.2), z + Math.sin(a) * r * 0.4];
-    b.put(b.kit.ball, leaf, p, 0, rr);
-    if (fruit && i % 2 === 0) b.put(b.kit.octa, fruit, [p[0], p[1] - rr * 0.6, p[2] + rr * 0.6], 0, [0.025, 0.04, 0.025]);
+  // a trunk that flares at the root, and boughs that fork as they climb
+  b.beam(trunk, [x, y, z], [x, y + h * 0.6, z], r * 0.17, r * 0.1);
+  for (const sx of [-1, 1]) b.beam(trunk, [x, y + r * 0.05, z], [x + sx * r * 0.22, y + r * 0.03, z + 0.02], r * 0.05, r * 0.03);
+  const boughs = [];
+  for (let i = 0; i < 4; i += 1) {
+    const a = i / 4 * TAU + rnd() * 0.8;
+    const from = [x, y + h * (0.42 + i * 0.06), z];
+    const to = [x + Math.cos(a) * r * 0.7, y + h * (0.68 + rnd() * 0.12), z + Math.sin(a) * r * 0.45];
+    b.beam(trunk, from, to, r * 0.075, r * 0.04);
+    boughs.push(to);
   }
-  b.put(b.kit.ball, leaf, [x, y + h * 0.95, z], 0, r * 0.6);
+  // the crown: clusters of foliage over the boughs, in light and in shade
+  const shade = leaf + '~';
+  for (let i = 0; i < n * 2; i += 1) {
+    const a = i / (n * 2) * TAU + rnd();
+    const rr = r * (0.3 + rnd() * 0.2);
+    const lift = rnd();
+    const p = [x + Math.cos(a) * r * (0.45 + rnd() * 0.25), y + h * (0.68 + lift * 0.28), z + Math.sin(a) * r * (0.32 + rnd() * 0.15)];
+    b.put(b.kit.ball, lift < 0.35 ? shade : leaf, p, [rnd(), rnd(), 0], [rr * 1.15, rr * 0.85, rr]);
+    if (fruit && i % 3 === 0) b.put(b.kit.octa, fruit, [p[0], p[1] - rr * 0.55, p[2] + rr * 0.65], 0, [0.022, 0.036, 0.022]);
+  }
+  boughs.forEach((p, i) => b.put(b.kit.ball, i % 2 ? leaf : shade, [p[0], p[1] + r * 0.08, p[2]], 0, [r * 0.38, r * 0.3, r * 0.34]));
+  b.put(b.kit.ball, leaf, [x, y + h * 0.95, z], 0, [r * 0.55, r * 0.42, r * 0.5]);
 }
 
 /* ── animals ─────────────────────────────────────────────────────────────
@@ -1095,16 +1435,28 @@ const SQUARE_MODELS = {
   10: ['A hungry ghost: belly like a mountain, neck like a hair, and a bowl that comes to it as fire.', (b) => {
     ground(b, 'ring', { w: 0.82, floor: 'earth', rimKey: 'red', inner: 'gold' });
     b.at([0, 0.04, 0], 0, 1, () => {
-      b.put(b.kit.sphere, 'ghost', [0, 0.3, 0], 0, [0.17, 0.19, 0.16]);
-      for (const side of [-1, 1]) {
-        b.path('ghost', [[side * 0.06, 0.15, 0], [side * 0.09, 0.07, 0.03], [side * 0.08, 0, 0]], 0.018, 0.012);
-        b.path('ghost', [[side * 0.13, 0.4, 0], [side * 0.2, 0.3, 0.05], [side * 0.14, 0.24, 0.14]], 0.012, 0.009);
+      // legs like sticks, knees knobbed, the feet splayed
+      for (const sx of [-1, 1]) {
+        b.path('ghost', [[sx * 0.06, 0.16, -0.01], [sx * 0.1, 0.08, 0.04], [sx * 0.085, 0.01, 0.02]], 0.014, 0.01);
+        b.ell('ghost', [sx * 0.1, 0.08, 0.04], 0.018);
+        b.orient(b.kit.ball, 'ghost', [sx * 0.09, 0.008, 0.045], [sx * 0.3, 0, 1], [0, 1, 0], [0.016, 0.034, 0.008]);
       }
-      b.beam('ghost', [0, 0.47, 0], [0, 0.6, 0], 0.012);
-      b.put(b.kit.sphere, 'ghost', [0, 0.65, 0], 0, [0.06, 0.065, 0.06]);
-      b.put(b.kit.sphere, 'black', [0, 0.635, 0.055], 0, 0.006);
-      b.put(b.kit.bowl, 'iron', [0, 0.24, 0.2], [PI, 0, 0], [0.05, 0.03, 0.05]);
-      fire(b, { y: 0.26, z: 0.2, h: 0.1, w: 0.05 });
+      // the belly like a mountain, stretched and veined, the ribs over it
+      b.ell('ghost', [0, 0.28, 0.02], [0.165, 0.175, 0.16]);
+      b.ell('ghost~', [0, 0.25, 0.175], 0.01);
+      for (let i = 0; i < 4; i += 1) b.path('ghost~', [[-0.13 + i * 0.07, 0.36, 0.1], [-0.12 + i * 0.07, 0.27, 0.15], [-0.1 + i * 0.065, 0.17, 0.1]], 0.003);
+      b.ell('ghost', [0, 0.43, -0.01], [0.08, 0.05, 0.06]);
+      for (let i = 0; i < 3; i += 1) b.put(b.kit.torus(0.08, PI * 0.7), 'ghost~', [0, 0.45 - i * 0.02, 0], [PI / 2, 0, PI * 0.15], [0.07, 0.055, 0.08]);
+      // the neck like a hair
+      b.beam('ghost', [0, 0.46, 0], [0, 0.6, 0.01], 0.006);
+      b.at([0, 0.64, 0.015], 0, 0.1, () => head(b, { skin: 'ghost', style: 'dread', hair: 'ash', eyes: 'open' }));
+      // arms like sticks, holding up the bowl that turns to fire
+      for (const sx of [-1, 1]) {
+        b.path('ghost', [[sx * 0.07, 0.44, 0], [sx * 0.17, 0.33, 0.05], [sx * 0.07, 0.27, 0.2]], 0.011, 0.008);
+        hand(b, 'ghost', [sx * 0.07, 0.27, 0.2], [-sx * 0.6, 0.2, 0.6], [0, 1, 0], sx, 0.8);
+      }
+      b.put(b.kit.lathe('almsbowl', [[0, 0], [0.04, 0.003], [0.058, 0.02], [0.06, 0.036], [0.054, 0.05], [0.05, 0.052], [0.04, 0.046], [0, 0.044]], 18), 'iron', [0, 0.27, 0.21], 0, 0.85);
+      fire(b, { y: 0.31, z: 0.21, h: 0.11, w: 0.055 });
     });
   }],
   11: ['A spotted stag on a grassy rise, head up, listening for danger.', (b) => {
@@ -1163,7 +1515,7 @@ const SQUARE_MODELS = {
     b.put(b.kit.slab('trapezoid', OUTLINES.trapezoid(b.THREE), 0.06), 'red', [0, 0.04, 0], [-PI / 2, 0, PI], [0.9, 0.7, 1]);
     b.put(b.kit.slab('trapezoid', OUTLINES.trapezoid(b.THREE), 0.06), 'sky', [0, 0.06, 0], [-PI / 2, 0, PI], [0.7, 0.54, 1]);
     tree(b, { x: 0, z: -0.12, h: 0.75, r: 0.24, leaf: 'green', fruit: 'crimson', seed: 17, n: 7 });
-    seated(b, { x: 0.16, y: 0.09, z: 0.12, s: 0.5, robe: 'saffron', hair: 'bun' });
+    seated(b, { x: 0.16, y: 0.09, z: 0.12, s: 0.5, robe: 'saffron', hair: 'bun', dress: 'coat', sash: 'red', mudra: 'knees' });
   }],
   18: ['The round western land of cattle: a humped, dappled cow by a lake under Meru’s red light.', (b) => {
     b.put(b.kit.disc, 'crimson', [0, 0.03, 0], 0, [0.44, 0.06, 0.4]);
@@ -1245,13 +1597,13 @@ const SQUARE_MODELS = {
     b.put(b.kit.sphere, 'ember', [0, y + 0.205, -0.02], 0, 0.026);
     /* The Bönpo: blue robe, tall hat, the double-faced drum raised on its
        handle and the hooked stick swung against it. */
-    seated(b, { x: -0.25, y: 0.03, z: 0.13, s: 0.58, robe: 'blue', sash: 'red', hair: 'bonhat', ry: 0.45, mudra: 'raise' });
-    b.at([-0.13, 0.31, 0.2], [0, 0.45, 0], 1, () => {
+    seated(b, { x: -0.25, y: 0.03, z: 0.13, s: 0.58, robe: 'blue', sash: 'red', hair: 'bonhat', ry: 0.45, mudra: 'drum' });
+    b.at([-0.12, 0.33, 0.135], [0, 0.45, 0], 1, () => {
       b.put(b.kit.cyl, 'red', [0, 0, 0], [PI / 2, 0, 0], [0.06, 0.03, 0.06]);
       for (const z of [-1, 1]) b.put(b.kit.disc, 'bone', [0, 0, z * 0.016], [PI / 2, 0, 0], [0.056, 0.004, 0.056]);
-      b.beam('wood', [0, -0.06, 0], [0, -0.16, 0], 0.007);
+      b.beam('wood', [0, -0.055, 0], [0, -0.115, 0], 0.007);
     });
-    b.path('wood', [[-0.2, 0.3, 0.24], [-0.16, 0.37, 0.25], [-0.13, 0.36, 0.24]], 0.004);
+    b.path('wood', [[-0.252, 0.19, 0.218], [-0.2, 0.29, 0.24], [-0.125, 0.335, 0.17]], 0.004);
     // divination dice on a cloth before him
     b.put(b.kit.box, 'red', [-0.1, 0.04, 0.24], 0, [0.09, 0.006, 0.06]);
     for (const [x, a] of [[-0.12, 0.3], [-0.085, -0.5]]) b.put(b.kit.box, 'white', [x, 0.053, 0.24], [0, a, 0], 0.018);
@@ -1353,7 +1705,7 @@ const SQUARE_MODELS = {
   38: ['A monk standing with alms bowl and ringing staff, in the blue cartouche of the disciples.', (b) => {
     aureole(b, 'arch', { y: 0.05, w: 0.9, h: 0.98, outer: 'blue', inner: 'navy', band: 0.86, rim: 0.82 });
     b.put(b.kit.disc, 'sage', [0, 0.02, 0], 0, [0.22, 0.04, 0.18]);
-    standing(b, { y: 0.04, s: 1.05, robe: 'saffron', hair: 'shaved', staff: 'gold', bowl: 'navy', leftHand: [-0.1, 0.3, 0.1] });
+    standing(b, { y: 0.04, s: 1.05, robe: 'saffron', hair: 'shaved', staff: 'gold', bowl: 'navy', rightHand: [-0.1, 0.3, 0.1], leftHand: [0.13, 0.36, 0.07] });
   }],
   39: ['A monk seated in calm abiding, applying stillness to the four truths.', (b) => {
     aureole(b, 'arch', { y: 0.05, w: 0.9, h: 0.98, outer: 'blue', inner: 'navy', band: 0.86, rim: 0.82 });
@@ -1737,7 +2089,7 @@ const SQUARE_MODELS = {
   86: ['A bodhisattva striding out on cloud with a victory banner: the Far-Going, the perfection of skilful means.', (b) => {
     aureole(b, 'arch', { y: 0.05, w: 0.9, h: 0.98 });
     cloud(b, { y: 0.02, w: 0.5, h: 0.08, seed: 86 });
-    standing(b, { y: 0.1, s: 0.95, robe: 'jade', hair: 'crown', ry: 0.3, rightHand: [0.14, 0.46, 0.08] });
+    standing(b, { y: 0.1, s: 0.95, robe: 'jade', hair: 'crown', sash: 'rose', ry: 0.3, leftHand: [0.14, 0.46, 0.08] });
     b.beam('gold', [0.14, 0.1, 0.06], [0.14, 0.84, 0.06], 0.01);
     b.put(b.kit.cyl, 'red', [0.14, 0.73, 0.06], 0, [0.05, 0.14, 0.05]);
     b.put(b.kit.dome, 'gold', [0.14, 0.8, 0.06], 0, [0.055, 0.03, 0.055]);
@@ -1842,9 +2194,10 @@ const SQUARE_MODELS = {
   }],
   101: ['The Buddha under the bodhi tree on the vajra seat: awakening.', (b) => {
     aureole(b, 'quatrefoil', { y: 0.48, w: 0.86, h: 1.0, outer: 'red', inner: 'crimson', band: 0.84, rim: 0.78 });
-    tree(b, { y: 0, z: -0.1, h: 0.8, r: 0.26, leaf: 'green', seed: 101, n: 8 });
-    b.put(b.kit.box, 'gold', [0, 0.05, 0.02], 0, [0.36, 0.1, 0.26]);
-    seated(b, { y: 0.1, z: 0.04, s: 0.82, robe: 'red', body: 'crimson', skin: 'gilt', arms: 'gilt', hair: 'buddha', mudra: 'earth', halo: 'gold' });
+    tree(b, { y: 0, z: -0.12, h: 0.95, r: 0.24, leaf: 'green', seed: 101, n: 8 });
+    b.put(b.kit.box, 'gold', [0, 0.05, 0.04], 0, [0.36, 0.1, 0.26]);
+    b.put(b.kit.box, 'gold~', [0, 0.1, 0.04], 0, [0.38, 0.012, 0.28]);
+    seated(b, { y: 0.1, z: 0.06, s: 0.8, robe: 'red', body: 'crimson', skin: 'gilt', arms: 'gilt', hair: 'buddha', mudra: 'earth', halo: 'gold' });
   }],
   102: ['The golden wheel of Dharma between two deer kneeling to it, as in the deer park at Sārnāth.', (b) => {
     aureole(b, 'quatrefoil', { y: 0.48, w: 0.86, h: 1.0, outer: 'red', inner: 'crimson', band: 0.84, rim: 0.78 });
@@ -1863,7 +2216,7 @@ const SQUARE_MODELS = {
       const a = i / 6 * TAU;
       b.path('water', [[Math.cos(a) * 0.04, 0.12, Math.sin(a) * 0.04], [Math.cos(a) * 0.16, 0.08, Math.sin(a) * 0.12], [Math.cos(a) * 0.22, 0.03, Math.sin(a) * 0.16]], 0.016, 0.008);
     }
-    standing(b, { y: 0.06, s: 1.0, robe: 'red', skin: 'gilt', hair: 'buddha', halo: 'gold', rightHand: [0.13, 0.48, 0.08] });
+    standing(b, { y: 0.06, s: 1.0, robe: 'red', skin: 'gilt', hair: 'buddha', halo: 'gold', rightHand: [-0.16, 0.5, 0.11] });
     fire(b, { x: -0.13, y: 0.56, z: -0.02, h: 0.24, w: 0.1, lean: 0.3 });
     fire(b, { x: 0.13, y: 0.56, z: -0.02, h: 0.24, w: 0.1, lean: -0.3 });
   }],
@@ -1907,14 +2260,18 @@ export function createModelMaterials(THREE) {
     glow: new THREE.MeshBasicMaterial({ vertexColors: true }),
     glass: new THREE.MeshBasicMaterial({ vertexColors: true, transparent: true, opacity: 0.42, depthWrite: false })
   };
-  const faint = {};
+  const faint = {}, hi = {};
   for (const [key, material] of Object.entries(lit)) {
+    // the square being visited, lit from within with the gold of the frames
+    hi[key] = material.clone();
+    if (hi[key].emissive) Object.assign(hi[key], { emissive: new THREE.Color(0x8a6216), emissiveIntensity: 0.45 });
+    hi[key].name = 'model_' + key + '_focus';
     material.name = 'model_' + key;
     faint[key] = material.clone();
     Object.assign(faint[key], { transparent: true, opacity: key === 'glass' ? 0.17 : FAINT, depthWrite: key !== 'glass' });
     faint[key].name = 'model_' + key + '_faint';
   }
-  return { lit, faint };
+  return { lit, faint, hi };
 }
 
 /* The world's set of destinations. `attach` remembers where each square
@@ -1931,7 +2288,7 @@ export function createSquareModels(THREE, ctx) {
   const holders = new Map();
   const models = new Map();
   const lit = new Set();
-  let materials = null, kit = null;
+  let materials = null, kit = null, focused = null;
   const unit = ctx.SUMMIT * MODEL_UNIT;
 
   function attach(holder, square) {
@@ -1943,12 +2300,11 @@ export function createSquareModels(THREE, ctx) {
   function paint(square) {
     const model = models.get(square);
     if (!model) return;
-    const on = lit.has(square);
+    const on = square === focused ? 'focus' : lit.has(square);
     if (model.userData.lit === on) return;
     model.userData.lit = on;
-    model.children.forEach((mesh) => {
-      mesh.material = (on ? materials.lit : materials.faint)[mesh.userData.finish];
-    });
+    const set = on === 'focus' ? materials.hi : on ? materials.lit : materials.faint;
+    model.children.forEach((mesh) => { mesh.material = set[mesh.userData.finish]; });
   }
 
   function load() {
@@ -1958,7 +2314,7 @@ export function createSquareModels(THREE, ctx) {
       const model = buildSquareModel(THREE, square, materials, kit);
       const victory = square === ctx.VICTORY;
       model.scale.setScalar(unit * (victory ? VICTORY_SCALE : 1));
-      model.position.y = ctx.SUMMIT * (victory ? 0.1 : MODEL_LIFT);
+      model.position.y = holder.userData.modelLift ?? ctx.SUMMIT * (victory ? 0.1 : MODEL_LIFT);
       model.userData.lit = null;
       holder.add(model);
       models.set(square, model);
@@ -1973,6 +2329,14 @@ export function createSquareModels(THREE, ctx) {
     models.forEach((model, square) => paint(square));
   }
 
+  /* The square being visited stands out from all the rest, lit or faint. */
+  function highlight(square) {
+    const before = focused;
+    focused = square;
+    if (before !== null) paint(before);
+    if (square !== null) paint(square);
+  }
+
   const eye = new THREE.Vector3();
   function face(camera) {
     models.forEach((model) => {
@@ -1984,6 +2348,6 @@ export function createSquareModels(THREE, ctx) {
     });
   }
 
-  return { attach, load, face, showActive, models, holders, modelled,
+  return { attach, load, face, showActive, highlight, models, holders, modelled,
            built: () => models.size === holders.size && holders.size > 0 };
 }

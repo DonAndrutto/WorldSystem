@@ -2178,7 +2178,7 @@ import { SQUARES as RB_SQUARES, SPECIAL as RB_SPECIAL, START as RB_START, VICTOR
 import { createGame, throwDie, view as rbView, destination as rbDestination } from './rebirth-game.js';
 import { SQUARE_NOTES, SQUARE_FULL } from './rebirth-notes.js';
 import { SQUARE_ART, cellBackground, LIBERATION_ART } from './rebirth-icons.js';
-import { createSquareModels } from './square-models.js';
+import { createSquareModels, MODEL_UNIT as RB_MODEL_UNIT } from './square-models.js';
 import { createSoundKit, voiceFor as rbVoice } from './rebirth-sound.js';
 import { searchText } from './search-text.js';
 import { createSynth } from './synth.js';
@@ -2193,7 +2193,7 @@ import { WALKTHROUGH_KEY, WALKTHROUGH_STEPS } from './game-walkthrough.js';
 import { drawWheel } from './wheel-art.js';
 import { createWheelView } from './wheel-view.js';
 import { WHEEL_ENTRIES, WHEEL_TREE, WHEEL_ALSO } from './wheel-notes.js';
-import { composeGameFocus, composeGameOverview, orbitFlightPoint } from './game-camera.js';
+import { composeGameFocus, composeGameOverview, orbitFlightPoint, closeUpDirection } from './game-camera.js';
 import { MANSIONS, MANSION_BY_ID, ringAngle, glyphUrl, evidenceLine, CATALOGUE_SOURCE } from './lunar-mansions.js';
 import { createMansionLayer } from './mansion-layer.js';
 import { associations as mansionRows, readingNotes as mansionNotes } from './mansion-ui.js';
@@ -3419,33 +3419,46 @@ CLUSTERS.forEach(([material, names], ci) => {
    ground; here they hang below the disc so they can be seen. The eight
    cold hells are set off to one side.                                  */
 const UNDER = top - 0.03;
-const pret = new THREE.Mesh(new THREE.BoxGeometry(0.085, 0.009, 0.085), M.preta);
-pret.position.set(0, UNDER + 0.030, R);
+/* The levels are drawn far enough apart for the game's destinations to stand
+   on their floors: each hot hell a model's height and a little more beneath
+   the one above it, and wide enough for the model to stand inside its walls of
+   flame. The pretas' ground opens the stack, clear of the golden ground; the
+   floor each level offers to stand on is kept for the game (HELL_FLOORS). */
+const HELL_STEP = 0.12;
+const PRETA_Y = UNDER - 0.02;
+const HELL_FLOORS = new Map();
+const pret = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.009, 0.15), M.preta);
+pret.position.set(0, PRETA_Y, R);
 add(pret, 'preta_realm');
+HELL_FLOORS.set('preta_realm', PRETA_Y + 0.0045);
 
 const HELLS = ['sanjiva', 'kalasutra', 'samghata', 'raurava',
                'maharaurava', 'tapana', 'pratapana', 'avichi'];
 HELLS.forEach((name, i) => {
-  const side = 0.075 + (i / (HELLS.length - 1)) * 0.075;
+  const side = 0.17 + (i / (HELLS.length - 1)) * 0.14;
   const slab = createHellRealm(THREE, { side, hot: true, depth: i });
-  slab.position.set(0, UNDER - i * 0.042, R);
+  slab.position.set(0, PRETA_Y - (i + 1) * HELL_STEP, R);
   slab.traverse(o => { if (o.isMesh) o.name = `hell_${name}`; });
   add(slab, `hell_${name}`);
+  HELL_FLOORS.set(`hell_${name}`, slab.position.y + 0.0056);
 });
+const SHAFT_H = HELLS.length * HELL_STEP + 0.03;
 const shaft = new THREE.Mesh(
-  new THREE.CylinderGeometry(y(1400), y(1400), 7 * 0.042 + 0.03, 20), M.iron
+  new THREE.CylinderGeometry(y(1400), y(1400), SHAFT_H, 20), M.iron
 );
-shaft.position.set(0, UNDER + 0.015 - (7 * 0.042 + 0.03) / 2, R);
+// down the back of the stack, on Meru's side, clear of what stands on each floor
+shaft.position.set(0, PRETA_Y + 0.015 - SHAFT_H / 2, R - 0.07);
 add(shaft, 'naraka_shaft');
 
 const COLD = ['arbuda', 'nirarbuda', 'atata', 'hahava', 'huhuva',
               'utpala', 'padma', 'mahapadma'];
 COLD.forEach((name, i) => {
-  const side = 0.042 + (i / (COLD.length - 1)) * 0.030;
+  const side = 0.11 + (i / (COLD.length - 1)) * 0.05;
   const slab = createHellRealm(THREE, { side, hot: false, depth: i });
-  slab.position.set(-0.235, UNDER - 0.02 - i * 0.036, R + 0.04);
+  slab.position.set(-0.36, PRETA_Y - i * 0.07, R + 0.04);
   slab.traverse(o => { if (o.isMesh) o.name = `cold_${name}`; });
   add(slab, `cold_${name}`);
+  HELL_FLOORS.set(`cold_${name}`, slab.position.y + 0.0041);
 });
 
 /* ── The formless realm ───────────────────────────────────────────────── */
@@ -4777,10 +4790,38 @@ const meshesFor = (id) => {
   });
   return out;
 };
+/* A ring of light on the floor round the square being visited, so the eye
+   goes to it first. It stands in the scene, not the world, and nothing can
+   pick it. */
+const focusRing = new THREE.Group();
+focusRing.name = 'focus_ring';
+focusRing.visible = false;
+[[0.93, 1.0, 0.9], [1.06, 1.22, 0.26]].forEach(([inner, outer, opacity]) => {
+  const ring = new THREE.Mesh(new THREE.RingGeometry(inner, outer, 64),
+    new THREE.MeshBasicMaterial({ color: 0xf0c75a, transparent: true, opacity, side: THREE.DoubleSide,
+      depthWrite: false, toneMapped: false }));
+  ring.rotation.x = -Math.PI / 2;
+  ring.renderOrder = 7;
+  ring.raycast = () => {};
+  ring.castShadow = false;
+  focusRing.add(ring);
+});
+stage._scene.add(focusRing);
+function placeFocusRing(box, radius = null) {
+  if (!box || box.isEmpty()) { if (focusRing.visible) { focusRing.visible = false; invalidate(); } return; }
+  const size = box.getSize(new THREE.Vector3()), centre = box.getCenter(new THREE.Vector3());
+  focusRing.position.set(centre.x, box.min.y + 0.0015, centre.z);
+  focusRing.scale.setScalar(Math.max(radius ?? Math.max(size.x, size.z) * 0.55, 0.012));
+  focusRing.visible = true;
+  invalidate();
+}
 let picked = [], pickedMats = [], current = null;
+/* What is picked is lit from within with the gold of the board's frames:
+   enough to find it at once among everything round it, not so much that its
+   own colours are lost. */
 const tint = (m) => Object.assign(m.clone(),
-  m.emissive ? { emissive: new THREE.Color(0x6b4a12), emissiveIntensity: 0.5 }
-             : { color: new THREE.Color(0x6b4a12) });
+  m.emissive ? { emissive: new THREE.Color(0x7a5614), emissiveIntensity: 0.62 }
+             : { color: new THREE.Color(0x76521a) });
 const tintable = (m) => m.material && !Array.isArray(m.material)
   && m.material !== M.formless && !m.userData.realmAtmosphere && !m.userData.pickOnly && !m.userData.artwork;
 function clearPick() {
@@ -5384,7 +5425,7 @@ const drawLoop = () => {
   setUnderwater(underwater());
   gl.render(stage._scene, cam);
   if (mandala) placeMarks();
-  if (mode === 'game') { rbModels.face(cam); rbPlaceLabel(); rbPlaceChips(); rbPlaceFocusPin(); }
+  if (mode === 'game') { rbModels.face(cam); rbPlayerArt.stand(cam, rbAside); rbPlaceLabel(); rbPlaceChips(); rbPlaceFocusPin(); }
   if (!mandala || touring) placeCompass();
 };
 stage._loop = drawLoop;
@@ -5412,14 +5453,15 @@ function focus(id, direction = null, padding = 1.3) {
     ? Math.max((imageSize?.max.x - imageSize?.min.x || 0.73) * illustration.scale.x / fr.w, (imageSize?.max.y - imageSize?.min.y || 0.98) * illustration.scale.y / fr.h)
       * h / (2 * half * 0.84)
     : r * padding / half * h / Math.min(fr.w, fr.h);
-  aimAt(sph.center, dist, fr, direction);
+  // brought up close from its own side, as the game brings up a square
+  aimAt(sph.center, dist, fr, direction || closeUpDirection(THREE, box, { floor: FLOOR }));
 }
 
 /* Put a point at the centre of a rectangle of canvas, at a given distance.
    The rectangle is rarely the middle of the screen — a panel is usually
    standing on part of it — so the target is slid across the camera's own
    right and up before the eye is placed along the view direction. */
-function aimAt(centre, dist, fr, direction = null, dur) {
+function aimAt(centre, dist, fr, direction = null, dur, exterior = false) {
   const h = Math.max(stage.clientHeight, 1), w = Math.max(stage.clientWidth, 1);
   const half = Math.tan(cam.fov * Math.PI / 360);
   const dir = direction ? direction.clone() : cam.position.clone().sub(ctr.target);
@@ -5432,7 +5474,7 @@ function aimAt(centre, dist, fr, direction = null, dur) {
   const target = centre.clone()
     .addScaledVector(right, -(fr.x - w / 2) * perPx)
     .addScaledVector(up, (fr.y - h / 2) * perPx);
-  fly(target.clone().addScaledVector(dir, dist), target, dur);
+  fly(target.clone().addScaledVector(dir, dist), target, dur, exterior);
 }
 
 function home() {
@@ -6679,6 +6721,8 @@ let rbGame = createGame({ players: 2 });
 let rbSession = null, rbEvents = [], rbPending = null;
 let rbWalkthrough = null, rbGuideSeen = false;
 const rbPlayerArt = createPlayerArt(THREE, rbBoard.tokens, SUMMIT, () => invalidate(3));
+// how far a traveller stands aside of the model of the square they are on
+const rbAside = (n) => (rbModels.models.has(n) ? SUMMIT * RB_MODEL_UNIT * (n === RB_VICTORY ? 1.5 : 0.62) : 0);
 const rbEscape = value => String(value).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
 const rbDie = boardEl.querySelector('.die-face');
@@ -6994,7 +7038,13 @@ function rbPlaceChips() {
     if (!player) return;
     const at = rbBoard.positionOf(player.pos);
     if (!at) { chip.el.style.visibility = 'hidden'; return; }
-    NDC.set(at.x, at.y + SUMMIT * 0.34, at.z).project(cam);
+    // over the traveller's head, wherever the figure has stepped to
+    const figure = rbPlayerArt.figure(i);
+    if (figure && rbBoard.tokens[i].visible) {
+      figure.getWorldPosition(NDC);
+      NDC.y += SUMMIT * 0.1;
+      NDC.project(cam);
+    } else NDC.set(at.x, at.y + SUMMIT * 0.34, at.z).project(cam);
     if (NDC.z >= 1) { chip.el.style.visibility = 'hidden'; return; }
     let x = (NDC.x * 0.5 + 0.5) * w, y = (-NDC.y * 0.5 + 0.5) * h;
     // the board and any open panel are drawn over the canvas; stay clear
@@ -7862,6 +7912,8 @@ function rbClearFocus() {
   focusRequest = null;
   if (gameFocus && anim) { cancelAnimationFrame(anim); anim = null; framedDist = cam.position.distanceTo(ctr.target); applyZoomLimits(); }
   gameFocus = null;
+  rbModels.highlight(null);
+  placeFocusRing(null);
   gameFocusEl.hidden = true;
   gameFocusPin.hidden = true;
   ctr.autoRotate = motion && !anim && !orbitInteracting;
@@ -7905,26 +7957,73 @@ function rbFrameFocus(dur = 650) {
     reframeGame(dur);
     return;
   }
-  world.updateMatrixWorld(true);
-  const meruBounds = new THREE.Box3();
-  byName.forEach((meshes, name) => {
-    if (/^(meru_|king_|vaijayanta)/.test(name) || name === 'sudarshana_city')
-      meshes.forEach(mesh => meruBounds.expandByObject(mesh));
-  });
-  // The recognisable above-water silhouette, including the summit palace.
-  meruBounds.min.y = Math.max(0, meruBounds.min.y);
-  const composition = composeGameFocus(THREE, {
-    anchor: gameFocus.anchor, meruBounds, summit: SUMMIT,
-    viewport: { w: stage.clientWidth, h: stage.clientHeight }, rect: freeRect(), fov: cam.fov
-  });
-  gameFocusEl.querySelector('p').textContent = composition.below
-    ? 'Below the world · the side view keeps the location and Meru together.'
-    : 'Meru stays in view · drag to explore, or choose Focus here to return.';
-  fly(composition.position, composition.target, dur, true);
+  // The place itself, brought up close from its own side: the model, the
+  // travellers standing by it, and the ground it stands on, lit and ringed.
+  const place = rbLocation(gameFocus.id);
+  if (!place) return;
+  const square = /^rebirth_sq_(\d+)$/.exec(gameFocus.id);
+  rbModels.highlight(square ? Number(square[1]) : null);
+  placeFocusRing(place.box, place.ring);
+  gameFocusEl.querySelector('p').textContent = 'Close view · drag to look around, or choose World overview to step back.';
+  closeUp(place.box, { dur, exterior: true, sphere: place.sphere });
   invalidate(4);
 }
-/* Where the followed traveler stands, framed as a visit to that square is:
-   the square and Meru together, from the square's own side of the world. */
+/* What a square's visit frames. A square with a model is the model, with
+   room beside it for whoever stands there; a square the world builds itself
+   is the ground round its marker, at the size of a model's own. The sphere
+   is what the camera fits; the box says where the place stands and how it
+   lies; the ring goes round its foot. */
+function rbLocation(id) {
+  const square = /^rebirth_sq_(\d+)$/.exec(id);
+  world.updateMatrixWorld(true);
+  if (!square) {
+    const box = new THREE.Box3();
+    meshesFor(id).forEach(m => box.expandByObject(m));
+    return box.isEmpty() ? null : { box, sphere: box.getBoundingSphere(new THREE.Sphere()), ring: null };
+  }
+  const n = Number(square[1]);
+  const holder = rbBoard.nodes.get(n);
+  if (!holder) return null;
+  const foot = holder.getWorldPosition(new THREE.Vector3());
+  const unit = SUMMIT * RB_MODEL_UNIT * (n === RB_VICTORY ? 2.6 : 1);
+  const model = rbModels.models.get(n);
+  const box = new THREE.Box3().expandByPoint(foot);
+  const sphere = new THREE.Sphere();
+  if (model) {
+    // the sphere is taken in the model's own space and about its vertical
+    // axis: the model turns to the eye, and this way the framing is the same
+    // however it has turned, and so from any prior orbit
+    const local = new THREE.Sphere();
+    model.children.forEach((mesh, i) => {
+      if (!mesh.geometry.boundingSphere) mesh.geometry.computeBoundingSphere();
+      if (i === 0) local.copy(mesh.geometry.boundingSphere); else local.union(mesh.geometry.boundingSphere);
+    });
+    const k = model.scale.x;
+    sphere.center.set(foot.x, foot.y + model.position.y + local.center.y * k, foot.z);
+    sphere.radius = (local.radius + Math.hypot(local.center.x, local.center.z)) * k;
+    box.expandByPoint(foot.clone().add(new THREE.Vector3(0, model.position.y + (local.center.y + local.radius) * k, 0)));
+  } else {
+    box.expandByPoint(foot.clone().add(new THREE.Vector3(0, unit, 0)));
+    sphere.set(box.getCenter(new THREE.Vector3()), 0);
+  }
+  // a traveller's figure stands aside within a model's reach
+  sphere.radius = Math.max(sphere.radius, unit * 0.74);
+  return { box, sphere, ring: unit * 0.6 };
+}
+/* Bring a box up close in the free part of the canvas, from its own angle:
+   the one framing Zoom in and Focus here share. */
+function closeUp(box, { dur = 650, padding = 1.3, direction = null, exterior = false, sphere = null } = {}) {
+  const sph = sphere || box.getBoundingSphere(new THREE.Sphere());
+  const r = Math.max(sph.radius, 0.025);
+  const fr = freeRect();
+  const h = Math.max(stage.clientHeight, 1);
+  const half = Math.tan(cam.fov * Math.PI / 360);
+  const dist = r * padding / half * h / Math.min(fr.w, fr.h);
+  aimAt(sph.center, dist, fr, direction || closeUpDirection(THREE, box, { floor: FLOOR }), dur, exterior);
+}
+/* Where the followed traveler stands, as the turn goes on: the square and
+   Meru together, from the square's own side of the world. A visit (Focus
+   here) comes closer than this; following keeps the way there in view. */
 function rbFrameFollow(dur = 650) {
   if (!rbFollowing()) return false;
   const who = rbGame.players[rbFollowed ?? rbGame.turn] || rbGame.players[rbGame.turn];
@@ -7995,7 +8094,7 @@ function reframeCurrent(dur = 420) {
 function enterGame() {
   close();
   rbBoard.group.visible = true;
-  rbBoard.placeAnchored(positionOfEntry);
+  rbBoard.placeAnchored(positionOfEntry, (id) => HELL_FLOORS.get(id) ?? null);
   measureRound();
   rbPlayerArt.load(rbGame.players);
   rbModels.load();

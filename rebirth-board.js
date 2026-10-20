@@ -506,12 +506,18 @@ export function createBoardLayer(THREE, ctx) {
   }
 
   // Anchored squares need the live scene to tell them where their subject is.
-  function placeAnchored(positionOfEntry) {
+  // A realm with a floor to stand on — the pretas' ground, a hell — says where
+  // that floor is (`floorOf`), and the square stands on it, its model with it,
+  // instead of hanging over the realm's middle.
+  function placeAnchored(positionOfEntry, floorOf = () => null) {
     for (const s of SQUARES) {
       if (!s.anchor || s.n === VICTORY) continue;
       const p = positionOfEntry(s.anchor);
       const holder = nodes.get(s.n);
-      if (p) {
+      const floor = p ? floorOf(s.anchor) : null;
+      holder.userData.modelLift = floor === null ? undefined : ctx.SUMMIT * FLOOR_LIFT;
+      if (p && floor !== null) holder.position.set(p.x, floor, p.z);
+      else if (p) {
         const y = p.y + ctx.SUMMIT * 0.055;
         // Keep the Akaniṣṭha field aligned with its named realm, but let its
         // realization destination rise beyond the samsaric heaven below it.
@@ -519,6 +525,10 @@ export function createBoardLayer(THREE, ctx) {
       }
       else holder.position.copy(vec(THREE, seamPosition(s, ctx)));
       holder.userData.anchored = !!p;
+      // standing on a floor, the model is the marker: the gem is let into the
+      // floor beneath it rather than showing through the model's middle
+      const mark = holder.children.find((o) => o.name === 'rebirth_square_' + s.n && !o.userData.pickOnly);
+      if (mark) mark.position.y = ctx.SUMMIT * (floor === null ? 0.030 : -0.018);
     }
   }
 
@@ -549,3 +559,6 @@ export function createBoardLayer(THREE, ctx) {
 }
 
 function vec(THREE, p) { return new THREE.Vector3(p.x, p.y, p.z); }
+
+// How far a model stands above a floor it is set on: just clear of the plinth.
+export const FLOOR_LIFT = 0.009;
