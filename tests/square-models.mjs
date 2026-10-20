@@ -58,8 +58,9 @@ check('the whole set stays within a modest triangle budget', () => {
     total += t; most = Math.max(most, t);
   }
   // The figures carry faces, hands and robes: a seated Buddha is some 14,000
-  // triangles, and a model with two of them is the heaviest of the set.
-  assert.ok(most < 32000, 'no single model is heavy: ' + most);
+  // triangles. The heaviest of the set is Rudra, with three wrathful heads,
+  // six arms and four legs.
+  assert.ok(most < 40000, 'no single model is heavy: ' + most);
   assert.ok(total < 1200000, 'the set as a whole: ' + total);
   const calls = [...built.values()].reduce((sum, group) => sum + group.children.length, 0);
   assert.ok(calls <= built.size * models.FINISHES.length, 'at most one draw call per finish: ' + calls);

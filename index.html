@@ -2193,7 +2193,7 @@ import { WALKTHROUGH_KEY, WALKTHROUGH_STEPS } from './game-walkthrough.js';
 import { drawWheel } from './wheel-art.js';
 import { createWheelView } from './wheel-view.js';
 import { WHEEL_ENTRIES, WHEEL_TREE, WHEEL_ALSO } from './wheel-notes.js';
-import { composeGameFocus, composeGameOverview, orbitFlightPoint, closeUpDirection } from './game-camera.js';
+import { composeGameFocus, composeGameOverview, composeWorldOverview, orbitFlightPoint, closeUpDirection } from './game-camera.js';
 import { MANSIONS, MANSION_BY_ID, ringAngle, glyphUrl, evidenceLine, CATALOGUE_SOURCE } from './lunar-mansions.js';
 import { createMansionLayer } from './mansion-layer.js';
 import { associations as mansionRows, readingNotes as mansionNotes } from './mansion-ui.js';
@@ -7953,8 +7953,16 @@ function rbFocusWorld(id) {
 function rbFrameFocus(dur = 650) {
   if (!gameFocus || mode !== 'game') return;
   if (gameFocus.view === 'overview') {
+    // The world round the place: the plate out to its iron rim, Meru to its
+    // summit, and the place itself, seen from the place's own side. The
+    // whole ascent to Nirvana is the game's overview, not this.
     gameFocusEl.querySelector('p').textContent = 'World overview · choose Focus here to return to this location.';
-    reframeGame(dur);
+    const composition = composeWorldOverview(THREE, {
+      anchor: gameFocus.anchor, rim: RIM, floor: FLOOR, summit: SUMMIT,
+      viewport: { w: stage.clientWidth, h: stage.clientHeight }, rect: freeRect(), fov: cam.fov
+    });
+    fly(composition.position, composition.target, dur, true);
+    invalidate(4);
     return;
   }
   // The place itself, brought up close from its own side: the model, the

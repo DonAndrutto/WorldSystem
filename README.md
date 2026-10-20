@@ -795,7 +795,9 @@ temporary World view, folds the entry into a location caption, and brings the
 destination up close: its model fills about half the free canvas, lit from
 within and ringed with gold on its floor, with the traveller standing beside it.
 **Focus here** restores that composition after manual exploration; **World
-overview** gives context; **Return to board** (or
+overview** steps back to the world round the place — the plate to its rim, Meru
+to its summit and the place, fitted closely, from the place's side
+(`composeWorldOverview`); **Return to board** (or
 Escape) restores the preceding board layout without changing the turn. The
 temporary visit does not overwrite the saved layout preference.
 

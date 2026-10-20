@@ -25,7 +25,7 @@
    current shelf or the runtime one, so old versions do not accumulate. */
 
 /* ── written by scripts/build-sw.cjs — do not edit below ─────────────── */
-const VERSION = 'b5f894d7450ca4c6';
+const VERSION = 'abc7aab8db012e83';
 const SHELL = [
   "app-chrome.css",
   "app-chrome.js",

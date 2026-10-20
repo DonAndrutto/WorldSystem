@@ -6,18 +6,24 @@ Squares 27, 28, 30, 31, 32, 35 and 37 have no model: the world itself builds wha
 
 The people in them share one body (`seated`, `standing`, `head`, `hand`): a face with brows, lowered lids, nose and lips; ears, long-lobed for Buddhas and gods; a smooth trunk under the robe; arms bent at the elbow, ending in hands that make the gesture — meditation, touching the earth, teaching, protection — and, seated, the legs crossed in the vajra posture with both soles turned up. A Buddha has the curled hair, the uṣṇīṣa and the ūrṇā, and wears the monastic robe over the left shoulder, the right bare, as monks and arhats do; a bodhisattva or deity has the five-pointed crown, a topknot, jewellery and a scarf over a bare body; a layman wears a coat. The figure's right hand is towards -x, the viewer's left.
 
+The wrathful share a kit too (`wrathHead`, `wrathBody`, `implement`): round staring eyes and the third eye, brows and beard of flame, the mouth open on its fangs, a crown of five skulls with a flaming jewel over each, hair rising like fire, rings in the ears; a squat body in the striding stance with the tiger skin, a garland of heads, and as many heads, arms and legs as the form has, each hand with what it holds. Mahākāla is the board's own mask in the round; Rudra stands on his black block as a heruka with three faces, six arms and four legs. The hells are peopled: beings writhing, kneeling, huddled blue in the cold, fighting, caught in rock and pillar and tree (`sufferer`), and Yama's horned guardians at their work (`guardian`).
+
+Buddhas have blue curls, a robe bordered in gold, and where the square allows, the full aureole (`buddhaAureole`: deep blue rimmed in gold, red and green with fine gold rays, a green head halo, flame tips) and a lion throne. The stupa is a stupa of enlightenment: lion throne, four stepped tiers with projecting middles and bands of colour, the seat of the vase, a garlanded dome with a Buddha in its niche, the harmikā, thirteen wheels, the parasol hung with silks, and the moon, sun and flaming jewel.
+
+The game's highlight of a visited model makes each surface glow in its own colour, so a dark figure stays dark, only brighter.
+
 The hells stand far enough apart for these models: each hot hell 0.12 under the one above it, 0.17 to 0.31 wide, and the models of the hells and the pretas stand on their floors.
 
 | Square | Name | Model |
 | --- | --- | --- |
-| 1 | Vajra Hell | A blue crossed vajra over a floor of black fire: the vajra itself become the prison. |
-| 2 | Interminable Hell | A sealed iron house wrapped in flame, on the blue ring of Avīci. |
-| 3 | The Hot and Very Hot Hells | An iron cauldron of molten metal over a blaze. |
-| 4 | The Howling and Great Howling Hells | Iron houses with no door, smoke pouring from the cracks: the howling hells. |
-| 5 | The Black Rope and Crushing Hells | Two mountains leaning in to crush, over ground ruled with black lines, and a tree of blades. |
-| 6 | Reviving Hell | A field of swords stood in burning ground, where the slain revive and fight again. |
-| 7 | The Cold Hells | Spires of ice and a frozen lotus splitting open, in the blue ring of the cold hells. |
-| 8 | The Temporary Hells, or “Hell for a Day” | A boulder, a pillar and a tree in an ordinary landscape: the hells that last a day. |
+| 1 | Vajra Hell | A blue crossed vajra over a floor of black fire, beings writhing in it at its foot: the vajra itself become the prison. |
+| 2 | Interminable Hell | A sealed iron house glowing white-hot, and the beings in it one blaze with the fire: Avīci, the hell without interval. |
+| 3 | The Hot and Very Hot Hells | An iron cauldron of molten metal over a blaze, the beings boiling in it, a guardian of Yama driving them under with his spear. |
+| 4 | The Howling and Great Howling Hells | Iron houses with no door, fire bursting from their windows and smoke from the cracks, the beings inside howling: the howling hells. |
+| 5 | The Black Rope and Crushing Hells | Ground ruled with black lines, a guardian sawing a being along them; two mountains leaning in to crush another; and a tree of blades with one climbing it. |
+| 6 | Reviving Hell | A field of swords stood in burning ground where the beings, revived each time they fall, take up the swords and fight again. |
+| 7 | The Cold Hells | Spires of ice, a frozen lotus splitting open, and the naked beings huddled blue with blisters in the blue ring of the cold hells. |
+| 8 | The Temporary Hells, or “Hell for a Day” | A boulder, a pillar and a tree in an ordinary landscape, and in each a being caught fast: the hells that last a day. |
 | 9 | Lord of the Dead (Yama) | Yama’s mirror of karma, horned with the buffalo, in the red smoke of his court. |
 | 10 | Hungry Ghosts (Preta) | A hungry ghost: belly like a mountain, neck like a hair, and a bowl that comes to it as fire. |
 | 11 | Animals | A spotted stag on a grassy rise, head up, listening for danger. |
@@ -25,7 +31,7 @@ The hells stand far enough apart for these models: each hot hell 0.12 under the 
 | 13 | World of the Nāgas | A nāga rising in coils from banded waves beside a flaming jewel. |
 | 14 | Demon Island | A dark island of the rākṣasas with a red fortress, a skull above its gate. |
 | 15 | Asuras | The asuras’ flaming sword, planted before the wish-granting tree whose fruit they fight for. |
-| 16 | Rudra Black Freedom | A black block capped with gold, and on it Rudra with his trident: freedom turned to a prison. |
+| 16 | Rudra Black Freedom | On the black block capped with gold, Rudra become a heruka: three faces, six arms, four legs in the striding stance, a garland of heads, in a blaze of fire — freedom turned to a prison. |
 | 17 | Jambu Island—The Southern Continent | Jambudvīpa, narrow to the south, with the jambu tree and a person seated beneath it. |
 | 18 | The Western Continent—Enjoyment of Cattle (Apara-Godānīya) | The round western land of cattle: a humped, dappled cow by a lake under Meru’s red light. |
 | 19 | The Eastern Continent—Noble Figure (Pūrva-Videha) | The half-moon eastern land, bright as crystal, with a tall, noble figure. |
@@ -43,7 +49,7 @@ The hells stand far enough apart for these models: each hot hell 0.12 under the 
 | 31 | Delighting in Emanations (Nirmāṇa-rati) | *The world's own geometry.* |
 | 32 | Ruling the Emanations of Others (Paranirmita-Vaśavartin) | *The world's own geometry.* |
 | 33 | Tantra, Lesser Path of Accumulation | Seven offering bowls before a maṇḍala plate, incense rising: the action tantra’s purity and offering. |
-| 34 | Mahākāla | The face of Mahākāla: three eyes, bared fangs, a crown of skulls and hair of fire. |
+| 34 | Mahākāla | The face of Mahākāla, as the board paints it: dark blue, three round staring eyes, brows and beard of flame, the mouth bared on its fangs, a crown of five skulls with a flaming jewel over each, hair rising like fire, and great rings of gold in the ears. |
 | 35 | The Realm of Form (Rūpa-Dhātu) | *The world's own geometry.* |
 | 36 | The Formless Realm (Arūpa-Dhātu) | Four nested spheres of light over a swirl of mist: space, consciousness, nothingness, and neither. |
 | 37 | Pure Abodes (Śuddhāvāsa) | *The world's own geometry.* |
