@@ -3,16 +3,14 @@
  * Every one of the hundred and four squares is drawn: the field it is on the
  * printed board — a ring, a cartouche, a continent's own outline, a mountain,
  * a temple — painted for this project and served as four atlas sheets. A
- * square's field shows in its cell on the 2D board, on a billboard at its
- * marker in the world, in the entry in the drawer, and on the card that
- * announces a throw.
+ * square's field shows in its cell on the 2D board, in the entry in the
+ * drawer, and on the card that announces a throw. In the world the squares
+ * stand as models instead, built from these fields (square-models.js).
  *
  * The convention follows the offering artwork this project already serves
  * (see mandala-offerings.js): one sheet holds several pictures in a grid of
  * ART_COLUMNS across, and a square names its sheet and its cell, counting
- * left to right and then down from zero. Sheets are fetched only when game
- * mode is first opened, and a sheet that fails can be retried on its own.
- * The sheets are built from the source paintings by
+ * left to right and then down from zero. The sheets are built from the source paintings by
  * `node scripts/build-square-art.cjs`; SQUARES_PER_SHEET must agree with it.
  *
  * ARTWORK.md records provenance for everything this project serves, the
@@ -59,7 +57,7 @@ export const artSheets = () => [...new Set([...SQUARE_ART.values()].map((a) => a
 registerSquareArt(boardArtwork());
 
 /* How many rows of cells a sheet turned out to hold. The last sheet is rarely
-   full, and both the CSS and the UV arithmetic have to answer to that. */
+   full, and the CSS arithmetic has to answer to that. */
 export function sheetRows(art) {
   return Math.max(1, Math.ceil(([...SQUARE_ART.values()]
     .filter((a) => a.sheet === art.sheet)
@@ -77,111 +75,4 @@ export function cellBackground(art, rows) {
   const x = (art.cell % columns) / Math.max(1, columns - 1) * 100;
   const y = Math.floor(art.cell / columns) / Math.max(1, down - 1) * 100;
   return { position: x + '% ' + y + '%', size: (columns * 100) + '% auto' };
-}
-
-/* The same cell as UVs, for a plane in the world. */
-export function cellUV(art, rows) {
-  const columns = ART_COLUMNS;
-  const down = rows || sheetRows(art);
-  const u = (art.cell % columns) / columns;
-  const v = 1 - (Math.floor(art.cell / columns) + 1) / down;
-  return { u, v, w: 1 / columns, h: 1 / down };
-}
-
-/* Billboards on the square markers, loaded on demand and retried on failure:
-   a square's field standing where the square stands, turning to face the
-   camera so it is legible from anywhere in the orbit. With nothing registered
-   this builds nothing and reports no sheets.
-
-   Not every square wants one. Where the model itself builds the thing the
-   square names — the terrace of the Four Kings, the city on the summit, the
-   palaces above it — the three dimensions are the representation, and a flat
-   painting of the same thing hanging in front of them is the same square
-   said twice. `ctx.modelled` names those squares, and they are skipped here
-   and here only: the cell on the board, the throw card, the menus and the
-   expanded entry all still carry the field, which is where a picture of a
-   thing belongs. */
-export function createSquareArt(THREE, ctx, onStatus = () => {}) {
-  const modelled = ctx.modelled instanceof Set
-    ? ctx.modelled : new Set(ctx.modelled || []);
-  const planes = new Map();
-  const sheets = new Map();
-  for (const url of artSheets()) sheets.set(url, { state: 'idle', materials: [] });
-  const report = () => onStatus([...sheets.values()].map((s) => s.state));
-
-  const geometry = SQUARE_ART.size
-    ? new THREE.PlaneGeometry(ctx.SUMMIT * 0.145, ctx.SUMMIT * 0.145)
-    : null;
-
-  /* A square nobody is on and nobody has asked about stands back: its field is
-     drawn at a fraction of its weight, so the few that matter carry the eye. */
-  const FAINT = 0.34;
-  function attach(holder, square) {
-    if (modelled.has(square)) return null;
-    const art = SQUARE_ART.get(square);
-    if (!art) return null;
-    const sheet = sheets.get(art.sheet);
-    const material = new THREE.MeshBasicMaterial({ transparent: true, opacity: 0, depthWrite: false });
-    const plane = new THREE.Mesh(geometry.clone(), material);
-    plane.name = 'rebirth_art_' + square;
-    plane.userData.square = square;
-    plane.userData.billboard = true;
-    plane.position.y = ctx.SUMMIT * 0.13;
-    /* After the seas, which are drawn late and write depth: a billboard that
-       goes before them is painted over wherever water stands behind it. */
-    plane.renderOrder = 6;
-    const uv = cellUV(art);
-    const attribute = plane.geometry.attributes.uv;
-    for (let i = 0; i < attribute.count; i += 1) {
-      attribute.setXY(i, uv.u + attribute.getX(i) * uv.w, uv.v + attribute.getY(i) * uv.h);
-    }
-    attribute.needsUpdate = true;
-    plane.userData.lit = false;
-    sheet.materials.push(material);
-    holder.add(plane);
-    planes.set(square, plane);
-    return plane;
-  }
-
-  /* The same reckoning the board layer makes, for the pictures. Kept here
-     because the sheet's loader owns these materials and has to agree with it:
-     a field that has not arrived yet stays at nothing whatever its square. */
-  function showActive(active) {
-    const lit = new Set(active);
-    planes.forEach((plane, square) => {
-      const on = lit.has(square);
-      if (plane.userData.lit === on) return;
-      plane.userData.lit = on;
-      if (plane.material.map) plane.material.opacity = on ? 1 : FAINT;
-    });
-  }
-
-  function load() {
-    sheets.forEach((sheet, url) => {
-      if (sheet.state === 'loading' || sheet.state === 'ready') return;
-      sheet.state = 'loading';
-      report();
-      new THREE.TextureLoader().load(url, (texture) => {
-        texture.colorSpace = THREE.SRGBColorSpace;
-        texture.anisotropy = 4;
-        sheet.materials.forEach((material) => {
-          material.map = texture;
-          material.needsUpdate = true;
-        });
-        planes.forEach((plane) => {
-          if (plane.material.map) plane.material.opacity = plane.userData.lit ? 1 : FAINT;
-        });
-        sheet.state = 'ready';
-        report();
-      }, undefined, () => { sheet.state = 'failed'; report(); });
-    });
-  }
-
-  // Billboards only turn if something turns them; the page does this each frame.
-  function face(camera) {
-    planes.forEach((plane) => plane.quaternion.copy(camera.quaternion));
-  }
-
-  return { attach, load, face, showActive, planes, sheets, modelled,
-           states: () => [...sheets.values()].map((s) => s.state) };
 }

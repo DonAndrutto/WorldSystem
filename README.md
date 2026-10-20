@@ -266,8 +266,10 @@ follows, which passes the relics into the stūpa, is a rite and settles nothing.
 Every square is drawn as the field it carries on the printed board — a coloured
 ring, a cartouche, a continent's own outline, a mountain, a temple, a ribbon —
 and every square is named in Tibetan as well as English. The field is the cell's
-own ground on the board, a billboard at the square's marker in the world, the
-picture in its entry, and the face of the card that announces a throw. Every
+own ground on the board, the picture in its entry, and the face of the card
+that announces a throw. In the world arrangement each square stands instead as
+a small three-dimensional model at its marker, built from its field and its
+description (`square-models.js`); see [GAME-UI.md](GAME-UI.md). Every
 cell carries its name over that field, in whichever language the board is being
 read in — where the row is too short for the whole name, the beginning of it.
 **Names**, among the settings under Options (`t`), is a selector of two with the

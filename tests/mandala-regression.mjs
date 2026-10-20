@@ -18,6 +18,7 @@ const rbBoard = await import(pathToFileURL(repo + '/rebirth-board.js'));
 const rbGame = await import(pathToFileURL(repo + '/rebirth-game.js'));
 const {SQUARE_NOTES, SQUARE_FULL} = await import(pathToFileURL(repo + '/rebirth-notes.js'));
 const rbIcons = await import(pathToFileURL(repo + '/rebirth-icons.js'));
+const squareModels = await import(pathToFileURL(repo + '/square-models.js'));
 const rbSound = await import(pathToFileURL(repo + '/rebirth-sound.js'));
 const gamePlayers = await import(pathToFileURL(repo + '/game-players.js'));
 const gameWalkthrough = await import(pathToFileURL(repo + '/game-walkthrough.js'));
@@ -84,7 +85,7 @@ Object.assign(window, {createWorldEnding, installPanelLayout: () => {}, createOf
   DIE_FACES: rbBoard.FACES, RB_BY_N: rbBoard.BY_N, createBoardLayer: rbBoard.createBoardLayer,
   RB_VARIANTS: rbBoard.VARIANTS, rbZoneOf: rbBoard.zoneOf, rbRealmOf: rbBoard.realmOf, RB_REALMS: rbBoard.REALMS, SQUARE_NOTES, SQUARE_FULL,
   RB_COLOURS: rbBoard.PLAYER_COLOURS, SQUARE_ART: rbIcons.SQUARE_ART,
-  cellBackground: rbIcons.cellBackground, createSquareArt: rbIcons.createSquareArt,
+  cellBackground: rbIcons.cellBackground, createSquareModels: squareModels.createSquareModels,
   LIBERATION_ART: rbIcons.LIBERATION_ART, rbTibetan: rbBoard.tibetanOf,
   createSoundKit: rbSound.createSoundKit, rbVoice: rbSound.voiceFor,
   createGame: rbGame.createGame, throwDie: rbGame.throwDie,
@@ -167,7 +168,7 @@ const app = await window.eval(`(async()=>{${source}\nreturn {
  setMandala, setMode, show, close, setOpen, startTour, visitHeap, endTour, orientOfferingCards,
  startPresentation, endPresentation, tourPlayer, PRESENTATION_TOURS, setMotionPace,
  applyStep, playToggle, stepBy, pausePlay, resetPlay, applyTheme, setMotion,
- rbBoard, rbArt, rbGame:()=>rbGame, rbFocusWorld, rbFrameFocus, rbClearFocus,
+ rbBoard, rbModels, rbGame:()=>rbGame, rbFocusWorld, rbFrameFocus, rbClearFocus,
  gameFocus:()=>gameFocus, reframeGame, rbOverviewBounds, SAMSARA_TOP, wheelView:()=>wheelView,
  cosmos:()=>cosmos, skyMat, guidedMode:()=>guidedMode, zoomBtn,
  state:()=>({mandala,mode,touring,tourIndex,pStep,playing,current,motion,motionPace,rbSelected,rbView3D,showHeapNumbers,lumSpin})
@@ -560,9 +561,10 @@ for (const el of [boardEl, ...q('.panel-dock').children]) {
 }
 
 /* The fields. Every square is drawn as the field it carries on the printed
-   board: its own ground in the cell, and a billboard on its marker in the
-   world. The sheets are fetched when game mode is first opened and not
-   before, and each can fail and be retried on its own. */
+   board: its own ground in the cell, the face of the throw card and the plate
+   of the entry. In the world it stands as a model instead, built from that
+   field and its description, on its own marker. The models are built when
+   game mode is first opened, and no painting is fetched for them. */
 for (const n of [1, 17, 59, 84, 104]) {
   const icon = cellOf(n).querySelector('.bv-icon');
   assert.ok(icon,'square '+n+' has somewhere to put its field');
@@ -571,60 +573,66 @@ for (const n of [1, 17, 59, 84, 104]) {
   assert.equal(icon.style.backgroundPosition,
     rbIcons.cellBackground(rbIcons.SQUARE_ART.get(n)).position,'where the sheet says');
   assert.match(cellOf(n).title,/field/,'the attribution rides with it');
-  const plane = app.rbArt.planes.get(n);
-  assert.ok(plane,'and a billboard in the world');
-  assert.equal(plane.parent,app.rbBoard.nodes.get(n),'on that square\'s marker');
+  const model = app.rbModels.models.get(n);
+  assert.ok(model,'and a model in the world');
+  assert.equal(model.parent,app.rbBoard.nodes.get(n),'on that square\'s marker');
+  assert.ok(model.children.length>0,'with something built');
+  for (const mesh of model.children) {
+    assert.ok(mesh.isMesh && mesh.userData.square===n,'every part of it answers a tap on square '+n);
+    assert.equal(mesh.userData.pickOnly,undefined,'and is solid, not a pick target');
+  }
 }
 assert.equal([...boardEl.querySelectorAll('.bv-icon:not([hidden])')].length,104,'all 104 fields');
+assert.ok(!textureRequests.some(r=>String(r.url).includes('assets/rebirth/squares-')),
+  'the world fetches no painting for the squares: the board shows the sheets through CSS');
 
 /* Where the world builds the thing a square names, the geometry is the
-   representation and the painted field would be the same square said twice.
-   Those squares carry no billboard — and keep their field everywhere a
-   picture belongs: the cell, the throw card and the expanded entry. */
-const modelled = [...app.rbArt.modelled].sort((a,b)=>a-b);
+   representation and a model would be the same square said twice. Those
+   squares are given none — and keep their field everywhere a picture
+   belongs: the cell, the throw card and the expanded entry. */
+const modelled = [...app.rbModels.modelled].sort((a,b)=>a-b);
 assert.deepEqual(modelled,[27,28,30,31,32,35,37],'the squares the world stands in for');
 for (const n of modelled) {
-  assert.equal(app.rbArt.planes.get(n),undefined,'square '+n+' has no billboard over its model');
+  assert.equal(app.rbModels.models.get(n),undefined,'square '+n+' has no model over the world\'s own');
   const holder = app.rbBoard.nodes.get(n);
-  assert.equal(holder.children.some(o=>o.userData.billboard),false,'nothing left on its marker');
+  assert.equal(holder.children.some(o=>o.userData.model),false,'nothing left on its marker');
   assert.equal(cellOf(n).querySelector('.bv-icon').hidden,false,'its field still lights the cell');
   app.show('rebirth_sq_'+n,false);
   assert.equal(q('.entry-art').hidden,false,'and still heads the expanded entry');
 }
-assert.equal(app.rbArt.planes.size,104-modelled.length,'a billboard for all the rest');
+assert.equal(app.rbModels.models.size,104-modelled.length,'a model for all the rest');
+assert.ok(app.rbModels.built(),'all of them built once the game is open');
 for (const n of [17,27,28,37]) {
   const drawn = app.meshesFor(rbBoard.BY_N.get(n).anchor);
   assert.ok(drawn.length,'square '+n+' still has something drawn for it');
 }
 assert.notEqual(cellOf(1).querySelector('.bv-icon').style.backgroundPosition,
                 cellOf(5).querySelector('.bv-icon').style.backgroundPosition,'no two cells share a place');
-// Four sheets, fetched once, when game mode is first opened.
-assert.deepEqual(app.rbArt.states(),['loading','loading','loading','loading'],'requested, not sooner');
-const artRequests = textureRequests.slice(-4);
-assert.deepEqual(artRequests.map(r=>r.url).sort(),rbIcons.artSheets().slice().sort());
-artRequests[0].failure();
-assert.deepEqual(app.rbArt.states(),['failed','loading','loading','loading']);
-app.rbArt.load();
-assert.equal(textureRequests.length-4-artRequests.length+4,textureRequests.length-4,'only the failed sheet again');
-textureRequests.at(-1).success(new THREE.Texture());
-artRequests.slice(1).forEach(r=>r.success(new THREE.Texture()));
-assert.deepEqual(app.rbArt.states(),['ready','ready','ready','ready']);
-for (const n of [1, 104]) {
-  const plane = app.rbArt.planes.get(n);
-  assert.ok(plane.material.map,'the painting reaches the billboard');
+// Loading again builds nothing twice.
+const firstBuilt = app.rbModels.models.get(1);
+app.rbModels.load();
+assert.equal(app.rbModels.models.get(1),firstBuilt,'built once');
+assert.equal(app.rbBoard.nodes.get(1).children.filter(o=>o.userData.model||o.name==='rebirth_model_1').length,1);
+// Each model turns about its own vertical to the camera, wherever it stands.
+app.rbModels.face(app.cam);
+for (const n of [17, 59, 104]) {
+  const model = app.rbModels.models.get(n);
+  model.updateMatrixWorld(true);
+  const forward = new THREE.Vector3(0,0,1).transformDirection(model.matrixWorld).setY(0).normalize();
+  const toEye = app.cam.position.clone().sub(model.getWorldPosition(new THREE.Vector3())).setY(0).normalize();
+  assert.ok(forward.dot(toEye)>0.999,'square '+n+' faces the camera');
 }
-// Billboards face the camera, like the offering illustrations do.
-app.rbArt.face(app.cam);
-assert.ok(app.rbArt.planes.get(17).quaternion.angleTo(app.cam.quaternion)<1e-6);
 
 /* A hundred and four solid markers over the world is a fog. Only the squares
    that matter now stand forward: the one in hand, and every square somebody is
-   standing on. The rest — mark, plinth and field alike — fall back. */
+   standing on. The rest — mark, plinth and model alike — fall back. */
 const bandMesh = n => { let m=null; app.rbBoard.nodes.get(n).traverse(o=>{ if(o.isMesh&&o.userData.band) m=o; }); return m; };
 const start = rbBoard.START;
-app.rbArt.showActive([start]);
-assert.equal(app.rbArt.planes.get(start).material.opacity,1,'the square in hand is at full weight');
-assert.ok(app.rbArt.planes.get(59).material.opacity<0.5,'and one nobody is on stands back');
+app.rbModels.showActive([start]);
+const faint = mesh => mesh.material.name.endsWith('_faint');
+assert.ok(app.rbModels.models.get(start).children.every(m=>!faint(m)),'the square in hand is at full weight');
+assert.ok(app.rbModels.models.get(59).children.every(m=>faint(m) && m.material.opacity<0.5),'and one nobody is on stands back');
+assert.ok(app.rbModels.models.get(rbBoard.VICTORY).children.every(m=>!faint(m)),'Nirvana always stands forward');
 assert.equal(bandMesh(59).material.transparent,true,'its marker too');
 assert.equal(bandMesh(start).material.transparent,false);
 app.rbBoard.nodes.get(59).traverse(o=>{
@@ -1574,8 +1582,8 @@ console.log(JSON.stringify({result:'PASS',heaps:37,illustrations:24,triangles,at
    + 'silent rather than throwing. The throw: a die that keeps its answer until it stops, cannot be '
    + 'thrown twice at once, announces where it landed, and resolves at once under reduced motion. A standing marker '
    + 'for every player, ringed for whoever holds the die, fanned apart when they share a square, and named where they '
-   + 'stand in their own colour. All 104 fields: the painting as the cell\'s own ground, and as a billboard in the world for every square the world does not already build in three dimensions, '
-   + 'four sheets fetched once and only in game mode, one failing and retried alone, and the cell arithmetic that a '
+   + 'stand in their own colour. All 104 fields: the painting as the cell\'s own ground, and a model in the world, turned to the camera and faded with its marker, for every square the world does not already build in three dimensions, '
+   + 'built once and only in game mode with no painting fetched for them, and the cell arithmetic that a '
    + 'sheet of seven rows and a sheet of five both have to answer to. A Tibetan name on every square — in the cell, the '
    + 'card and the entry — and the switch that puts them in place of the English. Two arrangements of the game, each '
    + 'of them the whole screen: the board alone as a diagram of positions, and the world alone, with a preference '

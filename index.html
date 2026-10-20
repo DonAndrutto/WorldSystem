@@ -2177,7 +2177,8 @@ import { DAY_SKY, paintClouds } from './sky-clouds.js';
 import { SQUARES as RB_SQUARES, SPECIAL as RB_SPECIAL, START as RB_START, VICTORY as RB_VICTORY, TRAP_QUOTA, TRAP_QUOTA_NOTE64, FACES as DIE_FACES, BY_N as RB_BY_N, VARIANTS as RB_VARIANTS, realmOf as rbRealmOf, REALMS as RB_REALMS, PLAYER_COLOURS as RB_COLOURS, createBoardLayer, tibetanOf as rbTibetan } from './rebirth-board.js';
 import { createGame, throwDie, view as rbView, destination as rbDestination } from './rebirth-game.js';
 import { SQUARE_NOTES, SQUARE_FULL } from './rebirth-notes.js';
-import { SQUARE_ART, cellBackground, createSquareArt, LIBERATION_ART } from './rebirth-icons.js';
+import { SQUARE_ART, cellBackground, LIBERATION_ART } from './rebirth-icons.js';
+import { createSquareModels } from './square-models.js';
 import { createSoundKit, voiceFor as rbVoice } from './rebirth-sound.js';
 import { searchText } from './search-text.js';
 import { createSynth } from './synth.js';
@@ -5383,7 +5384,7 @@ const drawLoop = () => {
   setUnderwater(underwater());
   gl.render(stage._scene, cam);
   if (mandala) placeMarks();
-  if (mode === 'game') { rbArt.face(cam); rbPlaceLabel(); rbPlaceChips(); rbPlaceFocusPin(); }
+  if (mode === 'game') { rbModels.face(cam); rbPlaceLabel(); rbPlaceChips(); rbPlaceFocusPin(); }
   if (!mandala || touring) placeCompass();
 };
 stage._loop = drawLoop;
@@ -6650,28 +6651,19 @@ rbBoard.group.traverse((o) => {
    thing the square names as a thing you can walk round — the terrace of the
    Four Kings, the city on the summit, the palaces of the desire heavens and
    the emblem of the form realm — the geometry is the representation, and a
-   painted field hanging in front of it is the same square said twice, in two
-   idioms, one of them flat. Śuddhāvāsa is here for the same reason: the
-   mansion above the summit is the stand-in, and the flower the printed board
-   gives it belongs in the entry rather than over the mansion's roof. The
-   field itself is untouched — it is still the cell's ground on the board, the
-   face of the throw card, and the plate at the head of the expanded entry. */
+   second model standing in front of it is the same square said twice.
+   Śuddhāvāsa is here for the same reason: the mansion above the summit is the
+   stand-in. Their fields are untouched — still the cell's ground on the
+   board, the face of the throw card, and the plate at the head of the
+   expanded entry. */
 const RB_MODELLED = new Set([27, 28, 30, 31, 32, 35, 37]);
 
-/* The same slot in the world: a billboard on the marker of any square that
-   has a picture and nothing built for it. Nothing is built and no sheet is
-   fetched while none has. */
-const rbArt = createSquareArt(THREE, { SUMMIT, modelled: RB_MODELLED }, (states) => {
-  // The offerings' retry strip belongs to the offerings. A square sheet that
-  // fails says so here instead; rbArt.load() retries only what failed, so the
-  // affordance can be added with the artwork.
-  if (states.some((state) => state === 'failed')) {
-    rbSay.innerHTML = '<b>Some square artwork did not load.</b> The board is unaffected.';
-  }
-});
-rbBoard.nodes.forEach((holder, n) => rbArt.attach(holder, n));
-// Nirvana stands alone in empty sky, so its own field is drawn larger there
-rbArt.planes.get(RB_VICTORY)?.scale.setScalar(2.6);
+/* Every other square stands in the world as a model of its own, built from
+   its field and its description (square-models.js): the board keeps the
+   paintings, the world has the things. Nothing is built until the game is
+   first opened. */
+const rbModels = createSquareModels(THREE, { SUMMIT, VICTORY: RB_VICTORY, modelled: RB_MODELLED });
+rbBoard.nodes.forEach((holder, n) => rbModels.attach(holder, n));
 
 const rbBox = new THREE.Box3();
 function positionOfEntry(id) {
@@ -6890,7 +6882,7 @@ function rbLight() {
   const active = rbGame.players.map((p) => p.pos);
   if (rbSelected !== null) active.push(rbSelected);
   rbBoard.showActive(active);
-  rbArt.showActive(active);
+  rbModels.showActive(active);
 }
 // Layout and localization can change the rail height after a selection. Scroll
 // only the grid once its final size is known, without moving the whole page.
@@ -7682,7 +7674,7 @@ function rbPreviewFace(face) {
   if (option.target) {
     rbCells.get(option.target)?.classList.add('roll-option');
     rbBoard.showActive([...rbGame.players.map(p => p.pos), option.target]);
-    rbArt.showActive([...rbGame.players.map(p => p.pos), option.target]);
+    rbModels.showActive([...rbGame.players.map(p => p.pos), option.target]);
   }
   boardEl.querySelector('.bv-option[data-face="' + face + '"]')?.classList.add('roll-option');
   rbSay.textContent = 'Die ' + face + ' → ' + (option.label || rbNamed(option.target));
@@ -8006,7 +7998,7 @@ function enterGame() {
   rbBoard.placeAnchored(positionOfEntry);
   measureRound();
   rbPlayerArt.load(rbGame.players);
-  rbArt.load();
+  rbModels.load();
   rbSetDie(rbSession?.rolls.at(-1) || 1);
   rbSelect(rbGame.players[rbGame.turn].pos, false);
   rbSync();

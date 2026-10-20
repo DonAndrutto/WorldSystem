@@ -250,7 +250,7 @@ function ascentHeight(square, { FLOOR, SUMMIT, SAMSARA_TOP }) {
   if (slot <= 24) return FLOOR * 1.15 + (slot - 1) / 23 * (SUMMIT * 0.30 - FLOOR * 1.15);
   if (slot <= 46) return SUMMIT * 0.40 + (slot - 25) / 21 * (SAMSARA_TOP - SUMMIT * 0.17);
   const stagesTop = SAMSARA_TOP + SUMMIT * (0.44 + 49 * 0.07);
-  // Wider steps near the axis keep the late-act artwork from stacking on
+  // Wider steps near the axis keep the late-act models from stacking on
   // itself as the spiral narrows. Nirvana has its own clear interval above.
   if (square.n === VICTORY) return stagesTop + SUMMIT * (10 * 0.17 + 0.85);
   if (slot > 96) return stagesTop + SUMMIT * (slot - 96) * 0.17;
@@ -267,7 +267,7 @@ export function seamPosition(square, ctx) {
   const rise = ascentHeight(square, ctx);
   if (n === VICTORY) return { x: 0, y: rise, z: 0 };
   const t = (n - 1) / 102;
-  // Retain enough circumference for neighbouring billboards even where the
+  // Retain enough circumference for neighbouring models even where the
   // path narrows. The axis band still draws the final acts inward, and the
   // open Nirvana cap closes the ascent on the axis itself.
   const radius = Math.max(RIM * (1.30 - 1.02 * Math.pow(t, 0.85)), ctx.SUMMIT * 1.16)
@@ -528,8 +528,8 @@ export function createBoardLayer(THREE, ctx) {
   }
 
   /* Which squares are standing forward: the one in hand, and every square a
-     player is on. Everything else falls back to the faint materials. The field
-     each one carries is faded to match by createSquareArt, which owns those. */
+     player is on. Everything else falls back to the faint materials. The model
+     each one carries is faded to match by createSquareModels, which owns those. */
   function showActive(active) {
     const lit = new Set(active);
     nodes.forEach((holder, n) => {
