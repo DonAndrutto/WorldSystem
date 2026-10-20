@@ -113,6 +113,8 @@ const finishOf = (p) => (p.glass ? 'glass' : p.e ? 'glow' : (p.m || 0) >= 0.4 ? 
 /* A square nobody is on and nobody has asked about stands back, as its
    billboard used to: the same model, seen through. */
 const FAINT = 0.38;
+/* How much the square being visited glows in its own colours. */
+const FOCUS_GLOW = 0.32;
 
 /* Small deterministic randomness, so a mountain range is the same range every
    time the page is opened. */
@@ -126,6 +128,15 @@ function seeded(seed) {
     return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
   };
 }
+
+/* Three-vectors as plain arrays, for the joints of a figure. */
+const v3 = {
+  add: (a, c) => [a[0] + c[0], a[1] + c[1], a[2] + c[2]],
+  sub: (a, c) => [a[0] - c[0], a[1] - c[1], a[2] - c[2]],
+  mul: (a, k) => [a[0] * k, a[1] * k, a[2] * k],
+  norm: (a) => { const l = Math.hypot(a[0], a[1], a[2]) || 1; return [a[0] / l, a[1] / l, a[2] / l]; },
+  cross: (a, c) => [a[1] * c[2] - a[2] * c[1], a[2] * c[0] - a[0] * c[2], a[0] * c[1] - a[1] * c[0]]
+};
 
 /* ── the builder ─────────────────────────────────────────────────────────
    Parts are collected with their transforms and baked into one geometry per
@@ -188,7 +199,7 @@ function makeBuilder(THREE, kit) {
     ell(key, p, r, rot = 0) {
       const radii = typeof r === 'number' ? [r, r, r] : r;
       const size = Math.max(...radii) * stack[stack.length - 1].getMaxScaleOnAxis();
-      parts.push({ geometry: size < 0.03 ? kit.ball : kit.sphere, key,
+      parts.push({ geometry: size < 0.012 ? kit.bead : size < 0.03 ? kit.ball : kit.sphere, key,
         matrix: stack[stack.length - 1].clone().multiply(local(p, rot || [0, 0, 0], radii)) });
       return b;
     },
@@ -205,6 +216,8 @@ function makeBuilder(THREE, kit) {
       parts.push({ geometry: geometry || kit.ball, key, matrix: stack[stack.length - 1].clone().multiply(m) });
       return b;
     },
+    /* How large one local unit is here, against the model's own unit. */
+    scale() { return stack[stack.length - 1].getMaxScaleOnAxis(); },
     /* A rod along a list of points. */
     path(key, points, r0, r1 = r0) {
       for (let i = 0; i < points.length - 1; i += 1) {
@@ -280,6 +293,7 @@ function makeKit(THREE) {
     once, lathe,
     sphere: new THREE.SphereGeometry(1, 14, 10),
     ball: new THREE.SphereGeometry(1, 8, 6),
+    bead: new THREE.SphereGeometry(1, 6, 4),
     box: new THREE.BoxGeometry(1, 1, 1),
     cyl: new THREE.CylinderGeometry(1, 1, 1, 14),
     disc: new THREE.CylinderGeometry(1, 1, 1, 28),
@@ -292,11 +306,15 @@ function makeKit(THREE) {
       const k = Math.round(ratio * 20) / 20;
       return once('taper:' + k, () => new THREE.CylinderGeometry(k, 1, 1, 8));
     },
+    /* A light ring for small ornaments: armlets, anklets, the rims of eyes. */
+    ring: (tube) => once('ring:' + tube, () => new THREE.TorusGeometry(1, tube, 4, 14)),
     torus: (tube, arc = TAU) => once('torus:' + tube + ':' + arc,
       () => new THREE.TorusGeometry(1, tube, 6, Math.max(10, Math.round(32 * arc / TAU)), arc)),
     /* A tongue of flame, pointed at the top, one unit tall. */
     flame: lathe('flame', [[0, 0], [0.30, 0.06], [0.48, 0.20], [0.50, 0.36], [0.40, 0.55],
       [0.24, 0.74], [0.10, 0.90], [0, 1]], 10),
+    /* The same tongue, coarser, for hair, brows and beards of flame. */
+    flameLow: lathe('flame-low', [[0, 0], [0.42, 0.12], [0.46, 0.4], [0.22, 0.75], [0, 1]], 6),
     /* A lotus petal: a shallow, pointed spoon. */
     petal: lathe('petal', [[0, 0], [0.42, 0.10], [0.50, 0.35], [0.40, 0.65], [0.18, 0.90], [0, 1]], 8)
   };
@@ -505,9 +523,9 @@ function flameRing(b, { cx = 0, cy = 0.5, z = -0.18, R = 0.36, n = 11, from = -0
 /* The head, drawn in its own units: one unit from chin to crown, centred on
    the middle of the face. `style` is the hair: buddha, shaved, crown, bun,
    hat, bonhat, dread, flame. */
-function head(b, { skin = 'skin', style = 'shaved', hair = null, eyes = 'down', ears = null } = {}) {
+function head(b, { skin = 'skin', style = 'shaved', hair = null, eyes = 'down', ears = null, mouth = 'calm' } = {}) {
   const k = b.kit;
-  const hairKey = hair || (style === 'buddha' || style === 'crown' ? 'hair' : style === 'dread' ? 'earth' : 'black');
+  const hairKey = hair || (style === 'buddha' ? 'lapis' : style === 'crown' ? 'hair' : style === 'dread' ? 'earth' : 'black');
   // skull, face, cheeks, chin
   b.ell(skin, [0, 0.06, -0.04], [0.38, 0.44, 0.42]);
   b.ell(skin, [0, -0.12, 0.07], [0.31, 0.36, 0.33]);
@@ -530,9 +548,16 @@ function head(b, { skin = 'skin', style = 'shaved', hair = null, eyes = 'down', 
       b.path('lash', [[x * 0.07, 0.02, 0.372], [x * 0.15, 0.008, 0.375], [x * 0.235, 0.022, 0.335]], 0.013, 0.009);
     }
   }
-  // lips
-  b.ell('lip', [0, -0.235, 0.385], [0.1, 0.024, 0.035]);
-  b.ell('lip', [0, -0.272, 0.372], [0.08, 0.03, 0.035]);
+  // lips, with the corners just lifted; or a mouth wide open in a scream
+  if (mouth === 'scream') {
+    b.ell('lash', [0, -0.27, 0.355], [0.085, 0.085, 0.05]);
+    b.ell('lip', [0, -0.185, 0.37], [0.1, 0.022, 0.035]);
+    b.ell('lip', [0, -0.36, 0.35], [0.08, 0.025, 0.035]);
+  } else {
+    b.ell('lip', [0, -0.235, 0.385], [0.1, 0.024, 0.035]);
+    b.ell('lip', [0, -0.272, 0.372], [0.08, 0.03, 0.035]);
+    for (const x of [-1, 1]) b.ell('lip', [x * 0.095, -0.228, 0.37], [0.02, 0.012, 0.02]);
+  }
   // ears; the long lobes of a Buddha and the gods, stretched by earrings
   const long = ears === 'long' || (ears === null && (style === 'buddha' || style === 'crown'));
   for (const x of [-1, 1]) {
@@ -598,6 +623,12 @@ function head(b, { skin = 'skin', style = 'shaved', hair = null, eyes = 'down', 
     b.path('ash', [[-0.2, -0.35, 0.3], [0, -0.62, 0.3], [0.2, -0.35, 0.3]], 0.07, 0.07);   // the beard
   } else if (style === 'flame') {
     fire(b, { y: 0.25, z: -0.1, h: 1.4, w: 0.9 });
+  } else if (style === 'messy') {
+    b.ell(hairKey, [0, 0.22, -0.1], [0.43, 0.39, 0.45]);
+    for (let i = 0; i < 7; i += 1) {
+      const a = i / 7 * TAU;
+      b.put(k.cone, hairKey, [Math.cos(a) * 0.36, 0.42, -0.1 + Math.sin(a) * 0.36], [Math.sin(a) * 0.9, 0, -Math.cos(a) * 0.9], [0.09, 0.3, 0.09]);
+    }
   }
 }
 
@@ -654,13 +685,21 @@ function ornaments(b, { neck, chest, shoulders, wrists }) {
 function arm(b, { shoulder, elbow, wrist, dir, palm, side, skin, sleeve = null, size = 1, thin = false }) {
   const t = thin ? 0.72 : 1;
   if (sleeve) {
-    b.path(sleeve, [shoulder, elbow, wrist], 0.031 * size, 0.025 * size);
+    b.blob(sleeve, shoulder, elbow, 0.033 * size, 0.031 * size);
+    b.ell(sleeve, elbow, 0.028 * size);
+    b.blob(sleeve, elbow, wrist, 0.029 * size, 0.026 * size);
     b.orient(b.kit.torus(0.3), sleeve, wrist, [0, 0, 1], [elbow[0] - wrist[0], elbow[1] - wrist[1], elbow[2] - wrist[2]], 0.022 * size);
     b.blob(skin, wrist, [wrist[0] + dir[0] * 0.01, wrist[1] + dir[1] * 0.01, wrist[2] + dir[2] * 0.01], 0.017 * size);
   } else {
-    b.path(skin, [shoulder, elbow], 0.03 * size * t, 0.024 * size * t);
-    b.path(skin, [elbow, wrist], 0.024 * size * t, 0.017 * size * t);
-    b.ell(skin, elbow, 0.024 * size * t);
+    // the arm in two tapering muscles, full at the shoulder, slim at the wrist
+    const mid = v3.add(v3.mul(shoulder, 0.55), v3.mul(elbow, 0.45));
+    b.blob(skin, shoulder, v3.add(elbow, v3.mul(v3.sub(elbow, shoulder), 0.08)), 0.03 * size * t, 0.028 * size * t);
+    b.ell(skin, mid, 0.029 * size * t);
+    b.ell(skin, elbow, 0.021 * size * t);
+    const fore = v3.add(v3.mul(elbow, 0.7), v3.mul(wrist, 0.3));
+    b.blob(skin, elbow, wrist, 0.023 * size * t, 0.02 * size * t);
+    b.ell(skin, fore, 0.022 * size * t);
+    b.ell(skin, wrist, 0.014 * size * t);
   }
   hand(b, skin, wrist, dir, palm, side, size);
 }
@@ -702,10 +741,15 @@ function seated(b, o = {}) {
     const sleeves = [null, null];
     if (dress === 'robe') {
       // the right shoulder and breast bare, the robe over the left, its rolled edge
-      b.ell(skin, [-0.139 * w, 0.314, 0.002], [0.047, 0.05, 0.049]);
-      b.ell(skin, [-0.062, 0.305, 0.058], [0.072, 0.05, 0.04]);
+      b.ell(skin, [-0.137 * w, 0.312, 0.0], [0.043, 0.046, 0.044]);
+      b.ell(skin, [-0.06, 0.305, 0.06], [0.062, 0.044, 0.032]);
       b.ell(skin, [-0.03, 0.345, 0.035], [0.055, 0.03, 0.04]);
       b.path(fold(robe), [[0.06, 0.368, 0.03], [0.02, 0.322, 0.093], [-0.045, 0.255, 0.098], [-0.115, 0.19, 0.088], [-0.15, 0.14, 0.06]], 0.008);
+      // a Buddha's robe is bordered with gold, and sewn in the patches of a field
+      if (hair === 'buddha') {
+        b.path('gold', [[0.065, 0.372, 0.036], [0.026, 0.328, 0.1], [-0.04, 0.262, 0.106], [-0.11, 0.197, 0.096], [-0.148, 0.148, 0.068]], 0.0045);
+        b.path('gold', [[-0.205, 0.103, 0.104], [-0.12, 0.118, 0.166], [0, 0.112, 0.183], [0.12, 0.118, 0.166], [0.205, 0.103, 0.104]], 0.004);
+      }
       b.path(fold(body), [[0.09, 0.3, 0.083], [0.04, 0.21, 0.092], [-0.01, 0.13, 0.1]], 0.0035);
       b.path(fold(body), [[0.13, 0.26, 0.055], [0.095, 0.17, 0.084]], 0.0035);
       if (sash) {
@@ -796,6 +840,10 @@ function standing(b, o = {}) {
         b.ell(skin, [-0.058, 0.52, 0.066], [0.056, 0.038, 0.022]);
         b.ell(skin, [-0.03, 0.555, 0.028], [0.05, 0.022, 0.032]);
         b.path(fold(body), [[0.065, 0.585, 0.02], [0.03, 0.54, 0.083], [-0.04, 0.47, 0.095], [-0.12, 0.4, 0.07]], 0.012);
+        if (hair === 'buddha') {
+          b.path('gold', [[0.07, 0.59, 0.026], [0.034, 0.546, 0.09], [-0.036, 0.477, 0.102], [-0.116, 0.407, 0.078]], 0.005);
+          b.put(k.torus(0.08), 'gold', [0, 0.028, 0], [PI / 2, 0, 0], [0.12 * wide, 0.094 * wide, 0.08]);
+        }
       } else {
         b.path(fold(body), [[-0.05, 0.58, 0.05], [0.03, 0.5, 0.085], [0.07, 0.4, 0.08]], 0.007);
         b.put(k.torus(0.12), sash || fold(body), [0, 0.37, 0], [PI / 2, 0, 0], [0.105, 0.083, 0.1]);
@@ -836,30 +884,410 @@ function standing(b, o = {}) {
   });
 }
 
+/* ── the wrathful ─────────────────────────────────────────────────────────
+   Mahākāla, Rudra become a heruka, the guardians of the hells: a face of
+   wrath, a body squat and heavy, as many heads, arms and legs as the form
+   has, each hand with what it holds. */
+
+/* A wrathful face, in the head's own units like `head`: bulging round eyes
+   and the third eye, brows and beard of flame, a broad nose, the mouth open
+   on its fangs, a crown of five skulls with a flaming jewel over each, hair
+   rising behind like fire, and great rings in the ears. */
+function wrathHead(b, { skin = 'navy', hair = 'earth', hairTip = 'saffron', crown = true, brows = 'flame', third = true, rings = 'gold', horns = null, hairFan = true } = {}) {
+  const k = b.kit;
+  b.ell(skin, [0, 0.04, -0.03], [0.43, 0.47, 0.42]);
+  for (const x of [-1, 1]) b.ell(skin, [x * 0.21, -0.13, 0.19], [0.19, 0.18, 0.19]);
+  b.ell(skin, [0, -0.33, 0.13], [0.28, 0.17, 0.2]);
+  b.ell(skin, [0, 0.13, 0.31], [0.37, 0.1, 0.12]);                    // the frowning brow
+  // the eyes, round and staring, rimmed with red, and the third upright
+  for (const x of [-1, 1]) {
+    b.ell('eyewhite', [x * 0.16, 0.035, 0.37], [0.1, 0.095, 0.08]);
+    b.ell('lash', [x * 0.15, 0.04, 0.445], 0.045);
+    b.orient(k.ring(0.22), 'red', [x * 0.16, 0.035, 0.4], [0, 1, 0], [0, 0, 1], [0.105, 0.1, 0.06]);
+  }
+  if (third) {
+    b.ell('eyewhite', [0, 0.27, 0.39], [0.055, 0.09, 0.05]);
+    b.ell('lash', [0, 0.27, 0.43], [0.03, 0.04, 0.02]);
+    b.orient(k.ring(0.22), 'red', [0, 0.27, 0.41], [0, 1, 0], [0, 0, 1], [0.06, 0.095, 0.05]);
+  }
+  // brows of flame, curling up and out
+  for (const x of [-1, 1]) for (let i = 0; i < 3; i += 1) {
+    b.put(k.flameLow, i === 1 ? 'ember' : brows, [x * (0.08 + i * 0.1), 0.16 + i * 0.02, 0.38 - i * 0.04],
+      [0.3, 0, -x * (0.5 + i * 0.35)], [0.07, 0.2 - i * 0.02, 0.04]);
+  }
+  // the broad nose
+  b.ell(skin, [0, -0.07, 0.44], [0.12, 0.09, 0.08]);
+  for (const x of [-1, 1]) b.ell('lash', [x * 0.05, -0.1, 0.48], 0.02);
+  // the mouth open on its teeth, four fangs, the tongue curled
+  b.ell('crimson~', [0, -0.25, 0.37], [0.22, 0.1, 0.07]);
+  b.ell('red', [0, -0.29, 0.39], [0.11, 0.035, 0.05]);
+  for (let i = 0; i < 6; i += 1) {
+    const x = (i - 2.5) * 0.06;
+    b.put(k.box, 'white', [x, -0.19, 0.415 - Math.abs(x) * 0.25], 0, [0.045, 0.05, 0.03]);
+    b.put(k.box, 'white', [x, -0.31, 0.405 - Math.abs(x) * 0.25], 0, [0.045, 0.04, 0.03]);
+  }
+  for (const x of [-1, 1]) {
+    b.put(k.cone, 'white', [x * 0.18, -0.25, 0.39], [PI, 0, 0], [0.03, 0.12, 0.03]);
+    b.put(k.cone, 'white', [x * 0.13, -0.26, 0.4], 0, [0.025, 0.1, 0.025]);
+    b.ell(skin, [x * 0.2, -0.24, 0.33], [0.06, 0.12, 0.07]);
+  }
+  // beard and moustache of flame
+  for (const x of [-1, 1]) for (let i = 0; i < 4; i += 1) {
+    const a = 0.3 + i * 0.35;
+    b.put(k.flameLow, i % 2 ? 'ember' : brows, [x * (0.12 + Math.sin(a) * 0.2), -0.33 - Math.cos(a) * 0.12, 0.3 - i * 0.05],
+      [0.4, 0, x * (PI - a * 0.9)], [0.07, 0.2, 0.04]);
+  }
+  // ears and the great rings
+  for (const x of [-1, 1]) {
+    b.ell(skin, [x * 0.43, -0.02, -0.03], [0.07, 0.18, 0.12], [0, x * 0.3, 0]);
+    if (rings) b.orient(k.ring(0.22), rings, [x * 0.47, -0.33, 0.02], [0, 1, 0], [x, 0, 0.3], 0.13);
+  }
+  if (horns) for (const x of [-1, 1]) {
+    b.path(horns, [[x * 0.3, 0.38, -0.05], [x * 0.55, 0.52, -0.05], [x * 0.62, 0.78, 0.02], [x * 0.52, 0.95, 0.06]], 0.08, 0.015);
+  }
+  // hair rising behind like fire
+  if (hairFan) for (const [n, r, len, wide, z, key] of [[13, 0.3, 0.62, 0.3, -0.3, hair + '~'], [17, 0.36, 0.46, 0.22, -0.22, hair]]) {
+    for (let i = 0; i < n; i += 1) {
+      const a = -0.3 + i / (n - 1) * (PI + 0.6);
+      const p = [Math.cos(a) * r, 0.3 + Math.sin(a) * r * 0.9, z];
+      b.put(k.flameLow, i % 4 === 2 ? hairTip : key, p, [0, 0, a - PI / 2 + Math.sin(i * 1.7) * 0.12], [wide, len * (0.9 + (i % 3) * 0.08), 0.1]);
+    }
+  }
+  // the crown of five skulls, a flaming jewel over each
+  if (crown) {
+    b.put(k.torus(0.12), 'gold', [0, 0.36, -0.03], [PI / 2 - 0.15, 0, 0], [0.45, 0.46, 0.4]);
+    for (let i = 0; i < 5; i += 1) {
+      const a = (i - 2) * 0.45;
+      const px = Math.sin(a) * 0.43, pz = -0.03 + Math.cos(a) * 0.43;
+      b.at([px, 0.42, pz], [0, a, 0], 1, () => {
+        skull(b, { s: 1.45, y: -0.06 });
+        b.put(k.flameLow, 'gold', [0, 0.12, -0.02], 0, [0.075, 0.2, 0.05]);
+        b.ell('red', [0, 0.17, 0.02], 0.03);
+      });
+    }
+  }
+}
+
+/* What a hand holds, along `dir` from the wrist. */
+function implement(b, kind, at, dir, len = 0.22) {
+  const k = b.kit, d = v3.norm(dir);
+  let side = v3.cross(d, [0, 0, 1]);
+  if (Math.hypot(...side) < 0.2) side = v3.cross(d, [1, 0, 0]);
+  side = v3.norm(side);
+  const p = (t, u = 0) => v3.add(v3.add(at, v3.mul(d, t)), v3.mul(side, u));
+  if (kind === 'trident') {
+    b.beam('silver', p(-0.1), p(len), 0.006);
+    b.beam('silver', p(len, -0.035), p(len, 0.035), 0.005);
+    for (const u of [-0.035, 0, 0.035]) b.beam('silver', p(len, u), p(len + (u ? 0.05 : 0.07), u * 1.1), 0.005, 0.0015);
+    skull(b, { x: p(len - 0.03)[0], y: p(len - 0.03)[1] - 0.012, z: p(len - 0.03)[2], s: 0.22 });
+    b.path('red', [p(len - 0.05, 0.01), p(len - 0.1, 0.04), p(len - 0.16, 0.03)], 0.006, 0.003);
+  } else if (kind === 'club') {
+    b.beam('wood', p(-0.03), p(len * 0.75), 0.008, 0.013);
+    b.ell('iron', p(len * 0.82), [0.026, 0.035, 0.026]);
+    for (let i = 0; i < 4; i += 1) b.ell('iron', p(len * 0.82, (i % 2 ? 1 : -1) * 0.026), 0.008);
+  } else if (kind === 'sword') {
+    b.beam('gold', p(-0.03), p(0.03), 0.006);
+    b.beam('gold', p(0.03, -0.025), p(0.03, 0.025), 0.005);
+    b.orient(k.pyramid, 'silver', p(0.03 + len * 0.45), d, v3.cross(d, side), [0.016, len * 0.9, 0.004]);
+  } else if (kind === 'flaming-sword') {
+    implement(b, 'sword', at, dir, len);
+    for (let i = 0; i < 4; i += 1) b.orient(k.flame, i % 2 ? 'ember' : 'flame', p(0.08 + i * 0.045, (i % 2 ? 1 : -1) * 0.012), v3.add(d, v3.mul(side, i % 2 ? 0.6 : -0.6)), [0, 0, 1], [0.012, 0.04, 0.008]);
+  } else if (kind === 'kapala') {
+    b.put(k.bowl, 'bone', at, 0, [0.03, 0.022, 0.026]);
+    b.put(k.disc, 'crimson', [at[0], at[1] - 0.002, at[2]], 0, [0.027, 0.004, 0.023]);
+  } else if (kind === 'damaru') {
+    b.orient(k.cone, 'crimson', p(0.015, 0.012), side, d, [0.018, 0.024, 0.018]);
+    b.orient(k.cone, 'crimson', p(0.015, -0.012), v3.mul(side, -1), d, [0.018, 0.024, 0.018]);
+  } else if (kind === 'noose') {
+    b.orient(k.torus(0.12), 'bone', p(0.04), d, side, 0.035);
+  } else if (kind === 'chopper') {
+    b.beam('gold', p(-0.02), p(0.04), 0.006);
+    b.orient(k.torus(0.3, PI), 'silver', p(0.06), side, v3.cross(d, side), [0.03, 0.03, 0.12]);
+  } else if (kind === 'spear') {
+    b.beam('wood', p(-len * 0.4), p(len), 0.006);
+    b.orient(k.pyramid, 'silver', p(len + 0.025), d, side, [0.012, 0.06, 0.006]);
+  } else if (kind === 'saw') {
+    b.orient(k.box, 'iron', p(len * 0.5), d, side, [0.035, len, 0.004]);
+    for (let i = 0; i < 6; i += 1) b.orient(k.pyramid, 'iron', p(len * (0.1 + i * 0.15), 0.018), side, d, [0.008, 0.012, 0.003]);
+  } else if (kind === 'skull') {
+    skull(b, { x: at[0], y: at[1] - 0.015, z: at[2], s: 0.45 });
+  }
+}
+
+/* A wrathful body: heavy legs in the striding stance, the tiger skin at the
+   hips, a pot belly, broad shoulders, a garland of heads; as many legs (two
+   or four), arms and heads as the form has. About one unit tall at s = 1.
+   `arms` is a list of { side, elbow, wrist, dir, holds } for the right (-1)
+   and the left (+1); `heads` a list of { skin, at, turn, scale }. */
+function wrathBody(b, o = {}) {
+  const { x = 0, y = 0, z = 0, s = 1, ry = 0, skin = 'navy', legs = 2, arms = [], heads = [], skirt = 'saffron',
+    garland = true, ornament = 'bone', scarf = null } = o;
+  b.at([x, y, z], [0, ry, 0], s, () => {
+    const k = b.kit;
+    // the legs: the right bent forward, the left thrust out straight
+    const set = [
+      [[-0.06, 0.42, 0.0], [-0.2, 0.25, 0.07], [-0.22, 0.035, 0.05]],
+      [[0.06, 0.42, 0.0], [0.19, 0.23, 0.02], [0.31, 0.035, 0.02]]];
+    if (legs === 4) set.push(
+      [[-0.05, 0.42, -0.04], [-0.17, 0.26, -0.05], [-0.18, 0.035, -0.1]],
+      [[0.05, 0.42, -0.04], [0.16, 0.23, -0.08], [0.27, 0.035, -0.12]]);
+    set.forEach(([hip, knee, ankle], i) => {
+      b.blob(skin, hip, knee, 0.05, 0.05);
+      b.ell(skin, knee, 0.038);
+      b.blob(skin, knee, ankle, 0.038, 0.036);
+      b.put(k.ring(0.3), ornament, v3.add(ankle, [0, 0.03, 0]), 0, 0.03);
+      const toe = i % 2 ? [ankle[0] + 0.05, 0.012, ankle[2] + 0.04] : [ankle[0] - 0.01, 0.012, ankle[2] + 0.07];
+      b.orient(k.ball, skin, v3.mul(v3.add(ankle, toe), 0.5), v3.sub(toe, [ankle[0], 0.012, ankle[2]]), [0, 1, 0], [0.028, 0.05, 0.016]);
+    });
+    // the tiger skin, striped, its paws hanging
+    b.ell(skirt, [0, 0.4, 0.0], [0.14, 0.08, 0.11]);
+    b.ell(skirt, [0, 0.34, 0.05], [0.1, 0.07, 0.07]);
+    for (let i = 0; i < 6; i += 1) {
+      const a = -0.9 + i * 0.36;
+      b.path('black', [[Math.sin(a) * 0.13, 0.43, Math.cos(a) * 0.1], [Math.sin(a) * 0.145, 0.4, Math.cos(a) * 0.115], [Math.sin(a) * 0.13, 0.36, Math.cos(a) * 0.1]], 0.006);
+    }
+    for (const sx of [-1, 1]) b.path(skirt, [[sx * 0.09, 0.36, 0.08], [sx * 0.1, 0.3, 0.11], [sx * 0.09, 0.27, 0.12]], 0.014, 0.01);
+    // belly, chest, shoulders
+    b.ell(skin, [0, 0.5, 0.02], [0.12, 0.09, 0.1]);
+    b.ell(skin, [0, 0.6, 0.0], [0.155, 0.09, 0.1]);
+    for (const sx of [-1, 1]) {
+      b.ell(skin, [sx * 0.065, 0.6, 0.07], [0.065, 0.05, 0.035]);
+      b.ell(skin, [sx * 0.155, 0.635, 0.0], [0.055, 0.055, 0.055]);
+    }
+    b.beam(skin, [0, 0.64, 0], [0, 0.71, 0.01], 0.04, 0.036);
+    // bone ornaments and the garland of heads
+    b.put(k.torus(0.12), ornament, [0, 0.665, 0.01], [PI / 2 - 0.3, 0, 0], [0.08, 0.075, 0.08]);
+    if (garland) {
+      const n = 7;
+      for (let i = 0; i < n; i += 1) {
+        const t = i / (n - 1), a = (t - 0.5) * 2.4;
+        const p = [Math.sin(a) * 0.14, 0.64 - Math.cos(a * 0.85) * 0.2 + Math.abs(t - 0.5) * 0.05, 0.08 + Math.cos(a) * 0.04];
+        skull(b, { x: p[0], y: p[1] - 0.015, z: p[2], s: 0.36 });
+      }
+    }
+    if (scarf) {
+      b.path(scarf, [[-0.17, 0.64, -0.02], [-0.08, 0.7, -0.08], [0.08, 0.7, -0.08], [0.17, 0.64, -0.02]], 0.014);
+      for (const sx of [-1, 1]) b.path(scarf, [[sx * 0.17, 0.64, -0.02], [sx * 0.3, 0.55, -0.06], [sx * 0.36, 0.42, -0.02], [sx * 0.42, 0.33, 0.03]], 0.012, 0.007);
+    }
+    // the arms, each with its hand and what it holds
+    arms.forEach(({ side, elbow, wrist, dir, holds, palm = [0, 0, 1], len }) => {
+      const shoulder = [side * 0.16, 0.63, 0];
+      b.blob(skin, shoulder, elbow, 0.04, 0.038);
+      b.ell(skin, elbow, 0.03);
+      b.blob(skin, elbow, wrist, 0.031, 0.028);
+      b.put(k.ring(0.3), ornament, v3.add(v3.mul(shoulder, 0.4), v3.mul(elbow, 0.6)), 0, 0.034);
+      b.orient(k.ring(0.3), 'gold', wrist, v3.sub(wrist, elbow), [0, 0, 1], 0.026);
+      hand(b, skin, wrist, dir, palm, side, 1.1);
+      if (holds) implement(b, holds, v3.add(wrist, v3.mul(v3.norm(dir), 0.04)), dir, len);
+    });
+    // the heads
+    heads.forEach(({ skin: face = skin, at = [0, 0.78, 0.02], turn = 0, scale = 0.16, ...rest }) => {
+      b.at(at, [0, turn, 0], scale, () => wrathHead(b, { skin: face, ...rest }));
+    });
+  });
+}
+
+/* A being of the hells, naked, in one of the attitudes the paintings give
+   them: writhing with arms flung up, kneeling, huddled against the cold,
+   lying, fighting, or only half out of the thing it is caught in. About half
+   a unit tall standing, at s = 1. */
+const SUFFER = {
+  writhe: { hip: 0.25, chest: [0, 0.42, 0.0], head: [0, 0.52, -0.01], tilt: -0.35,
+    arms: [[[-0.13, 0.52, 0.02], [-0.11, 0.63, 0.04]], [[0.13, 0.52, 0.02], [0.12, 0.62, 0.0]]],
+    legs: [[[-0.05, 0.13, 0.04], [-0.06, 0.02, 0.0]], [[0.05, 0.13, 0.02], [0.07, 0.02, -0.02]]] },
+  kneel: { hip: 0.17, chest: [0, 0.33, 0.03], head: [0, 0.42, 0.04], tilt: -0.5,
+    arms: [[[-0.1, 0.38, 0.09], [-0.05, 0.47, 0.12]], [[0.1, 0.38, 0.09], [0.05, 0.47, 0.12]]],
+    legs: [[[-0.05, 0.035, 0.1], [-0.05, 0.02, -0.07]], [[0.05, 0.035, 0.1], [0.05, 0.02, -0.07]]] },
+  huddle: { hip: 0.1, chest: [0, 0.25, 0.04], head: [0, 0.31, 0.08], tilt: 0.45,
+    arms: [[[-0.1, 0.2, 0.09], [0.0, 0.2, 0.15]], [[0.1, 0.2, 0.09], [0.0, 0.19, 0.14]]],
+    legs: [[[-0.05, 0.21, 0.1], [-0.05, 0.02, 0.07]], [[0.05, 0.21, 0.1], [0.05, 0.02, 0.07]]] },
+  fight: { hip: 0.25, chest: [0, 0.42, 0.02], head: [0, 0.51, 0.02], tilt: 0.1,
+    arms: [[[-0.14, 0.5, 0.0], [-0.1, 0.6, 0.05]], [[0.12, 0.34, 0.08], [0.06, 0.37, 0.15]]],
+    legs: [[[-0.07, 0.13, 0.06], [-0.09, 0.02, 0.08]], [[0.06, 0.12, -0.03], [0.1, 0.02, -0.09]]] },
+  reach: { hip: 0.25, chest: [0, 0.41, 0.05], head: [0, 0.5, 0.07], tilt: -0.6,
+    arms: [[[-0.09, 0.5, 0.1], [-0.06, 0.6, 0.13]], [[0.1, 0.48, 0.1], [0.08, 0.57, 0.14]]],
+    legs: [[[-0.05, 0.13, 0.04], [-0.05, 0.02, 0.0]], [[0.05, 0.14, 0.0], [0.06, 0.05, -0.05]]] }
+};
+function sufferer(b, { x = 0, y = 0, z = 0, s = 1, ry = 0, rx = 0, rz = 0, skin = 'skin', pose = 'writhe', legs = true, hair = 'black', blisters = null, holds = null } = {}) {
+  const P = SUFFER[pose] || SUFFER.writhe;
+  b.at([x, y, z], [rx, ry, rz], s, () => {
+    const k = b.kit;
+    const pelvis = [0, P.hip, pose === 'huddle' ? -0.03 : 0];
+    b.ell(skin, pelvis, [0.07, 0.05, 0.05]);
+    b.blob(skin, pelvis, P.chest, 0.06, 0.045);
+    b.ell(skin, v3.add(P.chest, [0, -0.02, 0.0]), [0.075, 0.05, 0.05]);
+    const neck = v3.add(P.chest, [0, 0.045, 0]);
+    b.beam(skin, neck, v3.add(P.head, [0, -0.04, 0]), 0.02);
+    b.at(P.head, [P.tilt, 0, 0], 0.085, () => head(b, { skin, style: hair ? 'messy' : 'shaved', hair, eyes: 'open', mouth: 'scream', ears: 'short' }));
+    [-1, 1].forEach((side, i) => {
+      const shoulder = v3.add(P.chest, [side * 0.07, 0.02, 0]);
+      const [elbow, wrist] = P.arms[i];
+      b.path(skin, [shoulder, elbow, wrist], 0.02, 0.014);
+      const dir = v3.sub(wrist, elbow);
+      hand(b, skin, wrist, dir, [0, 0, 1], side, 0.6);
+      if (holds && i === 0) implement(b, holds, v3.add(wrist, v3.mul(v3.norm(dir), 0.02)), dir, 0.16);
+      if (legs) {
+        const hip = v3.add(pelvis, [side * 0.04, -0.02, 0]);
+        const [knee, ankle] = P.legs[i];
+        b.path(skin, [hip, knee, ankle], 0.028, 0.017);
+        b.orient(k.ball, skin, v3.add(ankle, [0, -0.005, 0.02]), [0, 0, 1], [0, 1, 0], [0.018, 0.032, 0.01]);
+      }
+    });
+    if (blisters) for (let i = 0; i < 6; i += 1) {
+      const a = i * 2.3;
+      b.ell(blisters, v3.add(P.chest, [Math.sin(a) * 0.06, (i % 3 - 1) * 0.04, 0.045 + Math.cos(a) * 0.01]), 0.012);
+    }
+  });
+}
+
+/* A guardian of the hells, a servant of Yama: horned, red or black, a
+   weapon raised. */
+function guardian(b, { x = 0, y = 0, z = 0, s = 0.5, ry = 0, skin = 'crimson', holds = 'club', horns = 'bone', pose = 'raise' } = {}) {
+  const raise = pose === 'raise';
+  wrathBody(b, { x, y, z, s, ry, skin, legs: 2, garland: false, skirt: 'saffron',
+    arms: [
+      raise ? { side: -1, elbow: [-0.25, 0.75, 0.04], wrist: [-0.2, 0.92, 0.07], dir: [0.3, 1, 0.1], holds, len: 0.3 }
+        : { side: -1, elbow: [-0.24, 0.5, 0.1], wrist: [-0.12, 0.45, 0.22], dir: [0.6, -0.1, 1], holds, len: 0.3 },
+      { side: 1, elbow: [0.25, 0.52, 0.06], wrist: [0.2, 0.42, 0.16], dir: [-0.3, -0.4, 1] }
+    ],
+    heads: [{ skin, at: [0, 0.79, 0.02], scale: 0.17, horns, crown: false, hairFan: true, third: false, hair: 'black', hairTip: 'crimson' }] });
+}
+
 /* A stupa: stepped base, vase-shaped dome, harmikā, thirteen rings, parasol,
    and the moon and sun at the top. About 1 unit tall at s = 1. */
+/* A stupa of enlightenment: the lion throne, four stepped tiers each with
+   its projecting middle and its bands of colour, the seat of the vase, the
+   white dome hung with gold garlands and a Buddha in its niche, the harmikā,
+   thirteen wheels, the parasol with its silks, and the moon, the sun and the
+   flaming jewel at the top. About one unit tall at s = 1. */
 function stupa(b, { x = 0, y = 0, z = 0, s = 1, body = 'white', gilt = 'gold' } = {}) {
   b.at([x, y, z], 0, s, () => {
     const k = b.kit;
-    [[0.42, 0.06], [0.36, 0.06], [0.30, 0.06], [0.25, 0.05]].reduce((h, [w, t]) => {
-      b.put(k.box, body, [0, h + t / 2, 0], 0, [w, t, w]);
-      b.put(k.box, gilt, [0, h + t - 0.004, 0], 0, [w + 0.01, 0.008, w + 0.01]);
-      return h + t;
-    }, 0);
-    const dome = k.lathe('stupa-dome', [[0, 0], [0.13, 0], [0.17, 0.04], [0.18, 0.12], [0.15, 0.20], [0.09, 0.24], [0, 0.25]], 24);
-    b.put(dome, body, [0, 0.23, 0]);
-    b.put(k.box, gilt, [0, 0.50, 0], 0, [0.11, 0.06, 0.11]);
-    const spire = k.lathe('stupa-spire', [[0, 0], [0.06, 0], [0.025, 0.28], [0, 0.29]], 16);
-    b.put(spire, gilt, [0, 0.53, 0]);
+    // the throne, a lion at each front corner and jewels on its face
+    b.put(k.box, 'red', [0, 0.045, 0], 0, [0.46, 0.09, 0.46]);
+    for (const yy of [0.004, 0.088]) b.put(k.box, gilt, [0, yy, 0], 0, [0.475, 0.01, 0.475]);
+    for (let f = 0; f < 4; f += 1) b.at([0, 0, 0], [0, f * PI / 2, 0], 1, () => {
+      b.put(k.box, 'blue', [0, 0.045, 0.231], 0, [0.2, 0.05, 0.004]);
+      for (const jx of [-0.06, 0, 0.06]) b.put(k.octa, ['jade', 'gold', 'red'][(jx > 0) + (jx === 0) * 2], [jx, 0.045, 0.236], 0, [0.012, 0.018, 0.006]);
+      for (const sx of [-1, 1]) {
+        b.ell('white', [sx * 0.17, 0.05, 0.215], [0.03, 0.03, 0.04]);
+        b.ell('white', [sx * 0.17, 0.08, 0.24], 0.022);
+        for (let m = 0; m < 5; m += 1) b.ell('turquoise', [sx * 0.17 + Math.cos(m * 1.26) * 0.022, 0.08 + Math.sin(m * 1.26) * 0.022, 0.232], 0.009);
+      }
+    });
+    // four steps, each a cross in plan, banded in gold and colour
+    let h = 0.093;
+    [[0.4, 0.055], [0.35, 0.05], [0.3, 0.045], [0.26, 0.04]].forEach(([w, t], i) => {
+      b.put(k.box, body, [0, h + t / 2, 0], 0, [w, t, w * 0.82]);
+      b.put(k.box, body, [0, h + t / 2, 0], 0, [w * 0.82, t, w]);
+      b.put(k.box, i % 2 ? 'blue' : 'red', [0, h + t * 0.35, 0], 0, [w * 0.83, t * 0.18, w + 0.004]);
+      b.put(k.box, i % 2 ? 'blue' : 'red', [0, h + t * 0.35, 0], 0, [w + 0.004, t * 0.18, w * 0.83]);
+      b.put(k.box, gilt, [0, h + t - 0.003, 0], 0, [w + 0.008, 0.007, w * 0.82 + 0.008]);
+      b.put(k.box, gilt, [0, h + t - 0.003, 0], 0, [w * 0.82 + 0.008, 0.007, w + 0.008]);
+      h += t;
+    });
+    // the seat of the vase
+    for (const [r, t] of [[0.12, 0.025], [0.105, 0.02]]) {
+      b.put(k.cyl, body, [0, h + t / 2, 0], 0, [r, t, r]);
+      b.put(k.torus(0.15), gilt, [0, h + t, 0], [PI / 2, 0, 0], [r, r, 0.1]);
+      h += t;
+    }
+    // the dome, garlanded, and the Buddha in its niche
+    const dome = k.lathe('stupa-bumpa', [[0, 0], [0.11, 0], [0.155, 0.03], [0.17, 0.09], [0.16, 0.15], [0.125, 0.2], [0.07, 0.228], [0, 0.235]], 28);
+    b.put(dome, body, [0, h, 0]);
+    for (let i = 0; i < 8; i += 1) {
+      const a = (i + 0.5) / 8 * TAU;
+      if (i === 3 || i === 4) continue;    // the niche's side is left open
+      b.at([Math.sin(a) * 0.128, h + 0.19, Math.cos(a) * 0.128], [0, a, 0], 1, () => {
+        b.put(k.torus(0.1, PI), gilt, [0, 0, 0.004], [-0.5, 0, PI], [0.045, 0.03, 0.04]);
+        b.ell('red', [0, -0.03, 0.01], 0.007);
+      });
+    }
+    b.at([0, h + 0.02, 0.163], 0, 1.25, () => {
+      // an arched niche, framed in gold, the Buddha seated in it on a lotus
+      b.put(k.box, 'navy', [0, 0.05, -0.012], 0, [0.08, 0.1, 0.03]);
+      b.put(k.disc, 'navy', [0, 0.1, -0.012], [PI / 2, 0, 0], [0.04, 0.03, 0.04]);
+      b.put(k.torus(0.12, PI), gilt, [0, 0.1, 0.004], 0, [0.044, 0.044, 0.03]);
+      for (const sx of [-1, 1]) b.put(k.box, gilt, [sx * 0.044, 0.05, 0.004], 0, [0.007, 0.1, 0.008]);
+      b.put(k.box, gilt, [0, 0.0, 0.004], 0, [0.1, 0.008, 0.012]);
+      b.ell('ember', [0, 0.07, 0.0], [0.028, 0.034, 0.004]);
+      b.ell('pink', [0, 0.012, 0.006], [0.03, 0.008, 0.014]);
+      b.ell('red', [0, 0.024, 0.006], [0.025, 0.011, 0.014]);
+      b.ell('red', [0, 0.046, 0.004], [0.015, 0.022, 0.01]);
+      b.ell('gilt', [0, 0.074, 0.008], [0.01, 0.012, 0.01]);
+      b.ell('lapis', [0, 0.086, 0.006], 0.006);
+    });
+    h += 0.235;
+    // the harmikā
+    b.put(k.box, body, [0, h + 0.02, 0], 0, [0.1, 0.04, 0.1]);
+    b.put(k.box, 'red', [0, h + 0.02, 0], 0, [0.104, 0.012, 0.104]);
+    b.put(k.box, gilt, [0, h + 0.043, 0], 0, [0.12, 0.008, 0.12]);
+    h += 0.047;
+    // thirteen wheels on the spire
+    const spire = k.lathe('stupa-spire', [[0, 0], [0.05, 0], [0.024, 0.25], [0, 0.26]], 16);
+    b.put(spire, gilt, [0, h, 0]);
     for (let i = 0; i < 13; i += 1) {
       const t = i / 13;
-      b.put(k.torus(0.3), gilt, [0, 0.545 + t * 0.26, 0], [PI / 2, 0, 0], 0.055 - t * 0.032);
+      b.put(k.torus(0.35), gilt, [0, h + 0.012 + t * 0.235, 0], [PI / 2, 0, 0], [0.056 - t * 0.03, 0.056 - t * 0.03, 0.035]);
     }
-    b.put(k.cone, gilt, [0, 0.83, 0], 0, [0.075, 0.03, 0.075]);
-    b.put(k.torus(0.28, PI), gilt, [0, 0.88, 0], [0, 0, PI], 0.03);
-    b.put(k.sphere, gilt, [0, 0.905, 0], 0, 0.02);
-    b.put(k.cone, gilt, [0, 0.95, 0], 0, [0.01, 0.06, 0.01]);
+    h += 0.255;
+    // the parasol with its hanging silks
+    b.put(k.cone, gilt, [0, h + 0.012, 0], 0, [0.085, 0.03, 0.085]);
+    b.put(k.torus(0.1), gilt, [0, h - 0.002, 0], [PI / 2, 0, 0], [0.085, 0.085, 0.1]);
+    ['red', 'blue', 'jade', 'gold', 'white', 'red', 'blue', 'jade', 'gold', 'white', 'red', 'blue'].forEach((key, i) => {
+      const a = i / 12 * TAU;
+      b.put(k.box, key, [Math.sin(a) * 0.08, h - 0.022, Math.cos(a) * 0.08], [0, a, 0], [0.018, 0.04, 0.003]);
+    });
+    // the moon, the sun and the jewel
+    b.put(k.torus(0.28, PI), 'silver', [0, h + 0.07, 0], [0, 0, PI], 0.03);
+    b.ell(gilt, [0, h + 0.09, 0], 0.022);
+    b.put(k.flame, 'ember', [0, h + 0.11, 0], 0, [0.022, 0.065, 0.018]);
   });
+}
+
+/* Behind a Buddha: the aureole of the body, deep blue rimmed in gold, red
+   and green, fine rays of gold across it, and the green halo of the head,
+   rimmed in gold, its edge tipped with flame. */
+function buddhaAureole(b, { y = 0.42, z = -0.12, w = 0.3, h = 0.36, headY = 0.62, headR = 0.105, flames = true } = {}) {
+  const k = b.kit;
+  b.put(k.disc, 'deep', [0, y, z], [PI / 2, 0, 0], [w, 0.01, h]);
+  [['gold', 1.0], ['red', 0.94], ['jade', 0.89]].forEach(([key, r], i) => b.put(k.torus(0.05), key, [0, y, z + 0.004 + i * 0.002], 0, [w * r, h * r, 0.04]));
+  for (let i = 0; i < 18; i += 1) {
+    const a = i / 18 * TAU;
+    b.beam('gold~', [Math.cos(a) * w * 0.15, y + Math.sin(a) * h * 0.15, z + 0.008], [Math.cos(a) * w * 0.85, y + Math.sin(a) * h * 0.85, z + 0.008], 0.0025);
+  }
+  b.put(k.disc, 'jade', [0, headY, z + 0.02], [PI / 2, 0, 0], [headR, 0.01, headR]);
+  b.put(k.torus(0.08), 'gold', [0, headY, z + 0.025], 0, [headR, headR, 0.08]);
+  b.put(k.torus(0.06), 'red', [0, headY, z + 0.024], 0, [headR * 1.12, headR * 1.12, 0.06]);
+  if (flames) for (let i = 0; i < 16; i += 1) {
+    const a = (i + 0.5) / 16 * TAU;
+    b.put(k.flame, i % 2 ? 'gold' : 'ember', [Math.cos(a) * w * 1.03, y + Math.sin(a) * h * 1.03, z], [0, 0, a - PI / 2], [0.022, 0.05, 0.012]);
+  }
+}
+
+/* A throne for a Buddha: a dais in red and gold, jewels on its face, a snow
+   lion at each front corner, a brocade hanging between them. Returns the top. */
+function lionThrone(b, { y = 0, w = 0.44, d = 0.28, h = 0.12 } = {}) {
+  const k = b.kit;
+  b.put(k.box, 'red', [0, y + h / 2, 0], 0, [w, h, d]);
+  for (const yy of [y + 0.005, y + h - 0.005]) b.put(k.box, 'gold', [0, yy, 0], 0, [w + 0.014, 0.012, d + 0.014]);
+  b.put(k.box, 'blue', [0, y + h / 2, d / 2 + 0.002], 0, [w * 0.6, h * 0.5, 0.004]);
+  for (let i = 0; i < 5; i += 1) b.put(k.octa, ['jade', 'red', 'gold', 'red', 'jade'][i], [(i - 2) * w * 0.11, y + h / 2, d / 2 + 0.006], 0, [0.01, 0.016, 0.006]);
+  // the brocade over the front, gold with a red border
+  b.put(k.box, 'gold', [0, y + h * 0.75, d / 2 + 0.01], [0.08, 0, 0], [w * 0.36, h * 0.55, 0.006]);
+  b.put(k.box, 'red', [0, y + h * 0.5, d / 2 + 0.03], [0.08, 0, 0], [w * 0.36, 0.01, 0.007]);
+  for (const sx of [-1, 1]) {
+    const lx = sx * (w / 2 - 0.035);
+    b.ell('white', [lx, y + 0.055, d / 2 + 0.01], [0.032, 0.04, 0.045]);
+    b.ell('white', [lx, y + 0.1, d / 2 + 0.04], 0.026);
+    b.ell('lash', [lx, y + 0.104, d / 2 + 0.064], 0.005);
+    for (let m = 0; m < 7; m += 1) {
+      const a = m / 7 * TAU;
+      b.ell('turquoise', [lx + Math.cos(a) * 0.028, y + 0.1 + Math.sin(a) * 0.028, d / 2 + 0.03], 0.011);
+    }
+    for (const fx of [-0.015, 0.015]) b.beam('white', [lx + fx, y + 0.04, d / 2 + 0.03], [lx + fx, y + 0.0, d / 2 + 0.04], 0.009);
+  }
+  return y + h;
 }
 
 /* A vajra along local y, one unit long at s = 1. */
@@ -1305,9 +1733,15 @@ function sword(b, { x = 0, y = 0, z = 0, s = 1, r = [0, 0, 0], blade = 'silver',
 
 function skull(b, { x = 0, y = 0, z = 0, s = 1, key = 'bone' } = {}) {
   b.at([x, y, z], 0, s, () => {
-    b.put(b.kit.sphere, key, [0, 0.06, 0], 0, [0.06, 0.055, 0.06]);
-    b.put(b.kit.box, key, [0, 0.02, 0.02], 0, [0.06, 0.03, 0.05]);
-    for (const side of [-1, 1]) b.put(b.kit.sphere, 'black', [side * 0.022, 0.055, 0.05], 0, 0.014);
+    b.ell(key, [0, 0.066, -0.006], [0.058, 0.056, 0.06]);
+    b.ell(key, [0, 0.03, 0.026], [0.045, 0.034, 0.036]);
+    for (const side of [-1, 1]) b.ell('lash', [side * 0.021, 0.05, 0.048], [0.016, 0.017, 0.012]);
+    if (b.scale() > 0.4) {
+      for (const side of [-1, 1]) b.ell(key, [side * 0.042, 0.036, 0.02], [0.016, 0.014, 0.02]);
+      b.ell('lash', [0, 0.03, 0.06], [0.007, 0.01, 0.006]);
+      b.put(b.kit.box, key, [0, 0.006, 0.045], 0, [0.042, 0.014, 0.014]);
+      b.put(b.kit.box, 'lash', [0, 0.011, 0.052], 0, [0.036, 0.002, 0.004]);
+    }
   });
 }
 
@@ -1352,76 +1786,129 @@ function book(b, { x = 0, y = 0, z = 0, s = 1, key = 'red' } = {}) {
    string says what is built, for the entry and for the record; the function
    builds it. */
 const SQUARE_MODELS = {
-  1: ['A blue crossed vajra over a floor of black fire: the vajra itself become the prison.', (b) => {
+  1: ['A blue crossed vajra over a floor of black fire, beings writhing in it at its foot: the vajra itself become the prison.', (b) => {
     ground(b, 'ring', { w: 0.84, floor: 'black', rimKey: 'blue', inner: 'navy' });
-    flameRing(b, { cy: 0.48, z: -0.12, R: 0.3, n: 12, from: -0.1, to: 1.1, h: 0.17, keys: ['crimson', 'black', 'fire'] });
-    crossedVajra(b, { y: 0.48, s: 0.62, key: 'blue', hub: 'white' });
-  }],
-  2: ['A sealed iron house wrapped in flame, on the blue ring of Avīci.', (b) => {
-    ground(b, 'ring', { w: 0.86, floor: 'black', rimKey: 'blue', inner: 'navy' });
-    b.put(b.kit.box, 'iron', [0, 0.2, -0.02], 0, [0.36, 0.34, 0.3]);
-    b.put(b.kit.pyramid, 'iron', [0, 0.43, -0.02], 0, [0.32, 0.14, 0.27]);
-    b.put(b.kit.box, 'ember', [0, 0.15, 0.135], 0, [0.1, 0.17, 0.01]);
+    flameRing(b, { cy: 0.52, z: -0.12, R: 0.3, n: 13, from: -0.1, to: 1.1, h: 0.18, keys: ['crimson', 'black', 'fire'] });
     for (let i = 0; i < 9; i += 1) {
-      const a = i / 9 * PI;
-      fire(b, { x: Math.cos(a) * 0.26, y: 0.03, z: Math.sin(a) * 0.1 + 0.06, h: 0.24 + (i % 3) * 0.06, w: 0.12, lean: -Math.cos(a) * 0.3 });
+      const a = i / 9 * TAU;
+      fire(b, { x: Math.cos(a) * 0.3, y: 0.04, z: Math.sin(a) * 0.22, h: 0.12 + (i % 3) * 0.04, w: 0.08, keys: ['black', 'crimson', 'fire'] });
     }
+    crossedVajra(b, { y: 0.56, s: 0.56, key: 'blue', hub: 'white' });
+    sufferer(b, { x: -0.17, y: 0.04, z: 0.13, s: 0.36, ry: 0.4, skin: 'rose', pose: 'writhe' });
+    sufferer(b, { x: 0.16, y: 0.04, z: 0.12, s: 0.34, ry: -0.5, skin: 'rose', pose: 'kneel' });
+    sufferer(b, { x: 0.0, y: 0.04, z: -0.06, s: 0.3, skin: 'rose', pose: 'reach' });
   }],
-  3: ['An iron cauldron of molten metal over a blaze.', (b) => {
-    ground(b, 'ring', { w: 0.86, floor: 'black', rimKey: 'red', inner: 'gold' });
-    for (let i = 0; i < 7; i += 1) fire(b, { x: (i - 3) * 0.075, y: 0.03, z: 0.02 + (i % 2) * 0.05, h: 0.2 + (i % 3) * 0.04, w: 0.11 });
-    b.put(b.kit.bowl, 'iron', [0, 0.36, 0], 0, [0.3, 0.22, 0.24]);
-    b.put(b.kit.torus(0.08), 'iron', [0, 0.36, 0], [PI / 2, 0, 0], [0.3, 0.24, 1]);
-    b.put(b.kit.disc, 'ember', [0, 0.355, 0], 0, [0.28, 0.01, 0.22]);
-    for (const side of [-1, 1]) b.beam('iron', [side * 0.22, 0.03, 0], [side * 0.25, 0.2, 0], 0.02);
-  }],
-  4: ['Iron houses with no door, smoke pouring from the cracks: the howling hells.', (b) => {
+  2: ['A sealed iron house glowing white-hot, and the beings in it one blaze with the fire: Avīci, the hell without interval.', (b) => {
     ground(b, 'ring', { w: 0.86, floor: 'black', rimKey: 'blue', inner: 'navy' });
-    for (const [x, z, w, h] of [[-0.14, -0.06, 0.24, 0.28], [0.17, 0.06, 0.18, 0.2]]) {
+    b.put(b.kit.disc, 'ember', [0, 0.045, 0], 0, [0.36, 0.006, 0.36]);
+    // the iron house: red-hot walls between black ribs, a roof of iron
+    b.put(b.kit.box, 'fire', [0, 0.21, -0.04], 0, [0.34, 0.32, 0.26]);
+    for (const x of [-0.17, -0.06, 0.06, 0.17]) b.put(b.kit.box, 'iron', [x, 0.21, 0.092], 0, [0.022, 0.34, 0.02]);
+    for (const y2 of [0.07, 0.21, 0.35]) b.put(b.kit.box, 'iron', [0, y2, 0.092], 0, [0.36, 0.02, 0.02]);
+    b.put(b.kit.pyramid, 'iron', [0, 0.43, -0.04], 0, [0.32, 0.13, 0.27]);
+    b.put(b.kit.box, 'ember', [0, 0.14, 0.095], 0, [0.09, 0.16, 0.01]);
+    for (let i = 0; i < 12; i += 1) {
+      const a = i / 12 * PI;
+      fire(b, { x: Math.cos(a) * 0.27, y: 0.04, z: Math.sin(a) * 0.12 + 0.07, h: 0.28 + (i % 3) * 0.08, w: 0.12, lean: -Math.cos(a) * 0.3 });
+    }
+    for (let i = 0; i < 5; i += 1) fire(b, { x: -0.12 + i * 0.06, y: 0.47, z: -0.04, h: 0.2 + (i % 2) * 0.1, w: 0.09 });
+    // the beings, burning, indistinguishable from the fire
+    sufferer(b, { x: -0.14, y: 0.04, z: 0.18, s: 0.4, ry: 0.3, skin: 'flame', hair: 'fire', pose: 'writhe' });
+    sufferer(b, { x: 0.15, y: 0.04, z: 0.17, s: 0.38, ry: -0.3, skin: 'flame', hair: 'fire', pose: 'reach' });
+    sufferer(b, { x: 0.0, y: 0.06, z: 0.12, s: 0.3, skin: 'ember', hair: 'flame', pose: 'writhe' });
+  }],
+  3: ['An iron cauldron of molten metal over a blaze, the beings boiling in it, a guardian of Yama driving them under with his spear.', (b) => {
+    ground(b, 'ring', { w: 0.86, floor: 'black', rimKey: 'red', inner: 'gold' });
+    for (let i = 0; i < 8; i += 1) fire(b, { x: (i - 3.5) * 0.07, y: 0.03, z: 0.02 + (i % 2) * 0.05, h: 0.2 + (i % 3) * 0.05, w: 0.11 });
+    b.put(b.kit.bowl, 'iron', [-0.05, 0.36, 0], 0, [0.27, 0.21, 0.22]);
+    b.put(b.kit.torus(0.08), 'iron', [-0.05, 0.36, 0], [PI / 2, 0, 0], [0.27, 0.22, 0.08]);
+    b.put(b.kit.disc, 'ember', [-0.05, 0.355, 0], 0, [0.25, 0.01, 0.2]);
+    for (let i = 0; i < 7; i += 1) b.ell('fire', [-0.05 + Math.cos(i * 2.1) * 0.17, 0.365, Math.sin(i * 2.1) * 0.13], [0.025, 0.012, 0.025]);
+    for (const side of [-1, 1]) b.beam('iron', [-0.05 + side * 0.2, 0.03, 0], [-0.05 + side * 0.23, 0.2, 0], 0.02);
+    // heads and arms out of the boiling metal
+    sufferer(b, { x: -0.14, y: 0.25, z: 0.05, s: 0.4, ry: 0.4, skin: 'rose', pose: 'writhe', legs: false });
+    sufferer(b, { x: 0.05, y: 0.24, z: 0.07, s: 0.38, ry: -0.3, skin: 'rose', pose: 'reach', legs: false });
+    sufferer(b, { x: -0.05, y: 0.25, z: -0.08, s: 0.34, skin: 'rose', pose: 'writhe', legs: false });
+    guardian(b, { x: 0.3, y: 0.03, z: -0.02, s: 0.48, ry: -0.9, skin: 'crimson', holds: 'spear', pose: 'thrust' });
+  }],
+  4: ['Iron houses with no door, fire bursting from their windows and smoke from the cracks, the beings inside howling: the howling hells.', (b) => {
+    ground(b, 'ring', { w: 0.86, floor: 'black', rimKey: 'blue', inner: 'navy' });
+    for (const [x, z, w, h] of [[-0.15, -0.08, 0.24, 0.28], [0.17, -0.02, 0.18, 0.21]]) {
       b.put(b.kit.box, 'iron', [x, 0.04 + h / 2, z], 0, [w, h, w * 0.9]);
       b.put(b.kit.pyramid, 'iron', [x, 0.04 + h + 0.05, z], 0, [w * 0.9, 0.1, w * 0.8]);
-      b.put(b.kit.box, 'fire', [x, 0.04 + h * 0.55, z + w * 0.46], 0, [w * 0.7, 0.012, 0.01]);
+      // barred windows, the fire behind them
+      for (const dx of [-0.28, 0.28]) {
+        b.put(b.kit.box, 'ember', [x + dx * w, 0.04 + h * 0.6, z + w * 0.452], 0, [w * 0.24, h * 0.22, 0.01]);
+        for (const bx of [-0.06, 0, 0.06]) b.put(b.kit.box, 'iron', [x + dx * w + bx * w, 0.04 + h * 0.6, z + w * 0.46], 0, [0.006, h * 0.24, 0.006]);
+        fire(b, { x: x + dx * w, y: 0.04 + h * 0.66, z: z + w * 0.47, h: 0.08, w: 0.05, lean: dx > 0 ? -0.3 : 0.3 });
+      }
+      b.put(b.kit.box, 'fire', [x, 0.04 + h * 0.3, z + w * 0.455], 0, [w * 0.7, 0.008, 0.01]);
       for (let i = 0; i < 4; i += 1) b.put(b.kit.ball, 'slate', [x + Math.sin(i * 1.7) * 0.03, 0.04 + h + 0.12 + i * 0.07, z], 0, 0.05 + i * 0.012);
     }
+    // a being beating on the wall, another howling, the guardian at the door
+    sufferer(b, { x: -0.16, y: 0.04, z: 0.1, s: 0.36, ry: PI, skin: 'rose', pose: 'reach' });
+    sufferer(b, { x: 0.05, y: 0.04, z: 0.18, s: 0.34, skin: 'rose', pose: 'kneel' });
+    guardian(b, { x: 0.27, y: 0.04, z: 0.15, s: 0.42, ry: -0.6, skin: 'navy', holds: 'club', horns: 'bone' });
   }],
-  5: ['Two mountains leaning in to crush, over ground ruled with black lines, and a tree of blades.', (b) => {
+  5: ['Ground ruled with black lines, a guardian sawing a being along them; two mountains leaning in to crush another; and a tree of blades with one climbing it.', (b) => {
     ground(b, 'ring', { w: 0.86, floor: 'earth', rimKey: 'blue', inner: 'navy' });
     for (let i = -2; i <= 2; i += 1) {
       b.put(b.kit.box, 'black', [i * 0.12, 0.045, 0.05], 0, [0.012, 0.006, 0.5]);
       b.put(b.kit.box, 'black', [0, 0.045, 0.05 + i * 0.1], 0, [0.6, 0.006, 0.012]);
     }
-    for (const side of [-1, 1]) b.at([side * 0.2, 0.04, 0], [0, 0, side * 0.35], 1, () => mountain(b, { h: 0.45, r: 0.15, key: 'rock', snow: null, seed: 11 + side }));
-    b.beam('iron', [0, 0.04, -0.2], [0, 0.6, -0.2], 0.02, 0.012);
-    for (let i = 0; i < 8; i += 1) {
-      const y = 0.25 + (i >> 1) * 0.09, side = i % 2 ? 1 : -1;
-      b.put(b.kit.pyramid, 'silver', [side * 0.06, y, -0.2], [0, 0, side * -1.1], [0.025, 0.14, 0.008]);
+    for (const side of [-1, 1]) b.at([side * 0.24, 0.04, -0.06], [0, 0, side * 0.35], 1, () => mountain(b, { h: 0.42, r: 0.14, key: 'rock', snow: null, seed: 11 + side }));
+    sufferer(b, { x: -0.03, y: 0.04, z: -0.08, s: 0.32, skin: 'rose', pose: 'writhe' });
+    // the tree of blades
+    b.beam('iron', [0.0, 0.04, -0.24], [0.0, 0.62, -0.24], 0.018, 0.01);
+    for (let i = 0; i < 10; i += 1) {
+      const y2 = 0.22 + (i >> 1) * 0.08, side = i % 2 ? 1 : -1;
+      b.put(b.kit.pyramid, 'silver', [side * 0.055, y2, -0.24], [0, 0, side * -1.1], [0.022, 0.13, 0.007]);
     }
+    sufferer(b, { x: 0.0, y: 0.18, z: -0.2, s: 0.28, skin: 'rose', pose: 'reach' });
+    // a being stretched on the lines, the guardian's saw over him
+    sufferer(b, { x: -0.02, y: 0.06, z: 0.2, s: 0.34, rx: -PI / 2, ry: PI / 2, skin: 'rose', pose: 'writhe' });
+    b.ell('crimson', [0.02, 0.05, 0.2], [0.07, 0.004, 0.04]);
+    guardian(b, { x: 0.25, y: 0.04, z: 0.12, s: 0.42, ry: -1.0, skin: 'crimson', holds: 'saw', pose: 'thrust' });
   }],
-  6: ['A field of swords stood in burning ground, where the slain revive and fight again.', (b) => {
+  6: ['A field of swords stood in burning ground where the beings, revived each time they fall, take up the swords and fight again.', (b) => {
     ground(b, 'ring', { w: 0.86, floor: 'crimson', rimKey: 'red', inner: 'gold' });
-    for (let i = 0; i < 7; i += 1) {
-      const a = i / 7 * TAU, r = i === 0 ? 0 : 0.2;
-      sword(b, { x: Math.cos(a) * r, y: 0.04, z: Math.sin(a) * r * 0.7, s: 0.62, r: [0, a, (i % 2 ? 0.25 : -0.25)] });
+    for (let i = 0; i < 6; i += 1) {
+      const a = i / 6 * TAU + 0.3, r = 0.27;
+      sword(b, { x: Math.cos(a) * r, y: 0.04, z: Math.sin(a) * r * 0.6 - 0.05, s: 0.5, r: [0, a, (i % 2 ? 0.25 : -0.25)] });
     }
-    for (let i = 0; i < 6; i += 1) fire(b, { x: Math.cos(i) * 0.28, y: 0.04, z: Math.sin(i) * 0.2, h: 0.12, w: 0.08 });
+    for (let i = 0; i < 8; i += 1) fire(b, { x: Math.cos(i * 0.8) * 0.3, y: 0.04, z: Math.sin(i * 0.8) * 0.22, h: 0.11, w: 0.07 });
+    sufferer(b, { x: -0.11, y: 0.04, z: 0.04, s: 0.4, ry: 0.9, skin: 'rose', pose: 'fight', holds: 'sword' });
+    sufferer(b, { x: 0.11, y: 0.04, z: 0.02, s: 0.4, ry: -0.9, skin: 'skin', pose: 'fight', holds: 'sword' });
+    sufferer(b, { x: 0.02, y: 0.06, z: 0.22, s: 0.32, rx: -PI / 2, ry: 0.4, skin: 'rose', pose: 'writhe' });
+    b.ell('crimson~', [0.04, 0.047, 0.23], [0.09, 0.004, 0.06]);
   }],
-  7: ['Spires of ice and a frozen lotus splitting open, in the blue ring of the cold hells.', (b) => {
+  7: ['Spires of ice, a frozen lotus splitting open, and the naked beings huddled blue with blisters in the blue ring of the cold hells.', (b) => {
     ground(b, 'ring', { w: 0.86, floor: 'ice', rimKey: 'blue', inner: 'navy' });
     const rnd = seeded(77);
-    for (let i = 0; i < 9; i += 1) {
-      const a = i / 9 * TAU, r = 0.24 + rnd() * 0.08;
-      b.put(b.kit.octa, i % 2 ? 'ice' : 'sky', [Math.cos(a) * r, 0.12, Math.sin(a) * r * 0.8], [0, rnd(), (rnd() - 0.5) * 0.4], [0.04, 0.16 + rnd() * 0.12, 0.04]);
+    for (let i = 0; i < 11; i += 1) {
+      const a = PI * (1.05 + i / 10 * 0.9), r = 0.26 + rnd() * 0.1;
+      const tall = 0.16 + rnd() * 0.16;
+      b.put(b.kit.octa, i % 2 ? 'ice' : 'sky', [Math.cos(a) * r, 0.04 + tall * 0.55, Math.sin(a) * r * 0.75 - 0.03], [0, rnd(), (rnd() - 0.5) * 0.4], [0.04, tall, 0.04]);
     }
-    lotus(b, { y: 0.04, r: 0.2, n: 8, key: 'ice', key2: 'sky', disc: null, open: 1.0 });
-    b.put(b.kit.octa, 'ice', [0, 0.28, 0], 0, [0.06, 0.18, 0.06]);
+    for (const sx of [-1, 1]) b.put(b.kit.octa, 'ice', [sx * 0.34, 0.08, 0.12], [0, 0.4, sx * 0.3], [0.03, 0.09, 0.03]);
+    lotus(b, { z: -0.12, y: 0.04, r: 0.16, n: 8, key: 'ice', key2: 'sky', disc: null, open: 1.0 });
+    b.put(b.kit.octa, 'ice', [0, 0.26, -0.12], 0, [0.05, 0.16, 0.05]);
+    for (let i = 0; i < 14; i += 1) b.ell('snow', [(rnd() - 0.5) * 0.6, 0.05, (rnd() - 0.3) * 0.4], [0.03, 0.01, 0.025]);
+    sufferer(b, { x: -0.15, y: 0.04, z: 0.12, s: 0.42, ry: 0.4, skin: 'sky', pose: 'huddle', blisters: 'white' });
+    sufferer(b, { x: 0.15, y: 0.04, z: 0.1, s: 0.42, ry: -0.4, skin: 'ghost', pose: 'huddle', blisters: 'white' });
+    sufferer(b, { x: 0.0, y: 0.04, z: 0.2, s: 0.34, skin: 'sky', pose: 'kneel', blisters: 'white' });
   }],
-  8: ['A boulder, a pillar and a tree in an ordinary landscape: the hells that last a day.', (b) => {
+  8: ['A boulder, a pillar and a tree in an ordinary landscape, and in each a being caught fast: the hells that last a day.', (b) => {
     ground(b, 'ring', { w: 0.86, floor: 'grass', rimKey: 'red', inner: 'gold' });
-    b.put(b.kit.ball, 'rock', [-0.17, 0.12, 0.02], [0.3, 0.5, 0], [0.13, 0.1, 0.11]);
-    b.put(b.kit.cyl, 'slate', [0.15, 0.25, 0.06], 0, [0.04, 0.42, 0.04]);
-    b.put(b.kit.box, 'slate', [0.15, 0.47, 0.06], 0, [0.11, 0.025, 0.11]);
-    tree(b, { x: 0.02, z: -0.18, h: 0.5, r: 0.14, leaf: 'leaf', seed: 8 });
-    b.put(b.kit.box, 'wood', [-0.02, 0.06, 0.18], [0, 0.4, 0], [0.12, 0.04, 0.05]);
+    b.put(b.kit.ball, 'rock', [-0.19, 0.12, 0.02], [0.3, 0.5, 0], [0.13, 0.1, 0.11]);
+    sufferer(b, { x: -0.19, y: 0.06, z: 0.08, s: 0.3, skin: 'skin', pose: 'reach', legs: false });
+    b.put(b.kit.cyl, 'slate', [0.17, 0.25, 0.04], 0, [0.04, 0.42, 0.04]);
+    b.put(b.kit.box, 'slate', [0.17, 0.47, 0.04], 0, [0.11, 0.025, 0.11]);
+    sufferer(b, { x: 0.17, y: 0.1, z: 0.075, s: 0.36, skin: 'skin', pose: 'writhe' });
+    for (const y2 of [0.17, 0.3]) b.put(b.kit.torus(0.2), 'iron', [0.17, y2, 0.04], [PI / 2, 0, 0], [0.065, 0.065, 0.06]);
+    tree(b, { x: 0.0, z: -0.2, h: 0.55, r: 0.15, leaf: 'leaf', seed: 8 });
+    sufferer(b, { x: 0.0, y: 0.1, z: -0.17, s: 0.3, skin: 'wood', pose: 'writhe', legs: false });
+    b.put(b.kit.box, 'wood', [-0.02, 0.06, 0.2], [0, 0.4, 0], [0.12, 0.04, 0.05]);
   }],
   9: ['Yama’s mirror of karma, horned with the buffalo, in the red smoke of his court.', (b) => {
     cloud(b, { y: 0, w: 0.7, h: 0.11, key: 'red', under: 'crimson', seed: 9 });
@@ -1504,12 +1991,26 @@ const SQUARE_MODELS = {
     tree(b, { x: -0.1, z: -0.16, h: 0.75, r: 0.22, leaf: 'green', fruit: 'gold', seed: 15, n: 7 });
     sword(b, { x: 0.12, y: 0.04, z: 0.08, s: 1.05, blade: 'blue', hilt: 'gold', flames: true });
   }],
-  16: ['A black block capped with gold, and on it Rudra with his trident: freedom turned to a prison.', (b) => {
-    b.put(b.kit.box, 'white', [0, 0.02, 0], 0, [0.62, 0.04, 0.5]);
-    b.put(b.kit.box, 'black', [0, 0.22, 0], 0, [0.52, 0.36, 0.42]);
-    b.put(b.kit.box, 'gold', [0, 0.415, 0], 0, [0.54, 0.03, 0.44]);
-    standing(b, { y: 0.43, s: 0.68, robe: 'black', skin: 'navy', hair: 'bun', staff: 'iron' });
-    for (let i = 0; i < 3; i += 1) b.put(b.kit.cone, 'iron', [0.082 + (i - 1) * 0.025, 0.43 + 0.6, 0], 0, [0.008, 0.06, 0.008]);
+  16: ['On the black block capped with gold, Rudra become a heruka: three faces, six arms, four legs in the striding stance, a garland of heads, in a blaze of fire — freedom turned to a prison.', (b) => {
+    b.put(b.kit.box, 'white', [0, 0.015, 0], 0, [0.56, 0.03, 0.42]);
+    b.put(b.kit.box, 'black', [0, 0.13, 0], 0, [0.48, 0.2, 0.36]);
+    b.put(b.kit.box, 'gold', [0, 0.235, 0], 0, [0.5, 0.02, 0.38]);
+    b.put(b.kit.disc, 'ember', [0, 0.25, 0], 0, [0.19, 0.012, 0.15]);
+    flameRing(b, { cy: 0.58, z: -0.16, R: 0.31, n: 16, from: -0.08, to: 1.08, h: 0.15, w: 0.1, keys: ['fire', 'flame', 'ember', 'crimson'], ry: 1.06 });
+    wrathBody(b, { y: 0.255, s: 0.63, skin: 'navy', legs: 4, scarf: 'jade',
+      arms: [
+        { side: -1, elbow: [-0.27, 0.75, 0.03], wrist: [-0.31, 0.92, 0.05], dir: [-0.1, 1, 0], holds: 'trident', len: 0.2 },
+        { side: -1, elbow: [-0.3, 0.62, 0.02], wrist: [-0.44, 0.68, 0.05], dir: [-0.6, 1, 0.1], holds: 'flaming-sword', len: 0.18 },
+        { side: -1, elbow: [-0.24, 0.5, 0.08], wrist: [-0.14, 0.5, 0.17], dir: [0.4, 0.6, 0.5], holds: 'damaru' },
+        { side: 1, elbow: [0.27, 0.75, 0.03], wrist: [0.31, 0.92, 0.05], dir: [0.1, 1, 0], holds: 'chopper' },
+        { side: 1, elbow: [0.3, 0.62, 0.02], wrist: [0.44, 0.66, 0.05], dir: [0.6, 1, 0.1], holds: 'noose' },
+        { side: 1, elbow: [0.22, 0.5, 0.1], wrist: [0.12, 0.55, 0.17], dir: [-0.3, 0.1, 1], palm: [0, 1, 0], holds: 'kapala' }
+      ],
+      heads: [
+        { skin: 'navy', at: [0, 0.8, 0.03], scale: 0.17 },
+        { skin: 'white', at: [-0.11, 0.775, -0.02], turn: -0.8, scale: 0.135, hairFan: false },
+        { skin: 'red', at: [0.11, 0.775, -0.02], turn: 0.8, scale: 0.135, hairFan: false }
+      ] });
   }],
   17: ['Jambudvīpa, narrow to the south, with the jambu tree and a person seated beneath it.', (b) => {
     b.put(b.kit.slab('trapezoid', OUTLINES.trapezoid(b.THREE), 0.06), 'red', [0, 0.04, 0], [-PI / 2, 0, PI], [0.9, 0.7, 1]);
@@ -1679,23 +2180,10 @@ const SQUARE_MODELS = {
     b.beam('wood', [0.24, 0.1, -0.06], [0.25, 0.4, -0.06], 0.006);
     for (let i = 0; i < 3; i += 1) b.put(b.kit.ball, 'mist', [0.25 + Math.sin(i * 2) * 0.03, 0.46 + i * 0.07, -0.06], 0, 0.035 + i * 0.01);
   }],
-  34: ['The face of Mahākāla: three eyes, bared fangs, a crown of skulls and hair of fire.', (b) => {
-    flameRing(b, { cy: 0.48, z: -0.14, R: 0.3, n: 13, from: -0.2, to: 1.2, h: 0.18, keys: ['fire', 'flame', 'ember'] });
-    b.put(b.kit.sphere, 'earth', [0, 0.5, -0.07], 0, [0.32, 0.34, 0.12]);
-    b.put(b.kit.sphere, 'navy', [0, 0.45, 0], 0, [0.2, 0.23, 0.17]);
-    for (const x of [-0.08, 0, 0.08]) {
-      const y = x === 0 ? 0.56 : 0.49;
-      b.put(b.kit.sphere, 'white', [x, y, 0.15], 0, [0.032, 0.028, 0.02]);
-      b.put(b.kit.sphere, 'red', [x, y, 0.165], 0, 0.013);
-    }
-    b.put(b.kit.box, 'crimson', [0, 0.36, 0.14], 0, [0.16, 0.06, 0.04]);
-    for (let i = 0; i < 5; i += 1) b.put(b.kit.cone, 'white', [-0.06 + i * 0.03, 0.37, 0.165], [PI, 0, 0], [0.01, 0.035, 0.01]);
-    for (const side of [-1, 1]) b.put(b.kit.cone, 'white', [side * 0.07, 0.36, 0.16], 0, [0.014, 0.06, 0.014]);
-    for (let i = 0; i < 5; i += 1) {
-      const a = (i - 2) * 0.38;
-      skull(b, { x: Math.sin(a) * 0.17, y: 0.62 - Math.abs(i - 2) * 0.02, z: Math.cos(a) * 0.1, s: 0.75 });
-    }
-    b.put(b.kit.torus(0.12), 'gold', [0, 0.64, 0], [PI / 2 - 0.2, 0, 0], [0.19, 0.14, 0.2]);
+  34: ['The face of Mahākāla, as the board paints it: dark blue, three round staring eyes, brows and beard of flame, the mouth bared on its fangs, a crown of five skulls with a flaming jewel over each, hair rising like fire, and great rings of gold in the ears.', (b) => {
+    // a bank of dark smoke for it to stand out of
+    cloud(b, { y: 0, w: 0.5, h: 0.09, key: 'slate', under: 'black', seed: 34 });
+    b.at([0, 0.43, 0], 0, 0.52, () => wrathHead(b, { skin: 'navy', hair: 'earth', hairTip: 'fawn' }));
   }],
   36: ['Four nested spheres of light over a swirl of mist: space, consciousness, nothingness, and neither.', (b) => {
     cloud(b, { y: 0, w: 0.7, h: 0.09, key: 'cloud', under: 'sage', seed: 36 });
@@ -2005,7 +2493,7 @@ const SQUARE_MODELS = {
   }],
   77: ['Sukhāvatī: Amitābha in a blue aureole on a lotus, a pond of lotuses before him.', (b) => {
     cloud(b, { y: 0, w: 0.5, h: 0.06, key: 'pink', under: 'rose', seed: 77 });
-    b.put(b.kit.torus(0.14), 'sky', [0, 0.5, -0.1], 0, [0.3, 0.34, 0.3]);
+    buddhaAureole(b, { y: 0.34, z: -0.1, w: 0.25, h: 0.31, headY: 0.475, headR: 0.095 });
     const top = lotus(b, { y: 0.06, r: 0.2 });
     seated(b, { y: top - 0.02, s: 0.75, robe: 'red', skin: 'red', body: 'crimson', hair: 'buddha', bowl: 'gold' });
     b.put(b.kit.disc, 'water', [0, 0.02, 0.24], 0, [0.32, 0.02, 0.12]);
@@ -2187,16 +2675,17 @@ const SQUARE_MODELS = {
   }],
   100: ['The Buddha touching the earth, Māra’s arrows falling as flowers.', (b) => {
     aureole(b, 'quatrefoil', { y: 0.48, w: 0.86, h: 1.0, outer: 'red', inner: 'crimson', band: 0.84, rim: 0.78 });
-    const top = lotus(b, { y: 0.02, r: 0.24 });
-    seated(b, { y: top - 0.02, s: 0.9, robe: 'red', body: 'crimson', skin: 'gilt', arms: 'gilt', hair: 'buddha', mudra: 'earth', halo: 'gold' });
+    buddhaAureole(b, { y: 0.4, z: -0.13, w: 0.25, h: 0.3, headY: 0.545, headR: 0.1 });
+    const seat = lionThrone(b, { y: 0, w: 0.4, d: 0.26, h: 0.1 });
+    const top = lotus(b, { y: seat, r: 0.2 });
+    seated(b, { y: top - 0.02, s: 0.8, robe: 'red', body: 'crimson', skin: 'gilt', arms: 'gilt', hair: 'buddha', mudra: 'earth' });
     const rnd = seeded(100);
     for (let i = 0; i < 10; i += 1) b.put(b.kit.sphere, i % 2 ? 'pink' : 'rose', [(rnd() - 0.5) * 0.7, 0.5 + rnd() * 0.35, 0.1 + rnd() * 0.06], 0, [0.025, 0.012, 0.025]);
   }],
   101: ['The Buddha under the bodhi tree on the vajra seat: awakening.', (b) => {
     aureole(b, 'quatrefoil', { y: 0.48, w: 0.86, h: 1.0, outer: 'red', inner: 'crimson', band: 0.84, rim: 0.78 });
     tree(b, { y: 0, z: -0.12, h: 0.95, r: 0.24, leaf: 'green', seed: 101, n: 8 });
-    b.put(b.kit.box, 'gold', [0, 0.05, 0.04], 0, [0.36, 0.1, 0.26]);
-    b.put(b.kit.box, 'gold~', [0, 0.1, 0.04], 0, [0.38, 0.012, 0.28]);
+    b.at([0, 0, 0.05], 0, 1, () => lionThrone(b, { y: 0, w: 0.38, d: 0.24, h: 0.1 }));
     seated(b, { y: 0.1, z: 0.06, s: 0.8, robe: 'red', body: 'crimson', skin: 'gilt', arms: 'gilt', hair: 'buddha', mudra: 'earth', halo: 'gold' });
   }],
   102: ['The golden wheel of Dharma between two deer kneeling to it, as in the deer park at Sārnāth.', (b) => {
@@ -2216,7 +2705,8 @@ const SQUARE_MODELS = {
       const a = i / 6 * TAU;
       b.path('water', [[Math.cos(a) * 0.04, 0.12, Math.sin(a) * 0.04], [Math.cos(a) * 0.16, 0.08, Math.sin(a) * 0.12], [Math.cos(a) * 0.22, 0.03, Math.sin(a) * 0.16]], 0.016, 0.008);
     }
-    standing(b, { y: 0.06, s: 1.0, robe: 'red', skin: 'gilt', hair: 'buddha', halo: 'gold', rightHand: [-0.16, 0.5, 0.11] });
+    buddhaAureole(b, { y: 0.42, z: -0.12, w: 0.2, h: 0.34, headY: 0.74, headR: 0.09, flames: false });
+    standing(b, { y: 0.06, s: 1.0, robe: 'red', skin: 'gilt', hair: 'buddha', rightHand: [-0.16, 0.5, 0.11] });
     fire(b, { x: -0.13, y: 0.56, z: -0.02, h: 0.24, w: 0.1, lean: 0.3 });
     fire(b, { x: 0.13, y: 0.56, z: -0.02, h: 0.24, w: 0.1, lean: -0.3 });
   }],
@@ -2262,9 +2752,16 @@ export function createModelMaterials(THREE) {
   };
   const faint = {}, hi = {};
   for (const [key, material] of Object.entries(lit)) {
-    // the square being visited, lit from within with the gold of the frames
+    // the square being visited, lit from within: each surface glows in its
+    // own colour, so a dark-blue Mahākāla stays dark blue, only brighter
     hi[key] = material.clone();
-    if (hi[key].emissive) Object.assign(hi[key], { emissive: new THREE.Color(0x8a6216), emissiveIntensity: 0.45 });
+    if (hi[key].emissive) {
+      hi[key].onBeforeCompile = (shader) => {
+        shader.fragmentShader = shader.fragmentShader.replace('#include <emissivemap_fragment>',
+          '#include <emissivemap_fragment>\n\ttotalEmissiveRadiance += vColor.rgb * ' + FOCUS_GLOW.toFixed(2) + ';');
+      };
+      hi[key].customProgramCacheKey = () => 'model-focus-glow';
+    }
     hi[key].name = 'model_' + key + '_focus';
     material.name = 'model_' + key;
     faint[key] = material.clone();
