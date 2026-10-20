@@ -4,6 +4,10 @@ What each square's model in the world arrangement shows. The recipes are in [`sq
 
 Squares 27, 28, 30, 31, 32, 35 and 37 have no model: the world itself builds what they name.
 
+The people in them share one body (`seated`, `standing`, `head`, `hand`): a face with brows, lowered lids, nose and lips; ears, long-lobed for Buddhas and gods; a smooth trunk under the robe; arms bent at the elbow, ending in hands that make the gesture — meditation, touching the earth, teaching, protection — and, seated, the legs crossed in the vajra posture with both soles turned up. A Buddha has the curled hair, the uṣṇīṣa and the ūrṇā, and wears the monastic robe over the left shoulder, the right bare, as monks and arhats do; a bodhisattva or deity has the five-pointed crown, a topknot, jewellery and a scarf over a bare body; a layman wears a coat. The figure's right hand is towards -x, the viewer's left.
+
+The hells stand far enough apart for these models: each hot hell 0.12 under the one above it, 0.17 to 0.31 wide, and the models of the hells and the pretas stand on their floors.
+
 | Square | Name | Model |
 | --- | --- | --- |
 | 1 | Vajra Hell | A blue crossed vajra over a floor of black fire: the vajra itself become the prison. |

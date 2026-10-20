@@ -89,3 +89,24 @@ export function orbitFlightPoint(THREE, from, to, t, clearance) {
     from.y + (to.y - from.y) * t + lift * clearance * 0.12,
     Math.cos(a + turn * t) * radius);
 }
+
+/* The one angle a place is looked at from when it is brought up close — by
+ * the explorer's Zoom in and the game's Focus here alike. It is the place's
+ * own, not the last orbit's: from the open side of it, away from Meru's axis,
+ * a little above, so a model stands up against the mountain behind it and
+ * the eye sees its face and the ground it stands on. Something on the axis is
+ * seen from the south-east, as the opening view sees the world. Below the
+ * plate the eye comes nearly level, between the hells rather than above them.
+ * A ring or a sea, wide and flat, is looked down on instead. */
+export const CLOSE_ELEVATION = 0.30;
+export const CLOSE_ELEVATION_BELOW = 0.10;
+export function closeUpDirection(THREE, box, { floor = 0 } = {}) {
+  const centre = box.getCenter(new THREE.Vector3()), size = box.getSize(new THREE.Vector3());
+  const span = Math.max(size.x, size.z);
+  if (span > 0.6 && size.y < span * 0.25) return new THREE.Vector3(0.2, 2.8, 1).normalize();
+  const radial = Math.hypot(centre.x, centre.z);
+  const azimuth = radial > 0.03 ? Math.atan2(centre.x, centre.z) : Math.atan2(1, 1.25);
+  const elevation = centre.y < floor ? CLOSE_ELEVATION_BELOW : CLOSE_ELEVATION;
+  return new THREE.Vector3(Math.sin(azimuth) * Math.cos(elevation), Math.sin(elevation),
+    Math.cos(azimuth) * Math.cos(elevation));
+}

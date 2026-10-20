@@ -140,8 +140,9 @@ central channel, the Buddha under the tree, the stupa of Nirvana.
 - Tapping any part of a model opens that square's entry.
 - Each model is merged into at most four meshes (matte, metal, glowing,
   translucent), with its colours in the vertices. In the opening overview the
-  whole scene draws in about 580 calls and 555k triangles, against about 550
-  calls and 456k triangles with the billboards.
+  whole scene draws in about 580 calls and 630k triangles (555k before the
+  figures had faces, hands and robes), against about 550 calls and 456k
+  triangles with the billboards.
 - `node tests/square-models.mjs` checks that every unbuilt square has a model,
   that each stays within its unit, that neighbours on the spiral cannot touch
   however they are turned, the triangle and draw-call budgets, and the facing
@@ -151,8 +152,8 @@ central channel, the Buddha under the tree, the stupa of Nirvana.
 
 `assets/rebirth/travelers.png` is one transparent 6-column × 2-row sprite atlas generated with the built-in image-generation tool. It is contemporary game illustration, not an image from the historical board. The same atlas is cropped by CSS and Three.js texture coordinates; the final generated image was copied with its alpha channel intact. An image-tool background-extraction pass followed the initial generation.
 
-The 3D figures are 0.30 × SUMMIT tall (previously 0.63), a 52% reduction. Existing saved character IDs migrate to the new roster while preserving gender, colours and the dice journal.
+The 3D figures are 0.15 × SUMMIT tall (previously 0.30, and before that 0.63): about the height of a destination's model, so a traveller stands beside the place they have come to rather than in front of it. Each figure steps aside of its square's model, to the viewer's right, every frame; the name chip follows the figure. Existing saved character IDs migrate to the new roster while preserving gender, colours and the dice journal.
 
-Guided underground visits now use a low side view instead of clipping half the terrain. Tests check all 104 destinations at three viewport sizes for unchanged terrain materials/visibility, and raycast every underground sightline to ensure the intact layers do not obscure the destination.
+Focus here and the explorer's Zoom in share one close-up: the place's own angle (see `closeUpDirection` in `game-camera.js`) and a fit that gives the model about half the free canvas. The visited model is lit from within with the frames' gold and ringed on its floor. Guided underground visits use a nearly level side view between the hells instead of clipping half the terrain. Tests check all 104 destinations at three viewport sizes for unchanged terrain materials/visibility, and raycast every underground sightline to ensure the intact layers do not obscure the destination.
 
 See [TRAVELER-ART-PROMPTS.md](TRAVELER-ART-PROMPTS.md) for both final prompts and atlas details.

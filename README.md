@@ -475,8 +475,8 @@ Nirvana is not the last square of the round but the one outside it. It is drawn
 outside the model to match: on the axis, clear above the formless absorptions
 and above everything else the world system builds, as open rings rather than
 anything to stand on. Its cell on the board is set apart in gold. The camera
-includes it in the game overview. Focus here still frames an individual
-destination together with Meru.
+includes it in the game overview. Focus here brings an individual destination
+up close.
 
 ### How the fields are served
 
@@ -791,21 +791,27 @@ The model is by **Andrzej R. Rybszleger**, built from the sources above.
 ### Guided game locations
 
 The arrival card and square entry both offer **Show in world**. This opens a
-temporary World view, folds the entry into a location caption, and frames the
-destination together with Meru. **Focus here** restores that composition after
-manual exploration; **World overview** gives context; **Return to board** (or
+temporary World view, folds the entry into a location caption, and brings the
+destination up close: its model fills about half the free canvas, lit from
+within and ringed with gold on its floor, with the traveller standing beside it.
+**Focus here** restores that composition after manual exploration; **World
+overview** gives context; **Return to board** (or
 Escape) restores the preceding board layout without changing the turn. The
 temporary visit does not overwrite the saved layout preference.
 
 `game-camera.js` contains the perspective fitting and exterior camera path.
-Compositions use the destination's region rather than the previous orbit angle.
-Underground focus uses a low view from the destination’s side. The world plate,
+The close-up angle (`closeUpDirection`) is the place's own, never the previous
+orbit's: from the open side of it, away from Meru's axis, about 17° above, so
+the model stands against the mountain; on the axis, from the south-east; below
+the plate, nearly level between the hells; a ring or a sea, from above. The
+explorer's **Zoom in** uses the same angle and the same fit. The world plate,
 seas and ranges remain intact; focusing never clips or replaces their materials. Guided views stay still even when
 world motion is enabled, and dragging cancels a flight. Reduced motion applies
 the final camera position immediately.
 
-The regression suite projects all 104 destinations and Meru at desktop, phone,
-and landscape dimensions. It also checks deterministic focus, interruption,
+The regression suite projects all 104 destinations at desktop, phone, and
+landscape dimensions and checks each model is whole in the frame and large in
+it. It also checks deterministic focus, interruption,
 pop-up entry points, return navigation and material restoration. Actual browser
 layout and GPU rendering still require the visual checks described below.
 

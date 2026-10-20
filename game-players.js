@@ -67,8 +67,10 @@ export function createPlayerArt(THREE, tokens, size, invalidate) {
         // Like the existing colour rings, game pieces remain legible over terrain.
         // This does not hide, clip or change the world beneath them.
         sprite.renderOrder = 10;
-        sprite.scale.set(size * .15, size * .30, 1);
-        sprite.position.y = size * .145;
+        // About the height of the square's own model, so the traveller stands
+        // beside the destination at its own scale rather than towering over it.
+        sprite.scale.set(size * .075, size * .15, 1);
+        sprite.position.y = FIGURE_LIFT * size;
         token.add(sprite);
         token.children[4].scale.setScalar(.7);
         token.userData.halo.scale.setScalar(.7);
@@ -79,5 +81,23 @@ export function createPlayerArt(THREE, tokens, size, invalidate) {
       state = 'ready'; sync(currentPlayers); invalidate();
     }).catch(() => { state = 'failed'; });
   }
-  return { load, sync };
+  /* A traveller steps aside of the square's model, to the viewer's right,
+     so that the figure and the place it has come to are seen together.
+     `aside(square)` says how far, in the world's units: nothing where the
+     square has no model to stand clear of. */
+  const right = new THREE.Vector3(), inverse = new THREE.Matrix4();
+  function stand(camera, aside) {
+    sprites.forEach((sprite, i) => {
+      if (!sprite || !tokens[i].visible) return;
+      const step = aside(sprite.userData.square) || 0;
+      right.setFromMatrixColumn(camera.matrixWorld, 0).setY(0);
+      if (!step || right.lengthSq() < 1e-9) { sprite.position.set(0, FIGURE_LIFT * size, 0); return; }
+      right.normalize();
+      inverse.copy(tokens[i].parent.matrixWorld).invert();
+      right.transformDirection(inverse);
+      sprite.position.set(right.x * step, FIGURE_LIFT * size, right.z * step);
+    });
+  }
+  return { load, sync, stand, figure: (i) => sprites[i] || null };
 }
+const FIGURE_LIFT = .0725;

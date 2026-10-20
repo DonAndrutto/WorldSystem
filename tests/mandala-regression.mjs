@@ -85,7 +85,7 @@ Object.assign(window, {createWorldEnding, installPanelLayout: () => {}, createOf
   DIE_FACES: rbBoard.FACES, RB_BY_N: rbBoard.BY_N, createBoardLayer: rbBoard.createBoardLayer,
   RB_VARIANTS: rbBoard.VARIANTS, rbZoneOf: rbBoard.zoneOf, rbRealmOf: rbBoard.realmOf, RB_REALMS: rbBoard.REALMS, SQUARE_NOTES, SQUARE_FULL,
   RB_COLOURS: rbBoard.PLAYER_COLOURS, SQUARE_ART: rbIcons.SQUARE_ART,
-  cellBackground: rbIcons.cellBackground, createSquareModels: squareModels.createSquareModels,
+  cellBackground: rbIcons.cellBackground, createSquareModels: squareModels.createSquareModels, RB_MODEL_UNIT: squareModels.MODEL_UNIT,
   LIBERATION_ART: rbIcons.LIBERATION_ART, rbTibetan: rbBoard.tibetanOf,
   createSoundKit: rbSound.createSoundKit, rbVoice: rbSound.voiceFor,
   createGame: rbGame.createGame, throwDie: rbGame.throwDie,
@@ -541,7 +541,10 @@ for (const sq of anchoredSquares) {
   const centre = box.getCenter(new THREE.Vector3());
   assert.ok(Math.hypot(holder.position.x-centre.x,holder.position.z-centre.z)<1e-6,
     'square '+sq.n+' stands over '+sq.anchor);
-  assert.ok(holder.position.y>centre.y,'square '+sq.n+' floats above '+sq.anchor);
+  // a realm with a floor — the pretas' ground, a hell — is stood on; the rest floated over
+  if (holder.userData.modelLift !== undefined)
+    assert.ok(holder.position.y>box.min.y && holder.position.y<=box.max.y+1e-9,'square '+sq.n+' stands on the floor of '+sq.anchor);
+  else assert.ok(holder.position.y>centre.y,'square '+sq.n+' floats above '+sq.anchor);
 }
 
 // The board takes most of the width, and the world is framed in what is left.
@@ -1101,9 +1104,10 @@ key('e'); advance(1200); panel(null); assert.equal(app.state().mode,'explore');
 app.ORIGINAL_VISIBILITY.forEach((visible,obj)=>assert.equal(obj.visible,visible,'Original world restored after the game'));
 worldVisibility.forEach((visible,obj)=>assert.equal(obj.visible,visible,'All world context restored after the game'));
 
-/* Stage 1: all explicit game focus routes keep Meru and the destination in
-   the usable canvas. Real perspective projection, three representative
-   layouts, every square (including the actual anchored world positions). */
+/* Stage 1: every explicit game focus brings the destination up close, from
+   its own side, in the usable canvas. Real perspective projection, three
+   representative layouts, every square (including the actual anchored world
+   positions). */
 app.setMode('game'); advance(1200);
 const unchangedGame = JSON.stringify(app.rbGame());
 const intactTerrain = new Map();
@@ -1152,26 +1156,31 @@ for (const size of [{w:1440,h:1000}, {w:390,h:844}, {w:844,h:390}]) {
         && y >= frame.y-frame.h/2 && y <= frame.y+frame.h/2,
         `${label}, square ${square.n}, ${size.w}×${size.h}: ${x},${y} outside ${JSON.stringify(frame)}`);
     };
-    checkPoint(app.rbBoard.positionOf(square.n),'destination');
     const destination = app.rbBoard.positionOf(square.n);
+    checkPoint(destination,'destination');
+    // close up: the model whole in the frame, large in it, and lit
+    const model = app.rbModels.models.get(square.n);
+    if (model) {
+      // a sample of the model's own vertices, however it has turned to the eye
+      const corners = [];
+      model.updateMatrixWorld(true);
+      for (const mesh of model.children) {
+        const pos = mesh.geometry.attributes.position;
+        for (let i = 0; i < pos.count; i += 23) {
+          const c = new THREE.Vector3().fromBufferAttribute(pos, i).applyMatrix4(mesh.matrixWorld);
+          checkPoint(c,'model'); corners.push(c.project(app.cam));
+        }
+      }
+      const tall = (Math.max(...corners.map(c => c.y)) - Math.min(...corners.map(c => c.y))) * size.h / 2;
+      const wide = (Math.max(...corners.map(c => c.x)) - Math.min(...corners.map(c => c.x))) * size.w / 2;
+      assert.ok(Math.max(tall, wide) > Math.min(frame.w, frame.h) * 0.3, `square ${square.n} is brought up close at ${size.w}×${size.h}: ${tall.toFixed(0)}×${wide.toFixed(0)}px`);
+      assert.ok(model.children.every(m => m.material.name.endsWith('_focus')), 'the visited model is lit');
+    }
     if (destination.y < 0) {
       const toDestination = destination.clone().sub(app.cam.position);
       const sightline = new THREE.Raycaster(app.cam.position, toDestination.clone().normalize(), 0, toDestination.length() - 1e-5);
       const blockers = sightline.intersectObjects([...intactTerrain.keys()], false);
       assert.equal(blockers.length, 0, 'intact terrain must not obscure below-ground square ' + square.n + ' at ' + size.w + 'x' + size.h);
-      const summitPoint = new THREE.Box3().setFromObject(app.meshesFor('meru_summit_platform')[0]).getCenter(new THREE.Vector3());
-      const summitLine = summitPoint.clone().sub(app.cam.position);
-      const summitRay = new THREE.Raycaster(app.cam.position, summitLine.clone().normalize(), 0, summitLine.length() - 1e-5);
-      assert.equal(summitRay.intersectObjects([...intactTerrain.keys()], false).length, 0, 'Meru summit remains visible above the intact plate');
-
-    }
-
-    for (const id of ['meru_core','meru_summit_platform']) {
-      for (const mesh of app.meshesFor(id)) {
-        const box = new THREE.Box3().setFromObject(mesh);
-        for (const x of [box.min.x,box.max.x]) for (const y of [Math.max(0,box.min.y),box.max.y])
-          for (const z of [box.min.z,box.max.z]) checkPoint(new THREE.Vector3(x,y,z),id);
-      }
     }
   }
 }
