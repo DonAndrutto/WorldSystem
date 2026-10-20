@@ -16,19 +16,19 @@ Squares 27, 28, 30, 31, 32, 35 and 37 have no model: the world itself builds wha
 | 8 | The Temporary Hells, or “Hell for a Day” | A boulder, a pillar and a tree in an ordinary landscape: the hells that last a day. |
 | 9 | Lord of the Dead (Yama) | Yama’s mirror of karma, horned with the buffalo, in the red smoke of his court. |
 | 10 | Hungry Ghosts (Preta) | A hungry ghost: belly like a mountain, neck like a hair, and a bowl that comes to it as fire. |
-| 11 | Animals | A deer on a grassy rise, listening for danger. |
-| 12 | Divine Animals | A white elephant with a jewelled saddle, standing on cloud among the gods. |
+| 11 | Animals | A spotted stag on a grassy rise, head up, listening for danger. |
+| 12 | Divine Animals | A white elephant of the gods, caparisoned in red and gold, the wish-granting jewel on its back, on cloud. |
 | 13 | World of the Nāgas | A nāga rising in coils from banded waves beside a flaming jewel. |
 | 14 | Demon Island | A dark island of the rākṣasas with a red fortress, a skull above its gate. |
 | 15 | Asuras | The asuras’ flaming sword, planted before the wish-granting tree whose fruit they fight for. |
 | 16 | Rudra Black Freedom | A black block capped with gold, and on it Rudra with his trident: freedom turned to a prison. |
 | 17 | Jambu Island—The Southern Continent | Jambudvīpa, narrow to the south, with the jambu tree and a person seated beneath it. |
-| 18 | The Western Continent—Enjoyment of Cattle (Apara-Godānīya) | The round western land of cattle, with a cow beside a lake under Meru’s red light. |
+| 18 | The Western Continent—Enjoyment of Cattle (Apara-Godānīya) | The round western land of cattle: a humped, dappled cow by a lake under Meru’s red light. |
 | 19 | The Eastern Continent—Noble Figure (Pūrva-Videha) | The half-moon eastern land, bright as crystal, with a tall, noble figure. |
 | 20 | The Northern Continent—Kuru | The square northern land of Kuru, with the tree that gives whatever is wished for. |
 | 21 | Barbarism | Jagged red mountains bristling with spears, and a watchtower. |
 | 22 | Hinduism | Leafy blue hills of learning with a temple tower and a trident. |
-| 23 | Bön | A gold ring behind the nine-tiered mountain of Bön, crowned with the yungdrung. |
+| 23 | Bön | Yungdrung Gutsek, the nine-tiered mountain of Bön, in its gold ring, with the yungdrung and the sun and moon at the summit; a Bönpo beats the drum, juniper smoke rises from the burner, and a divination arrow and prayer flags stand by. |
 | 24 | The Heavenly Highway | Six coloured roads opening from one point towards the six realms: the start. |
 | 25 | Beginning the Tantra | A teacher in a pandita’s hat on a lotus throne, the vajra and bell before him: entering the mantra path. |
 | 26 | Wheel-Turning King (Cakravartin) | The golden wheel of the universal monarch, studded with jewels, standing on cloud. |
@@ -102,11 +102,11 @@ Squares 27, 28, 30, 31, 32, 35 and 37 have no model: the world itself builds wha
 | 94 | Tenth Sutra Stage | A cloud raining the Dharma onto a lotus: the Cloud of Dharma, the tenth bhūmi. |
 | 95 | Ninth Sutra Stage | A white conch on a lotus: Good Intelligence, the eloquence of the ninth bhūmi. |
 | 96 | Eighth Sutra Stage | A mountain no wind can move, a vajra on its summit: the Immovable, the eighth bhūmi. |
-| 97 | Adopting a Physical Form | A white elephant with a jewel on its saddle, descending on cloud: the Buddha taking birth. |
-| 98 | The Setting Forth (Pravrajita) | The horse Kanthaka leaping on cloud: the bodhisattva leaves the palace. |
+| 97 | Adopting a Physical Form | The white elephant with six tusks of Māyā’s dream, caparisoned and bearing a jewel, descending on cloud: the Buddha taking birth. |
+| 98 | The Setting Forth (Pravrajita) | The white horse Kanthaka, saddled and bridled, leaping out over the clouds under a parasol: the bodhisattva leaves the palace. |
 | 99 | Ascetic Practices (Tapas) | The emaciated ascetic, seated in his practice, a bowl of rice beside him. |
 | 100 | Conquest of Māra | The Buddha touching the earth, Māra’s arrows falling as flowers. |
 | 101 | Buddhahood | The Buddha under the bodhi tree on the vajra seat: awakening. |
-| 102 | Turning the Wheel of Dharma | The golden wheel of Dharma between two deer, as in the deer park at Sārnāth. |
+| 102 | Turning the Wheel of Dharma | The golden wheel of Dharma between two deer kneeling to it, as in the deer park at Sārnāth. |
 | 103 | Demonstration of Miracles | The Buddha standing in the twin miracle: flame from the shoulders, water from the feet. |
 | 104 | Nirvana | The stupa that receives the relics, gold and white, in the gold-rimmed cartouche of the last act. |

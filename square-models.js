@@ -66,6 +66,7 @@ const PALETTE = {
   water:    { c: 0x3d86c2, r: 0.15, m: 0.10 },
   ice:      { c: 0xd6eef8, r: 0.15, m: 0.05 },
   earth:    { c: 0x8b6b47, r: 0.90 },
+  fawn:     { c: 0xc58d4f, r: 0.80 },
   rock:     { c: 0x76695d, r: 0.90 },
   grass:    { c: 0x6f9a4a, r: 0.90 },
   wood:     { c: 0x6a4425, r: 0.85 },
@@ -144,6 +145,20 @@ function makeBuilder(THREE, kit) {
         new THREE.Quaternion().setFromUnitVectors(up, dir),
         new THREE.Vector3(ra, length, ra));
       parts.push({ geometry: kit.taper(rc / ra), key, matrix: stack[stack.length - 1].clone().multiply(m) });
+      return b;
+    },
+    /* An ellipsoid stretched from a to c, ra and rc thick across: a muscle,
+       a muzzle, a neck. */
+    blob(key, a, c, ra, rc = ra) {
+      const from = new THREE.Vector3(...a), to = new THREE.Vector3(...c);
+      const length = from.distanceTo(to);
+      if (length < 1e-6) return b;
+      const m = new THREE.Matrix4().compose(
+        from.clone().add(to).multiplyScalar(0.5),
+        new THREE.Quaternion().setFromUnitVectors(up, to.clone().sub(from).normalize()),
+        new THREE.Vector3(ra, length / 2, rc));
+      const small = Math.max(ra, rc, length / 2) < 0.035;
+      parts.push({ geometry: small ? kit.ball : kit.sphere, key, matrix: stack[stack.length - 1].clone().multiply(m) });
       return b;
     },
     /* A rod along a list of points. */
@@ -662,47 +677,229 @@ function tree(b, { x = 0, y = 0, z = 0, h = 0.6, r = 0.2, trunk = 'wood', leaf =
   b.put(b.kit.ball, leaf, [x, y + h * 0.95, z], 0, r * 0.6);
 }
 
-/* Animals in profile, walking along x so the side is towards us. */
-function animal(b, kind, { x = 0, y = 0, z = 0, s = 1, key = 'earth', ry = 0 } = {}) {
-  const spec = {
-    deer:     { L: 0.30, H: 0.20, fwd: 0.10, body: [0.15, 0.075, 0.07], neck: 0.13, head: [0.05, 0.035, 0.035], leg: 0.018 },
-    elephant: { L: 0.34, H: 0.15, fwd: 0.07, body: [0.19, 0.12, 0.12], neck: 0.03, head: [0.09, 0.09, 0.08], leg: 0.045 },
-    horse:    { L: 0.34, H: 0.22, fwd: 0.16, body: [0.17, 0.08, 0.075], neck: 0.09, head: [0.06, 0.035, 0.035], leg: 0.02 },
-    cow:      { L: 0.32, H: 0.16, fwd: 0.10, body: [0.17, 0.085, 0.08], neck: 0.04, head: [0.055, 0.04, 0.04], leg: 0.024 }
-  }[kind];
-  b.at([x, y, z], [0, ry, 0], s, () => {
-    const k = b.kit;
-    const top = spec.H + spec.body[1];
-    b.put(k.sphere, key, [0, spec.H + spec.body[1] * 0.6, 0], 0, spec.body);
-    for (const lx of [-1, 1]) for (const lz of [-1, 1]) {
-      const px = lx * spec.L * 0.36, pz = lz * spec.body[2] * 0.5;
-      b.beam(key, [px, spec.H + 0.02, pz], [px + (kind === 'horse' ? lx * 0.02 : 0), 0, pz], spec.leg, spec.leg * 0.8);
+/* ── animals ─────────────────────────────────────────────────────────────
+   Drawn in profile, facing +x, so the side is towards the viewer, standing
+   on y = 0 at s = 1. Each is built from the same anatomy: chest, barrel and
+   haunch; a neck and a head with its muzzle; four jointed legs, each a list of
+   joints from shoulder or hip to the ground, ending in a hoof or a foot. The
+   species differ in proportion and in what they carry: antlers, horns, hump
+   and dewlap, mane, trunk and tusks. */
+const flip = (z) => (p) => [p[0], p[1], p[2] * z];
+
+/* A leg: joints from the body down, tapering, with a hoof or a pad. */
+function leg(b, key, joints, r0, r1, foot = null, footR = r1 * 1.15) {
+  b.path(key, joints, r0, r1);
+  const end = joints[joints.length - 1];
+  if (foot) b.put(b.kit.cyl, foot, [end[0], end[1] + footR * 0.5, end[2]], 0, [footR, footR * 1.1, footR]);
+}
+
+/* Legs for each pose, as [shoulder-or-hip, joints…, ground] in x and y. */
+const LEGS = {
+  horse: {
+    stand: { front: [[0.13, 0.17], [0.14, 0.09], [0.14, 0.035], [0.15, 0.0]], frontFar: [[0.12, 0.17], [0.12, 0.09], [0.12, 0.035], [0.125, 0.0]],
+      hind: [[-0.13, 0.18], [-0.17, 0.09], [-0.15, 0.035], [-0.145, 0.0]], hindFar: [[-0.12, 0.18], [-0.15, 0.09], [-0.13, 0.035], [-0.125, 0.0]] },
+    leap: { front: [[0.13, 0.17], [0.21, 0.14], [0.17, 0.08], [0.19, 0.055]], frontFar: [[0.12, 0.17], [0.19, 0.17], [0.16, 0.11], [0.18, 0.085]],
+      hind: [[-0.13, 0.18], [-0.19, 0.1], [-0.26, 0.05], [-0.29, 0.035]], hindFar: [[-0.12, 0.18], [-0.15, 0.09], [-0.18, 0.03], [-0.185, 0.0]] }
+  },
+  deer: {
+    stand: { front: [[0.1, 0.17], [0.11, 0.09], [0.11, 0.03], [0.115, 0.0]], frontFar: [[0.09, 0.17], [0.085, 0.09], [0.08, 0.03], [0.085, 0.0]],
+      hind: [[-0.1, 0.18], [-0.14, 0.1], [-0.12, 0.03], [-0.115, 0.0]], hindFar: [[-0.09, 0.18], [-0.12, 0.1], [-0.1, 0.03], [-0.095, 0.0]] },
+    /* Folded under, as the deer of Sārnāth lie before the wheel. */
+    kneel: { front: [[0.1, 0.06], [0.155, 0.018], [0.08, 0.012]], frontFar: [[0.09, 0.06], [0.14, 0.018], [0.06, 0.012]],
+      hind: [[-0.1, 0.07], [-0.03, 0.02], [-0.13, 0.012]], hindFar: [[-0.09, 0.07], [-0.02, 0.02], [-0.12, 0.012]] }
+  },
+  cow: {
+    stand: { front: [[0.12, 0.13], [0.125, 0.07], [0.125, 0.025], [0.13, 0.0]], frontFar: [[0.1, 0.13], [0.1, 0.07], [0.1, 0.025], [0.105, 0.0]],
+      hind: [[-0.13, 0.14], [-0.165, 0.075], [-0.145, 0.025], [-0.14, 0.0]], hindFar: [[-0.11, 0.14], [-0.14, 0.075], [-0.12, 0.025], [-0.115, 0.0]] }
+  },
+  elephant: {
+    stand: { front: [[0.12, 0.2], [0.125, 0.1], [0.125, 0.0]], frontFar: [[0.1, 0.2], [0.1, 0.1], [0.1, 0.0]],
+      hind: [[-0.12, 0.2], [-0.13, 0.1], [-0.125, 0.0]], hindFar: [[-0.1, 0.2], [-0.11, 0.1], [-0.105, 0.0]] }
+  }
+};
+
+function legsOf(b, kind, pose, key, wide, r0, r1, foot) {
+  const set = LEGS[kind][pose] || LEGS[kind].stand;
+  const at = (pts, z) => pts.map(([x, y]) => [x, y, z]);
+  leg(b, key, at(set.front, wide), r0, r1, foot);
+  leg(b, key, at(set.frontFar, -wide), r0, r1, foot);
+  leg(b, key, at(set.hind, wide), r0 * 1.1, r1, foot);
+  leg(b, key, at(set.hindFar, -wide), r0 * 1.1, r1, foot);
+}
+
+function horse(b, { key = 'white', mane = 'bone', pose = 'stand', trappings = true } = {}) {
+  const k = b.kit;
+  const lift = pose === 'leap' ? 0.02 : 0;
+  b.at([0, lift, 0], 0, 1, () => {
+    b.blob(key, [-0.15, 0.205, 0], [0.15, 0.2, 0], 0.07, 0.062);
+    b.put(k.sphere, key, [0.12, 0.19, 0], 0, [0.07, 0.08, 0.066]);
+    b.put(k.sphere, key, [-0.125, 0.205, 0], 0, [0.08, 0.077, 0.068]);
+    for (const z of [-1, 1]) {
+      b.blob(key, [0.13, 0.21, z * 0.04], [0.13, 0.12, z * 0.045], 0.035, 0.025);
+      b.blob(key, [-0.12, 0.215, z * 0.04], [-0.155, 0.11, z * 0.045], 0.045, 0.03);
     }
-    const shoulder = [spec.L * 0.45, top * 0.92, 0];
-    const head = [spec.L * 0.5 + spec.fwd, top + spec.neck, 0];
-    if (kind !== 'elephant') b.beam(key, shoulder, head, spec.body[2] * 0.42, spec.head[1] * 0.75);
-    b.put(k.sphere, key, head, [0, 0, kind === 'elephant' ? 0 : -0.5], spec.head);
-    b.beam(key, [-spec.L * 0.48, top * 0.95, 0], [-spec.L * 0.62, top * 0.55, 0], 0.01, 0.006);
-    if (kind === 'deer') {
-      for (const side of [-1, 1]) {
-        const base = [head[0] - 0.02, head[1] + 0.03, side * 0.02];
-        b.path('brass', [base, [base[0] - 0.02, base[1] + 0.07, side * 0.04], [base[0] + 0.01, base[1] + 0.12, side * 0.05]], 0.006, 0.004);
-        b.beam('brass', [base[0] - 0.015, base[1] + 0.05, side * 0.035], [base[0] + 0.03, base[1] + 0.08, side * 0.04], 0.004);
+    legsOf(b, 'horse', pose, key, 0.042, 0.022, 0.013, 'slate');
+    // neck and head
+    b.blob(key, [0.12, 0.22, 0], [0.21, 0.35, 0], 0.052, 0.04);
+    b.put(k.sphere, key, [0.225, 0.355, 0], 0, [0.042, 0.04, 0.036]);
+    b.blob(key, [0.225, 0.35, 0], [0.295, 0.285, 0], 0.03, 0.025);
+    b.put(k.ball, 'slate', [0.296, 0.282, 0], 0, [0.018, 0.016, 0.022]);
+    for (const z of [-1, 1]) {
+      b.put(k.cone, key, [0.21, 0.4, z * 0.018], [z * 0.15, 0, -0.25], [0.01, 0.045, 0.012]);
+      b.put(k.ball, 'black', [0.245, 0.36, z * 0.031], 0, 0.006);
+    }
+    // the mane along the crest, the forelock and the tail
+    for (let i = 0; i <= 6; i += 1) {
+      const t = i / 6;
+      b.put(k.sphere, mane, [0.205 - t * 0.1, 0.39 - t * 0.12, -0.004], [0, 0, 0.9], [0.012, 0.03, 0.03]);
+    }
+    b.put(k.sphere, mane, [0.235, 0.39, 0], [0, 0, -0.6], [0.012, 0.025, 0.02]);
+    const tail = pose === 'leap'
+      ? [[-0.19, 0.24, 0], [-0.24, 0.26, 0.005], [-0.29, 0.245, -0.005], [-0.33, 0.215, 0.008], [-0.37, 0.205, 0]]
+      : [[-0.19, 0.24, 0], [-0.25, 0.21, 0], [-0.27, 0.14, 0.005], [-0.26, 0.08, -0.005], [-0.25, 0.04, 0]];
+    b.path(mane, tail, 0.026, 0.014);
+    b.put(k.sphere, mane, tail[tail.length - 1], 0, [0.022, 0.016, 0.018]);
+    if (trappings) {
+      // saddle cloth with a gilt edge, bridle and plume
+      b.put(k.box, 'red', [-0.01, 0.27, 0], 0, [0.13, 0.012, 0.15]);
+      for (const z of [-1, 1]) {
+        b.put(k.box, 'red', [-0.01, 0.22, z * 0.073], 0, [0.12, 0.09, 0.006]);
+        b.put(k.box, 'gold', [-0.01, 0.175, z * 0.074], 0, [0.125, 0.012, 0.006]);
+        b.path('gold', [[0.215, 0.37, z * 0.035], [0.255, 0.33, z * 0.03], [0.28, 0.295, z * 0.028]], 0.004);
       }
-    } else if (kind === 'elephant') {
-      b.path(key, [[head[0] + 0.07, head[1] - 0.02, 0], [head[0] + 0.1, head[1] - 0.1, 0], [head[0] + 0.09, head[1] - 0.18, 0], [head[0] + 0.12, head[1] - 0.22, 0]], 0.03, 0.014);
-      for (const side of [-1, 1]) {
-        b.put(k.sphere, key, [head[0] - 0.03, head[1], side * 0.075], 0, [0.05, 0.075, 0.012]);
-        b.beam('bone', [head[0] + 0.06, head[1] - 0.06, side * 0.035], [head[0] + 0.13, head[1] - 0.05, side * 0.04], 0.012, 0.004);
-      }
-    } else if (kind === 'horse') {
-      b.path('white', [[shoulder[0] - 0.02, shoulder[1] + 0.03, 0], [head[0] - 0.05, head[1] + 0.02, 0]], 0.02, 0.012);
-      b.put(k.cone, key, [head[0] - 0.02, head[1] + 0.05, 0.015], 0, [0.012, 0.04, 0.012]);
-    } else if (kind === 'cow') {
-      for (const side of [-1, 1]) b.path('bone', [[head[0] - 0.01, head[1] + 0.03, side * 0.025], [head[0], head[1] + 0.07, side * 0.06], [head[0] + 0.03, head[1] + 0.09, side * 0.05]], 0.008, 0.003);
-      b.put(k.sphere, key, [spec.L * 0.25, top + 0.01, 0], 0, [0.05, 0.03, 0.04]);
+      b.put(k.cyl, 'saffron', [-0.01, 0.282, 0], 0, [0.04, 0.02, 0.05]);
+      b.blob('gold', [0.13, 0.225, 0], [0.16, 0.255, 0], 0.075, 0.072);
+      b.put(k.cone, 'red', [0.22, 0.425, 0], [0, 0, -0.3], [0.014, 0.05, 0.014]);
     }
   });
+}
+
+function deer(b, { key = 'fawn', pose = 'stand', antlers = true, spots = true, antlerSize = 1 } = {}) {
+  const k = b.kit;
+  const low = pose === 'kneel' ? -0.12 : 0;
+  b.at([0, low, 0], 0, 1, () => {
+    b.blob(key, [-0.115, 0.205, 0], [0.11, 0.2, 0], 0.055, 0.048);
+    b.put(k.sphere, key, [0.095, 0.2, 0], 0, [0.055, 0.064, 0.05]);
+    b.put(k.sphere, key, [-0.095, 0.21, 0], 0, [0.06, 0.06, 0.05]);
+    b.put(k.sphere, 'white', [-0.15, 0.215, 0], 0, [0.018, 0.035, 0.035]);
+    b.put(k.sphere, 'white', [0.0, 0.165, 0], 0, [0.09, 0.025, 0.04]);
+    if (spots) {
+      const rnd = seeded(31);
+      for (let i = 0; i < 7; i += 1) {
+        const x = -0.09 + rnd() * 0.17, y = 0.205 + rnd() * 0.04;
+        for (const z of [-1, 1]) b.put(k.octa, 'white', [x, y, z * 0.046], 0, [0.008, 0.007, 0.004]);
+      }
+    }
+  });
+  if (pose === 'kneel') {
+    const set = LEGS.deer.kneel;
+    for (const [pts, z] of [[set.front, 0.035], [set.frontFar, -0.035], [set.hind, 0.04], [set.hindFar, -0.04]]) {
+      leg(b, key, pts.map(([x, y]) => [x, y, z]), 0.016, 0.01, 'black', 0.009);
+    }
+  } else {
+    for (const z of [-1, 1]) {
+      b.blob(key, [0.1, 0.21, z * 0.03], [0.105, 0.13, z * 0.033], 0.025, 0.016);
+      b.blob(key, [-0.095, 0.215, z * 0.032], [-0.125, 0.12, z * 0.034], 0.035, 0.02);
+    }
+    legsOf(b, 'deer', 'stand', key, 0.033, 0.014, 0.008, 'black');
+  }
+  b.at([0, low, 0], 0, 1, () => {
+    b.blob(key, [0.1, 0.22, 0], [0.155, 0.335, 0], 0.032, 0.024);
+    b.put(k.sphere, key, [0.165, 0.345, 0], 0, [0.032, 0.03, 0.026]);
+    b.blob(key, [0.165, 0.34, 0], [0.22, 0.312, 0], 0.02, 0.014);
+    b.put(k.ball, 'black', [0.222, 0.31, 0], 0, 0.009);
+    for (const z of [-1, 1]) {
+      b.put(k.sphere, key, [0.148, 0.37, z * 0.03], [z * 0.7, 0, -0.3], [0.01, 0.03, 0.016]);
+      b.put(k.ball, 'black', [0.18, 0.352, z * 0.022], 0, 0.005);
+      if (antlers) b.at([0.155, 0.37, 0], 0, antlerSize, () => b.at([-0.155, -0.37, 0], 0, 1, () => {
+        const s = z;
+        const beam = [[0.155, 0.37, s * 0.014], [0.14, 0.42, s * 0.035], [0.12, 0.47, s * 0.05], [0.115, 0.52, s * 0.055], [0.13, 0.56, s * 0.05]];
+        b.path('bone', beam, 0.007, 0.003);
+        b.path('bone', [beam[1], [0.175, 0.44, s * 0.04], [0.185, 0.47, s * 0.04]], 0.005, 0.0025);
+        b.path('bone', [beam[2], [0.16, 0.5, s * 0.055], [0.165, 0.53, s * 0.055]], 0.0045, 0.0025);
+        b.path('bone', [beam[3], [0.09, 0.55, s * 0.06]], 0.004, 0.002);
+      }));
+    }
+    b.put(k.cone, key, [-0.16, 0.235, 0], [0, 0, 0.9], [0.012, 0.03, 0.01]);
+  });
+}
+
+function cow(b, { key = 'white', patch = 'wood' } = {}) {
+  const k = b.kit;
+  b.blob(key, [-0.14, 0.185, 0], [0.13, 0.18, 0], 0.08, 0.07);
+  b.put(k.sphere, key, [0.12, 0.175, 0], 0, [0.07, 0.08, 0.07]);
+  b.put(k.sphere, key, [-0.13, 0.19, 0], 0, [0.075, 0.078, 0.07]);
+  b.put(k.sphere, key, [0.095, 0.265, 0], 0, [0.05, 0.045, 0.038]);       // hump
+  b.put(k.sphere, key, [0.18, 0.13, 0], [0, 0, 0.4], [0.045, 0.065, 0.016]); // dewlap
+  for (const z of [-1, 1]) {
+    b.put(k.sphere, patch, [-0.02, 0.2, z * 0.066], [0, 0, 0.3], [0.06, 0.045, 0.012]);
+    b.put(k.sphere, patch, [-0.13, 0.205, z * 0.064], 0, [0.035, 0.04, 0.012]);
+    b.blob(key, [0.12, 0.2, z * 0.04], [0.125, 0.1, z * 0.045], 0.035, 0.025);
+    b.blob(key, [-0.12, 0.21, z * 0.04], [-0.16, 0.1, z * 0.045], 0.045, 0.03);
+  }
+  legsOf(b, 'cow', 'stand', key, 0.045, 0.03, 0.019, 'slate');
+  b.blob(key, [0.13, 0.2, 0], [0.2, 0.245, 0], 0.052, 0.04);
+  b.put(k.sphere, key, [0.215, 0.25, 0], 0, [0.042, 0.042, 0.037]);
+  b.blob(key, [0.215, 0.245, 0], [0.262, 0.172, 0], 0.036, 0.03);
+  b.put(k.ball, 'rose', [0.266, 0.168, 0], 0, [0.022, 0.018, 0.026]);
+  for (const z of [-1, 1]) {
+    b.path('bone', [[0.207, 0.285, z * 0.025], [0.2, 0.315, z * 0.065], [0.215, 0.355, z * 0.07], [0.235, 0.37, z * 0.055]], 0.009, 0.003);
+    b.put(k.sphere, key, [0.198, 0.268, z * 0.058], [z * 0.3, 0, 0], [0.014, 0.011, 0.03]);
+    b.put(k.ball, 'black', [0.235, 0.262, z * 0.034], 0, 0.006);
+  }
+  b.path(key, [[-0.2, 0.22, 0], [-0.215, 0.15, 0], [-0.205, 0.07, 0]], 0.007, 0.005);
+  b.put(k.sphere, 'black', [-0.204, 0.055, 0], 0, [0.012, 0.025, 0.012]);
+}
+
+function elephant(b, { key = 'white', tusks = 1, trappings = true } = {}) {
+  const k = b.kit;
+  b.put(k.sphere, key, [0.0, 0.265, 0], 0, [0.2, 0.125, 0.12]);
+  b.put(k.sphere, key, [-0.12, 0.265, 0], 0, [0.1, 0.12, 0.11]);
+  b.put(k.sphere, key, [0.1, 0.29, 0], 0, [0.1, 0.11, 0.11]);
+  legsOf(b, 'elephant', 'stand', key, 0.065, 0.048, 0.042, null);
+  for (const [x, z] of [[0.125, 0.065], [0.1, -0.065], [-0.125, 0.065], [-0.105, -0.065]]) {
+    b.put(k.cyl, key, [x, 0.02, z], 0, [0.05, 0.04, 0.05]);
+    for (let i = -1; i <= 1; i += 1) b.put(k.ball, 'bone', [x + 0.045, 0.012, z + i * 0.022], 0, [0.008, 0.01, 0.01]);
+  }
+  // the great head, the domed brow, the ears
+  b.put(k.sphere, key, [0.23, 0.31, 0], 0, [0.085, 0.1, 0.08]);
+  b.blob(key, [0.2, 0.36, 0], [0.27, 0.25, 0], 0.07, 0.065);
+  for (const z of [-1, 1]) {
+    b.put(k.sphere, key, [0.235, 0.395, z * 0.03], 0, 0.042);
+    b.put(k.sphere, key, [0.17, 0.32, z * 0.085], [0, z * -0.25, 0.15], [0.05, 0.075, 0.012]);
+    b.put(k.sphere, 'rose', [0.172, 0.32, z * 0.08], [0, z * -0.25, 0.15], [0.038, 0.058, 0.008]);
+    b.put(k.ball, 'black', [0.272, 0.33, z * 0.052], 0, 0.007);
+    // tusks: one to a side, or three, fanned, for the elephant of the dream
+    for (let i = 0; i < tusks; i += 1) {
+      const t = tusks === 1 ? 0 : (i - 1);
+      const y = 0.235 + t * 0.03, spread = 0.035 + Math.abs(t) * 0.012;
+      b.path('bone', [[0.275, y, z * spread], [0.33, y - 0.035 + t * 0.012, z * (spread + 0.012)], [0.38, y - 0.02 + t * 0.03, z * (spread + 0.018)]], 0.012, 0.004);
+    }
+  }
+  // the trunk, hanging and curling forward at its tip
+  b.path(key, [[0.285, 0.27, 0], [0.315, 0.2, 0], [0.325, 0.12, 0], [0.32, 0.06, 0], [0.335, 0.03, 0], [0.36, 0.045, 0], [0.365, 0.075, 0]], 0.045, 0.013);
+  b.path(key, [[-0.2, 0.3, 0], [-0.23, 0.22, 0], [-0.225, 0.14, 0]], 0.008, 0.006);
+  b.put(k.sphere, 'black', [-0.225, 0.125, 0], 0, [0.012, 0.024, 0.012]);
+  if (trappings) {
+    // a short cloth over the back, hanging to mid-flank, gilt at its hem
+    b.put(k.dome, 'red', [-0.01, 0.31, 0], 0, [0.13, 0.085, 0.127]);
+    for (const z of [-1, 1]) {
+      b.put(k.box, 'red', [-0.01, 0.305, z * 0.118], [z * 0.25, 0, 0], [0.15, 0.08, 0.006]);
+      b.put(k.box, 'gold', [-0.01, 0.262, z * 0.127], [z * 0.25, 0, 0], [0.155, 0.014, 0.006]);
+      for (let i = 0; i < 4; i += 1) b.put(k.ball, 'gold', [-0.07 + i * 0.04, 0.245, z * 0.13], 0, 0.008);
+    }
+    b.put(k.disc, 'gold', [0.3, 0.36, 0], [0, 0, PI / 2 - 0.6], [0.03, 0.01, 0.03]);
+    b.put(k.ball, 'red', [0.305, 0.362, 0], 0, 0.012);
+    for (const [x, z] of [[0.125, 0.065], [0.1, -0.065], [-0.125, 0.065], [-0.105, -0.065]]) {
+      b.put(k.torus(0.2), 'gold', [x, 0.06, z], [PI / 2, 0, 0], 0.05);
+    }
+  }
+}
+
+/* The animals as the recipes call for them, set down at x, y, z, turned by
+   ry and scaled by s. */
+function animal(b, kind, { x = 0, y = 0, z = 0, s = 1, ry = 0, ...o } = {}) {
+  b.at([x, y, z], [0, ry, 0], s, () => ({ horse, deer, cow, elephant })[kind](b, o));
 }
 
 /* Sea: banded, rounded waves like the board's own, white over blue. */
@@ -910,19 +1107,18 @@ const SQUARE_MODELS = {
       fire(b, { y: 0.26, z: 0.2, h: 0.1, w: 0.05 });
     });
   }],
-  11: ['A deer on a grassy rise, listening for danger.', (b) => {
+  11: ['A spotted stag on a grassy rise, head up, listening for danger.', (b) => {
     ground(b, 'ring', { w: 0.86, floor: 'grass', rimKey: 'red', inner: 'gold' });
     b.put(b.kit.dome, 'grass', [0, 0.04, 0], 0, [0.3, 0.06, 0.2]);
-    animal(b, 'deer', { y: 0.08, s: 1.25, key: 'earth' });
+    animal(b, 'deer', { x: -0.02, y: 0.08, s: 1.3, key: 'fawn' });
     tree(b, { x: -0.26, z: -0.18, h: 0.42, r: 0.11, seed: 12 });
     mountain(b, { x: 0.25, z: -0.2, h: 0.22, r: 0.1, key: 'rock', snow: null, seed: 4 });
   }],
-  12: ['A white elephant with a jewelled saddle, standing on cloud among the gods.', (b) => {
+  12: ['A white elephant of the gods, caparisoned in red and gold, the wish-granting jewel on its back, on cloud.', (b) => {
     ground(b, 'ring', { w: 0.86, floor: 'sky', rimKey: 'red', inner: 'gold' });
-    cloud(b, { y: 0.03, w: 0.56, h: 0.07, seed: 12 });
-    animal(b, 'elephant', { y: 0.1, s: 1.2, key: 'white' });
-    b.put(b.kit.box, 'red', [0, 0.44, 0], 0, [0.14, 0.03, 0.2]);
-    jewels(b, { y: 0.45, s: 0.5, flames: false });
+    cloud(b, { y: 0.03, w: 0.6, h: 0.07, seed: 12 });
+    animal(b, 'elephant', { x: -0.06, y: 0.09, s: 1.15, key: 'white' });
+    jewels(b, { x: -0.07, y: 0.53, s: 0.55, flames: true });
   }],
   13: ['A nāga rising in coils from banded waves beside a flaming jewel.', (b) => {
     waves(b, { w: 0.86, d: 0.5 });
@@ -969,12 +1165,12 @@ const SQUARE_MODELS = {
     tree(b, { x: 0, z: -0.12, h: 0.75, r: 0.24, leaf: 'green', fruit: 'crimson', seed: 17, n: 7 });
     seated(b, { x: 0.16, y: 0.09, z: 0.12, s: 0.5, robe: 'saffron', hair: 'bun' });
   }],
-  18: ['The round western land of cattle, with a cow beside a lake under Meru’s red light.', (b) => {
+  18: ['The round western land of cattle: a humped, dappled cow by a lake under Meru’s red light.', (b) => {
     b.put(b.kit.disc, 'crimson', [0, 0.03, 0], 0, [0.44, 0.06, 0.4]);
     b.put(b.kit.disc, 'grass', [0, 0.065, 0], 0, [0.4, 0.02, 0.36]);
     b.put(b.kit.disc, 'water', [-0.16, 0.078, -0.1], 0, [0.13, 0.01, 0.09]);
-    animal(b, 'cow', { x: 0.06, y: 0.07, z: 0.08, s: 1.25, key: 'white' });
-    tree(b, { x: 0.25, z: -0.18, h: 0.4, r: 0.1, seed: 18 });
+    animal(b, 'cow', { x: 0.02, y: 0.075, z: 0.08, s: 1.3, key: 'white' });
+    tree(b, { x: -0.27, z: -0.16, h: 0.4, r: 0.1, seed: 18 });
   }],
   19: ['The half-moon eastern land, bright as crystal, with a tall, noble figure.', (b) => {
     b.put(b.kit.slab('halfmoon', OUTLINES.halfmoon(b.THREE), 0.06), 'white', [0, 0.04, 0.06], [-PI / 2, 0, 0], [0.9, 0.9, 1]);
@@ -1009,18 +1205,76 @@ const SQUARE_MODELS = {
     for (const dx of [-0.04, 0, 0.04]) b.beam('silver', [0.22 + dx, 0.5, 0.18], [0.22 + dx * 1.2, 0.62, 0.18], 0.008, 0.002);
     b.beam('silver', [0.17, 0.5, 0.18], [0.27, 0.5, 0.18], 0.008);
   }],
-  23: ['A gold ring behind the nine-tiered mountain of Bön, crowned with the yungdrung.', (b) => {
-    aureole(b, 'ring', { y: 0.53, w: 0.86, outer: 'gold', inner: 'brass', band: 0.84, rim: 0.8 });
-    for (let i = 0; i < 9; i += 1) b.put(b.kit.cyl, i % 2 ? 'sage' : 'white', [0, 0.02 + i * 0.035, 0], 0, [0.3 - i * 0.026, 0.035, 0.22 - i * 0.018]);
-    /* As the board draws it: a grey block with four red slots let into its
-       face, each a quarter-turn from the last. */
-    b.at([0, 0.53, 0.02], 0, 0.3, () => {
-      b.put(b.kit.box, 'slate', [0, 0, 0], 0, [1, 1, 0.2]);
-      let [x, y, w, h] = [-0.215, 0.19, 0.53, 0.12];
-      for (let i = 0; i < 4; i += 1) {
-        b.put(b.kit.box, 'red', [x, y, 0.012], 0, [w, h, 0.2]);
-        [x, y, w, h] = [y, -x, h, w];
+  23: ['Yungdrung Gutsek, the nine-tiered mountain of Bön, in its gold ring, with the yungdrung and the sun and moon at the summit; a Bönpo beats the drum, juniper smoke rises from the burner, and a divination arrow and prayer flags stand by.', (b) => {
+    aureole(b, 'ring', { y: 0.54, z: -0.22, w: 0.9, outer: 'gold', inner: 'red', band: 0.86, rim: 0.82 });
+    b.put(b.kit.disc, 'earth', [0, 0.015, 0], 0, [0.44, 0.03, 0.3]);
+    b.put(b.kit.disc, 'grass', [0, 0.032, 0], 0, [0.42, 0.006, 0.28]);
+    /* The mountain in nine rough terraces, each with a lip of snow. */
+    const tier = (seed) => b.kit.once('bon-tier:' + seed, () => {
+      const g = new b.THREE.CylinderGeometry(0.88, 1, 1, 9, 1);
+      const pos = g.attributes.position, rnd = seeded(seed);
+      const jitter = Array.from({ length: 10 }, () => 0.86 + rnd() * 0.24);
+      for (let i = 0; i < pos.count; i += 1) {
+        const a = Math.atan2(pos.getZ(i), pos.getX(i));
+        const j = jitter[Math.round(((a + PI) / TAU) * 9) % 9];
+        pos.setXYZ(i, pos.getX(i) * j, pos.getY(i), pos.getZ(i) * j);
       }
+      g.computeVertexNormals();
+      return g;
+    });
+    let y = 0.035;
+    for (let i = 0; i < 9; i += 1) {
+      const r = 0.25 - i * 0.022, h = 0.052 - i * 0.002;
+      b.put(tier(230 + i), i % 2 ? 'rock' : 'slate', [0, y + h / 2, -0.04], [0, i * 0.7, 0], [r, h, r * 0.72]);
+      b.put(tier(260 + i), 'snow', [0, y + h + 0.004, -0.04], [0, i * 0.7 + 0.3, 0], [r * 0.93, 0.012, r * 0.67]);
+      y += h;
+    }
+    /* The yungdrung at the summit, as the board draws it: a grey block with
+       four red slots let into its face, each a quarter-turn from the last.
+       Above it, the sun resting in the moon. */
+    b.at([0, y + 0.075, -0.02], 0, 0.15, () => {
+      b.put(b.kit.box, 'slate', [0, 0, 0], 0, [1, 1, 0.3]);
+      b.put(b.kit.box, 'gold', [0, 0, -0.02], 0, [1.1, 1.1, 0.24]);
+      let [x, yy, w, h] = [-0.215, 0.19, 0.53, 0.12];
+      for (let i = 0; i < 4; i += 1) {
+        b.put(b.kit.box, 'red', [x, yy, 0.02], 0, [w, h, 0.3]);
+        [x, yy, w, h] = [yy, -x, h, w];
+      }
+    });
+    b.put(b.kit.torus(0.3, PI), 'white', [0, y + 0.2, -0.02], [0, 0, PI], 0.04);
+    b.put(b.kit.sphere, 'ember', [0, y + 0.205, -0.02], 0, 0.026);
+    /* The Bönpo: blue robe, tall hat, the double-faced drum raised on its
+       handle and the hooked stick swung against it. */
+    seated(b, { x: -0.25, y: 0.03, z: 0.13, s: 0.58, robe: 'blue', sash: 'red', hair: 'bonhat', ry: 0.45, mudra: 'raise' });
+    b.at([-0.13, 0.31, 0.2], [0, 0.45, 0], 1, () => {
+      b.put(b.kit.cyl, 'red', [0, 0, 0], [PI / 2, 0, 0], [0.06, 0.03, 0.06]);
+      for (const z of [-1, 1]) b.put(b.kit.disc, 'bone', [0, 0, z * 0.016], [PI / 2, 0, 0], [0.056, 0.004, 0.056]);
+      b.beam('wood', [0, -0.06, 0], [0, -0.16, 0], 0.007);
+    });
+    b.path('wood', [[-0.2, 0.3, 0.24], [-0.16, 0.37, 0.25], [-0.13, 0.36, 0.24]], 0.004);
+    // divination dice on a cloth before him
+    b.put(b.kit.box, 'red', [-0.1, 0.04, 0.24], 0, [0.09, 0.006, 0.06]);
+    for (const [x, a] of [[-0.12, 0.3], [-0.085, -0.5]]) b.put(b.kit.box, 'white', [x, 0.053, 0.24], [0, a, 0], 0.018);
+    /* A juniper burner, smoke going up. */
+    b.put(b.kit.lathe('sang', [[0, 0], [0.05, 0], [0.055, 0.06], [0.04, 0.09], [0.06, 0.12], [0, 0.12]], 12), 'white', [0.22, 0.035, 0.15]);
+    fire(b, { x: 0.22, y: 0.15, z: 0.15, h: 0.05, w: 0.04, keys: ['flame', 'ember'] });
+    const smoke = [];
+    for (let i = 0; i <= 10; i += 1) smoke.push([0.22 + Math.sin(i * 0.9) * 0.03 + i * 0.006, 0.18 + i * 0.045, 0.15 - i * 0.01]);
+    b.path('mist', smoke, 0.012, 0.03);
+    b.path('mist', smoke.map(([x, y, z], i) => [x - 0.02 + Math.sin(i * 1.2 + 1) * 0.02, y + 0.02, z + 0.01]), 0.008, 0.022);
+    /* The divination arrow, its five silks hanging. */
+    b.beam('wood', [0.33, 0.035, 0.05], [0.33, 0.5, 0.05], 0.006);
+    b.put(b.kit.cone, 'silver', [0.33, 0.52, 0.05], 0, [0.012, 0.04, 0.012]);
+    ['blue', 'white', 'red', 'green', 'gold'].forEach((key, i) => {
+      b.put(b.kit.box, key, [0.33 + (i - 2) * 0.012, 0.36, 0.055], [0, 0, (i - 2) * 0.08], [0.01, 0.16, 0.003]);
+    });
+    /* Prayer flags strung from the arrow up to the mountain's shoulder. */
+    const from = [0.33, 0.47, 0.05], to = [0.07, 0.42, -0.02];
+    b.beam('bone', from, to, 0.002);
+    ['blue', 'white', 'red', 'green', 'gold', 'blue', 'white'].forEach((key, i) => {
+      const t = (i + 0.7) / 7.4;
+      const p = from.map((v, j) => v + (to[j] - v) * t);
+      b.put(b.kit.box, key, [p[0], p[1] - 0.025 - Math.sin(t * PI) * 0.012, p[2]], [0, -0.27, 0], [0.026, 0.04, 0.003]);
     });
   }],
   24: ['Six coloured roads opening from one point towards the six realms: the start.', (b) => {
@@ -1554,20 +1808,23 @@ const SQUARE_MODELS = {
     mountain(b, { h: 0.5, r: 0.28, key: 'slate', snow: 'snow', seed: 96, cap: 0.35 });
     vajra(b, { y: 0.66, s: 0.3, r: [0, 0, PI / 2] });
   }],
-  97: ['A white elephant with a jewel on its saddle, descending on cloud: the Buddha taking birth.', (b) => {
+  97: ['The white elephant with six tusks of Māyā’s dream, caparisoned and bearing a jewel, descending on cloud: the Buddha taking birth.', (b) => {
     aureole(b, 'quatrefoil', { y: 0.48, w: 0.86, h: 1.0, outer: 'red', inner: 'crimson', band: 0.84, rim: 0.78 });
-    cloud(b, { y: 0.12, w: 0.5, h: 0.08, seed: 97 });
-    animal(b, 'elephant', { y: 0.2, s: 1.15, key: 'white' });
-    b.put(b.kit.box, 'red', [0, 0.53, 0], 0, [0.13, 0.025, 0.2]);
-    b.put(b.kit.sphere, 'gold', [0, 0.57, 0], 0, 0.035);
+    cloud(b, { y: 0.1, w: 0.56, h: 0.08, seed: 97 });
+    animal(b, 'elephant', { x: -0.05, y: 0.17, s: 1.08, key: 'white', tusks: 3 });
+    b.put(b.kit.sphere, 'gold', [-0.05, 0.615, 0], 0, 0.03);
+    b.put(b.kit.octa, 'blue', [-0.05, 0.66, 0], 0, [0.022, 0.04, 0.022]);
   }],
-  98: ['The horse Kanthaka leaping on cloud: the bodhisattva leaves the palace.', (b) => {
+  98: ['The white horse Kanthaka, saddled and bridled, leaping out over the clouds under a parasol: the bodhisattva leaves the palace.', (b) => {
     aureole(b, 'quatrefoil', { y: 0.48, w: 0.86, h: 1.0, outer: 'red', inner: 'crimson', band: 0.84, rim: 0.78 });
-    cloud(b, { y: 0.1, w: 0.52, h: 0.08, seed: 98 });
-    b.at([0, 0.18, 0], [0, 0, 0.18], 1, () => animal(b, 'horse', { s: 1.15, key: 'white' }));
-    b.put(b.kit.box, 'red', [-0.02, 0.5, 0], [0, 0, 0.18], [0.12, 0.02, 0.18]);
-    b.beam('gold', [-0.2, 0.18, 0.12], [-0.2, 0.78, 0.12], 0.008);
-    b.put(b.kit.dome, 'gold', [-0.2, 0.76, 0.12], 0, [0.1, 0.04, 0.1]);
+    cloud(b, { y: 0.1, w: 0.56, h: 0.08, seed: 98 });
+    b.at([0.02, 0.15, 0], [0, 0, 0.16], 1.25, () => animal(b, 'horse', { pose: 'leap', key: 'white' }));
+    b.beam('gold', [-0.24, 0.12, 0.12], [-0.24, 0.8, 0.12], 0.008);
+    b.put(b.kit.dome, 'gold', [-0.24, 0.78, 0.12], 0, [0.11, 0.045, 0.11]);
+    for (let i = 0; i < 8; i += 1) {
+      const a = i / 8 * TAU;
+      b.put(b.kit.cyl, i % 2 ? 'red' : 'saffron', [-0.24 + Math.cos(a) * 0.1, 0.75, 0.12 + Math.sin(a) * 0.1], 0, [0.012, 0.05, 0.012]);
+    }
   }],
   99: ['The emaciated ascetic, seated in his practice, a bowl of rice beside him.', (b) => {
     aureole(b, 'quatrefoil', { y: 0.48, w: 0.86, h: 1.0, outer: 'red', inner: 'crimson', band: 0.84, rim: 0.78 });
@@ -1589,12 +1846,15 @@ const SQUARE_MODELS = {
     b.put(b.kit.box, 'gold', [0, 0.05, 0.02], 0, [0.36, 0.1, 0.26]);
     seated(b, { y: 0.1, z: 0.04, s: 0.82, robe: 'red', body: 'crimson', skin: 'gilt', arms: 'gilt', hair: 'buddha', mudra: 'earth', halo: 'gold' });
   }],
-  102: ['The golden wheel of Dharma between two deer, as in the deer park at Sārnāth.', (b) => {
+  102: ['The golden wheel of Dharma between two deer kneeling to it, as in the deer park at Sārnāth.', (b) => {
     aureole(b, 'quatrefoil', { y: 0.48, w: 0.86, h: 1.0, outer: 'red', inner: 'crimson', band: 0.84, rim: 0.78 });
-    lotus(b, { y: 0.02, r: 0.14, n: 8, disc: null });
-    wheel(b, { y: 0.4, s: 0.24, rim: 'gold', hub: 'gold', spokes: 8, tips: 'gold' });
-    animal(b, 'deer', { x: -0.22, y: 0.02, s: 0.68, key: 'saffron', ry: 0 });
-    animal(b, 'deer', { x: 0.22, y: 0.02, s: 0.68, key: 'saffron', ry: PI });
+    lotus(b, { y: 0.02, z: -0.04, r: 0.12, n: 8, disc: null });
+    b.beam('gold', [0, 0.08, -0.04], [0, 0.3, -0.04], 0.022, 0.016);
+    b.put(b.kit.cyl, 'gold', [0, 0.31, -0.04], 0, [0.05, 0.02, 0.05]);
+    b.put(b.kit.torus(0.25), 'gold', [0, 0.32, -0.04], [PI / 2, 0, 0], 0.05);
+    wheel(b, { y: 0.54, z: -0.04, s: 0.19, rim: 'gold', hub: 'gold', spokes: 8, tips: 'gold' });
+    animal(b, 'deer', { x: -0.3, y: 0.02, z: 0.06, s: 0.95, key: 'fawn', pose: 'kneel', antlerSize: 0.7, ry: -0.3 });
+    animal(b, 'deer', { x: 0.3, y: 0.02, z: 0.06, s: 0.95, key: 'fawn', pose: 'kneel', antlers: false, ry: PI + 0.3 });
   }],
   103: ['The Buddha standing in the twin miracle: flame from the shoulders, water from the feet.', (b) => {
     aureole(b, 'quatrefoil', { y: 0.48, w: 0.86, h: 1.0, outer: 'red', inner: 'crimson', band: 0.84, rim: 0.78 });
