@@ -1342,6 +1342,11 @@
   .board-view .feed li { font-size: 12px; color: var(--ink-2); padding: 4px 0; border-top: 1px solid var(--rule); }
   .board-view .feed li .mono { color: var(--ink); }
   body.game-view .compass { display: none; }
+  /* The game has no use for the lunar mansions or the calculator, and the
+     interface language is already in the header. */
+  body.game-view .controls .lm-row,
+  body.game-view .controls [data-act="jyotisha"],
+  body.game-view .controls .ui-lang-row { display: none; }
 
   /* ── what the game shows ───────────────────────────────────────────────
      Two arrangements of the same game, switched from the rail, and each of
@@ -1888,7 +1893,7 @@
             <button class="btn" type="button" data-lang="bo" aria-pressed="false" title="Tibetan names — t" lang="bo">བོད</button>
           </span>
         </div>
-        <div class="menu-row lang" role="group" aria-label="Interface language">
+        <div class="menu-row lang ui-lang-row" role="group" aria-label="Interface language">
           <span class="g" aria-hidden="true">文</span><span class="t">Language</span>
           <span class="seg">
             <button class="btn" type="button" data-ui-lang="en" aria-pressed="true" title="English interface">Eng</button>
@@ -1930,8 +1935,8 @@
     <p class="game-focus-note"></p>
     <nav aria-label="World navigation">
       <button class="btn" type="button" data-world="focus">Focus here</button>
-      <button class="btn" type="button" data-world="overview">World overview</button>
-      <button class="btn" type="button" data-world="return">Return to board</button>
+      <button class="btn" type="button" data-world="return">Return to world</button>
+      <button class="btn" type="button" data-world="story">Full story</button>
     </nav>
   </aside>
 
@@ -2178,7 +2183,7 @@ import { SQUARES as RB_SQUARES, SPECIAL as RB_SPECIAL, START as RB_START, VICTOR
 import { createGame, throwDie, view as rbView, destination as rbDestination } from './rebirth-game.js';
 import { SQUARE_NOTES, SQUARE_FULL } from './rebirth-notes.js';
 import { SQUARE_ART, cellBackground, LIBERATION_ART } from './rebirth-icons.js';
-import { createSquareModels, MODEL_UNIT as RB_MODEL_UNIT } from './square-models.js';
+import { createSquareModels, MODEL_UNIT as RB_MODEL_UNIT, buildRealmModel, createModelMaterials, createModelKit } from './square-models.js';
 import { createSoundKit, voiceFor as rbVoice } from './rebirth-sound.js';
 import { searchText } from './search-text.js';
 import { createSynth } from './synth.js';
@@ -2193,7 +2198,7 @@ import { WALKTHROUGH_KEY, WALKTHROUGH_STEPS } from './game-walkthrough.js';
 import { drawWheel } from './wheel-art.js';
 import { createWheelView } from './wheel-view.js';
 import { WHEEL_ENTRIES, WHEEL_TREE, WHEEL_ALSO } from './wheel-notes.js';
-import { composeGameFocus, composeGameOverview, composeWorldOverview, orbitFlightPoint, closeUpDirection } from './game-camera.js';
+import { composeGameFocus, composeGameOverview, orbitFlightPoint, closeUpDirection } from './game-camera.js';
 import { MANSIONS, MANSION_BY_ID, ringAngle, glyphUrl, evidenceLine, CATALOGUE_SOURCE } from './lunar-mansions.js';
 import { createMansionLayer } from './mansion-layer.js';
 import { associations as mansionRows, readingNotes as mansionNotes } from './mansion-ui.js';
@@ -3415,34 +3420,43 @@ CLUSTERS.forEach(([material, names], ci) => {
 
 /* ── Beneath Jambudvīpa ─────────────────────────────────────────────────
    The pretas' ground 500 yojanas down, then the eight hot hells, Avīci's
-   floor 40,000 below our continent. All of them belong inside the golden
-   ground; here they hang below the disc so they can be seen. The eight
-   cold hells are set off to one side.                                  */
+   floor 40,000 below our continent, and beneath Avīci the Vajra Hell of the
+   tantras, the lowest of all. All of them belong inside the golden ground;
+   here they hang below the disc so they can be seen. The eight cold hells
+   are set off to one side.                                              */
 const UNDER = top - 0.03;
-/* The levels are drawn far enough apart for the game's destinations to stand
-   on their floors: each hot hell a model's height and a little more beneath
-   the one above it, and wide enough for the model to stand inside its walls of
-   flame. The pretas' ground opens the stack, clear of the golden ground; the
-   floor each level offers to stand on is kept for the game (HELL_FLOORS). */
+/* The levels are drawn far enough apart for each realm's own model to stand
+   on its floor (square-models.js, REALM_MODELS): each hot hell a model's
+   height and a little more beneath the one above it, and wide enough for the
+   model to stand inside its walls of flame. The pretas' ground opens the
+   stack, clear of the golden ground. The floor each level offers to stand on
+   is kept for the game (HELL_FLOORS), and where its model stands, and how
+   large, for the realms' models (REALM_SPOTS). */
 const HELL_STEP = 0.12;
 const PRETA_Y = UNDER - 0.02;
 const HELL_FLOORS = new Map();
+const REALM_SPOTS = new Map();
 const pret = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.009, 0.15), M.preta);
 pret.position.set(0, PRETA_Y, R);
 add(pret, 'preta_realm');
 HELL_FLOORS.set('preta_realm', PRETA_Y + 0.0045);
+REALM_SPOTS.set('preta_realm', { x: 0, y: PRETA_Y + 0.0045, z: R, scale: 0.14 });
 
 const HELLS = ['sanjiva', 'kalasutra', 'samghata', 'raurava',
-               'maharaurava', 'tapana', 'pratapana', 'avichi'];
+               'maharaurava', 'tapana', 'pratapana', 'avichi', 'vajra'];
 HELLS.forEach((name, i) => {
-  const side = 0.17 + (i / (HELLS.length - 1)) * 0.14;
-  const slab = createHellRealm(THREE, { side, hot: true, depth: i });
+  const vajraHell = name === 'vajra';
+  const side = vajraHell ? 0.33 : 0.17 + (i / 7) * 0.14;
+  const slab = createHellRealm(THREE, { side, hot: true, depth: i, vajra: vajraHell });
   slab.position.set(0, PRETA_Y - (i + 1) * HELL_STEP, R);
   slab.traverse(o => { if (o.isMesh) o.name = `hell_${name}`; });
   add(slab, `hell_${name}`);
   HELL_FLOORS.set(`hell_${name}`, slab.position.y + 0.0056);
+  REALM_SPOTS.set(`hell_${name}`, { x: 0, y: slab.position.y + 0.0056, z: R, scale: Math.min(side * 0.92, 0.13) });
 });
-const SHAFT_H = HELLS.length * HELL_STEP + 0.03;
+// the shaft stands for the descent through the eight; the Vajra Hell is
+// below the reckoning of the Kośa, and it does not reach it
+const SHAFT_H = 8 * HELL_STEP + 0.03;
 const shaft = new THREE.Mesh(
   new THREE.CylinderGeometry(y(1400), y(1400), SHAFT_H, 20), M.iron
 );
@@ -3452,13 +3466,15 @@ add(shaft, 'naraka_shaft');
 
 const COLD = ['arbuda', 'nirarbuda', 'atata', 'hahava', 'huhuva',
               'utpala', 'padma', 'mahapadma'];
+const COLD_STEP = 0.1;
 COLD.forEach((name, i) => {
   const side = 0.11 + (i / (COLD.length - 1)) * 0.05;
   const slab = createHellRealm(THREE, { side, hot: false, depth: i });
-  slab.position.set(-0.36, PRETA_Y - i * 0.07, R + 0.04);
+  slab.position.set(-0.36, PRETA_Y - i * COLD_STEP, R + 0.04);
   slab.traverse(o => { if (o.isMesh) o.name = `cold_${name}`; });
   add(slab, `cold_${name}`);
   HELL_FLOORS.set(`cold_${name}`, slab.position.y + 0.0041);
+  REALM_SPOTS.set(`cold_${name}`, { x: -0.36, y: slab.position.y + 0.0041, z: R + 0.04, scale: Math.min(side * 0.92, 0.12) });
 });
 
 /* ── The formless realm ───────────────────────────────────────────────── */
@@ -4144,6 +4160,20 @@ HOT.forEach(([id, t, tib, en, heaven, millions, yrs, total, b], i) => {
     src: 'Abhidharmakośa III.58–59, 82–83'
   });
 });
+/* The Vajra Hell is not among the Kośa's eight; the tantras name it as the
+   destination of whoever breaks the vajra commitments, below Avīci, and the
+   board of rebirth makes it its first square. */
+def('hell_vajra', {
+  t: 'The Vajra Hell', tib: 'rdo rje dmyal ba', en: 'the hell of the broken commitment', k: 'beneath Avīci',
+  meta: 'Beneath Avīci · the lowest of all',
+  f: [['Position', 'below Avīci, the lowest of all the hells'],
+      ['Cause of birth', 'breaking the commitments (samaya) of the Vajrayāna, above all towards the vajra master'],
+      ['Not in', 'the Abhidharmakośa, whose hells end with Avīci']],
+  rel: ['hell_avichi', 'rebirth_sq_1'],
+  b: ['The tantras warn that whoever breaks the vajra commitments — above all, with the master who gave the empowerment — falls lower than Avīci, into a hell named for the vajra itself. The Abhidharmakośa knows nothing of it: its hells end with Avīci. It belongs to the Vajrayāna, and the board of rebirth makes it the first of its squares, the floor beneath every other destination.',
+      'It is drawn here beneath Avīci, as the board orders it. The vajra that stands for the indestructible nature of mind stands here as the walls of the prison: the commitment, once broken, is what holds the one who broke it.'],
+  src: 'Vajrayāna commitment literature; the board of rebirth, square 1'
+});
 def('naraka_shaft', {
   t: 'The neighbouring hells', tib: 'nye \'khor ba', en: 'utsada · the four gates', k: 'four gates',
   meta: 'At the gates of every hot hell',
@@ -4615,7 +4645,7 @@ def('rebirth_game', {
   meta: 'A board of 104 squares laid over the world system',
   f: [['Squares', '104, in 13 rows of 8'], ['Numbering', 'right to left, rising from the bottom'],
       ['Start', '24, the Heavenly Highway'], ['Victory', '104, Nirvana'],
-      ['Traps', '1 and 48'], ['Already in the model', '21 squares'], ['Given a place by the board', '83 squares']],
+      ['Traps', '1 and 48'], ['Already in the model', '22 squares'], ['Given a place by the board', '82 squares']],
   b: ['A game attributed to Sakya Pandita, in which a die names the square you go to rather than a number of steps to travel. A face with no listed move is dead: you stay where you are and pass.',
       'Read as a section, the board is already a cosmology. Its rows suggest an ascent above the golden ground, and its two columns of paths separate the tantric route from the route of the sutras. Where a square names a region — a hell, a continent, a heaven — the world system has already built it, and the marker simply floats above it.',
       'Where a square names a path, an attainment or a Buddha field, there is nothing in the world system to stand on. The sources say as much: Buddha fields lie outside the Meru arrangement. Those eighty-three squares are given a place here, on a symbolic ascent. Realization rises above the complete samsaric heaven stack; the sutra stages ascend in attainment order even where their printed numbers run backwards. The game’s Akaniṣṭha Buddha field also rises above the tenth stages, while the samsaric heaven remains in place.'],
@@ -4700,7 +4730,7 @@ const TREE = [
     ['heaven_sudarshana'], ['heaven_akanishtha']
   ]],
   ['The four formless absorptions', FORMLESS_DATA.map(([id]) => [`formless_${id}`])],
-  ['The eight hot hells', HOT.map(([id]) => [`hell_${id}`]).concat([['naraka_shaft']])],
+  ['The eight hot hells and the Vajra Hell', HOT.map(([id]) => [`hell_${id}`]).concat([['naraka_shaft'], ['hell_vajra']])],
   ['The eight cold hells', COLD_DATA.map(([id]) => [`cold_${id}`])],
   ['The other destinies', [['preta_realm'], ['animals'], ['humans']]],
   ['A thousand worlds', WORLD_ORDERS.map(id => [id])],
@@ -4776,6 +4806,48 @@ world.traverse((o) => {
   if (!byName.has(o.name)) byName.set(o.name, []);
   byName.get(o.name).push(o);
 });
+/* The realms beneath Jambudvīpa, each with what happens in it: the hells
+   hot and cold, the Vajra Hell, the pretas' ground (square-models.js). They
+   are the world's, shown in every mode, and the game's squares that name
+   them stand on them. A realm is built a little after the page is up, one at
+   a time while the browser is idle, and at once when someone goes down to
+   it; each joins the selection as its own realm. */
+const realmModels = new Map();
+let realmMaterials = null, realmKit = null;
+function buildRealm(id) {
+  if (realmModels.has(id) || !REALM_SPOTS.has(id)) return;
+  realmMaterials ||= createModelMaterials(THREE);
+  realmKit ||= createModelKit(THREE);
+  const spot = REALM_SPOTS.get(id);
+  const model = buildRealmModel(THREE, id, realmMaterials, realmKit);
+  model.position.set(spot.x, spot.y, spot.z);
+  model.scale.setScalar(spot.scale);
+  model.children.forEach((mesh) => {
+    mesh.name = id;
+    // fire and light keep their own colours when the realm is selected
+    mesh.userData.realmAtmosphere = mesh.userData.finish === 'glow' || mesh.userData.finish === 'glass';
+    if (!byName.has(id)) byName.set(id, []);
+    byName.get(id).push(mesh);
+  });
+  world.add(model);
+  realmModels.set(id, model);
+  invalidate(2);
+}
+const buildRealms = () => REALM_SPOTS.forEach((_, id) => buildRealm(id));
+function buildRealmsWhenIdle() {
+  const queue = [...REALM_SPOTS.keys()];
+  const idle = window.requestIdleCallback
+    ? (fn) => window.requestIdleCallback(fn, { timeout: 1500 }) : (fn) => setTimeout(fn, 80);
+  const step = () => {
+    while (queue.length && realmModels.has(queue[0])) queue.shift();
+    if (!queue.length) return;
+    buildRealm(queue.shift());
+    idle(step);
+  };
+  idle(step);
+}
+const UNDERWORLD = /^(hell_|cold_|preta_realm$|naraka_shaft$)/;
+
 const visibleInScene = (object) => {
   for (let parent = object; parent; parent = parent.parent) if (!parent.visible) return false;
   return true;
@@ -4893,6 +4965,7 @@ function show(id, reveal) {
   if (presentationActive()) tourPlayer?.pause();
   const e = E[id];
   if (!e) return;
+  if (UNDERWORLD.test(id)) buildRealms();
   setOpen(false, false);
   closeLunarPanels();
   pausePlay();
@@ -6690,15 +6763,19 @@ rbBoard.group.traverse((o) => {
 });
 
 /* The squares the world already stands in for. Where the model builds the
-   thing the square names as a thing you can walk round — the terrace of the
-   Four Kings, the city on the summit, the palaces of the desire heavens and
-   the emblem of the form realm — the geometry is the representation, and a
-   second model standing in front of it is the same square said twice.
-   Śuddhāvāsa is here for the same reason: the mansion above the summit is the
-   stand-in. Their fields are untouched — still the cell's ground on the
-   board, the face of the throw card, and the plate at the head of the
-   expanded entry. */
-const RB_MODELLED = new Set([27, 28, 30, 31, 32, 35, 37]);
+   thing the square names as a thing you can walk round — the four
+   continents, the terrace of the Four Kings, the city on the summit, the
+   palaces of the desire heavens, the emblem of the form realm, the spheres
+   of the formless — the geometry is the representation, and a second model
+   standing in front of it is the same square said twice. Śuddhāvāsa is here
+   for the same reason: the mansion above the summit is the stand-in. The
+   hells, the Vajra Hell and the pretas' ground are the world's too, each
+   with its own model (REALM_SPOTS), and the squares that name them stand on
+   those. Their fields are untouched — still the cell's ground on the board,
+   the face of the throw card, and the plate at the head of the expanded
+   entry. */
+const RB_UNDERWORLD = new Set([1, 2, 3, 4, 5, 6, 7, 10]);
+const RB_MODELLED = new Set([...RB_UNDERWORLD, 17, 18, 19, 20, 27, 28, 29, 30, 31, 32, 35, 36, 37]);
 
 /* Every other square stands in the world as a model of its own, built from
    its field and its description (square-models.js): the board keeps the
@@ -6722,7 +6799,7 @@ let rbSession = null, rbEvents = [], rbPending = null;
 let rbWalkthrough = null, rbGuideSeen = false;
 const rbPlayerArt = createPlayerArt(THREE, rbBoard.tokens, SUMMIT, () => invalidate(3));
 // how far a traveller stands aside of the model of the square they are on
-const rbAside = (n) => (rbModels.models.has(n) ? SUMMIT * RB_MODEL_UNIT * (n === RB_VICTORY ? 1.5 : 0.62) : 0);
+const rbAside = (n) => (rbModels.models.has(n) || RB_UNDERWORLD.has(n) ? SUMMIT * RB_MODEL_UNIT * (n === RB_VICTORY ? 1.5 : 0.62) : 0);
 const rbEscape = value => String(value).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
 const rbDie = boardEl.querySelector('.die-face');
@@ -7926,12 +8003,7 @@ function rbFocusWorld(id) {
   if (mode !== 'game') return;
   const anchor = rbFocusAnchor(id);
   if (!anchor) return;
-  const previous = gameFocus;
-  gameFocus = {
-    id, anchor, view: 'focus',
-    returnLayout: previous?.returnLayout || 'board',
-    camera: previous?.camera || { p: cam.position.clone(), t: ctr.target.clone() }
-  };
+  gameFocus = { id, anchor, view: 'focus' };
   rbHideCard();
   close();
   setOpen(false, false);
@@ -7952,19 +8024,6 @@ function rbFocusWorld(id) {
 }
 function rbFrameFocus(dur = 650) {
   if (!gameFocus || mode !== 'game') return;
-  if (gameFocus.view === 'overview') {
-    // The world round the place: the plate out to its iron rim, Meru to its
-    // summit, and the place itself, seen from the place's own side. The
-    // whole ascent to Nirvana is the game's overview, not this.
-    gameFocusEl.querySelector('p').textContent = 'World overview · choose Focus here to return to this location.';
-    const composition = composeWorldOverview(THREE, {
-      anchor: gameFocus.anchor, rim: RIM, floor: FLOOR, summit: SUMMIT,
-      viewport: { w: stage.clientWidth, h: stage.clientHeight }, rect: freeRect(), fov: cam.fov
-    });
-    fly(composition.position, composition.target, dur, true);
-    invalidate(4);
-    return;
-  }
   // The place itself, brought up close from its own side: the model, the
   // travellers standing by it, and the ground it stands on, lit and ringed.
   const place = rbLocation(gameFocus.id);
@@ -7972,7 +8031,7 @@ function rbFrameFocus(dur = 650) {
   const square = /^rebirth_sq_(\d+)$/.exec(gameFocus.id);
   rbModels.highlight(square ? Number(square[1]) : null);
   placeFocusRing(place.box, place.ring);
-  gameFocusEl.querySelector('p').textContent = 'Close view · drag to look around, or choose World overview to step back.';
+  gameFocusEl.querySelector('p').textContent = 'Close view · drag to look around, or choose Return to world to step back.';
   closeUp(place.box, { dur, exterior: true, sphere: place.sphere });
   invalidate(4);
 }
@@ -8060,21 +8119,26 @@ function rbPlaceFocusPin() {
   gameFocusPin.style.left = ((point.x + 1) * stage.clientWidth / 2) + 'px';
   gameFocusPin.style.top = ((1 - point.y) * stage.clientHeight / 2) + 'px';
 }
+/* A visit offers three things: the close view again after looking round,
+   the way back to the world the traveller is moving through (the board has
+   its own switch in the rail), and the whole story of the place. */
 gameFocusEl.addEventListener('click', event => {
   const action = event.target.closest('[data-world]')?.dataset.world;
   if (!action || !gameFocus) return;
   if (action === 'focus') { gameFocus.view = 'focus'; rbFrameFocus(); }
-  if (action === 'overview') { gameFocus.view = 'overview'; rbFrameFocus(); }
   if (action === 'return') {
-    const previous = gameFocus;
     rbClearFocus();
     close();
-    rbLayout(previous.returnLayout, false, false);
+    rbLayout('world', false, false);
     clearTimeout(panelReframe);
-    cam.position.copy(previous.camera.p); ctr.target.copy(previous.camera.t);
-    framedDist = previous.camera.p.distanceTo(previous.camera.t); applyZoomLimits(); ctr.update();
+    if (!rbFrameFollow(650)) reframeGame(650, rbSelected === null ? null : rbBoard.positionOf(rbSelected));
     rbThrowBtn.focus({ preventScroll: true });
     invalidate(3);
+  }
+  if (action === 'story') {
+    const id = gameFocus.id;
+    show(id, true);
+    if (/^rebirth_sq_/.test(id)) sMore.open = !sMore.hidden;
   }
 });
 /* On a phone a panel is half the screen, and the model behind it is a model
@@ -8101,6 +8165,7 @@ function reframeCurrent(dur = 420) {
 }
 function enterGame() {
   close();
+  buildRealms();
   rbBoard.group.visible = true;
   rbBoard.placeAnchored(positionOfEntry, (id) => HELL_FLOORS.get(id) ?? null);
   measureRound();
@@ -8661,6 +8726,7 @@ endingOption.addEventListener('click', () => { closeMenus(); worldEnding.open('f
 controlsEl.querySelector('[data-menu="options"] .menu-body').append(endingOption);
 installPanelLayout();
 window.WorldSystemReady = true;
+buildRealmsWhenIdle();
 window.dispatchEvent(new CustomEvent('ws-app-ready'));
 </script>
 

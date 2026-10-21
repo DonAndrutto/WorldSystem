@@ -86,6 +86,7 @@ Object.assign(window, {createWorldEnding, installPanelLayout: () => {}, createOf
   RB_VARIANTS: rbBoard.VARIANTS, rbZoneOf: rbBoard.zoneOf, rbRealmOf: rbBoard.realmOf, RB_REALMS: rbBoard.REALMS, SQUARE_NOTES, SQUARE_FULL,
   RB_COLOURS: rbBoard.PLAYER_COLOURS, SQUARE_ART: rbIcons.SQUARE_ART,
   cellBackground: rbIcons.cellBackground, createSquareModels: squareModels.createSquareModels, RB_MODEL_UNIT: squareModels.MODEL_UNIT,
+  buildRealmModel: squareModels.buildRealmModel, createModelMaterials: squareModels.createModelMaterials, createModelKit: squareModels.createModelKit,
   LIBERATION_ART: rbIcons.LIBERATION_ART, rbTibetan: rbBoard.tibetanOf,
   createSoundKit: rbSound.createSoundKit, rbVoice: rbSound.voiceFor,
   createGame: rbGame.createGame, throwDie: rbGame.throwDie,
@@ -531,7 +532,7 @@ for (const sq of rbBoard.SQUARES) {
 
 // Every anchored square still stands on the geometry drawn for it.
 const anchoredSquares = rbBoard.SQUARES.filter(sq=>sq.anchor);
-assert.equal(anchoredSquares.length,21);
+assert.equal(anchoredSquares.length,22);
 for (const sq of anchoredSquares) {
   const holder = app.rbBoard.nodes.get(sq.n);
   assert.equal(holder.userData.anchored,true,'square '+sq.n+' binds to '+sq.anchor);
@@ -568,7 +569,7 @@ for (const el of [boardEl, ...q('.panel-dock').children]) {
    of the entry. In the world it stands as a model instead, built from that
    field and its description, on its own marker. The models are built when
    game mode is first opened, and no painting is fetched for them. */
-for (const n of [1, 17, 59, 84, 104]) {
+for (const n of [8, 22, 59, 84, 104]) {
   const icon = cellOf(n).querySelector('.bv-icon');
   assert.ok(icon,'square '+n+' has somewhere to put its field');
   assert.equal(icon.hidden,false,'and shows it');
@@ -594,7 +595,7 @@ assert.ok(!textureRequests.some(r=>String(r.url).includes('assets/rebirth/square
    squares are given none — and keep their field everywhere a picture
    belongs: the cell, the throw card and the expanded entry. */
 const modelled = [...app.rbModels.modelled].sort((a,b)=>a-b);
-assert.deepEqual(modelled,[27,28,30,31,32,35,37],'the squares the world stands in for');
+assert.deepEqual(modelled,[1,2,3,4,5,6,7,10,17,18,19,20,27,28,29,30,31,32,35,36,37],'the squares the world stands in for');
 for (const n of modelled) {
   assert.equal(app.rbModels.models.get(n),undefined,'square '+n+' has no model over the world\'s own');
   const holder = app.rbBoard.nodes.get(n);
@@ -605,20 +606,35 @@ for (const n of modelled) {
 }
 assert.equal(app.rbModels.models.size,104-modelled.length,'a model for all the rest');
 assert.ok(app.rbModels.built(),'all of them built once the game is open');
-for (const n of [17,27,28,37]) {
+for (const n of [1,2,7,10,17,27,28,29,36,37]) {
   const drawn = app.meshesFor(rbBoard.BY_N.get(n).anchor);
   assert.ok(drawn.length,'square '+n+' still has something drawn for it');
+}
+/* The hells, the Vajra Hell beneath Avīci and the pretas' ground are the
+   world's own, each with what happens in it, and the game's squares stand on
+   them: opening the game builds them all, once. */
+for (const id of ['preta_realm','hell_sanjiva','hell_avichi','hell_vajra','cold_arbuda','cold_mahapadma']) {
+  const realm = app.meshesFor(id).filter(m=>m.userData.realm===id);
+  assert.ok(realm.length,id+' has its model in the world');
+}
+{
+  const floor = (id) => app.meshesFor(id).filter(m=>!m.userData.realm);
+  const box = (ms) => { const b = new THREE.Box3(); ms.forEach(m=>b.expandByObject(m)); return b; };
+  assert.ok(box(floor('hell_vajra')).max.y < box(floor('hell_avichi')).min.y,'the Vajra Hell lies beneath Avīci');
+  const holder = app.rbBoard.nodes.get(1);
+  const vajraFloor = box(floor('hell_vajra'));
+  assert.ok(holder.position.y>vajraFloor.min.y && holder.position.y<=vajraFloor.max.y+1e-9,'square 1 stands on the floor of the Vajra Hell');
 }
 assert.notEqual(cellOf(1).querySelector('.bv-icon').style.backgroundPosition,
                 cellOf(5).querySelector('.bv-icon').style.backgroundPosition,'no two cells share a place');
 // Loading again builds nothing twice.
-const firstBuilt = app.rbModels.models.get(1);
+const firstBuilt = app.rbModels.models.get(8);
 app.rbModels.load();
-assert.equal(app.rbModels.models.get(1),firstBuilt,'built once');
-assert.equal(app.rbBoard.nodes.get(1).children.filter(o=>o.userData.model||o.name==='rebirth_model_1').length,1);
+assert.equal(app.rbModels.models.get(8),firstBuilt,'built once');
+assert.equal(app.rbBoard.nodes.get(8).children.filter(o=>o.userData.model||o.name==='rebirth_model_8').length,1);
 // Each model turns about its own vertical to the camera, wherever it stands.
 app.rbModels.face(app.cam);
-for (const n of [17, 59, 104]) {
+for (const n of [22, 59, 104]) {
   const model = app.rbModels.models.get(n);
   model.updateMatrixWorld(true);
   const forward = new THREE.Vector3(0,0,1).transformDirection(model.matrixWorld).setY(0).normalize();
@@ -1199,15 +1215,20 @@ const floorMesh = app.meshesFor('golden_ground')[0];
 assert.ok(!floorMesh.material.clippingPlanes?.length,'underground visit preserves the entire world plate');
 app.show('golden_ground',true); advance(700);
 app.close(); advance(700);
-q('[data-world="overview"]').click(); advance(700);
-assert.ok(!floorMesh.material.clippingPlanes?.length,'overview restores the foundation');
+assert.deepEqual([...document.querySelectorAll('.game-focus [data-world]')].map(b=>b.textContent),
+  ['Focus here','Return to world','Full story'],'a visit offers the close view, the world and the whole story');
+q('[data-world="story"]').click(); advance(700);
+assert.equal(q('.sheet').hidden,false,'Full story opens the entry');
+assert.ok(q('.sheet h2').textContent.startsWith('2. '),'the entry of the square visited');
+assert.equal(q('.sheet .more').open,true,'with the whole passage open');
+assert.equal(app.gameFocus().id,'rebirth_sq_2','reading the story keeps the visit');
 q('[data-world="focus"]').click(); advance(700);
 assert.ok(!floorMesh.material.clippingPlanes?.length,'refocusing never clips the plate');
 q('[data-world="return"]').click(); advance(700);
 assert.equal(app.gameFocus(),null,'return closes the focused visit');
 assert.ok(!floorMesh.material.clippingPlanes?.length,'return restores materials');
 assert.equal(q('.game-focus').hidden,true);
-assert.ok(!document.body.classList.contains('world-only'));
+assert.ok(document.body.classList.contains('world-only'),'Return to world stays in the world');
 
 // Both the full entry and arrival card are single-action entry points.
 app.show('rebirth_sq_27',true); advance(300);
@@ -1580,7 +1601,7 @@ console.log(JSON.stringify({result:'PASS',heaps:37,illustrations:24,triangles,at
    + 'billboards from 16 angles, 84% tour image fit at three viewport sizes, all 37 stops, playback, isolation, '
    + 'exclusive panels, image failure/retry, keyboard controls, reduced motion and visibility restoration. '
    + 'The board of rebirth: the three-way mode switch, 104 cells in the board\'s own order with their names and zones, a write-up on every '
-   + 'square, the world framed clear of the board, all 21 anchored squares over the geometry drawn for them, the printed '
+   + 'square, the world framed clear of the board, all 22 anchored squares over the geometry drawn for them, the printed '
    + 'first move, the karmic trail, selection shared between cell, entry and marker, reading a player without taking their '
    + 'turn, the counter trap end to end, victory and its rite, the board/world swap, a board that answers aloud until it is hushed, pointer events on '
    + 'every overlay panel, and the Escape cascade. Three controls on the model and no more, the view menu naming the '

@@ -26,6 +26,8 @@ export const MODEL_UNIT = 0.14;      // × SUMMIT: one model unit in the world
 export const MODEL_LIFT = 0.058;     // × SUMMIT: the model stands above the realm gem
 export const VICTORY_SCALE = 2.6;    // Nirvana stands alone and is drawn larger
 
+import { humanFigure, POSES, sculptedHead } from './human-figure.js';
+
 const TAU = Math.PI * 2;
 const PI = Math.PI;
 
@@ -218,6 +220,8 @@ function makeBuilder(THREE, kit) {
     },
     /* How large one local unit is here, against the model's own unit. */
     scale() { return stack[stack.length - 1].getMaxScaleOnAxis(); },
+    /* The paint of a key, for parts that are painted vertex by vertex. */
+    paint: (key) => paintOf(key),
     /* A rod along a list of points. */
     path(key, points, r0, r1 = r0) {
       for (let i = 0; i < points.length - 1; i += 1) {
@@ -233,7 +237,9 @@ function makeBuilder(THREE, kit) {
 }
 
 /* Bake the collected parts: one indexed geometry per finish, each vertex
-   carrying its paint's colour. */
+   carrying its paint's colour — or, for a part painted vertex by vertex (a
+   face with its lips and brows, a robe with its folds), its own. The key
+   still decides the finish. */
 function bake(THREE, parts) {
   const bins = new Map();
   const p = new THREE.Vector3(), n = new THREE.Vector3(), nm = new THREE.Matrix3();
@@ -246,6 +252,7 @@ function bake(THREE, parts) {
     let bin = bins.get(finish);
     if (!bin) bins.set(finish, bin = { p: [], n: [], c: [], i: [] });
     const pos = geometry.attributes.position, nor = geometry.attributes.normal;
+    const own = geometry.attributes.color || null;
     const base = bin.p.length / 3;
     nm.getNormalMatrix(matrix);
     const flip = matrix.determinant() < 0;
@@ -254,7 +261,8 @@ function bake(THREE, parts) {
       n.fromBufferAttribute(nor, i).applyMatrix3(nm).normalize();
       bin.p.push(p.x, p.y, p.z);
       bin.n.push(n.x, n.y, n.z);
-      bin.c.push(colour.r, colour.g, colour.b);
+      if (own) bin.c.push(own.getX(i), own.getY(i), own.getZ(i));
+      else bin.c.push(colour.r, colour.g, colour.b);
     }
     const index = geometry.index;
     const count = index ? index.count : pos.count;
@@ -524,66 +532,41 @@ function flameRing(b, { cx = 0, cy = 0.5, z = -0.18, R = 0.36, n = 11, from = -0
    the middle of the face. `style` is the hair: buddha, shaved, crown, bun,
    hat, bonhat, dread, flame. */
 function head(b, { skin = 'skin', style = 'shaved', hair = null, eyes = 'down', ears = null, mouth = 'calm' } = {}) {
+  const long = ears === 'long' || (ears === null && (style === 'buddha' || style === 'crown'));
+  sculptedHead(b, { skin, eyes, mouth, long, scalp: style === 'shaved' && !paintOf(skin).glass, detail: b.scale() > 0.05 ? 1 : 0 });
+  hairOf(b, style, hair);
+}
+
+/* The hair, in the head's units: the Buddha's curls and uṣṇīṣa, the crown
+   and topknot of the gods, a layman's bun, the pandita's and the Bönpo's
+   hats, the yogi's locks, hair of flame, hair in disorder. */
+function hairOf(b, style, hair) {
   const k = b.kit;
   const hairKey = hair || (style === 'buddha' ? 'lapis' : style === 'crown' ? 'hair' : style === 'dread' ? 'earth' : 'black');
-  // skull, face, cheeks, chin
-  b.ell(skin, [0, 0.06, -0.04], [0.38, 0.44, 0.42]);
-  b.ell(skin, [0, -0.12, 0.07], [0.31, 0.36, 0.33]);
-  for (const x of [-1, 1]) b.ell(skin, [x * 0.15, -0.1, 0.19], [0.15, 0.14, 0.15]);
-  b.ell(skin, [0, -0.37, 0.17], [0.12, 0.09, 0.11]);
-  // nose
-  b.blob(skin, [0, 0.07, 0.36], [0, -0.12, 0.445], 0.05, 0.06);
-  b.ell(skin, [0, -0.13, 0.43], [0.07, 0.055, 0.06]);
-  for (const x of [-1, 1]) b.ell(skin, [x * 0.06, -0.15, 0.39], [0.045, 0.04, 0.04]);
-  // brows, the long arch of the images
-  for (const x of [-1, 1]) {
-    b.path('brow', [[x * 0.04, 0.12, 0.385], [x * 0.15, 0.155, 0.372], [x * 0.27, 0.115, 0.30]], 0.016, 0.011);
-    if (eyes === 'open') {
-      b.ell('eyewhite', [x * 0.145, 0.03, 0.34], [0.085, 0.04, 0.04]);
-      b.ell('lash', [x * 0.145, 0.03, 0.372], [0.035, 0.035, 0.012]);
-      b.path('lash', [[x * 0.06, 0.05, 0.37], [x * 0.15, 0.075, 0.37], [x * 0.235, 0.045, 0.33]], 0.012, 0.009);
-    } else {
-      // lowered lids: a full upper lid and the dark line of the lashes under it
-      b.ell(skin, [x * 0.15, 0.045, 0.33], [0.1, 0.05, 0.05]);
-      b.path('lash', [[x * 0.07, 0.02, 0.372], [x * 0.15, 0.008, 0.375], [x * 0.235, 0.022, 0.335]], 0.013, 0.009);
-    }
-  }
-  // lips, with the corners just lifted; or a mouth wide open in a scream
-  if (mouth === 'scream') {
-    b.ell('lash', [0, -0.27, 0.355], [0.085, 0.085, 0.05]);
-    b.ell('lip', [0, -0.185, 0.37], [0.1, 0.022, 0.035]);
-    b.ell('lip', [0, -0.36, 0.35], [0.08, 0.025, 0.035]);
-  } else {
-    b.ell('lip', [0, -0.235, 0.385], [0.1, 0.024, 0.035]);
-    b.ell('lip', [0, -0.272, 0.372], [0.08, 0.03, 0.035]);
-    for (const x of [-1, 1]) b.ell('lip', [x * 0.095, -0.228, 0.37], [0.02, 0.012, 0.02]);
-  }
-  // ears; the long lobes of a Buddha and the gods, stretched by earrings
-  const long = ears === 'long' || (ears === null && (style === 'buddha' || style === 'crown'));
-  for (const x of [-1, 1]) {
-    b.ell(skin, [x * 0.385, 0.0, -0.02], [0.06, 0.16, 0.1], [0, x * 0.25, 0]);
-    if (long) b.ell(skin, [x * 0.40, -0.24, 0.0], [0.05, 0.16, 0.07]);
-    if (style === 'crown') b.ell('gold', [x * 0.41, -0.36, 0.02], 0.06);
-  }
+  if (style === 'crown') for (const x of [-1, 1]) b.ell('gold', [x * 0.385, -0.34, -0.01], 0.055);
   if (style === 'buddha') {
-    b.ell('white', [0, 0.18, 0.395], 0.03);                     // the ūrṇā
-    b.ell(hairKey, [0, 0.22, -0.1], [0.42, 0.38, 0.44]);
-    // tight curls, turning to the right, over the whole of the hair
-    const n = 54;
+    b.ell('white', [0, 0.155, 0.335], 0.022);                    // the ūrṇā
+    b.ell(hairKey, [0, 0.2, -0.06], [0.375, 0.34, 0.37]);
+    // tight snail-shell curls, turning to the right, over the whole of the hair
+    const n = 84;
     for (let i = 0; i < n; i += 1) {
       const t = (i + 0.5) / n, phi = Math.acos(1 - 2 * t), theta = i * 2.39996;
       const dx = Math.sin(phi) * Math.cos(theta), dy = Math.cos(phi), dz = Math.sin(phi) * Math.sin(theta);
-      const p = [dx * 0.43, 0.22 + dy * 0.39, -0.1 + dz * 0.45];
-      if (p[1] < 0.12 || (p[2] > 0.18 && p[1] < 0.27)) continue;
-      b.put(k.octa, hairKey, p, [phi, theta, 0], 0.052);
+      const p = [dx * 0.38, 0.2 + dy * 0.345, -0.06 + dz * 0.375];
+      if (p[1] < 0.1 || (p[2] > 0.2 && p[1] < 0.24)) continue;
+      b.put(b.kit.bead, hairKey, p, [phi, theta, 0], [0.046, 0.04, 0.046]);
     }
     // the uṣṇīṣa, curled too, and the jewel at its crown
-    b.ell(hairKey, [0, 0.58, -0.09], [0.22, 0.2, 0.22]);
-    for (let i = 0; i < 12; i += 1) {
-      const a = i / 12 * TAU;
-      b.put(k.octa, hairKey, [Math.cos(a) * 0.2, 0.6, -0.09 + Math.sin(a) * 0.2], [0, a, 0.4], 0.045);
+    b.ell(hairKey, [0, 0.55, -0.06], [0.2, 0.19, 0.2]);
+    for (let i = 0; i < 14; i += 1) {
+      const a = i / 14 * TAU;
+      b.ell(hairKey, [Math.cos(a) * 0.18, 0.56, -0.06 + Math.sin(a) * 0.18], 0.04);
     }
-    b.ell('gold', [0, 0.78, -0.09], [0.06, 0.08, 0.06]);
+    for (let i = 0; i < 7; i += 1) {
+      const a = i / 7 * TAU;
+      b.ell(hairKey, [Math.cos(a) * 0.1, 0.67, -0.06 + Math.sin(a) * 0.1], 0.036);
+    }
+    b.ell('gold', [0, 0.75, -0.06], [0.05, 0.07, 0.05]);
   } else if (style === 'crown') {
     b.ell(hairKey, [0, 0.22, -0.1], [0.42, 0.38, 0.44]);
     b.ell(hairKey, [0, 0.62, -0.1], [0.17, 0.24, 0.17]);         // the topknot
@@ -652,147 +635,34 @@ function dressOf(o) {
   return 'robe';
 }
 
-/* Where each hand goes for each gesture, seated, as [elbow, wrist, fingers,
-   palm] for the right (-x) and the left (+x) hands. */
-const MUDRA = {
-  lap: [[[-0.17, 0.2, 0.03], [-0.075, 0.137, 0.105], [1, 0, 0.12], [0, 1, 0.1]],
-        [[0.17, 0.2, 0.03], [0.075, 0.126, 0.095], [-1, 0, 0.15], [0, 1, 0.1]]],
-  earth: [[[-0.18, 0.2, 0.05], [-0.205, 0.105, 0.135], [-0.05, -1, 0.3], [0.05, 0.25, -1]], null],
-  teach: [[[-0.16, 0.2, 0.06], [-0.052, 0.25, 0.122], [0.15, 1, 0.05], [0, 0, 1]],
-          [[0.16, 0.19, 0.06], [0.042, 0.222, 0.122], [-0.6, 0.5, 0.15], [0, 0.1, -1]]],
-  raise: [[[-0.2, 0.22, 0.06], [-0.205, 0.335, 0.1], [0.05, 1, 0.1], [0, 0, 1]], null],
-  knees: [[[-0.19, 0.2, 0.05], [-0.2, 0.1, 0.13], [0, -0.35, 1], [0, -1, 0]],
-          [[0.19, 0.2, 0.05], [0.2, 0.1, 0.13], [0, -0.35, 1], [0, -1, 0]]],
-  drum: [[[-0.17, 0.2, 0.07], [-0.07, 0.27, 0.13], [0.6, 0.5, 0.4], [0, 0, 1]],
-         [[0.2, 0.24, 0.06], [0.2, 0.36, 0.1], [0, 1, 0.1], [-1, 0, 0]]],
-  heart: [[[-0.15, 0.2, 0.07], [-0.03, 0.255, 0.125], [0.25, 1, 0.1], [0.4, 0, 1]],
-          [[0.15, 0.2, 0.07], [0.03, 0.255, 0.125], [-0.25, 1, 0.1], [-0.4, 0, 1]]]
-};
-
-/* Jewellery of the gods: a necklace at the throat, a longer one to the
-   breast, armlets and bracelets. */
-function ornaments(b, { neck, chest, shoulders, wrists }) {
-  b.put(b.kit.torus(0.12), 'gold', neck, [PI / 2 - 0.35, 0, 0], [0.068, 0.062, 0.065]);
-  b.path('gold', [[-0.075, neck[1] - 0.01, neck[2] + 0.01], [-0.045, chest[1] + 0.03, chest[2] - 0.005], [0, chest[1], chest[2]],
-    [0.045, chest[1] + 0.03, chest[2] - 0.005], [0.075, neck[1] - 0.01, neck[2] + 0.01]], 0.0055);
-  b.ell('red', chest, 0.012);
-  shoulders.forEach((p) => b.put(b.kit.torus(0.25), 'gold', p, [0, 0, PI / 2], 0.03));
-  wrists.forEach((p) => b.put(b.kit.torus(0.3), 'gold', p, [PI / 2, 0, 0], 0.021));
-}
-
-/* An arm from shoulder through elbow to wrist: sleeve or skin, a hand at its
-   end. A sleeve opens at the wrist; a bare arm narrows to it. */
-function arm(b, { shoulder, elbow, wrist, dir, palm, side, skin, sleeve = null, size = 1, thin = false }) {
-  const t = thin ? 0.72 : 1;
-  if (sleeve) {
-    b.blob(sleeve, shoulder, elbow, 0.033 * size, 0.031 * size);
-    b.ell(sleeve, elbow, 0.028 * size);
-    b.blob(sleeve, elbow, wrist, 0.029 * size, 0.026 * size);
-    b.orient(b.kit.torus(0.3), sleeve, wrist, [0, 0, 1], [elbow[0] - wrist[0], elbow[1] - wrist[1], elbow[2] - wrist[2]], 0.022 * size);
-    b.blob(skin, wrist, [wrist[0] + dir[0] * 0.01, wrist[1] + dir[1] * 0.01, wrist[2] + dir[2] * 0.01], 0.017 * size);
-  } else {
-    // the arm in two tapering muscles, full at the shoulder, slim at the wrist
-    const mid = v3.add(v3.mul(shoulder, 0.55), v3.mul(elbow, 0.45));
-    b.blob(skin, shoulder, v3.add(elbow, v3.mul(v3.sub(elbow, shoulder), 0.08)), 0.03 * size * t, 0.028 * size * t);
-    b.ell(skin, mid, 0.029 * size * t);
-    b.ell(skin, elbow, 0.021 * size * t);
-    const fore = v3.add(v3.mul(elbow, 0.7), v3.mul(wrist, 0.3));
-    b.blob(skin, elbow, wrist, 0.023 * size * t, 0.02 * size * t);
-    b.ell(skin, fore, 0.022 * size * t);
-    b.ell(skin, wrist, 0.014 * size * t);
-  }
-  hand(b, skin, wrist, dir, palm, side, size);
-}
-
 /* A seated figure, legs crossed in the vajra posture, about 0.6 units to the
-   top of the head at s = 1. */
-function seated(b, o = {}) {
-  const { x = 0, y = 0, z = 0, s = 1, robe = 'maroon', skin = 'skin', hair = 'shaved', halo = null,
-    bowl = null, mudra = 'lap', thin = false, legs = robe, ry = 0, sash = null, aura = null } = o;
+   top of the head at s = 1; `mudra` is the gesture (human-figure.js). */
+const SEATED_STATURE = 1.0;
+const STANDING_STATURE = 0.74;
+function figureDress(o) {
+  const { robe = 'maroon', skin = 'skin', hair = 'shaved' } = o;
   const dress = dressOf(o);
-  const body = o.body || (dress === 'bare' ? skin : robe);
-  const fold = (key) => (paintOf(key).glass ? key : key + '~');
+  const glass = !!paintOf(skin).glass;
+  return {
+    dress, skin, thin: !!o.thin, eyes: o.eyes, sash: o.sash,
+    robe: dress === 'bare' ? (o.legs || robe) : (o.body || robe),
+    lower: o.legs || robe,
+    jewels: dress === 'bare' && (hair === 'crown' || !!o.jewels) && !glass,
+    border: hair === 'buddha' && !glass ? 'gold' : null,
+    longEars: hair === 'buddha' || hair === 'crown',
+    scalp: hair === 'shaved',
+    hair: (bb) => hairOf(bb, hair, null)
+  };
+}
+
+function seated(b, o = {}) {
+  const { x = 0, y = 0, z = 0, s = 1, halo = null, bowl = null, mudra = 'lap', ry = 0, aura = null } = o;
   b.at([x, y, z], [0, ry, 0], s, () => {
     const k = b.kit;
-    const w = thin ? 0.78 : 1;
-    // the legs, crossed, under the robe; both soles turned up
-    b.ell(legs, [0, 0.07, 0.035], [0.235, 0.07, 0.15]);
-    for (const sx of [-1, 1]) b.ell(legs, [sx * 0.2, 0.055, 0.085], [0.075, 0.055, 0.085]);
-    b.blob(legs, [0.18, 0.06, 0.125], [-0.06, 0.075, 0.16], 0.046, 0.04);
-    b.blob(legs, [-0.18, 0.058, 0.115], [0.06, 0.068, 0.15], 0.044, 0.038);
-    for (const sx of [-1, 1]) {
-      const heel = [-sx * 0.035, 0.1 + (sx > 0 ? 0.008 : 0), 0.14], toe = [-sx * 0.15, 0.105 + (sx > 0 ? 0.008 : 0), 0.105];
-      b.orient(k.ball, skin, [(heel[0] + toe[0]) / 2, heel[1], (heel[2] + toe[2]) / 2], [toe[0] - heel[0], 0, toe[2] - heel[2]], [0, 1, 0.2], [0.026, 0.062, 0.015]);
-      for (let i = 0; i < 4; i += 1) b.ell(skin, [toe[0] - sx * 0.002, toe[1] + 0.004, toe[2] + 0.006 - i * 0.011], 0.0085);
-    }
-    // the hem of the robe over the lap, and the fall of cloth in front of the seat
-    b.path(fold(legs), [[-0.2, 0.098, 0.1], [-0.12, 0.112, 0.16], [0, 0.106, 0.176], [0.12, 0.112, 0.16], [0.2, 0.098, 0.1]], 0.0045);
-    for (const sx of [-1, 1]) b.path(fold(legs), [[sx * 0.25, 0.06, 0.07], [sx * 0.21, 0.035, 0.14], [sx * 0.12, 0.022, 0.18]], 0.004);
-    b.ell(legs, [0, 0.035, 0.175], [0.08, 0.035, 0.03]);
-    b.path(fold(legs), [[-0.04, 0.06, 0.2], [-0.035, 0.012, 0.205]], 0.005);
-    b.path(fold(legs), [[0.04, 0.06, 0.2], [0.035, 0.012, 0.205]], 0.005);
-    // the body: one turned profile, waist to collar, flattened front to back
-    const trunk = k.lathe('trunk', [[0, 0.085], [0.15, 0.085], [0.142, 0.13], [0.128, 0.18], [0.13, 0.22], [0.142, 0.265],
-      [0.15, 0.3], [0.146, 0.325], [0.118, 0.348], [0.06, 0.366], [0, 0.37]], 22);
-    b.put(trunk, body, [0, 0, 0], 0, [w, 1, thin ? 0.56 : 0.64]);
-    const shoulders = [[-0.142 * w, 0.305, 0], [0.142 * w, 0.305, 0]];
-    shoulders.forEach((p) => b.ell(body, [p[0] * 0.97, p[1] + 0.008, p[2]], [0.044, 0.048, 0.046]));
-    b.beam(skin, [0, 0.34, 0.0], [0, 0.41, 0.012], 0.034, 0.031);
-    const sleeves = [null, null];
-    if (dress === 'robe') {
-      // the right shoulder and breast bare, the robe over the left, its rolled edge
-      b.ell(skin, [-0.137 * w, 0.312, 0.0], [0.043, 0.046, 0.044]);
-      b.ell(skin, [-0.06, 0.305, 0.06], [0.062, 0.044, 0.032]);
-      b.ell(skin, [-0.03, 0.345, 0.035], [0.055, 0.03, 0.04]);
-      b.path(fold(robe), [[0.06, 0.368, 0.03], [0.02, 0.322, 0.093], [-0.045, 0.255, 0.098], [-0.115, 0.19, 0.088], [-0.15, 0.14, 0.06]], 0.008);
-      // a Buddha's robe is bordered with gold, and sewn in the patches of a field
-      if (hair === 'buddha') {
-        b.path('gold', [[0.065, 0.372, 0.036], [0.026, 0.328, 0.1], [-0.04, 0.262, 0.106], [-0.11, 0.197, 0.096], [-0.148, 0.148, 0.068]], 0.0045);
-        b.path('gold', [[-0.205, 0.103, 0.104], [-0.12, 0.118, 0.166], [0, 0.112, 0.183], [0.12, 0.118, 0.166], [0.205, 0.103, 0.104]], 0.004);
-      }
-      b.path(fold(body), [[0.09, 0.3, 0.083], [0.04, 0.21, 0.092], [-0.01, 0.13, 0.1]], 0.0035);
-      b.path(fold(body), [[0.13, 0.26, 0.055], [0.095, 0.17, 0.084]], 0.0035);
-      if (sash) {
-        b.path(sash, [[0.14, 0.33, -0.02], [0.09, 0.352, 0.05], [0.05, 0.315, 0.092]], 0.014, 0.01);
-        b.path(sash, [[0.145, 0.32, -0.03], [0.165, 0.2, -0.04], [0.17, 0.1, 0.0]], 0.016, 0.012);
-      }
-      sleeves[1] = robe;
-      // the robe hanging from the left forearm
-      b.ell(robe, [0.168, 0.2, 0.045], [0.02, 0.05, 0.034]);
-    } else if (dress === 'bare') {
-      for (const sx of [-1, 1]) b.ell(body, [sx * 0.052, 0.29, 0.068], [0.056, 0.036, 0.024]);
-      b.ell(fold(body), [0, 0.165, 0.083], 0.006);
-      if (thin) for (let i = 0; i < 4; i += 1) for (const sx of [-1, 1]) {
-        const yy = 0.27 - i * 0.024;
-        b.path(fold(body), [[sx * 0.02, yy + 0.01, 0.083], [sx * 0.06, yy, 0.077], [sx * 0.1, yy - 0.012, 0.055]], 0.0035);
-      }
-      b.ell(legs, [0, 0.11, 0.0], [0.155, 0.04, 0.115]);
-      if ((hair === 'crown' || o.jewels) && !paintOf(body).glass) ornaments(b, { neck: [0, 0.345, 0.01], chest: [0, 0.255, 0.098], shoulders: [[-0.15, 0.27, 0], [0.15, 0.27, 0]], wrists: [] });
-      if (sash) {
-        // the scarf round the shoulders, its ends falling past the elbows
-        b.path(sash, [[-0.15, 0.3, 0.02], [-0.08, 0.36, -0.06], [0.08, 0.36, -0.06], [0.15, 0.3, 0.02]], 0.014);
-        for (const sx of [-1, 1]) b.path(sash, [[sx * 0.15, 0.3, 0.02], [sx * 0.22, 0.2, 0.06], [sx * 0.24, 0.1, 0.1], [sx * 0.27, 0.03, 0.14]], 0.012, 0.008);
-      }
-    } else {
-      // a lay coat, crossed at the breast, a sash at the waist
-      b.path(fold(body), [[-0.06, 0.36, 0.05], [0.03, 0.27, 0.1], [0.08, 0.17, 0.1]], 0.008);
-      b.put(k.torus(0.12), sash || fold(body), [0, 0.15, 0], [PI / 2, 0, 0], [0.13, 0.1, 0.12]);
-      sleeves[0] = sleeves[1] = robe;
-    }
-    // arms and the gesture
-    const pose = MUDRA[mudra] || MUDRA.lap;
-    [-1, 1].forEach((side, i) => {
-      const set = pose[i] || MUDRA.lap[i];
-      const [elbow, wrist, dir, palm] = set.map((p) => [p[0], p[1], p[2]]);
-      if (thin) elbow[0] *= 0.9;
-      arm(b, { shoulder: shoulders[i], elbow, wrist, dir, palm, side, skin: o.arms || skin, sleeve: sleeves[i], thin });
-      if (dress === 'bare' && (hair === 'crown' || o.jewels) && !paintOf(skin).glass) b.put(k.torus(0.3), 'gold', wrist, [PI / 2, 0, 0], 0.02);
-    });
+    humanFigure(b, { ...figureDress(o), stature: SEATED_STATURE, pose: POSES.seated(mudra) });
     if (bowl) {
-      b.put(k.lathe('almsbowl', [[0, 0], [0.04, 0.003], [0.058, 0.02], [0.06, 0.036], [0.054, 0.05], [0.05, 0.052], [0.04, 0.046], [0, 0.044]], 18), bowl, [0, 0.13, 0.1]);
+      b.put(k.lathe('almsbowl', [[0, 0], [0.04, 0.003], [0.058, 0.02], [0.06, 0.036], [0.054, 0.05], [0.05, 0.052], [0.04, 0.046], [0, 0.044]], 18), bowl, [0, 0.152, 0.158], 0, 0.85);
     }
-    // the head
-    b.at([0, 0.47, 0.018], 0, 0.135, () => head(b, { skin, style: hair, eyes: o.eyes }));
     if (halo) {
       b.put(k.disc, halo, [0, 0.49, -0.075], [PI / 2, 0, 0], [0.13, 0.008, 0.13]);
       b.put(k.torus(0.06), halo === 'gold' ? 'brass' : halo, [0, 0.49, -0.07], [0, 0, 0], [0.13, 0.13, 0.06]);
@@ -803,80 +673,45 @@ function seated(b, o = {}) {
 
 /* A standing figure, about 0.74 units to the top of the head at s = 1.
    `rightHand` and `leftHand` are where the wrists are (the right is towards
-   -x); a staff goes in the left hand, a bowl in the right. */
+   -x); a staff goes in the left hand, a bowl in the right. A hand above the
+   waist is raised, palm out. */
 function standing(b, o = {}) {
-  const { x = 0, y = 0, z = 0, s = 1, robe = 'maroon', skin = 'skin', hair = 'shaved', staff = null, bowl = null, halo = null, ry = 0, wide = 1, sash = null } = o;
-  const dress = dressOf(o);
-  const fold = (key) => (paintOf(key).glass ? key : key + '~');
+  const { x = 0, y = 0, z = 0, s = 1, staff = null, bowl = null, halo = null, ry = 0, wide = 1 } = o;
+  const S = STANDING_STATURE;
   b.at([x, y, z], [0, ry, 0], s, () => {
     const k = b.kit;
-    for (const sx of [-1, 1]) {
-      b.orient(k.ball, skin, [sx * 0.045, 0.012, 0.05], [sx * 0.15, 0, 1], [0, 1, 0], [0.026, 0.05, 0.013]);
-    }
-    const body = o.body || (dress === 'bare' ? skin : robe);
-    if (dress === 'bare') {
-      // the lower garment to the ankles, the bare body above it
-      const dhoti = k.lathe('dhoti', [[0, 0.03], [0.1, 0.03], [0.105, 0.05], [0.095, 0.2], [0.098, 0.32], [0.105, 0.37], [0.06, 0.385], [0, 0.39]], 22);
-      b.put(dhoti, robe, [0, 0, 0], 0, [wide, 1, wide * 0.78]);
-      for (const fx of [-0.05, 0, 0.05]) b.path(fold(robe), [[fx, 0.35, 0.075], [fx * 1.2, 0.2, 0.074], [fx * 1.3, 0.04, 0.08]], 0.005);
-      b.put(k.torus(0.12), sash || 'gold', [0, 0.36, 0], [PI / 2, 0, 0], [0.105 * wide, 0.083 * wide, 0.1]);
-      const chest = k.lathe('chest', [[0, 0.33], [0.098, 0.33], [0.092, 0.38], [0.096, 0.43], [0.11, 0.48], [0.118, 0.51], [0.114, 0.535], [0.09, 0.555], [0.045, 0.568], [0, 0.572]], 20);
-      b.put(chest, body, [0, 0, 0], 0, [1, 1, 0.66]);
-      for (const sx of [-1, 1]) b.ell(body, [sx * 0.047, 0.505, 0.056], [0.048, 0.032, 0.022]);
-      b.ell(fold(body), [0, 0.4, 0.064], 0.005);
-      if (hair === 'crown' && !paintOf(body).glass) ornaments(b, { neck: [0, 0.565, 0.008], chest: [0, 0.48, 0.08], shoulders: [[-0.125, 0.5, 0], [0.125, 0.5, 0]], wrists: [] });
-      if (sash) {
-        b.path(sash, [[-0.12, 0.52, 0.02], [-0.06, 0.575, -0.05], [0.06, 0.575, -0.05], [0.12, 0.52, 0.02]], 0.012);
-        for (const sx of [-1, 1]) b.path(sash, [[sx * 0.12, 0.52, 0.02], [sx * 0.17, 0.4, 0.05], [sx * 0.18, 0.25, 0.04], [sx * 0.2, 0.08, 0.02]], 0.01, 0.007);
-      }
-    } else {
-      const gown = k.lathe('robe-gown', [[0, 0.015], [0.115, 0.015], [0.119, 0.03], [0.108, 0.12], [0.1, 0.26], [0.104, 0.36],
-        [0.112, 0.44], [0.12, 0.5], [0.112, 0.545], [0.07, 0.578], [0, 0.585]], 24);
-      b.put(gown, body, [0, 0, 0], 0, [wide, 1, wide * 0.78]);
-      for (const fx of [-0.07, -0.025, 0.025, 0.07]) b.path(fold(body), [[fx, 0.42, 0.083], [fx * 1.1, 0.22, 0.077], [fx * 1.2, 0.03, 0.088]], 0.0055);
-      b.put(k.torus(0.1), fold(body), [0, 0.022, 0], [PI / 2, 0, 0], [0.117 * wide, 0.091 * wide, 0.1]);
-      if (dress === 'robe') {
-        b.ell(skin, [-0.12, 0.535, 0.0], [0.04, 0.045, 0.04]);
-        b.ell(skin, [-0.058, 0.52, 0.066], [0.056, 0.038, 0.022]);
-        b.ell(skin, [-0.03, 0.555, 0.028], [0.05, 0.022, 0.032]);
-        b.path(fold(body), [[0.065, 0.585, 0.02], [0.03, 0.54, 0.083], [-0.04, 0.47, 0.095], [-0.12, 0.4, 0.07]], 0.012);
-        if (hair === 'buddha') {
-          b.path('gold', [[0.07, 0.59, 0.026], [0.034, 0.546, 0.09], [-0.036, 0.477, 0.102], [-0.116, 0.407, 0.078]], 0.005);
-          b.put(k.torus(0.08), 'gold', [0, 0.028, 0], [PI / 2, 0, 0], [0.12 * wide, 0.094 * wide, 0.08]);
-        }
-      } else {
-        b.path(fold(body), [[-0.05, 0.58, 0.05], [0.03, 0.5, 0.085], [0.07, 0.4, 0.08]], 0.007);
-        b.put(k.torus(0.12), sash || fold(body), [0, 0.37, 0], [PI / 2, 0, 0], [0.105, 0.083, 0.1]);
-      }
-    }
-    const shoulders = [[-0.118, 0.54, 0], [0.118, 0.54, 0]];
-    shoulders.forEach((p) => b.ell(dress === 'bare' ? body : body, p, 0.042));
-    b.blob(skin, [0, 0.55, 0], [0, 0.63, 0.01], 0.03, 0.03);
-    const wrists = [o.rightHand || [-0.13, 0.32, 0.06], o.leftHand || [0.13, 0.32, 0.06]];
-    [-1, 1].forEach((side, i) => {
-      const wrist = wrists[i], shoulder = shoulders[i];
-      const raised = wrist[1] > 0.4;
-      const elbow = raised ? [side * 0.165, 0.4, 0.07] : [side * 0.148, 0.42, 0.02];
-      const dir = raised ? [0, 1, 0.12] : [wrist[0] - elbow[0], wrist[1] - elbow[1], wrist[2] - elbow[2] + 0.04];
-      const palm = raised ? [0, 0, 1] : [-side, 0, 0.2];
-      const sleeve = dress === 'coat' || (dress === 'robe' && side > 0) ? body : null;
-      arm(b, { shoulder, elbow, wrist, dir, palm, side, skin, sleeve, size: 0.95 });
-      if (dress === 'robe' && side > 0) b.ell(body, [elbow[0] + 0.008, elbow[1] - 0.05, elbow[2] + 0.01], [0.022, 0.065, 0.03]);
-      if (dress === 'bare' && hair === 'crown' && !paintOf(skin).glass) b.put(k.torus(0.3), 'gold', wrist, [PI / 2, 0, 0], 0.019);
+    const pose = POSES.standing();
+    const given = [o.rightHand, o.leftHand];
+    pose.arms = pose.arms.map((arm, i) => {
+      const side = i ? 1 : -1;
+      const w = given[i];
+      if (!w) return arm;
+      const raised = w[1] > 0.4;
+      const holds = (i === 1 && staff) || (i === 0 && bowl);
+      return {
+        wrist: w.map((v) => v / S),
+        pole: raised ? [side, -1, -0.3] : [side * 0.4, -0.2, -1],
+        dir: raised ? [0, 1, 0.12] : bowl && i === 0 ? [-side * 0.25, 0.1, 1] : 'fore',
+        palm: raised ? [0, 0, 1] : bowl && i === 0 ? [0, 1, 0] : [-side, 0, 0.2],
+        curl: raised ? 'open' : holds ? 'hold' : 'rest'
+      };
     });
+    const wrists = [null, null];
+    humanFigure(b, { ...figureDress(o), stature: S, pose, wide,
+      hemBorder: o.hair === 'buddha' ? 'gold' : null,
+      onHand: (i, wrist) => { wrists[i] = wrist; } });
     if (staff) {
-      const hand2 = wrists[1];
-      b.beam(staff, [hand2[0], 0, hand2[2] + 0.012], [hand2[0], 0.84, hand2[2] + 0.012], 0.009);
-      b.put(k.torus(0.16), staff, [hand2[0], 0.865, hand2[2] + 0.012], 0, 0.035);
-      for (const sx of [-1, 1]) b.put(k.torus(0.3), staff, [hand2[0] + sx * 0.032, 0.85, hand2[2] + 0.012], [PI / 2, 0, 0], 0.01);
-      b.ell(staff, [hand2[0], 0.9, hand2[2] + 0.012], [0.008, 0.016, 0.008]);
+      const h = wrists[1];
+      b.beam(staff, [h[0], 0, h[2] + 0.012], [h[0], 0.84, h[2] + 0.012], 0.008);
+      b.put(k.torus(0.16), staff, [h[0], 0.865, h[2] + 0.012], 0, 0.035);
+      for (const sx of [-1, 1]) b.put(k.torus(0.3), staff, [h[0] + sx * 0.032, 0.85, h[2] + 0.012], [PI / 2, 0, 0], 0.01);
+      b.ell(staff, [h[0], 0.9, h[2] + 0.012], [0.008, 0.016, 0.008]);
     }
     if (bowl) {
       const h = wrists[0];
       b.put(k.lathe('almsbowl', [[0, 0], [0.04, 0.003], [0.058, 0.02], [0.06, 0.036], [0.054, 0.05], [0.05, 0.052], [0.04, 0.046], [0, 0.044]], 18),
-        bowl, [h[0] + 0.01, h[1] + 0.012, h[2] + 0.03], 0, 0.85);
+        bowl, [h[0] + 0.012, h[1] + 0.008, h[2] + 0.045], 0, 0.75);
     }
-    b.at([0, 0.675, 0.012], 0, 0.115, () => head(b, { skin, style: hair, eyes: o.eyes }));
     if (halo) {
       b.put(k.disc, halo, [0, 0.685, -0.07], [PI / 2, 0, 0], [0.115, 0.008, 0.115]);
       b.put(k.torus(0.08), halo === 'gold' ? 'brass' : halo, [0, 0.685, -0.065], 0, 0.115);
@@ -1091,51 +926,26 @@ function wrathBody(b, o = {}) {
    them: writhing with arms flung up, kneeling, huddled against the cold,
    lying, fighting, or only half out of the thing it is caught in. About half
    a unit tall standing, at s = 1. */
-const SUFFER = {
-  writhe: { hip: 0.25, chest: [0, 0.42, 0.0], head: [0, 0.52, -0.01], tilt: -0.35,
-    arms: [[[-0.13, 0.52, 0.02], [-0.11, 0.63, 0.04]], [[0.13, 0.52, 0.02], [0.12, 0.62, 0.0]]],
-    legs: [[[-0.05, 0.13, 0.04], [-0.06, 0.02, 0.0]], [[0.05, 0.13, 0.02], [0.07, 0.02, -0.02]]] },
-  kneel: { hip: 0.17, chest: [0, 0.33, 0.03], head: [0, 0.42, 0.04], tilt: -0.5,
-    arms: [[[-0.1, 0.38, 0.09], [-0.05, 0.47, 0.12]], [[0.1, 0.38, 0.09], [0.05, 0.47, 0.12]]],
-    legs: [[[-0.05, 0.035, 0.1], [-0.05, 0.02, -0.07]], [[0.05, 0.035, 0.1], [0.05, 0.02, -0.07]]] },
-  huddle: { hip: 0.1, chest: [0, 0.25, 0.04], head: [0, 0.31, 0.08], tilt: 0.45,
-    arms: [[[-0.1, 0.2, 0.09], [0.0, 0.2, 0.15]], [[0.1, 0.2, 0.09], [0.0, 0.19, 0.14]]],
-    legs: [[[-0.05, 0.21, 0.1], [-0.05, 0.02, 0.07]], [[0.05, 0.21, 0.1], [0.05, 0.02, 0.07]]] },
-  fight: { hip: 0.25, chest: [0, 0.42, 0.02], head: [0, 0.51, 0.02], tilt: 0.1,
-    arms: [[[-0.14, 0.5, 0.0], [-0.1, 0.6, 0.05]], [[0.12, 0.34, 0.08], [0.06, 0.37, 0.15]]],
-    legs: [[[-0.07, 0.13, 0.06], [-0.09, 0.02, 0.08]], [[0.06, 0.12, -0.03], [0.1, 0.02, -0.09]]] },
-  reach: { hip: 0.25, chest: [0, 0.41, 0.05], head: [0, 0.5, 0.07], tilt: -0.6,
-    arms: [[[-0.09, 0.5, 0.1], [-0.06, 0.6, 0.13]], [[0.1, 0.48, 0.1], [0.08, 0.57, 0.14]]],
-    legs: [[[-0.05, 0.13, 0.04], [-0.05, 0.02, 0.0]], [[0.05, 0.14, 0.0], [0.06, 0.05, -0.05]]] }
-};
-function sufferer(b, { x = 0, y = 0, z = 0, s = 1, ry = 0, rx = 0, rz = 0, skin = 'skin', pose = 'writhe', legs = true, hair = 'black', blisters = null, holds = null } = {}) {
-  const P = SUFFER[pose] || SUFFER.writhe;
+/* A being of the hells or of the pretas, on the same body as everyone
+   else: naked but for a loincloth, eyes open, mouth open in the scream.
+   `pose` is one of the body's poses — writhe, kneel, huddle, fight, reach,
+   agony (thrown down on the back), fallen (face down). Without `legs` the
+   being is sunk to the waist in whatever it stands in. */
+const SUFFER_STATURE = 0.58;
+function sufferer(b, { x = 0, y = 0, z = 0, s = 1, ry = 0, rx = 0, rz = 0, skin = 'skin', pose = 'writhe', legs = true, hair = 'black', blisters = null, holds = null, thin = false, belly = false } = {}) {
   b.at([x, y, z], [rx, ry, rz], s, () => {
-    const k = b.kit;
-    const pelvis = [0, P.hip, pose === 'huddle' ? -0.03 : 0];
-    b.ell(skin, pelvis, [0.07, 0.05, 0.05]);
-    b.blob(skin, pelvis, P.chest, 0.06, 0.045);
-    b.ell(skin, v3.add(P.chest, [0, -0.02, 0.0]), [0.075, 0.05, 0.05]);
-    const neck = v3.add(P.chest, [0, 0.045, 0]);
-    b.beam(skin, neck, v3.add(P.head, [0, -0.04, 0]), 0.02);
-    b.at(P.head, [P.tilt, 0, 0], 0.085, () => head(b, { skin, style: hair ? 'messy' : 'shaved', hair, eyes: 'open', mouth: 'scream', ears: 'short' }));
-    [-1, 1].forEach((side, i) => {
-      const shoulder = v3.add(P.chest, [side * 0.07, 0.02, 0]);
-      const [elbow, wrist] = P.arms[i];
-      b.path(skin, [shoulder, elbow, wrist], 0.02, 0.014);
-      const dir = v3.sub(wrist, elbow);
-      hand(b, skin, wrist, dir, [0, 0, 1], side, 0.6);
-      if (holds && i === 0) implement(b, holds, v3.add(wrist, v3.mul(v3.norm(dir), 0.02)), dir, 0.16);
-      if (legs) {
-        const hip = v3.add(pelvis, [side * 0.04, -0.02, 0]);
-        const [knee, ankle] = P.legs[i];
-        b.path(skin, [hip, knee, ankle], 0.028, 0.017);
-        b.orient(k.ball, skin, v3.add(ankle, [0, -0.005, 0.02]), [0, 0, 1], [0, 1, 0], [0.018, 0.032, 0.01]);
-      }
+    const S = SUFFER_STATURE;
+    const made = POSES[pose] ? POSES[pose]() : POSES.writhe();
+    const out = humanFigure(b, {
+      stature: S, pose: made, dress: 'loin', skin, robe: 'ash', lower: 'ash', thin, noLegs: !legs,
+      eyes: 'open', mouth: 'scream', scalp: !hair, iris: 'black', build: belly ? 1.05 : 1,
+      hair: (bb) => hairOf(bb, hair ? 'messy' : 'shaved', hair || null),
+      onHand: (i, wrist, dir) => { if (holds && i === 0) implement(b, holds, v3.add(wrist, v3.mul(v3.norm(dir), 0.02)), dir, 0.16); }
     });
-    if (blisters) for (let i = 0; i < 6; i += 1) {
+    if (blisters) for (let i = 0; i < 7; i += 1) {
       const a = i * 2.3;
-      b.ell(blisters, v3.add(P.chest, [Math.sin(a) * 0.06, (i % 3 - 1) * 0.04, 0.045 + Math.cos(a) * 0.01]), 0.012);
+      const p = out.frames.apply(out.frames.MC, [Math.sin(a) * 0.05 * S, (0.12 + (i % 3) * 0.05) * S, 0.075 * S + Math.cos(a) * 0.006]);
+      b.ell(blisters, p, 0.012 * S * (0.8 + (i % 2) * 0.4));
     }
   });
 }
@@ -1786,118 +1596,6 @@ function book(b, { x = 0, y = 0, z = 0, s = 1, key = 'red' } = {}) {
    string says what is built, for the entry and for the record; the function
    builds it. */
 const SQUARE_MODELS = {
-  1: ['A blue crossed vajra over a floor of black fire, beings writhing in it at its foot: the vajra itself become the prison.', (b) => {
-    ground(b, 'ring', { w: 0.84, floor: 'black', rimKey: 'blue', inner: 'navy' });
-    flameRing(b, { cy: 0.52, z: -0.12, R: 0.3, n: 13, from: -0.1, to: 1.1, h: 0.18, keys: ['crimson', 'black', 'fire'] });
-    for (let i = 0; i < 9; i += 1) {
-      const a = i / 9 * TAU;
-      fire(b, { x: Math.cos(a) * 0.3, y: 0.04, z: Math.sin(a) * 0.22, h: 0.12 + (i % 3) * 0.04, w: 0.08, keys: ['black', 'crimson', 'fire'] });
-    }
-    crossedVajra(b, { y: 0.56, s: 0.56, key: 'blue', hub: 'white' });
-    sufferer(b, { x: -0.17, y: 0.04, z: 0.13, s: 0.36, ry: 0.4, skin: 'rose', pose: 'writhe' });
-    sufferer(b, { x: 0.16, y: 0.04, z: 0.12, s: 0.34, ry: -0.5, skin: 'rose', pose: 'kneel' });
-    sufferer(b, { x: 0.0, y: 0.04, z: -0.06, s: 0.3, skin: 'rose', pose: 'reach' });
-  }],
-  2: ['A sealed iron house glowing white-hot, and the beings in it one blaze with the fire: Avīci, the hell without interval.', (b) => {
-    ground(b, 'ring', { w: 0.86, floor: 'black', rimKey: 'blue', inner: 'navy' });
-    b.put(b.kit.disc, 'ember', [0, 0.045, 0], 0, [0.36, 0.006, 0.36]);
-    // the iron house: red-hot walls between black ribs, a roof of iron
-    b.put(b.kit.box, 'fire', [0, 0.21, -0.04], 0, [0.34, 0.32, 0.26]);
-    for (const x of [-0.17, -0.06, 0.06, 0.17]) b.put(b.kit.box, 'iron', [x, 0.21, 0.092], 0, [0.022, 0.34, 0.02]);
-    for (const y2 of [0.07, 0.21, 0.35]) b.put(b.kit.box, 'iron', [0, y2, 0.092], 0, [0.36, 0.02, 0.02]);
-    b.put(b.kit.pyramid, 'iron', [0, 0.43, -0.04], 0, [0.32, 0.13, 0.27]);
-    b.put(b.kit.box, 'ember', [0, 0.14, 0.095], 0, [0.09, 0.16, 0.01]);
-    for (let i = 0; i < 12; i += 1) {
-      const a = i / 12 * PI;
-      fire(b, { x: Math.cos(a) * 0.27, y: 0.04, z: Math.sin(a) * 0.12 + 0.07, h: 0.28 + (i % 3) * 0.08, w: 0.12, lean: -Math.cos(a) * 0.3 });
-    }
-    for (let i = 0; i < 5; i += 1) fire(b, { x: -0.12 + i * 0.06, y: 0.47, z: -0.04, h: 0.2 + (i % 2) * 0.1, w: 0.09 });
-    // the beings, burning, indistinguishable from the fire
-    sufferer(b, { x: -0.14, y: 0.04, z: 0.18, s: 0.4, ry: 0.3, skin: 'flame', hair: 'fire', pose: 'writhe' });
-    sufferer(b, { x: 0.15, y: 0.04, z: 0.17, s: 0.38, ry: -0.3, skin: 'flame', hair: 'fire', pose: 'reach' });
-    sufferer(b, { x: 0.0, y: 0.06, z: 0.12, s: 0.3, skin: 'ember', hair: 'flame', pose: 'writhe' });
-  }],
-  3: ['An iron cauldron of molten metal over a blaze, the beings boiling in it, a guardian of Yama driving them under with his spear.', (b) => {
-    ground(b, 'ring', { w: 0.86, floor: 'black', rimKey: 'red', inner: 'gold' });
-    for (let i = 0; i < 8; i += 1) fire(b, { x: (i - 3.5) * 0.07, y: 0.03, z: 0.02 + (i % 2) * 0.05, h: 0.2 + (i % 3) * 0.05, w: 0.11 });
-    b.put(b.kit.bowl, 'iron', [-0.05, 0.36, 0], 0, [0.27, 0.21, 0.22]);
-    b.put(b.kit.torus(0.08), 'iron', [-0.05, 0.36, 0], [PI / 2, 0, 0], [0.27, 0.22, 0.08]);
-    b.put(b.kit.disc, 'ember', [-0.05, 0.355, 0], 0, [0.25, 0.01, 0.2]);
-    for (let i = 0; i < 7; i += 1) b.ell('fire', [-0.05 + Math.cos(i * 2.1) * 0.17, 0.365, Math.sin(i * 2.1) * 0.13], [0.025, 0.012, 0.025]);
-    for (const side of [-1, 1]) b.beam('iron', [-0.05 + side * 0.2, 0.03, 0], [-0.05 + side * 0.23, 0.2, 0], 0.02);
-    // heads and arms out of the boiling metal
-    sufferer(b, { x: -0.14, y: 0.25, z: 0.05, s: 0.4, ry: 0.4, skin: 'rose', pose: 'writhe', legs: false });
-    sufferer(b, { x: 0.05, y: 0.24, z: 0.07, s: 0.38, ry: -0.3, skin: 'rose', pose: 'reach', legs: false });
-    sufferer(b, { x: -0.05, y: 0.25, z: -0.08, s: 0.34, skin: 'rose', pose: 'writhe', legs: false });
-    guardian(b, { x: 0.3, y: 0.03, z: -0.02, s: 0.48, ry: -0.9, skin: 'crimson', holds: 'spear', pose: 'thrust' });
-  }],
-  4: ['Iron houses with no door, fire bursting from their windows and smoke from the cracks, the beings inside howling: the howling hells.', (b) => {
-    ground(b, 'ring', { w: 0.86, floor: 'black', rimKey: 'blue', inner: 'navy' });
-    for (const [x, z, w, h] of [[-0.15, -0.08, 0.24, 0.28], [0.17, -0.02, 0.18, 0.21]]) {
-      b.put(b.kit.box, 'iron', [x, 0.04 + h / 2, z], 0, [w, h, w * 0.9]);
-      b.put(b.kit.pyramid, 'iron', [x, 0.04 + h + 0.05, z], 0, [w * 0.9, 0.1, w * 0.8]);
-      // barred windows, the fire behind them
-      for (const dx of [-0.28, 0.28]) {
-        b.put(b.kit.box, 'ember', [x + dx * w, 0.04 + h * 0.6, z + w * 0.452], 0, [w * 0.24, h * 0.22, 0.01]);
-        for (const bx of [-0.06, 0, 0.06]) b.put(b.kit.box, 'iron', [x + dx * w + bx * w, 0.04 + h * 0.6, z + w * 0.46], 0, [0.006, h * 0.24, 0.006]);
-        fire(b, { x: x + dx * w, y: 0.04 + h * 0.66, z: z + w * 0.47, h: 0.08, w: 0.05, lean: dx > 0 ? -0.3 : 0.3 });
-      }
-      b.put(b.kit.box, 'fire', [x, 0.04 + h * 0.3, z + w * 0.455], 0, [w * 0.7, 0.008, 0.01]);
-      for (let i = 0; i < 4; i += 1) b.put(b.kit.ball, 'slate', [x + Math.sin(i * 1.7) * 0.03, 0.04 + h + 0.12 + i * 0.07, z], 0, 0.05 + i * 0.012);
-    }
-    // a being beating on the wall, another howling, the guardian at the door
-    sufferer(b, { x: -0.16, y: 0.04, z: 0.1, s: 0.36, ry: PI, skin: 'rose', pose: 'reach' });
-    sufferer(b, { x: 0.05, y: 0.04, z: 0.18, s: 0.34, skin: 'rose', pose: 'kneel' });
-    guardian(b, { x: 0.27, y: 0.04, z: 0.15, s: 0.42, ry: -0.6, skin: 'navy', holds: 'club', horns: 'bone' });
-  }],
-  5: ['Ground ruled with black lines, a guardian sawing a being along them; two mountains leaning in to crush another; and a tree of blades with one climbing it.', (b) => {
-    ground(b, 'ring', { w: 0.86, floor: 'earth', rimKey: 'blue', inner: 'navy' });
-    for (let i = -2; i <= 2; i += 1) {
-      b.put(b.kit.box, 'black', [i * 0.12, 0.045, 0.05], 0, [0.012, 0.006, 0.5]);
-      b.put(b.kit.box, 'black', [0, 0.045, 0.05 + i * 0.1], 0, [0.6, 0.006, 0.012]);
-    }
-    for (const side of [-1, 1]) b.at([side * 0.24, 0.04, -0.06], [0, 0, side * 0.35], 1, () => mountain(b, { h: 0.42, r: 0.14, key: 'rock', snow: null, seed: 11 + side }));
-    sufferer(b, { x: -0.03, y: 0.04, z: -0.08, s: 0.32, skin: 'rose', pose: 'writhe' });
-    // the tree of blades
-    b.beam('iron', [0.0, 0.04, -0.24], [0.0, 0.62, -0.24], 0.018, 0.01);
-    for (let i = 0; i < 10; i += 1) {
-      const y2 = 0.22 + (i >> 1) * 0.08, side = i % 2 ? 1 : -1;
-      b.put(b.kit.pyramid, 'silver', [side * 0.055, y2, -0.24], [0, 0, side * -1.1], [0.022, 0.13, 0.007]);
-    }
-    sufferer(b, { x: 0.0, y: 0.18, z: -0.2, s: 0.28, skin: 'rose', pose: 'reach' });
-    // a being stretched on the lines, the guardian's saw over him
-    sufferer(b, { x: -0.02, y: 0.06, z: 0.2, s: 0.34, rx: -PI / 2, ry: PI / 2, skin: 'rose', pose: 'writhe' });
-    b.ell('crimson', [0.02, 0.05, 0.2], [0.07, 0.004, 0.04]);
-    guardian(b, { x: 0.25, y: 0.04, z: 0.12, s: 0.42, ry: -1.0, skin: 'crimson', holds: 'saw', pose: 'thrust' });
-  }],
-  6: ['A field of swords stood in burning ground where the beings, revived each time they fall, take up the swords and fight again.', (b) => {
-    ground(b, 'ring', { w: 0.86, floor: 'crimson', rimKey: 'red', inner: 'gold' });
-    for (let i = 0; i < 6; i += 1) {
-      const a = i / 6 * TAU + 0.3, r = 0.27;
-      sword(b, { x: Math.cos(a) * r, y: 0.04, z: Math.sin(a) * r * 0.6 - 0.05, s: 0.5, r: [0, a, (i % 2 ? 0.25 : -0.25)] });
-    }
-    for (let i = 0; i < 8; i += 1) fire(b, { x: Math.cos(i * 0.8) * 0.3, y: 0.04, z: Math.sin(i * 0.8) * 0.22, h: 0.11, w: 0.07 });
-    sufferer(b, { x: -0.11, y: 0.04, z: 0.04, s: 0.4, ry: 0.9, skin: 'rose', pose: 'fight', holds: 'sword' });
-    sufferer(b, { x: 0.11, y: 0.04, z: 0.02, s: 0.4, ry: -0.9, skin: 'skin', pose: 'fight', holds: 'sword' });
-    sufferer(b, { x: 0.02, y: 0.06, z: 0.22, s: 0.32, rx: -PI / 2, ry: 0.4, skin: 'rose', pose: 'writhe' });
-    b.ell('crimson~', [0.04, 0.047, 0.23], [0.09, 0.004, 0.06]);
-  }],
-  7: ['Spires of ice, a frozen lotus splitting open, and the naked beings huddled blue with blisters in the blue ring of the cold hells.', (b) => {
-    ground(b, 'ring', { w: 0.86, floor: 'ice', rimKey: 'blue', inner: 'navy' });
-    const rnd = seeded(77);
-    for (let i = 0; i < 11; i += 1) {
-      const a = PI * (1.05 + i / 10 * 0.9), r = 0.26 + rnd() * 0.1;
-      const tall = 0.16 + rnd() * 0.16;
-      b.put(b.kit.octa, i % 2 ? 'ice' : 'sky', [Math.cos(a) * r, 0.04 + tall * 0.55, Math.sin(a) * r * 0.75 - 0.03], [0, rnd(), (rnd() - 0.5) * 0.4], [0.04, tall, 0.04]);
-    }
-    for (const sx of [-1, 1]) b.put(b.kit.octa, 'ice', [sx * 0.34, 0.08, 0.12], [0, 0.4, sx * 0.3], [0.03, 0.09, 0.03]);
-    lotus(b, { z: -0.12, y: 0.04, r: 0.16, n: 8, key: 'ice', key2: 'sky', disc: null, open: 1.0 });
-    b.put(b.kit.octa, 'ice', [0, 0.26, -0.12], 0, [0.05, 0.16, 0.05]);
-    for (let i = 0; i < 14; i += 1) b.ell('snow', [(rnd() - 0.5) * 0.6, 0.05, (rnd() - 0.3) * 0.4], [0.03, 0.01, 0.025]);
-    sufferer(b, { x: -0.15, y: 0.04, z: 0.12, s: 0.42, ry: 0.4, skin: 'sky', pose: 'huddle', blisters: 'white' });
-    sufferer(b, { x: 0.15, y: 0.04, z: 0.1, s: 0.42, ry: -0.4, skin: 'ghost', pose: 'huddle', blisters: 'white' });
-    sufferer(b, { x: 0.0, y: 0.04, z: 0.2, s: 0.34, skin: 'sky', pose: 'kneel', blisters: 'white' });
-  }],
   8: ['A boulder, a pillar and a tree in an ordinary landscape, and in each a being caught fast: the hells that last a day.', (b) => {
     ground(b, 'ring', { w: 0.86, floor: 'grass', rimKey: 'red', inner: 'gold' });
     b.put(b.kit.ball, 'rock', [-0.19, 0.12, 0.02], [0.3, 0.5, 0], [0.13, 0.1, 0.11]);
@@ -1918,33 +1616,6 @@ const SQUARE_MODELS = {
     b.put(b.kit.torus(0.12), 'gold', [0, 0.48, 0.005], 0, 0.23);
     for (const side of [-1, 1]) b.path('bone', [[side * 0.14, 0.66, 0], [side * 0.26, 0.74, 0], [side * 0.3, 0.86, 0.02]], 0.035, 0.008);
     b.put(b.kit.sphere, 'black', [0, 0.69, 0], 0, [0.09, 0.06, 0.06]);
-  }],
-  10: ['A hungry ghost: belly like a mountain, neck like a hair, and a bowl that comes to it as fire.', (b) => {
-    ground(b, 'ring', { w: 0.82, floor: 'earth', rimKey: 'red', inner: 'gold' });
-    b.at([0, 0.04, 0], 0, 1, () => {
-      // legs like sticks, knees knobbed, the feet splayed
-      for (const sx of [-1, 1]) {
-        b.path('ghost', [[sx * 0.06, 0.16, -0.01], [sx * 0.1, 0.08, 0.04], [sx * 0.085, 0.01, 0.02]], 0.014, 0.01);
-        b.ell('ghost', [sx * 0.1, 0.08, 0.04], 0.018);
-        b.orient(b.kit.ball, 'ghost', [sx * 0.09, 0.008, 0.045], [sx * 0.3, 0, 1], [0, 1, 0], [0.016, 0.034, 0.008]);
-      }
-      // the belly like a mountain, stretched and veined, the ribs over it
-      b.ell('ghost', [0, 0.28, 0.02], [0.165, 0.175, 0.16]);
-      b.ell('ghost~', [0, 0.25, 0.175], 0.01);
-      for (let i = 0; i < 4; i += 1) b.path('ghost~', [[-0.13 + i * 0.07, 0.36, 0.1], [-0.12 + i * 0.07, 0.27, 0.15], [-0.1 + i * 0.065, 0.17, 0.1]], 0.003);
-      b.ell('ghost', [0, 0.43, -0.01], [0.08, 0.05, 0.06]);
-      for (let i = 0; i < 3; i += 1) b.put(b.kit.torus(0.08, PI * 0.7), 'ghost~', [0, 0.45 - i * 0.02, 0], [PI / 2, 0, PI * 0.15], [0.07, 0.055, 0.08]);
-      // the neck like a hair
-      b.beam('ghost', [0, 0.46, 0], [0, 0.6, 0.01], 0.006);
-      b.at([0, 0.64, 0.015], 0, 0.1, () => head(b, { skin: 'ghost', style: 'dread', hair: 'ash', eyes: 'open' }));
-      // arms like sticks, holding up the bowl that turns to fire
-      for (const sx of [-1, 1]) {
-        b.path('ghost', [[sx * 0.07, 0.44, 0], [sx * 0.17, 0.33, 0.05], [sx * 0.07, 0.27, 0.2]], 0.011, 0.008);
-        hand(b, 'ghost', [sx * 0.07, 0.27, 0.2], [-sx * 0.6, 0.2, 0.6], [0, 1, 0], sx, 0.8);
-      }
-      b.put(b.kit.lathe('almsbowl', [[0, 0], [0.04, 0.003], [0.058, 0.02], [0.06, 0.036], [0.054, 0.05], [0.05, 0.052], [0.04, 0.046], [0, 0.044]], 18), 'iron', [0, 0.27, 0.21], 0, 0.85);
-      fire(b, { y: 0.31, z: 0.21, h: 0.11, w: 0.055 });
-    });
   }],
   11: ['A spotted stag on a grassy rise, head up, listening for danger.', (b) => {
     ground(b, 'ring', { w: 0.86, floor: 'grass', rimKey: 'red', inner: 'gold' });
@@ -2011,32 +1682,6 @@ const SQUARE_MODELS = {
         { skin: 'white', at: [-0.11, 0.775, -0.02], turn: -0.8, scale: 0.135, hairFan: false },
         { skin: 'red', at: [0.11, 0.775, -0.02], turn: 0.8, scale: 0.135, hairFan: false }
       ] });
-  }],
-  17: ['Jambudvīpa, narrow to the south, with the jambu tree and a person seated beneath it.', (b) => {
-    b.put(b.kit.slab('trapezoid', OUTLINES.trapezoid(b.THREE), 0.06), 'red', [0, 0.04, 0], [-PI / 2, 0, PI], [0.9, 0.7, 1]);
-    b.put(b.kit.slab('trapezoid', OUTLINES.trapezoid(b.THREE), 0.06), 'sky', [0, 0.06, 0], [-PI / 2, 0, PI], [0.7, 0.54, 1]);
-    tree(b, { x: 0, z: -0.12, h: 0.75, r: 0.24, leaf: 'green', fruit: 'crimson', seed: 17, n: 7 });
-    seated(b, { x: 0.16, y: 0.09, z: 0.12, s: 0.5, robe: 'saffron', hair: 'bun', dress: 'coat', sash: 'red', mudra: 'knees' });
-  }],
-  18: ['The round western land of cattle: a humped, dappled cow by a lake under Meru’s red light.', (b) => {
-    b.put(b.kit.disc, 'crimson', [0, 0.03, 0], 0, [0.44, 0.06, 0.4]);
-    b.put(b.kit.disc, 'grass', [0, 0.065, 0], 0, [0.4, 0.02, 0.36]);
-    b.put(b.kit.disc, 'water', [-0.16, 0.078, -0.1], 0, [0.13, 0.01, 0.09]);
-    animal(b, 'cow', { x: 0.02, y: 0.075, z: 0.08, s: 1.3, key: 'white' });
-    tree(b, { x: -0.27, z: -0.16, h: 0.4, r: 0.1, seed: 18 });
-  }],
-  19: ['The half-moon eastern land, bright as crystal, with a tall, noble figure.', (b) => {
-    b.put(b.kit.slab('halfmoon', OUTLINES.halfmoon(b.THREE), 0.06), 'white', [0, 0.04, 0.06], [-PI / 2, 0, 0], [0.9, 0.9, 1]);
-    for (let i = 0; i < 5; i += 1) b.put(b.kit.octa, 'ice', [-0.28 + i * 0.14, 0.15, -0.18 + Math.abs(i - 2) * 0.04], [0, i, 0], [0.04, 0.12 + (2 - Math.abs(i - 2)) * 0.05, 0.04]);
-    standing(b, { x: 0, y: 0.07, z: 0.12, s: 0.9, robe: 'white', hair: 'bun', halo: null });
-  }],
-  20: ['The square northern land of Kuru, with the tree that gives whatever is wished for.', (b) => {
-    b.put(b.kit.box, 'red', [0, 0.03, 0], 0, [0.8, 0.06, 0.62]);
-    b.put(b.kit.box, 'gold', [0, 0.065, 0], 0, [0.66, 0.01, 0.48]);
-    b.put(b.kit.box, 'navy', [0, 0.07, 0], 0, [0.62, 0.012, 0.44]);
-    tree(b, { x: 0, z: -0.08, h: 0.8, r: 0.24, leaf: 'jade', fruit: 'gold', seed: 20, n: 8 });
-    b.put(b.kit.box, 'white', [0.25, 0.12, 0.12], 0, [0.12, 0.1, 0.1]);
-    b.put(b.kit.pyramid, 'red', [0.25, 0.2, 0.12], 0, [0.12, 0.06, 0.11]);
   }],
   21: ['Jagged red mountains bristling with spears, and a watchtower.', (b) => {
     const rnd = seeded(21);
@@ -2158,12 +1803,6 @@ const SQUARE_MODELS = {
     b.put(b.kit.torus(0.14), 'blue', [0, 0.52, 0], 0, 0.3);
     jewels(b, { y: 0.48, z: 0.05, s: 0.32, flames: false });
   }],
-  29: ['A dark jewel in a ring of flame, set on cloud: the heaven without fighting.', (b) => {
-    cloud(b, { y: 0, w: 0.66, h: 0.12, seed: 29 });
-    b.put(b.kit.torus(0.2), 'sage', [0, 0.17, 0], [PI / 2, 0, 0], [0.16, 0.12, 1]);
-    flameRing(b, { cy: 0.45, z: -0.08, R: 0.24, n: 11, h: 0.17, from: -0.1, to: 1.1, keys: ['fire', 'flame', 'ember'] });
-    b.put(b.kit.lathe('drop', [[0, 0], [0.12, 0.03], [0.18, 0.14], [0.16, 0.28], [0.08, 0.4], [0, 0.44]], 24), 'navy', [0, 0.17, 0]);
-  }],
   33: ['Seven offering bowls before a maṇḍala plate, incense rising: the action tantra’s purity and offering.', (b) => {
     aureole(b, 'ring', { y: 0.52, w: 0.88 });
     b.put(b.kit.box, 'crimson', [0, 0.05, 0], 0, [0.6, 0.1, 0.3]);
@@ -2184,11 +1823,6 @@ const SQUARE_MODELS = {
     // a bank of dark smoke for it to stand out of
     cloud(b, { y: 0, w: 0.5, h: 0.09, key: 'slate', under: 'black', seed: 34 });
     b.at([0, 0.43, 0], 0, 0.52, () => wrathHead(b, { skin: 'navy', hair: 'earth', hairTip: 'fawn' }));
-  }],
-  36: ['Four nested spheres of light over a swirl of mist: space, consciousness, nothingness, and neither.', (b) => {
-    cloud(b, { y: 0, w: 0.7, h: 0.09, key: 'cloud', under: 'sage', seed: 36 });
-    for (let i = 0; i < 3; i += 1) b.put(b.kit.torus(0.05), 'shade', [0, 0.12 + i * 0.04, 0], [PI / 2, 0, i * 0.4], 0.32 - i * 0.07);
-    [0.32, 0.24, 0.16, 0.08].forEach((r, i) => b.put(b.kit.sphere, i === 3 ? 'light' : 'mist', [0, 0.5, 0], 0, r));
   }],
   38: ['A monk standing with alms bowl and ringing staff, in the blue cartouche of the disciples.', (b) => {
     aureole(b, 'arch', { y: 0.05, w: 0.9, h: 0.98, outer: 'blue', inner: 'navy', band: 0.86, rim: 0.82 });
@@ -2717,6 +2351,329 @@ const SQUARE_MODELS = {
   }]
 };
 
+/* ── the realms beneath Jambudvīpa ─────────────────────────────────────────
+   The hells and the pretas' ground are places of the world, not squares of
+   the board: the explorer shows them, and the game's squares that name them
+   stand on them (index.html). Each is drawn in the model's unit space like a
+   destination — standing on y = 0, facing +z, at most a unit across — and is
+   set on its own floor, inside its walls of flame or ice. The hot hells
+   follow the Kośa and the Tibetan commentaries: what is done there, to whom,
+   with what. The beings are the same body as everyone else, drawn plainly;
+   the servants of Yama are that body too, horned and armed. */
+
+/* A servant of Yama: a heavy body in the tiger skin, horned, fanged, the
+   weapon in the right hand. */
+function yamaGuard(b, { x = 0, y = 0, z = 0, s = 0.5, ry = 0, skin = 'crimson', holds = 'club', horns = 'bone', pose = 'fight' } = {}) {
+  b.at([x, y, z], [0, ry, 0], s, () => {
+    humanFigure(b, {
+      stature: 0.66, pose: POSES[pose] ? POSES[pose]() : POSES.fight(), dress: 'loin', skin, lower: 'saffron', robe: 'saffron',
+      build: 1.18, eyes: 'open', mouth: 'scream', iris: 'ember', browKey: 'black',
+      hair: (bb) => {
+        hairOf(bb, 'messy', 'black');
+        for (const sx of [-1, 1]) bb.path(horns, [[sx * 0.2, 0.4, -0.02], [sx * 0.36, 0.56, -0.04], [sx * 0.4, 0.78, 0.02], [sx * 0.32, 0.9, 0.08]], 0.075, 0.012);
+        for (const sx of [-1, 1]) bb.put(bb.kit.cone, 'bone', [sx * 0.05, -0.27, 0.31], [PI, 0, 0], [0.018, 0.07, 0.018]);
+      },
+      onHand: (i, wrist, dir) => { if (holds && i === 0) implement(b, holds, v3.add(wrist, v3.mul(v3.norm(dir), 0.02)), dir, 0.3); }
+    });
+  });
+}
+
+/* A preta: the belly like a mountain, the neck like a hair, limbs like
+   sticks, the mouth the size of a needle's eye. */
+function preta(b, { x = 0, y = 0, z = 0, s = 1, ry = 0, bowl = true, skin = 'ghost' } = {}) {
+  b.at([x, y, z], [0, ry, 0], s, () => {
+    for (const sx of [-1, 1]) {
+      b.path(skin, [[sx * 0.06, 0.16, -0.01], [sx * 0.1, 0.08, 0.04], [sx * 0.085, 0.01, 0.02]], 0.014, 0.01);
+      b.ell(skin, [sx * 0.1, 0.08, 0.04], 0.018);
+      b.orient(b.kit.ball, skin, [sx * 0.09, 0.008, 0.045], [sx * 0.3, 0, 1], [0, 1, 0], [0.016, 0.034, 0.008]);
+    }
+    b.ell(skin, [0, 0.28, 0.02], [0.165, 0.175, 0.16]);
+    b.ell(skin + '~', [0, 0.25, 0.175], 0.01);
+    for (let i = 0; i < 4; i += 1) b.path(skin + '~', [[-0.13 + i * 0.07, 0.36, 0.1], [-0.12 + i * 0.07, 0.27, 0.15], [-0.1 + i * 0.065, 0.17, 0.1]], 0.003);
+    b.ell(skin, [0, 0.43, -0.01], [0.08, 0.05, 0.06]);
+    for (let i = 0; i < 3; i += 1) b.put(b.kit.torus(0.08, PI * 0.7), skin + '~', [0, 0.45 - i * 0.02, 0], [PI / 2, 0, PI * 0.15], [0.07, 0.055, 0.08]);
+    b.beam(skin, [0, 0.46, 0], [0, 0.6, 0.01], 0.006);
+    b.at([0, 0.64, 0.015], 0, 0.1, () => head(b, { skin, style: 'dread', hair: 'ash', eyes: 'open' }));
+    for (const sx of [-1, 1]) {
+      const w = bowl ? [sx * 0.07, 0.27, 0.2] : [sx * 0.16, 0.5, 0.12];
+      b.path(skin, [[sx * 0.07, 0.44, 0], [sx * 0.17, 0.33, 0.05], w], 0.011, 0.008);
+      hand(b, skin, w, bowl ? [-sx * 0.6, 0.2, 0.6] : [0, 1, 0.2], [0, bowl ? 1 : 0, bowl ? 0 : 1], sx, 0.8);
+    }
+    if (bowl) {
+      b.put(b.kit.lathe('almsbowl', [[0, 0], [0.04, 0.003], [0.058, 0.02], [0.06, 0.036], [0.054, 0.05], [0.05, 0.052], [0.04, 0.046], [0, 0.044]], 18), 'iron', [0, 0.27, 0.21], 0, 0.85);
+      fire(b, { y: 0.31, z: 0.21, h: 0.11, w: 0.055 });
+    }
+  });
+}
+
+/* Burning ground: embers and small fires scattered over the floor. */
+function embers(b, seed, n = 10, r = 0.4) {
+  const rnd = seeded(seed);
+  for (let i = 0; i < n; i += 1) {
+    const a = rnd() * TAU, d = r * Math.sqrt(rnd());
+    const px = Math.cos(a) * d, pz = Math.sin(a) * d * 0.8;
+    if (i % 3) b.ell(i % 2 ? 'ember' : 'fire', [px, 0.004, pz], [0.03 + rnd() * 0.03, 0.004, 0.02 + rnd() * 0.02]);
+    else fire(b, { x: px, y: 0, z: pz, h: 0.07 + rnd() * 0.07, w: 0.045, lean: (rnd() - 0.5) * 0.4 });
+  }
+}
+
+/* The cold: a crust of snow and ice, spires of ice behind, drifts. */
+function iceField(b, seed, { spires = 'ice', dark = 'sky', n = 9, crust = 'snow' } = {}) {
+  const rnd = seeded(seed);
+  b.put(b.kit.disc, crust, [0, 0.003, 0], 0, [0.44, 0.006, 0.4]);
+  for (let i = 0; i < n; i += 1) {
+    const a = PI * (1.06 + i / (n - 1) * 0.88), r = 0.3 + rnd() * 0.1;
+    const tall = 0.18 + rnd() * 0.24;
+    b.put(b.kit.octa, i % 2 ? spires : dark, [Math.cos(a) * r, tall * 0.42, Math.sin(a) * r * 0.8 - 0.02], [0, rnd(), (rnd() - 0.5) * 0.25], [0.035 + rnd() * 0.025, tall * 0.5, 0.035]);
+  }
+  for (let i = 0; i < 8; i += 1) b.ell(crust, [(rnd() - 0.5) * 0.7, 0.01, (rnd() - 0.2) * 0.5], [0.05, 0.016, 0.035]);
+}
+
+/* An iron house with no door, fire at its barred windows, smoke from its
+   cracks. */
+function ironHouse(b, { x = 0, z = 0, w = 0.3, h = 0.28, walls = 'iron', glow = 'ember' } = {}) {
+  b.put(b.kit.box, walls, [x, h / 2, z], 0, [w, h, w * 0.9]);
+  b.put(b.kit.pyramid, walls, [x, h + 0.05, z], 0, [w * 0.92, 0.1, w * 0.82]);
+  for (const dx of [-0.28, 0.28]) {
+    b.put(b.kit.box, glow, [x + dx * w, h * 0.6, z + w * 0.452], 0, [w * 0.24, h * 0.22, 0.01]);
+    for (const bx of [-0.06, 0, 0.06]) b.put(b.kit.box, 'iron', [x + dx * w + bx * w, h * 0.6, z + w * 0.46], 0, [0.006, h * 0.24, 0.006]);
+    fire(b, { x: x + dx * w, y: h * 0.66, z: z + w * 0.47, h: 0.08, w: 0.05, lean: dx > 0 ? -0.3 : 0.3 });
+  }
+  b.put(b.kit.box, 'fire', [x, h * 0.3, z + w * 0.455], 0, [w * 0.7, 0.008, 0.01]);
+  for (let i = 0; i < 3; i += 1) b.put(b.kit.ball, 'slate', [x + Math.sin(i * 1.7) * 0.03, h + 0.12 + i * 0.06, z], 0, 0.04 + i * 0.012);
+}
+
+const REALM_MODELS = {
+  hell_sanjiva: ['Sañjīva, the Reviving: weapons rise in the beings’ hands and they cut one another down; a cool wind passes over the fallen and they stand to fight again.', (b) => {
+    embers(b, 11);
+    for (let i = 0; i < 5; i += 1) {
+      const a = PI * (1.1 + i * 0.2);
+      sword(b, { x: Math.cos(a) * 0.36, y: 0, z: Math.sin(a) * 0.28, s: 0.34, r: [0, a, (i % 2 ? 0.3 : -0.3)] });
+    }
+    sufferer(b, { x: -0.13, z: 0.04, s: 0.46, ry: 1.0, skin: 'rose', pose: 'fight', holds: 'sword' });
+    sufferer(b, { x: 0.12, z: 0.0, s: 0.46, ry: -1.0, skin: 'skin', pose: 'fight', holds: 'sword' });
+    sufferer(b, { x: -0.26, z: -0.17, s: 0.4, ry: 0.5, skin: 'skin', pose: 'fight', holds: 'club', hair: null });
+    sufferer(b, { x: -0.06, z: -0.22, s: 0.4, ry: -2.4, skin: 'rose', pose: 'fight', holds: 'spear' });
+    sufferer(b, { x: 0.24, y: 0.01, z: 0.24, s: 0.42, ry: -0.5, skin: 'rose', pose: 'agony' });
+    b.ell('crimson~', [0.22, 0.004, 0.24], [0.1, 0.003, 0.06]);
+    cloud(b, { x: 0.24, y: 0.1, z: 0.22, w: 0.22, h: 0.04, n: 4, key: 'mist', under: 'mist', seed: 5 });
+  }],
+  hell_kalasutra: ['Kālasūtra, the Black Line: the servants of Yama rule black lines over the beings’ bodies and cut along them with saws and axes.', (b) => {
+    embers(b, 12, 6);
+    for (let i = -3; i <= 3; i += 1) {
+      b.put(b.kit.box, 'black', [i * 0.12, 0.003, 0.0], 0, [0.01, 0.004, 0.8]);
+      b.put(b.kit.box, 'black', [0, 0.003, i * 0.11], 0, [0.84, 0.004, 0.01]);
+    }
+    // a being stretched on the ground, marked out, the saw over him
+    sufferer(b, { x: 0.0, y: 0.015, z: 0.17, s: 0.46, ry: PI / 2, skin: 'rose', pose: 'agony' });
+    for (let i = 0; i < 4; i += 1) b.put(b.kit.box, 'black', [-0.08 + i * 0.05, 0.06, 0.17], [0, 0, 0.1], [0.006, 0.004, 0.1]);
+    yamaGuard(b, { x: 0.25, z: 0.05, s: 0.46, ry: -1.3, skin: 'crimson', holds: 'saw' });
+    // another standing marked with the lines, awaiting the axe
+    sufferer(b, { x: -0.18, z: -0.15, s: 0.44, ry: 0.4, skin: 'skin', pose: 'writhe' });
+    for (let i = 0; i < 4; i += 1) b.put(b.kit.box, 'black', [-0.18 + (i - 1.5) * 0.012, 0.1 + i * 0.045, -0.12], [0, 0.4, 0.25], [0.07, 0.005, 0.006]);
+    sufferer(b, { x: 0.12, y: 0.015, z: -0.2, s: 0.4, ry: -0.6, skin: 'rose', pose: 'fallen' });
+  }],
+  hell_samghata: ['Saṃghāta, the Crushing: mountains shaped like the heads of rams and buffaloes close on the beings and grind them, and they are pounded in iron mortars until the blood runs as a river.', (b) => {
+    embers(b, 13, 6);
+    for (const side of [-1, 1]) {
+      b.at([side * 0.26, 0, -0.08], [0, 0, side * 0.32], 1, () => {
+        mountain(b, { h: 0.5, r: 0.16, key: 'iron', snow: null, seed: 21 + side });
+        // the beast's head in the rock: horns and burning eyes
+        for (const hx of [-1, 1]) b.path('bone', [[hx * 0.045, 0.3, 0.04], [hx * 0.12, 0.36, 0.07], [hx * 0.15, 0.3, 0.12]], 0.02, 0.005);
+        for (const ex of [-0.032, 0.032]) b.ell('ember', [ex, 0.22, 0.085], 0.015);
+      });
+    }
+    sufferer(b, { x: -0.02, z: -0.06, s: 0.44, skin: 'rose', pose: 'reach' });
+    sufferer(b, { x: -0.1, z: 0.1, s: 0.4, ry: 0.4, skin: 'skin', pose: 'kneel' });
+    // the mortar and the pestle
+    b.put(b.kit.lathe('mortar', [[0, 0], [0.09, 0], [0.11, 0.04], [0.1, 0.12], [0.085, 0.13], [0.07, 0.04], [0, 0.03]], 16), 'iron', [0.24, 0, 0.2]);
+    sufferer(b, { x: 0.24, y: 0.02, z: 0.2, s: 0.34, skin: 'rose', pose: 'reach', legs: false });
+    b.beam('iron', [0.25, 0.34, 0.2], [0.25, 0.62, 0.2], 0.018);
+    b.ell('iron', [0.25, 0.32, 0.2], [0.05, 0.04, 0.05]);
+    // the river of blood
+    for (let i = 0; i < 6; i += 1) b.ell('crimson', [-0.36 + i * 0.1, 0.004, 0.3 - Math.sin(i) * 0.04], [0.07, 0.004, 0.035]);
+  }],
+  hell_raurava: ['Raurava, the Howling: fleeing the fire, the beings find a house of iron with no door, and inside it the fire is all there is; their cries name the hell.', (b) => {
+    embers(b, 14, 8);
+    ironHouse(b, { x: -0.04, z: -0.12, w: 0.36, h: 0.32 });
+    sufferer(b, { x: -0.13, z: 0.1, s: 0.44, ry: PI + 0.2, skin: 'rose', pose: 'reach' });
+    sufferer(b, { x: 0.08, z: 0.2, s: 0.42, ry: 0.2, skin: 'skin', pose: 'writhe' });
+    sufferer(b, { x: -0.28, z: 0.2, s: 0.4, ry: 0.6, skin: 'rose', pose: 'kneel' });
+    yamaGuard(b, { x: 0.28, z: 0.12, s: 0.44, ry: -0.7, skin: 'navy', holds: 'club' });
+  }],
+  hell_maharaurava: ['Mahāraurava, the Great Howling: the house of iron has a second house within it, both ablaze, and the beings caught between the walls howl louder than in the first.', (b) => {
+    embers(b, 15, 8);
+    const W = 0.62, H = 0.36, D = 0.42;
+    for (const [px, pz] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) b.put(b.kit.box, 'iron', [px * W / 2, H / 2, -0.06 + pz * D / 2], 0, [0.03, H, 0.03]);
+    for (const yy of [0.1, 0.22, H]) {
+      for (const pz of [-1, 1]) b.put(b.kit.box, 'iron', [0, yy, -0.06 + pz * D / 2], 0, [W, 0.018, 0.018]);
+      for (const px of [-1, 1]) b.put(b.kit.box, 'iron', [px * W / 2, yy, -0.06], 0, [0.018, 0.018, D]);
+    }
+    for (let i = -4; i <= 4; i += 1) b.put(b.kit.box, 'iron', [i * W / 9, H / 2, -0.06 - D / 2], 0, [0.012, H, 0.012]);
+    b.put(b.kit.pyramid, 'iron', [0, H + 0.06, -0.06], 0, [W * 0.75, 0.12, D * 0.75]);
+    // the inner house, white with the fire
+    b.put(b.kit.box, 'fire', [0, 0.13, -0.1], 0, [0.22, 0.26, 0.18]);
+    b.put(b.kit.pyramid, 'ember', [0, 0.3, -0.1], 0, [0.22, 0.08, 0.18]);
+    for (let i = 0; i < 6; i += 1) fire(b, { x: -0.25 + i * 0.1, y: 0, z: 0.13 + (i % 2) * 0.03, h: 0.14 + (i % 3) * 0.05, w: 0.07 });
+    sufferer(b, { x: -0.2, z: 0.0, s: 0.4, ry: 0.5, skin: 'rose', pose: 'reach' });
+    sufferer(b, { x: 0.2, z: -0.02, s: 0.4, ry: -0.5, skin: 'skin', pose: 'writhe' });
+    sufferer(b, { x: 0.04, z: 0.06, s: 0.36, ry: 0.1, skin: 'rose', pose: 'kneel' });
+  }],
+  hell_tapana: ['Tapana, the Heat: on ground of burning iron the beings are run through with stakes of iron, from beneath to the crown, and beaten with hammers.', (b) => {
+    b.put(b.kit.disc, 'crimson', [0, 0.004, 0], 0, [0.4, 0.006, 0.34]);
+    embers(b, 16, 14);
+    for (const [x, z, s2, ry] of [[-0.2, -0.12, 0.44, 0.4], [0.08, -0.2, 0.42, -0.3], [0.27, 0.0, 0.4, -0.8]]) {
+      b.beam('iron', [x, 0, z], [x, 0.5, z + 0.01], 0.012, 0.002);
+      sufferer(b, { x, y: 0.14, z, s: s2, ry, skin: 'rose', pose: 'writhe' });
+    }
+    sufferer(b, { x: -0.06, y: 0.015, z: 0.18, s: 0.44, ry: 0.3, skin: 'rose', pose: 'agony' });
+    yamaGuard(b, { x: -0.3, z: 0.15, s: 0.46, ry: 0.9, skin: 'crimson', holds: 'club' });
+  }],
+  hell_pratapana: ['Pratāpana, the Intense Heat: the beings are lifted on iron tridents through the soles and out at the shoulders, wrapped in sheets of burning iron, and boiled in molten bronze.', (b) => {
+    embers(b, 17, 10);
+    // the cauldron of molten bronze
+    for (let i = 0; i < 5; i += 1) fire(b, { x: -0.2 + (i - 2) * 0.06, y: 0, z: -0.06 + (i % 2) * 0.04, h: 0.16 + (i % 3) * 0.04, w: 0.09 });
+    b.put(b.kit.bowl, 'iron', [-0.2, 0.3, -0.08], 0, [0.2, 0.17, 0.17]);
+    b.put(b.kit.torus(0.08), 'iron', [-0.2, 0.3, -0.08], [PI / 2, 0, 0], [0.2, 0.17, 0.08]);
+    b.put(b.kit.disc, 'ember', [-0.2, 0.295, -0.08], 0, [0.185, 0.01, 0.155]);
+    for (const side of [-1, 1]) b.beam('iron', [-0.2 + side * 0.15, 0, -0.08], [-0.2 + side * 0.17, 0.16, -0.08], 0.016);
+    sufferer(b, { x: -0.25, y: 0.21, z: -0.06, s: 0.36, ry: 0.4, skin: 'rose', pose: 'writhe', legs: false });
+    sufferer(b, { x: -0.13, y: 0.2, z: -0.04, s: 0.34, ry: -0.4, skin: 'rose', pose: 'reach', legs: false });
+    // the trident
+    b.beam('iron', [0.2, 0, -0.12], [0.2, 0.52, -0.12], 0.012);
+    b.beam('iron', [0.13, 0.52, -0.12], [0.27, 0.52, -0.12], 0.01);
+    for (const dx of [-0.07, 0, 0.07]) b.beam('iron', [0.2 + dx, 0.52, -0.12], [0.2 + dx * 1.1, 0.66, -0.12], 0.008, 0.002);
+    sufferer(b, { x: 0.2, y: 0.36, z: -0.1, s: 0.38, skin: 'rose', pose: 'writhe' });
+    // a being wrapped in a sheet of burning iron
+    sufferer(b, { x: 0.12, z: 0.22, s: 0.42, ry: -0.3, skin: 'rose', pose: 'writhe' });
+    b.put(b.kit.cyl, 'ember', [0.12, 0.14, 0.22], [0, 0, 0.05], [0.07, 0.16, 0.06]);
+  }],
+  hell_avichi: ['Avīci, without interval: a house of iron white with fire from all four sides, and the beings in it so one with the blaze that only their cries tell them from it.', (b) => {
+    b.put(b.kit.disc, 'ember', [0, 0.004, 0], 0, [0.4, 0.006, 0.36]);
+    b.put(b.kit.box, 'fire', [0, 0.17, -0.1], 0, [0.4, 0.34, 0.28]);
+    for (const x of [-0.2, -0.07, 0.07, 0.2]) b.put(b.kit.box, 'iron', [x, 0.17, 0.042], 0, [0.022, 0.36, 0.02]);
+    for (const y2 of [0.04, 0.17, 0.32]) b.put(b.kit.box, 'iron', [0, y2, 0.042], 0, [0.42, 0.02, 0.02]);
+    b.put(b.kit.pyramid, 'iron', [0, 0.4, -0.1], 0, [0.38, 0.13, 0.3]);
+    for (let i = 0; i < 12; i += 1) {
+      const a = i / 12 * PI;
+      fire(b, { x: Math.cos(a) * 0.34, y: 0, z: Math.sin(a) * 0.14 + 0.08, h: 0.28 + (i % 3) * 0.08, w: 0.12, lean: -Math.cos(a) * 0.3 });
+    }
+    for (let i = 0; i < 5; i += 1) fire(b, { x: -0.14 + i * 0.07, y: 0.44, z: -0.1, h: 0.2 + (i % 2) * 0.1, w: 0.09 });
+    sufferer(b, { x: -0.15, z: 0.2, s: 0.44, ry: 0.3, skin: 'flame', hair: 'fire', pose: 'writhe' });
+    sufferer(b, { x: 0.16, z: 0.19, s: 0.42, ry: -0.3, skin: 'flame', hair: 'fire', pose: 'reach' });
+    sufferer(b, { x: 0.0, z: 0.12, s: 0.36, skin: 'ember', hair: 'flame', pose: 'kneel' });
+  }],
+  hell_vajra: ['The Vajra Hell, beneath Avīci: the vajra of indestructible mind stands as the prison of those who broke its commitments, over a floor of black fire.', (b) => {
+    for (let i = 0; i < 10; i += 1) {
+      const a = i / 10 * TAU;
+      fire(b, { x: Math.cos(a) * 0.32, y: 0, z: Math.sin(a) * 0.26, h: 0.13 + (i % 3) * 0.05, w: 0.08, keys: ['black', 'crimson', 'fire'] });
+      if (i % 2 && i !== 5) vajra(b, { x: Math.cos(a) * 0.38, y: 0.18, z: Math.sin(a) * 0.32, s: 0.32, r: [0, 0, 0], key: 'blue' });
+    }
+    crossedVajra(b, { y: 0.52, z: -0.1, s: 0.56, key: 'blue', hub: 'white' });
+    sufferer(b, { x: -0.16, z: 0.12, s: 0.44, ry: 0.4, skin: 'rose', pose: 'writhe' });
+    sufferer(b, { x: 0.15, z: 0.12, s: 0.42, ry: -0.5, skin: 'rose', pose: 'kneel' });
+    sufferer(b, { x: 0.0, y: 0.01, z: 0.25, s: 0.4, skin: 'rose', pose: 'fallen' });
+  }],
+  cold_arbuda: ['Arbuda: the cold raises blisters over the whole body of the naked beings, alone on the ice.', (b) => {
+    iceField(b, 31);
+    sufferer(b, { x: -0.15, z: 0.1, s: 0.46, ry: 0.4, skin: 'sky', pose: 'huddle', blisters: 'white' });
+    sufferer(b, { x: 0.15, z: 0.06, s: 0.46, ry: -0.4, skin: 'ghost', pose: 'huddle', blisters: 'white' });
+    sufferer(b, { x: 0.0, z: 0.24, s: 0.4, skin: 'sky', pose: 'kneel', blisters: 'white' });
+  }],
+  cold_nirarbuda: ['Nirarbuda: the blisters burst, and the sores run with blood and pus that freeze.', (b) => {
+    iceField(b, 32);
+    sufferer(b, { x: -0.14, z: 0.08, s: 0.46, ry: 0.5, skin: 'sky', pose: 'huddle', blisters: 'crimson' });
+    sufferer(b, { x: 0.16, z: 0.12, s: 0.44, ry: -0.6, skin: 'ghost', pose: 'kneel', blisters: 'crimson' });
+    sufferer(b, { x: 0.0, y: 0.01, z: 0.26, s: 0.4, ry: 0.3, skin: 'sky', pose: 'fallen', blisters: 'crimson' });
+  }],
+  cold_atata: ['Aṭaṭa: so cold that nothing passes the lips but the chattering of the teeth.', (b) => {
+    iceField(b, 33, { n: 7 });
+    // an arch of ice hung with icicles
+    b.put(b.kit.torus(0.14, PI), 'ice', [0, 0.0, -0.2], 0, [0.3, 0.38, 0.18]);
+    for (let i = 0; i < 9; i += 1) {
+      const a = PI * (0.1 + i * 0.1);
+      b.put(b.kit.cone, 'ice', [Math.cos(a) * 0.3, Math.sin(a) * 0.38 - 0.06 - (i % 3) * 0.012, -0.2], [PI, 0, 0], [0.01, 0.05 + (i % 3) * 0.02, 0.01]);
+    }
+    sufferer(b, { x: -0.1, z: 0.08, s: 0.46, ry: 0.3, skin: 'sky', pose: 'huddle' });
+    sufferer(b, { x: 0.13, z: 0.14, s: 0.46, ry: -0.4, skin: 'sky', pose: 'huddle' });
+  }],
+  cold_hahava: ['Hahava: the beings can only cry out against the cold, a long wordless lament.', (b) => {
+    iceField(b, 34);
+    cloud(b, { y: 0.3, z: -0.14, w: 0.7, h: 0.06, n: 6, key: 'mist', under: 'mist', seed: 34 });
+    sufferer(b, { x: -0.14, z: 0.08, s: 0.46, ry: 0.4, skin: 'ghost', pose: 'reach' });
+    sufferer(b, { x: 0.14, z: 0.1, s: 0.44, ry: -0.4, skin: 'sky', pose: 'reach' });
+    sufferer(b, { x: 0.0, z: 0.26, s: 0.38, skin: 'sky', pose: 'kneel' });
+  }],
+  cold_huhuva: ['Huhuva: the cry gives way to a groan through clenched teeth, the body bent double.', (b) => {
+    iceField(b, 35, { spires: 'sky', dark: 'blue' });
+    sufferer(b, { x: -0.15, z: 0.08, s: 0.46, ry: 0.4, skin: 'blue', pose: 'kneel' });
+    sufferer(b, { x: 0.14, z: 0.06, s: 0.46, ry: -0.5, skin: 'sky', pose: 'huddle' });
+    sufferer(b, { x: 0.0, y: 0.01, z: 0.25, s: 0.4, ry: 2.6, skin: 'blue', pose: 'fallen' });
+  }],
+  cold_utpala: ['Utpala: the skin, gone blue, splits like the petals of a blue lotus.', (b) => {
+    iceField(b, 36, { spires: 'sky', dark: 'blue' });
+    lotus(b, { x: 0.0, z: -0.18, y: 0, r: 0.2, n: 9, key: 'blue', key2: 'sky', disc: null, open: 1.05 });
+    sufferer(b, { x: -0.16, z: 0.1, s: 0.46, ry: 0.4, skin: 'blue', pose: 'huddle', blisters: 'navy' });
+    sufferer(b, { x: 0.16, z: 0.1, s: 0.46, ry: -0.4, skin: 'blue', pose: 'kneel', blisters: 'navy' });
+  }],
+  cold_padma: ['Padma: the flesh opens red beneath the blue, splitting like a lotus.', (b) => {
+    iceField(b, 37, { spires: 'sky', dark: 'blue' });
+    lotus(b, { x: 0.0, z: -0.18, y: 0, r: 0.22, n: 10, key: 'red', key2: 'rose', disc: null, open: 1.1 });
+    sufferer(b, { x: -0.16, z: 0.1, s: 0.46, ry: 0.4, skin: 'rose', pose: 'huddle', blisters: 'crimson' });
+    sufferer(b, { x: 0.16, z: 0.12, s: 0.44, ry: -0.5, skin: 'blue', pose: 'fallen', blisters: 'crimson' });
+  }],
+  cold_mahapadma: ['Mahāpadma, deepest of the cold hells: the body splits like a great lotus, to the bone, into many pieces.', (b) => {
+    iceField(b, 38, { spires: 'blue', dark: 'navy', crust: 'ice' });
+    lotus(b, { x: 0.0, z: -0.16, y: 0, r: 0.3, n: 12, key: 'crimson', key2: 'red', disc: null, open: 1.2 });
+    for (let i = 0; i < 6; i += 1) b.put(b.kit.petal, 'crimson', [-0.3 + i * 0.12, 0.006, 0.3 - (i % 2) * 0.05], [-PI / 2, i, 0], [0.04, 0.07, 0.01]);
+    sufferer(b, { x: -0.15, z: 0.1, s: 0.46, ry: 0.4, skin: 'crimson', pose: 'huddle', blisters: 'bone' });
+    sufferer(b, { x: 0.16, y: 0.01, z: 0.14, s: 0.44, ry: -0.5, skin: 'crimson', pose: 'agony', blisters: 'bone' });
+  }],
+  preta_realm: ['The pretas’ ground, 500 yojanas beneath Jambudvīpa, where Yama’s city stands: dry earth, a spring that has failed, a dead tree, and the hungry ghosts, bellies like mountains and necks like hairs, searching.', (b) => {
+    b.put(b.kit.disc, 'earth', [0, 0.004, 0], 0, [0.46, 0.008, 0.42]);
+    const rnd = seeded(41);
+    for (let i = 0; i < 9; i += 1) {
+      const a = rnd() * TAU, r = 0.1 + rnd() * 0.3;
+      b.put(b.kit.box, 'earth~', [Math.cos(a) * r, 0.009, Math.sin(a) * r * 0.8], [0, rnd() * PI, 0], [0.12, 0.003, 0.006]);
+    }
+    // the walls of Yama's city behind, and its gate
+    for (let i = -3; i <= 3; i += 1) {
+      b.put(b.kit.box, 'maroon', [i * 0.12, 0.13, -0.36], 0, [0.12, 0.26, 0.05]);
+      b.put(b.kit.box, 'maroon', [i * 0.12, 0.28, -0.36], 0, [0.05, 0.04, 0.05]);
+    }
+    b.put(b.kit.box, 'black', [0, 0.1, -0.33], 0, [0.09, 0.2, 0.02]);
+    b.put(b.kit.pyramid, 'iron', [0, 0.33, -0.36], 0, [0.16, 0.08, 0.1]);
+    // the spring that runs dry as they come to it, fire where the water was
+    b.put(b.kit.torus(0.2), 'rock', [0.24, 0.02, 0.06], [PI / 2, 0, 0], [0.08, 0.06, 0.08]);
+    b.put(b.kit.disc, 'ash', [0.24, 0.012, 0.06], 0, [0.07, 0.004, 0.05]);
+    fire(b, { x: 0.24, y: 0.014, z: 0.06, h: 0.07, w: 0.05 });
+    tree(b, { x: -0.3, z: -0.12, h: 0.42, r: 0.06, leaf: 'ash', trunk: 'wood', seed: 4, n: 2 });
+    preta(b, { x: -0.08, z: 0.08, s: 0.62, ry: 0.3 });
+    preta(b, { x: 0.18, z: -0.1, s: 0.5, ry: -0.6, bowl: false });
+    sufferer(b, { x: 0.06, z: 0.26, s: 0.38, ry: 0.2, skin: 'ghost', pose: 'kneel', thin: true, hair: 'ash' });
+  }]
+};
+
+export const REALM_MODEL_IDS = Object.keys(REALM_MODELS);
+export const realmNote = (id) => (REALM_MODELS[id] ? REALM_MODELS[id][0] : '');
+
+/* Build one of the realms beneath Jambudvīpa. Its crowds are drawn plainly:
+   the realm is seen as a whole, from outside it. */
+export function buildRealmModel(THREE, id, materials, kit = makeKit(THREE)) {
+  const recipe = REALM_MODELS[id];
+  if (!recipe) return null;
+  const group = buildRecipe(THREE, (b) => { b.detail = -1; recipe[1](b); }, materials, kit, id);
+  group.children.forEach((mesh) => {
+    mesh.userData.realm = id;
+    mesh.castShadow = false;
+    mesh.receiveShadow = false;
+  });
+  return group;
+}
+
+/* The kit's figures, for studies and tests. */
+export const FIGURE_PARTS = { head, seated, standing, sufferer, guardian, yamaGuard, preta, lotus, cloud };
+
 export const MODEL_SQUARES = Object.keys(SQUARE_MODELS).map(Number);
 export const modelNote = (n) => (SQUARE_MODELS[n] ? SQUARE_MODELS[n][0] : '');
 
@@ -2738,6 +2695,24 @@ export function buildSquareModel(THREE, n, materials, kit = makeKit(THREE)) {
     mesh.castShadow = false;
     mesh.receiveShadow = false;
     mesh.renderOrder = 6;
+    group.add(mesh);
+  }
+  return group;
+}
+
+/* One kit of shared parts for a set of models built over time. */
+export const createModelKit = (THREE) => makeKit(THREE);
+
+/* Build any recipe the same way — a figure study, a realm of the world. */
+export function buildRecipe(THREE, recipe, materials, kit = makeKit(THREE), name = 'model') {
+  const b = makeBuilder(THREE, kit);
+  recipe(b, FIGURE_PARTS);
+  const group = new THREE.Group();
+  group.name = name;
+  for (const [key, geometry] of bake(THREE, b.parts)) {
+    const mesh = new THREE.Mesh(geometry, materials.lit[key]);
+    mesh.name = name;
+    mesh.userData.finish = key;
     group.add(mesh);
   }
   return group;
