@@ -56,7 +56,7 @@ magnifiers in the header make the writing in every window larger or smaller.
 | `scripts/build-fonts.cjs` | Rebuilds the font sheet and its woff2 files from Google Fonts. |
 | `scripts/build-sw.cjs` | Writes the worker's list of files and the version it holds them under. |
 | `tests/offline.mjs` | Checks that nothing is asked of another origin, that the pinned hashes still hold, and that the worker's shelf matches the tree. |
-| `human-figure.js` | The one human body every figure is built on: a sculpted head with its face, a torso turned from anatomical sections, limbs swept through joints placed by the bones' lengths, five-fingered hands and feet, the robe and the lower garment draped on it, and the poses — seated with any gesture, standing, kneeling, huddled, writhing, fallen. |
+| `human-figure.js` | The one human body every figure is built on, proportioned from life (about seven and a half heads tall): a sculpted head with its face, ears and one hairline for every head of hair, a torso turned from anatomical sections, limbs swept through joints placed by the bones' lengths, five-fingered hands and feet, the robe and the lower garment draped on it with its folds, and the poses — seated with any gesture, standing, kneeling, huddled, writhing, fallen, and the pretas' searching and craving. |
 | `square-models.js` | The game's destinations as models, one recipe per square, and the models of the hells, the Vajra Hell and the pretas' ground that the world stands beneath Jambudvīpa (`REALM_MODELS`). |
 | `wheel-art.js` | The wheel of life, set up: the relief's six photographic layers, wall to fangs, a veil over them, and every part's outline over the layer it stands in. |
 | `wheel-parts.js` | Where each of the wheel's 88 parts is: its outline on the corrected photograph, and the layer it stands in. |
@@ -964,7 +964,7 @@ postprocessing or continuously simulated particles are used. The hells use
 bounded instanced flame/ice details, and each hell, the Vajra Hell and the
 pretas' ground carries a model of what happens in it (`REALM_MODELS` in
 `square-models.js`), its crowd drawn at the figure's plainest level of detail —
-about 276k triangles for all seventeen, built one at a time while the browser
+about 281k triangles for all eighteen, built one at a time while the browser
 is idle after the page is up, and at once on entering the game or opening a
 hell's entry; the four formless outlines are larger and
 transparent. The Monastic character background adds a monk and a nun without

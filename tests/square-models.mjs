@@ -165,7 +165,7 @@ check('the realms are light enough to stand in every mode', () => {
 
 // One body for everyone: every pose builds, and the figure is as tall as it
 // should be, standing and seated, at no more than the old figure's cost.
-const { POSES } = await import(pathToFileURL(repo + '/human-figure.js'));
+const { POSES, humanFigure } = await import(pathToFileURL(repo + '/human-figure.js'));
 check('the human figure takes every pose, at its own height', () => {
   for (const name of Object.keys(POSES)) {
     const group = models.buildRecipe(THREE, (b, F) => F.sufferer(b, { pose: name, s: 1 }), materials);
@@ -181,6 +181,31 @@ check('the human figure takes every pose, at its own height', () => {
   let t = 0;
   seated.children.forEach((m) => { t += m.geometry.index.count / 3; });
   assert.ok(t < 16000, 'a seated figure with its face, hands and robe: ' + t);
+});
+
+check('the head is in proportion to the body, as a grown man is', () => {
+  // the head alone, in its own units, middle of the face at 0
+  const alone = new THREE.Box3().setFromObject(models.buildRecipe(THREE, (b, F) => F.head(b, { style: 'shaved' }), materials));
+  const S = 0.74;
+  let out = null;
+  const figure = models.buildRecipe(THREE, (b) => { out = humanFigure(b, { stature: S, pose: POSES.standing(), scalp: true }); }, materials);
+  const box = new THREE.Box3().setFromObject(figure);
+  // how large the head is drawn, from the crown above the middle of the face
+  const unit = (box.max.y - out.head[1]) / alone.max.y;
+  const heads = box.max.y / ((alone.max.y - alone.min.y) * unit);
+  assert.ok(heads > 7 && heads < 7.8, 'a standing figure is about seven and a half heads tall: ' + heads.toFixed(2));
+  // and broad enough across the deltoids for a head of that size, ears and all
+  const shoulders = new THREE.Box3();
+  const v = new THREE.Vector3();
+  for (const mesh of figure.children) {
+    const pos = mesh.geometry.attributes.position;
+    for (let i = 0; i < pos.count; i += 1) {
+      v.fromBufferAttribute(pos, i);
+      if (Math.abs(v.y - 0.75 * S) < 0.05 * S) shoulders.expandByPoint(v);
+    }
+  }
+  const across = (shoulders.max.x - shoulders.min.x) / ((alone.max.x - alone.min.x) * unit);
+  assert.ok(across > 2.3 && across < 3.1, 'the shoulders are between two and three heads across: ' + across.toFixed(2));
 });
 
 console.log('\n' + checks + ' checks passed.');

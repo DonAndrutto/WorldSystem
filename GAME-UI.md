@@ -143,33 +143,51 @@ central channel, the Buddha under the tree, the stupa of Nirvana.
 - Tapping any part of a model opens that square's entry.
 - Each model is merged into at most four meshes (matte, metal, glowing,
   translucent), with its colours in the vertices. The eighty-three come to
-  about 1.06M triangles, the heaviest under 40k.
+  about 1.15M triangles, the heaviest under 40k.
 
 ## One human body
 
 Every person in the destinations — the Buddha, an arhat, a monk with his
 bowl, a bodhisattva, a yogi, a being in the hells, a servant of Yama — is the
 same body (`human-figure.js`), built as a sculptor would build it rather than
-from beads: a head modelled as one surface, with the brow, the sockets, the
-cheekbones, the nose, the lips and the chin raised from it, and the brows,
-lashes and lips laid on it; a torso turned from anatomical sections — hips,
-waist, ribs, chest, shoulders — with the breast, the shoulder blades and the
-spine in it; arms and legs swept along their bones, the elbows and knees
-placed by the bones' own lengths, so a hand is only where an arm can reach;
-hands of a palm and five fingers, each bending at its three joints; feet with
-their toes. The robe is part of the same surfaces: over the left shoulder,
-its rolled edge across the breast and its folds following it, the right
-shoulder bare; the lower robe covers the crossed legs or falls in folds to the
-ankles.
+from beads, and proportioned from life: about seven and a half heads tall,
+the eyes halfway down the head, the shoulders a little over two and a half
+heads across, the limbs, hands and feet of a grown man's girth and length.
+The head is modelled as one surface, with a rounded skull, the brow, the
+sockets, the cheekbones, the nose, the lips, the jaw and the chin raised from
+it, and the brows, lashes and lips laid on it; the ears have their tragus and
+lobe, long and pierced for a Buddha. Every head of hair begins on one
+hairline, so every forehead is of a height. The torso is turned from
+anatomical sections — hips, waist, ribs, chest, shoulders — with the
+collarbones, the breast, the trapezius rising to the neck, the shoulder
+blades and the spine in it, and the arms come out of the shoulders' mass;
+arms and legs are swept along their bones, the elbows and knees placed by the
+bones' own lengths, so a hand is only where an arm can reach; hands of a palm
+and five fingers, each bending at its three joints; feet with their toes. The
+robe is part of the same surfaces: over the left shoulder, its rolled edge
+cut clean across the breast, the right shoulder bare, the cloth lying loose
+in folds on the left arm and falling from the forearm; the lower robe lies
+over the crossed legs and fans over the seat, or falls in folds to the
+ankles. A Buddha's curls are set in rings from the hairline to the crown and
+over the uṣṇīṣa, and his neck has its three folds.
+
+The thrones are built to the same care: the lion throne red and gold, a
+snow lion to either side of its face with its mane in rows of curls, a
+brocade hanging down its middle; on it the lotus seat, its rounded petals
+pink within and turned back below, a beaded gold rim and the moon disc; the
+teacher's throne of stacked cushions with a bolster behind; the monk's
+cushion on its low base; the yogi's mat of grass or his boulder. A preta is
+the same body starved — the belly like a mountain, the neck like a hair, the
+mouth like the eye of a needle.
 
 A pose is a set of joints, and the same body takes any of them: seated in the
 vajra posture with the gestures of meditation, touching the earth, teaching,
 protection, giving, the hands on the knees or joined at the heart; standing,
 with a bowl, a staff or a raised hand; kneeling, huddled, writhing, reaching,
-fighting, thrown down, fallen. The figure is built at three levels of
-detail: fine for the figure a destination is about (a seated figure is about
-13k triangles, what the old figure cost), coarser for a smaller one, and plain
-for the crowds of the hells.
+fighting, thrown down, fallen, searching, craving. The figure is built at
+three levels of detail: fine for the figure a destination is about (a seated
+monk is about 12k triangles, a Buddha with his curls about 19k), coarser for
+a smaller one, and plain for the crowds of the hells.
 
 ## The realms beneath Jambudvīpa
 
@@ -181,15 +199,18 @@ the beast-headed mountains and the mortar of Saṃghāta; the doorless iron
 house of Raurava and the house within a house of Mahāraurava; the stakes of
 Tapana; the trident, the iron sheet and the cauldron of Pratāpana; Avīci's
 house of fire; the blisters, the chattering, the cries and the splitting
-flesh of the cold hells; the pretas searching dry ground before the wall of
-Yama's city. The Vajra Hell is the lowest, beneath Avīci, on a floor of night
-with black fire, the vajra standing as the walls of its prison; square 1
-stands on it. The squares that name a hell or the pretas stand on that
-realm's floor, and their travellers stand beside its model.
-- `node tests/square-models.mjs` checks that every unbuilt square has a model,
-  that each stays within its unit, that neighbours on the spiral cannot touch
-  however they are turned, the triangle and draw-call budgets, and the facing
-  and fading.
+flesh of the cold hells; the pretas on cracked and burning ground strewn with
+bones before the walls of Yama's city, a spring turning to pus under a
+guard's club, a dead tree bursting into flame as they reach for it. The
+pretas' floor is its own: earth cracked into plates, the ground burning in
+the cracks of a few, broken rock round its edge and dust in the air. The
+Vajra Hell is the lowest, beneath Avīci, on a floor of night with black fire,
+the vajra standing as the walls of its prison; square 1 stands on it. The
+squares that name a hell or the pretas stand on that realm's floor, and their
+travellers stand beside its model. - `node tests/square-models.mjs` checks
+that every unbuilt square has a model,   that each stays within its unit,
+that neighbours on the spiral cannot touch   however they are turned, the
+triangle and draw-call budgets, and the facing   and fading.
 
 ## Character artwork
 
