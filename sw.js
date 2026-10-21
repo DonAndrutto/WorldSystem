@@ -25,7 +25,7 @@
    current shelf or the runtime one, so old versions do not accumulate. */
 
 /* ── written by scripts/build-sw.cjs — do not edit below ─────────────── */
-const VERSION = '842ba8cf181b9352';
+const VERSION = 'ccb86e582af15d3d';
 const SHELL = [
   "app-chrome.css",
   "app-chrome.js",
@@ -150,7 +150,10 @@ const SHELL = [
   "rebirth-icons.js",
   "rebirth-notes.js",
   "rebirth-sound.js",
+  "sculpture-anatomy-data.js",
+  "sculpture-robe-data.js",
   "search-text.js",
+  "seated-sculpture.js",
   "sky-clouds.js",
   "square-models.js",
   "summit-detail.js",

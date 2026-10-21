@@ -26,6 +26,7 @@ export const MODEL_UNIT = 0.14;      // × SUMMIT: one model unit in the world
 export const MODEL_LIFT = 0.058;     // × SUMMIT: the model stands above the realm gem
 export const VICTORY_SCALE = 2.6;    // Nirvana stands alone and is drawn larger
 
+import { seatedSculpture, sculptureLotus } from './seated-sculpture.js';
 import { humanFigure, POSES, sculptedHead, hairCap, clothFall, clothBand } from './human-figure.js';
 
 const TAU = Math.PI * 2;
@@ -821,7 +822,11 @@ function seated(b, o = {}) {
   const { x = 0, y = 0, z = 0, s = 1, halo = null, bowl = null, mudra = 'lap', ry = 0, aura = null } = o;
   b.at([x, y, z], [0, ry, 0], s, () => {
     const k = b.kit;
-    humanFigure(b, { ...figureDress(o), stature: SEATED_STATURE, pose: POSES.seated(mudra) });
+    if (o.hair === 'buddha' && !paintOf(o.skin || 'skin').glass) {
+      seatedSculpture(b, { skin: o.skin || 'skin', robe: o.body || o.robe || 'maroon', mudra, hair: 'lapis' });
+    } else {
+      humanFigure(b, { ...figureDress(o), stature: SEATED_STATURE, pose: POSES.seated(mudra) });
+    }
     if (bowl) {
       b.put(k.lathe('almsbowl', [[0, 0], [0.04, 0.003], [0.058, 0.02], [0.06, 0.036], [0.054, 0.05], [0.05, 0.052], [0.04, 0.046], [0, 0.044]], 18), bowl, [0, 0.152, 0.158], 0, 0.85);
     }
@@ -2606,18 +2611,18 @@ const SQUARE_MODELS = {
     aureole(b, 'quatrefoil', { y: 0.48, w: 0.86, h: 1.0, outer: 'red', inner: 'crimson', band: 0.84, rim: 0.78 });
     buddhaAureole(b, { y: 0.46, z: -0.13, w: 0.25, h: 0.3, headY: 0.608, headR: 0.1 });
     const seat = lionThrone(b, { y: 0, w: 0.4, d: 0.26, h: 0.16 });
-    const top = lotus(b, { y: seat, r: 0.2 });
-    seated(b, { y: top - 0.02, s: 0.8, robe: 'red', body: 'crimson', skin: 'gilt', arms: 'gilt', hair: 'buddha', mudra: 'earth' });
+    const top = sculptureLotus(b, { y: seat, r: 0.23 });
+    seated(b, { y: top, s: 0.8, robe: 'red', body: 'crimson', skin: 'gilt', arms: 'gilt', hair: 'buddha', mudra: 'earth' });
     const rnd = seeded(100);
     for (let i = 0; i < 10; i += 1) b.ell(i % 2 ? 'pink' : 'rose', [(rnd() - 0.5) * 0.7, 0.5 + rnd() * 0.35, 0.1 + rnd() * 0.06], [0.025, 0.012, 0.025]);
   }],
   101: ['The Buddha under the bodhi tree on the vajra seat: awakening.', (b) => {
     aureole(b, 'quatrefoil', { y: 0.48, w: 0.86, h: 1.0, outer: 'red', inner: 'crimson', band: 0.84, rim: 0.78 });
-    tree(b, { y: 0, z: -0.12, h: 0.95, r: 0.24, leaf: 'green', seed: 101, n: 8 });
+    tree(b, { y: 0, z: -0.09, h: 0.95, r: 0.24, leaf: 'green', seed: 101, n: 8 });
     // the vajra seat: the lion throne, the lotus and the moon on it
     let top = 0;
-    b.at([0, 0, 0.05], 0, 1, () => { top = lotus(b, { y: lionThrone(b, { y: 0, w: 0.38, d: 0.24, h: 0.15 }), r: 0.18 }); });
-    seated(b, { y: top - 0.02, z: 0.06, s: 0.78, robe: 'red', body: 'crimson', skin: 'gilt', arms: 'gilt', hair: 'buddha', mudra: 'earth', halo: 'gold' });
+    b.at([0, 0, 0.05], 0, 1, () => { top = sculptureLotus(b, { y: lionThrone(b, { y: 0, w: 0.38, d: 0.24, h: 0.15 }), r: 0.22 }); });
+    seated(b, { y: top, z: 0.06, s: 0.78, robe: 'red', body: 'crimson', skin: 'gilt', arms: 'gilt', hair: 'buddha', mudra: 'earth', halo: 'gold' });
   }],
   102: ['The golden wheel of Dharma between two deer kneeling to it, as in the deer park at Sārnāth.', (b) => {
     aureole(b, 'quatrefoil', { y: 0.48, w: 0.86, h: 1.0, outer: 'red', inner: 'crimson', band: 0.84, rim: 0.78 });

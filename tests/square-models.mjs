@@ -51,17 +51,19 @@ check('each model stands on its ground and keeps within its unit', () => {
 });
 
 check('the whole set stays within a modest triangle budget', () => {
-  let total = 0, most = 0;
+  let total = 0;
   for (const group of built.values()) {
     let t = 0;
     group.children.forEach((m) => { t += m.geometry.index.count / 3; });
-    total += t; most = Math.max(most, t);
+    total += t;
   }
-  // The figures carry faces, hands and robes: a seated Buddha is some 14,000
-  // triangles. The heaviest of the set is Rudra, with three wrathful heads,
-  // six arms and four legs.
-  assert.ok(most < 40000, 'no single model is heavy: ' + most);
-  assert.ok(total < 1200000, 'the set as a whole: ' + total);
+  // Four featured Buddhas now carry the reference-derived sculpture.
+  // Keep every other destination at its original budget.
+  for (const [n, group] of built) {
+    const triangles = group.children.reduce((sum, m) => sum + m.geometry.index.count / 3, 0);
+    assert.ok(triangles < ([77, 93, 100, 101].includes(n) ? 100000 : 40000), 'square ' + n + ': ' + triangles);
+  }
+  assert.ok(total < 1400000, 'the set as a whole: ' + total);
   const calls = [...built.values()].reduce((sum, group) => sum + group.children.length, 0);
   assert.ok(calls <= built.size * models.FINISHES.length, 'at most one draw call per finish: ' + calls);
 });
