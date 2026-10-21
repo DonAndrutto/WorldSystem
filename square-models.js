@@ -26,7 +26,7 @@ export const MODEL_UNIT = 0.14;      // × SUMMIT: one model unit in the world
 export const MODEL_LIFT = 0.058;     // × SUMMIT: the model stands above the realm gem
 export const VICTORY_SCALE = 2.6;    // Nirvana stands alone and is drawn larger
 
-import { humanFigure, POSES, sculptedHead } from './human-figure.js';
+import { humanFigure, POSES, sculptedHead, hairCap, clothFall, clothBand } from './human-figure.js';
 
 const TAU = Math.PI * 2;
 const PI = Math.PI;
@@ -59,11 +59,20 @@ const PALETTE = {
   leaf:     { c: 0x4c7c46, r: 0.85 },
   jade:     { c: 0x2f9a86, r: 0.40, m: 0.10 },
   pink:     { c: 0xf0c3cc, r: 0.65 },
+  blush:    { c: 0xf8dfe3, r: 0.62 },
   rose:     { c: 0xd9707f, r: 0.60 },
   skin:     { c: 0xe1b48c, r: 0.70 },
   gilt:     { c: 0xe6b84a, r: 0.35, m: 0.45 },
   ash:      { c: 0xb9b4aa, r: 0.85 },
   ghost:    { c: 0x8c9fb0, r: 0.80 },
+  /* the hungry ghosts' realm: the ash-grey skin of the starved, dry earth
+     and its dust, the char of what has burned, water turned to pus */
+  parched:  { c: 0x9a8b7e, r: 0.85 },
+  dust:     { c: 0xa8916f, r: 0.95 },
+  clay:     { c: 0x7b6248, r: 0.95 },
+  char:     { c: 0x2e2621, r: 0.90 },
+  pus:      { c: 0xb8a35c, r: 0.30 },
+  umber:    { c: 0x4d3429, r: 0.90 },
   deep:     { c: 0x1f3d9c, r: 0.40, m: 0.10 },
   water:    { c: 0x3d86c2, r: 0.15, m: 0.10 },
   ice:      { c: 0xd6eef8, r: 0.15, m: 0.05 },
@@ -104,6 +113,14 @@ function paintOf(key) {
     return (PALETTE[key] = { ...base, c: shade, r: Math.min(1, (base.r || 0.6) + 0.1) });
   }
   return null;
+}
+
+/* A paint's colour as the vertices carry it (linear), for parts painted
+   vertex by vertex. */
+const RGB = new Map();
+function rgbOf(b, key) {
+  if (!RGB.has(key)) { const c = new b.THREE.Color().setHex(paintOf(key).c); RGB.set(key, [c.r, c.g, c.b]); }
+  return RGB.get(key);
 }
 
 /* Paints are baked into the vertices, so a model needs one draw call for each
@@ -253,6 +270,9 @@ function bake(THREE, parts) {
     if (!bin) bins.set(finish, bin = { p: [], n: [], c: [], i: [] });
     const pos = geometry.attributes.position, nor = geometry.attributes.normal;
     const own = geometry.attributes.color || null;
+    // a tinted part's own colours are light and shade on the paint, so one
+    // petal serves for a lotus of any colour
+    const tint = own && geometry.userData.tint;
     const base = bin.p.length / 3;
     nm.getNormalMatrix(matrix);
     const flip = matrix.determinant() < 0;
@@ -261,7 +281,8 @@ function bake(THREE, parts) {
       n.fromBufferAttribute(nor, i).applyMatrix3(nm).normalize();
       bin.p.push(p.x, p.y, p.z);
       bin.n.push(n.x, n.y, n.z);
-      if (own) bin.c.push(own.getX(i), own.getY(i), own.getZ(i));
+      if (tint) bin.c.push(Math.min(1, own.getX(i) * colour.r), Math.min(1, own.getY(i) * colour.g), Math.min(1, own.getZ(i) * colour.b));
+      else if (own) bin.c.push(own.getX(i), own.getY(i), own.getZ(i));
       else bin.c.push(colour.r, colour.g, colour.b);
     }
     const index = geometry.index;
@@ -302,6 +323,8 @@ function makeKit(THREE) {
     sphere: new THREE.SphereGeometry(1, 14, 10),
     ball: new THREE.SphereGeometry(1, 8, 6),
     bead: new THREE.SphereGeometry(1, 6, 4),
+    /* The smallest round thing worth drawing: a Buddha's curl, a pearl. */
+    nub: new THREE.SphereGeometry(1, 5, 3),
     box: new THREE.BoxGeometry(1, 1, 1),
     cyl: new THREE.CylinderGeometry(1, 1, 1, 14),
     disc: new THREE.CylinderGeometry(1, 1, 1, 28),
@@ -326,6 +349,98 @@ function makeKit(THREE) {
     /* A lotus petal: a shallow, pointed spoon. */
     petal: lathe('petal', [[0, 0], [0.42, 0.10], [0.50, 0.35], [0.40, 0.65], [0.18, 0.90], [0, 1]], 8)
   };
+
+  /* A lotus petal as the painters draw it: broad, cupped, bowing outward
+     along its length to a point that flicks out at the tip, thicker at the
+     root. Its base is at the origin, its length one unit along +y, its
+     inner face towards +z. Tinted: lighter to the rim and the tip, a darker
+     line down the middle, the back in shade. */
+  kit.leaf = (fine) => once('leaf:' + (fine ? 1 : 0), () => {
+    const rows = fine ? 7 : 4, half = fine ? 5 : 3;
+    const cols = half * 2;
+    const pos = [], col = [], idx = [];
+    for (let i = 0; i <= rows; i += 1) {
+      const t = i / rows;
+      // full in the shoulders, closing to a short point
+      const w = 0.44 * Math.pow(Math.sin(PI * Math.min(0.999, Math.pow(t, 0.8))), 0.55) * (1 - 0.1 * t) + 0.002;
+      const bow = -0.14 * t * t - 0.07 * Math.max(0, (t - 0.8) / 0.2) ** 2;
+      const th = 0.034 - 0.02 * t;
+      for (let j = 0; j < cols; j += 1) {
+        const front = j < half;
+        const k = front ? j : cols - 1 - j;
+        const u = -1 + 2 * k / (half - 1);
+        const cup = 0.15 * u * u * Math.sin(PI * Math.min(1, t * 1.1));
+        const z = cup + bow + (front ? th / 2 : -th / 2);
+        pos.push(u * w, t, z);
+        const rim = Math.pow(Math.abs(u), 1.6);
+        // both faces are painted, deeper at the root and lighter to the rim
+        const lit = (front ? 0.88 : 0.92) + 0.3 * rim + 0.14 * t - (front ? 0.14 : 0.08) * Math.exp(-u * u / 0.012) * Math.sin(PI * t);
+        const c = lit * (t < 0.12 ? 0.85 + t * 1.25 : 1);
+        col.push(c, c, c);
+      }
+    }
+    const pole = (i, lift) => { pos.push(0, i / rows, lift); col.push(0.8, 0.8, 0.8); return pos.length / 3 - 1; };
+    const p0 = pole(0, 0), p1 = pole(rows, -0.21);
+    for (let i = 0; i < rows; i += 1) for (let j = 0; j < cols; j += 1) {
+      const jn = (j + 1) % cols;
+      const a = i * cols + j, bq = i * cols + jn, c = (i + 1) * cols + j, d = (i + 1) * cols + jn;
+      idx.push(a, bq, c, bq, d, c);
+    }
+    for (let j = 0; j < cols; j += 1) {
+      const jn = (j + 1) % cols;
+      idx.push(p0, jn, j, p1, rows * cols + j, rows * cols + jn);
+    }
+    const g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+    g.setAttribute('color', new THREE.Float32BufferAttribute(col, 3));
+    g.setIndex(idx);
+    g.computeVertexNormals();
+    g.userData.tint = true;
+    return g;
+  });
+
+  /* A cushion: a unit cube with its edges and corners rounded soft, the top
+     and bottom a little full. */
+  kit.pillow = once('pillow', () => {
+    const rows = 10, cols = 16, pos = [], idx = [];
+    const sp = (w, m) => Math.sign(w) * Math.pow(Math.abs(w), m);
+    for (let i = 0; i <= rows; i += 1) {
+      const u = -PI / 2 + i / rows * PI;
+      for (let j = 0; j < cols; j += 1) {
+        const v = -PI + (j + 0.5) / cols * TAU;
+        const x = sp(Math.cos(u), 0.32) * sp(Math.cos(v), 0.3), zz = sp(Math.cos(u), 0.32) * sp(Math.sin(v), 0.3);
+        const yy = sp(Math.sin(u), 0.32) * (1 + 0.12 * (1 - x * x) * (1 - zz * zz));
+        pos.push(x * 0.5, yy * 0.5, zz * 0.5);
+      }
+    }
+    for (let i = 0; i < rows; i += 1) for (let j = 0; j < cols; j += 1) {
+      const jn = (j + 1) % cols, a = i * cols + j, bq = i * cols + jn, c = (i + 1) * cols + j, d = (i + 1) * cols + jn;
+      idx.push(a, c, bq, bq, c, d);
+    }
+    const g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+    g.setIndex(idx);
+    g.computeVertexNormals();
+    return g;
+  });
+  /* A boulder: a stone worn round, flat enough on top to sit on. */
+  kit.boulder = (seed) => once('boulder:' + seed, () => {
+    const g = new THREE.SphereGeometry(1, 12, 8);
+    const pos = g.attributes.position, rnd = seeded(seed);
+    const lumps = Array.from({ length: 5 }, () => [rnd() * TAU, rnd() * 2 - 1, 0.08 + rnd() * 0.1]);
+    for (let i = 0; i < pos.count; i += 1) {
+      let x = pos.getX(i), y = pos.getY(i), z = pos.getZ(i);
+      const a = Math.atan2(z, x);
+      let r = 1;
+      for (const [la, ly, h] of lumps) r += h * Math.exp(-((a - la) ** 2 + (y - ly) ** 2) * 3);
+      x *= r; z *= r; y *= r;
+      if (y > 0.5) y = 0.5 + (y - 0.5) * 0.25;
+      if (y < -0.6) y = -0.6 + (y + 0.6) * 0.3;
+      pos.setXYZ(i, x, y, z);
+    }
+    g.computeVertexNormals();
+    return g;
+  });
 
   /* Frames: the field's outline extruded into a plaque, with a hole. The hole
      is the same outline drawn smaller about its own centre. */
@@ -435,47 +550,65 @@ function ground(b, kind, { y = 0, w = 0.9, d = w, floor = 'earth', rimKey = 'red
 }
 
 /* A lotus seat, open upward, with an optional moon or sun disc on it. */
-function lotus(b, { x = 0, z = 0, y = 0, r = 0.22, n = 10, key = 'pink', key2 = 'white', disc = 'white', open = 0.55, tiers = 2, reflex = tiers >= 2 && open < 0.95 } = {}) {
+function lotus(b, { x = 0, z = 0, y = 0, r = 0.22, n = 10, key = 'pink', key2 = 'blush', disc = 'white', open = 0.55, tiers = 2, reflex = tiers >= 2 && open < 0.95 } = {}) {
   if (x || z) {
     let top = 0;
     b.at([x, 0, z], 0, 1, () => { top = lotus(b, { y, r, n, key, key2, disc, open, tiers, reflex }); });
     return top;
   }
   const shade = (k) => (paintOf(k).glass || paintOf(k).e ? k : k + '~');
-  // the throne's lower row: petals turned down over the base, in shadow
-  if (reflex) for (let i = 0; i < n; i += 1) {
-    const a = (i + 0.25) / n * TAU, len = r * 0.5;
-    b.put(b.kit.petal, shade(key), [Math.cos(a) * r * 0.5, y + 0.042, Math.sin(a) * r * 0.5],
-      [PI / 2 + 0.3, PI / 2 - a, 0, 'YXZ'], [len * 0.55, len, len * 0.2]);
-  }
-  // the upturned petals, row within row, each row more upright than the last
-  for (let t = 0; t < tiers; t += 1) {
-    const count = n - t * 2, radius = r * (1 - t * 0.28), tilt = open + t * 0.35;
-    const len = r * 0.62 * (1 - t * 0.12);
-    for (let i = 0; i < count; i += 1) {
-      const a = (i + t * 0.5) / count * TAU;
-      const key3 = t % 2 ? key2 : key;
-      b.put(b.kit.petal, key3,
-        [Math.cos(a) * radius * 0.55, y + 0.02 + t * 0.03, Math.sin(a) * radius * 0.55],
-        [PI / 2 - tilt, PI / 2 - a, 0, 'YXZ'], [len * 0.55, len, len * 0.22]);
-      // the vein down the middle of each petal
-      if (len > 0.06 && !paintOf(key3).glass) b.put(b.kit.petal, shade(key3),
-        [Math.cos(a) * radius * 0.56, y + 0.022 + t * 0.03, Math.sin(a) * radius * 0.56],
-        [PI / 2 - tilt - 0.04, PI / 2 - a, 0, 'YXZ'], [len * 0.12, len * 0.85, len * 0.24]);
+  const fine = r * b.scale() > 0.15;
+  const leaf = b.kit.leaf(fine);
+  const glass = !!paintOf(key).glass;
+  /* A lotus seat as it is cast and painted beneath a Buddha: a row of
+     petals turned down over the base, a beaded rim, the upturned petals row
+     within row, the seed head with its stamens, and the disc of the moon
+     laid on it like a cushion. */
+  const petal = (k, p, along, facing, len) => b.orient(leaf, k, p, along, facing, [len, len, len]);
+  if (reflex) {
+    if (!glass) b.put(b.kit.cyl, shade(key), [0, y + 0.022, 0], 0, [r * 0.52, 0.04, r * 0.52]);
+    for (let i = 0; i < n; i += 1) {
+      const a = (i + 0.25) / n * TAU, ca = Math.cos(a), sa = Math.sin(a);
+      petal(key, [ca * r * 0.48, y + 0.05, sa * r * 0.48], v3.norm([ca, -0.2, sa]), v3.norm([ca * 0.2, 1, sa * 0.2]), r * 0.48);
     }
   }
-  // the seed head, ringed with stamens
-  b.put(b.kit.cyl, 'gold', [0, y + 0.04, 0], 0, [r * 0.55, 0.05, r * 0.55]);
-  for (let i = 0; i < 14; i += 1) {
-    const a = i / 14 * TAU;
-    b.put(b.kit.octa, 'saffron', [Math.cos(a) * r * 0.57, y + 0.062, Math.sin(a) * r * 0.57], [0, a, 0], [0.008, 0.014, 0.008]);
+  // the upturned petals, row within row, each row more upright than the
+  // last: under a seat they spread low round it, their tips rising to frame
+  // the one seated; an open flower cups them round its heart
+  for (let t = 0; t < tiers; t += 1) {
+    const count = n - t * 2, radius = r * (1 - t * 0.28), tilt = open + t * 0.35;
+    const len = r * (reflex ? 0.6 - t * 0.12 : 0.64 * (1 - t * 0.12));
+    const up = reflex ? 0.3 + t * 0.42 : Math.min(1.45, 0.15 + tilt * 0.9), cu = Math.cos(up), su = Math.sin(up);
+    for (let i = 0; i < count; i += 1) {
+      const a = (i + t * 0.5) / count * TAU, ca = Math.cos(a), sa = Math.sin(a);
+      petal(t % 2 ? key2 : key, [ca * radius * 0.42, y + 0.03 + t * 0.028, sa * radius * 0.42],
+        [ca * cu, su, sa * cu], [-ca * su, cu, -sa * su], len);
+    }
+  }
+  // the rim between the rows, beaded in gold
+  if (reflex && !glass) {
+    b.put(b.kit.torus(0.16), 'gold', [0, y + 0.044, 0], [PI / 2, 0, 0], [r * 0.5, r * 0.5, 0.05]);
+    if (fine) for (let i = 0; i < 26; i += 1) {
+      const a = i / 26 * TAU;
+      b.put(b.kit.nub, 'gold', [Math.cos(a) * r * 0.585, y + 0.044, Math.sin(a) * r * 0.585], 0, r * 0.022);
+    }
+  }
+  // the seed head, ringed with stamens: gilt under a seat, the living
+  // flower's own yellow in a blossom
+  const pod = reflex ? 0.5 : 0.3;
+  b.put(b.kit.cyl, reflex ? 'gold' : 'saffron', [0, y + 0.045, 0], 0, [r * pod, 0.05, r * pod]);
+  for (let i = 0; i < (fine ? 18 : 12); i += 1) {
+    const a = i / (fine ? 18 : 12) * TAU;
+    b.put(b.kit.octa, 'saffron', [Math.cos(a) * r * (pod + 0.02), y + 0.068, Math.sin(a) * r * (pod + 0.02)], [0, a, 0.3], [0.007, 0.016, 0.007]);
   }
   if (disc) {
-    b.put(b.kit.disc, disc, [0, y + 0.07, 0], 0, [r * 0.62, 0.018, r * 0.62]);
-    b.put(b.kit.torus(0.12), shade(disc), [0, y + 0.072, 0], [PI / 2, 0, 0], [r * 0.62, r * 0.62, 0.12]);
+    // the moon, a cushion with a rounded edge
+    const R = r * 0.6;
+    b.put(b.kit.lathe('moon-disc', [[0, 0], [0.92, 0], [1, 0.3], [1, 0.7], [0.92, 1], [0, 1]], 28), disc, [0, y + 0.058, 0], 0, [R, 0.022, R]);
+    b.put(b.kit.torus(0.08), shade(disc), [0, y + 0.069, 0], [PI / 2, 0, 0], [R * 1.005, R * 1.005, 0.1]);
   } else for (let i = 0; i < 7; i += 1) {
     const a = i / 7 * TAU, rr = i ? r * 0.28 : 0;
-    b.ell('ember', [Math.cos(a) * rr, y + 0.066, Math.sin(a) * rr], [0.012, 0.006, 0.012]);
+    b.ell('ember', [Math.cos(a) * rr, y + 0.071, Math.sin(a) * rr], [0.012, 0.006, 0.012]);
   }
   return y + 0.08;
 }
@@ -533,84 +666,112 @@ function flameRing(b, { cx = 0, cy = 0.5, z = -0.18, R = 0.36, n = 11, from = -0
    hat, bonhat, dread, flame. */
 function head(b, { skin = 'skin', style = 'shaved', hair = null, eyes = 'down', ears = null, mouth = 'calm' } = {}) {
   const long = ears === 'long' || (ears === null && (style === 'buddha' || style === 'crown'));
-  sculptedHead(b, { skin, eyes, mouth, long, scalp: style === 'shaved' && !paintOf(skin).glass, detail: b.scale() > 0.05 ? 1 : 0 });
-  hairOf(b, style, hair);
+  const detail = b.scale() > 0.05 ? 1 : 0;
+  sculptedHead(b, { skin, eyes, mouth, long, scalp: style === 'shaved' && !paintOf(skin).glass, detail });
+  hairOf(b, style, hair, detail);
 }
 
 /* The hair, in the head's units: the Buddha's curls and uṣṇīṣa, the crown
    and topknot of the gods, a layman's bun, the pandita's and the Bönpo's
-   hats, the yogi's locks, hair of flame, hair in disorder. */
-function hairOf(b, style, hair) {
+   hats, the yogi's locks, hair of flame, hair in disorder. Every head of it
+   is a cap over the skull that begins on the one hairline (`hairCap`), so
+   every forehead is of a height, a little under a third of the face. */
+function hairOf(b, style, hair, detail = 1) {
   const k = b.kit;
+  const fine = detail > 0.5, tiny = detail < -0.5;
   const hairKey = hair || (style === 'buddha' ? 'lapis' : style === 'crown' ? 'hair' : style === 'dread' ? 'earth' : 'black');
-  if (style === 'crown') for (const x of [-1, 1]) b.ell('gold', [x * 0.385, -0.34, -0.01], 0.055);
+  const cap = (thick, shape = null) => hairCap(b, hairKey, { thick, shape, rows: tiny ? 5 : fine ? 9 : 7, cols: tiny ? 14 : fine ? 34 : 22 });
+  if (style === 'crown') for (const x of [-1, 1]) b.ell('gold', [x * 0.335, -0.31, -0.04], 0.05);
   if (style === 'buddha') {
-    b.ell('white', [0, 0.155, 0.335], 0.022);                    // the ūrṇā
-    b.ell(hairKey, [0, 0.2, -0.06], [0.375, 0.34, 0.37]);
-    // tight snail-shell curls, turning to the right, over the whole of the hair
-    const n = 84;
-    for (let i = 0; i < n; i += 1) {
-      const t = (i + 0.5) / n, phi = Math.acos(1 - 2 * t), theta = i * 2.39996;
-      const dx = Math.sin(phi) * Math.cos(theta), dy = Math.cos(phi), dz = Math.sin(phi) * Math.sin(theta);
-      const p = [dx * 0.38, 0.2 + dy * 0.345, -0.06 + dz * 0.375];
-      if (p[1] < 0.1 || (p[2] > 0.2 && p[1] < 0.24)) continue;
-      b.put(b.kit.bead, hairKey, p, [phi, theta, 0], [0.046, 0.04, 0.046]);
+    b.ell('white', [0, 0.158, 0.345], 0.02);                    // the ūrṇā
+    const at = cap(0.02);
+    /* The curls: tight snail shells, each turning to the right, set close
+       in rings from the hairline to the crown as the founders set them, and
+       over the uṣṇīṣa. */
+    const rings = tiny ? 2 : fine ? 7 : 5, spacing = tiny ? 0.16 : fine ? 0.07 : 0.1;
+    const curl = (p, n, r) => b.orient(k.nub, hairKey, v3.add(p, v3.mul(n, r * 0.3)), n, [n[1], -n[0], 0.3], [r, r * 0.6, r]);
+    for (let j = 0; j < rings; j += 1) {
+      const s = 0.06 + j / rings * 0.78;
+      let around = 0, last = at(s, 0).p;
+      for (let i = 1; i <= 24; i += 1) { const p = at(s, i / 24 * TAU).p; around += Math.hypot(...v3.sub(p, last)); last = p; }
+      const count = Math.max(6, Math.round(around / spacing));
+      for (let i = 0; i < count; i += 1) {
+        const { p, n } = at(s, (i + (j % 2) * 0.5) / count * TAU);
+        curl(p, n, spacing * 0.53);
+      }
     }
-    // the uṣṇīṣa, curled too, and the jewel at its crown
-    b.ell(hairKey, [0, 0.55, -0.06], [0.2, 0.19, 0.2]);
-    for (let i = 0; i < 14; i += 1) {
-      const a = i / 14 * TAU;
-      b.ell(hairKey, [Math.cos(a) * 0.18, 0.56, -0.06 + Math.sin(a) * 0.18], 0.04);
+    // the uṣṇīṣa on the crown, curled like the rest, and the jewel on it
+    const top = at(1, 0).p;
+    // a broad low dome rising out of the crown
+    const ush = k.lathe('usnisa', [[0, 0], [0.21, 0], [0.215, 0.035], [0.2, 0.085], [0.165, 0.135], [0.1, 0.175], [0, 0.19]], fine ? 18 : 12);
+    b.put(ush, hairKey, [0, top[1] - 0.045, top[2] - 0.01]);
+    if (!tiny) for (const [rr, yy, n] of fine ? [[0.2, 0.045, 20], [0.17, 0.1, 16], [0.12, 0.145, 11], [0.055, 0.175, 5]] : [[0.19, 0.06, 13], [0.12, 0.14, 8]]) {
+      for (let i = 0; i < n; i += 1) {
+        const a = (i + yy * 10) / n * TAU;
+        const nrm = v3.norm([Math.sin(a), 0.6 + yy * 3.5, Math.cos(a)]);
+        curl([Math.sin(a) * rr, top[1] - 0.045 + yy, top[2] - 0.01 + Math.cos(a) * rr], nrm, spacing * 0.5);
+      }
     }
-    for (let i = 0; i < 7; i += 1) {
-      const a = i / 7 * TAU;
-      b.ell(hairKey, [Math.cos(a) * 0.1, 0.67, -0.06 + Math.sin(a) * 0.1], 0.036);
-    }
-    b.ell('gold', [0, 0.75, -0.06], [0.05, 0.07, 0.05]);
+    b.ell('gold', [0, top[1] + 0.16, top[2] - 0.01], [0.03, 0.045, 0.03]);
+    b.put(k.flame, 'ember', [0, top[1] + 0.19, top[2] - 0.01], 0, [0.02, 0.06, 0.02]);
   } else if (style === 'crown') {
-    b.ell(hairKey, [0, 0.22, -0.1], [0.42, 0.38, 0.44]);
-    b.ell(hairKey, [0, 0.62, -0.1], [0.17, 0.24, 0.17]);         // the topknot
-    b.ell('gold', [0, 0.86, -0.1], 0.06);
-    for (const x of [-1, 1]) b.path(hairKey, [[x * 0.34, 0.0, -0.2], [x * 0.42, -0.3, -0.16], [x * 0.5, -0.62, -0.08]], 0.07, 0.04);
+    // the hair combed up from the forehead into the high topknot
+    cap(0.032, (s) => 0.03 * Math.max(0, (s - 0.55) / 0.45) ** 2);
+    b.ell(hairKey, [0, 0.6, -0.1], [0.15, 0.2, 0.15]);           // the topknot
+    b.put(k.torus(0.2), 'gold', [0, 0.47, -0.1], [PI / 2, 0, 0], [0.13, 0.13, 0.16]);
+    b.ell('gold', [0, 0.82, -0.1], 0.055);
+    for (const x of [-1, 1]) b.path(hairKey, [[x * 0.29, 0.04, -0.18], [x * 0.36, -0.3, -0.16], [x * 0.43, -0.62, -0.08]], 0.06, 0.035);
     // the five-pointed crown on its band, a gem in every leaf
-    b.put(k.torus(0.12), 'gold', [0, 0.3, -0.06], [PI / 2 - 0.12, 0, 0], [0.43, 0.46, 0.4]);
+    b.put(k.torus(0.12), 'gold', [0, 0.3, -0.06], [PI / 2 - 0.12, 0, 0], [0.37, 0.43, 0.4]);
     for (let i = 0; i < 5; i += 1) {
       const a = (i - 2) * 0.5, big = i === 2 ? 1.15 : 1 - Math.abs(i - 2) * 0.08;
-      const px = Math.sin(a) * 0.42, pz = -0.06 + Math.cos(a) * 0.42;
-      b.put(k.petal, 'gold', [px, 0.33, pz], [-0.18, a, 0, 'YXZ'], [0.2 * big, 0.36 * big, 0.06]);
-      b.ell(i % 2 ? 'blue' : 'red', [px * 1.04, 0.47, pz * 1.04 + 0.02], 0.05 * big);
+      const px = Math.sin(a) * 0.37, pz = -0.06 + Math.cos(a) * 0.42;
+      b.put(k.petal, 'gold', [px, 0.33, pz], [-0.18, a, 0, 'YXZ'], [0.18 * big, 0.33 * big, 0.06]);
+      b.ell(i % 2 ? 'blue' : 'red', [px * 1.04, 0.46, pz * 1.04 + 0.02], 0.045 * big);
     }
-    for (const x of [-1, 1]) b.path('red', [[x * 0.42, 0.3, -0.12], [x * 0.55, 0.15, -0.2], [x * 0.6, -0.15, -0.22]], 0.035, 0.02);
+    for (const x of [-1, 1]) b.path('red', [[x * 0.37, 0.3, -0.12], [x * 0.5, 0.15, -0.2], [x * 0.55, -0.15, -0.22]], 0.032, 0.018);
   } else if (style === 'bun') {
-    b.ell(hairKey, [0, 0.22, -0.1], [0.42, 0.38, 0.44]);
-    b.ell(hairKey, [0, 0.52, -0.22], [0.2, 0.19, 0.2]);
-    b.put(k.torus(0.2), 'gold', [0, 0.45, -0.2], [0.6, 0, 0], 0.15);
+    cap(0.03);
+    b.ell(hairKey, [0, 0.5, -0.24], [0.17, 0.16, 0.17]);
+    b.put(k.torus(0.2), 'gold', [0, 0.43, -0.2], [0.6, 0, 0], 0.13);
   } else if (style === 'hat') {
     // the pandita's hat: tall and pointed, with long lappets to the shoulders
-    b.put(k.torus(0.3), 'red', [0, 0.3, -0.05], [PI / 2 - 0.1, 0, 0], [0.43, 0.45, 0.45]);
-    b.put(k.cone, 'red', [0, 0.72, -0.08], [-0.12, 0, 0], [0.42, 0.85, 0.42]);
-    b.path('gold', [[0, 0.36, 0.36], [0, 0.7, 0.16], [0, 1.08, -0.02]], 0.025);
-    for (const x of [-1, 1]) b.orient(k.box, 'red', [x * 0.45, -0.18, -0.08], [x * 0.25, -1, 0], [x, 0, 0.3], [0.18, 0.75, 0.05]);
+    b.put(k.torus(0.3), 'red', [0, 0.32, -0.05], [PI / 2 - 0.1, 0, 0], [0.37, 0.43, 0.45]);
+    b.put(k.cone, 'red', [0, 0.74, -0.08], [-0.12, 0, 0], [0.38, 0.85, 0.4]);
+    b.path('gold', [[0, 0.38, 0.36], [0, 0.72, 0.16], [0, 1.1, -0.02]], 0.025);
+    for (const x of [-1, 1]) b.orient(k.box, 'red', [x * 0.4, -0.16, -0.1], [x * 0.22, -1, 0], [x, 0, 0.3], [0.16, 0.75, 0.05]);
   } else if (style === 'bonhat') {
-    b.put(k.torus(0.3), 'blue', [0, 0.3, -0.05], [PI / 2 - 0.1, 0, 0], [0.44, 0.46, 0.45]);
-    b.put(k.cone, 'blue', [0, 0.66, -0.06], 0, [0.42, 0.7, 0.42]);
-    b.put(k.torus(0.15), 'gold', [0, 0.44, -0.06], [PI / 2, 0, 0], [0.38, 0.38, 0.3]);
-    b.ell('gold', [0, 1.02, -0.06], 0.05);
+    b.put(k.torus(0.3), 'blue', [0, 0.32, -0.05], [PI / 2 - 0.1, 0, 0], [0.38, 0.44, 0.45]);
+    b.put(k.cone, 'blue', [0, 0.68, -0.06], 0, [0.38, 0.7, 0.4]);
+    b.put(k.torus(0.15), 'gold', [0, 0.46, -0.06], [PI / 2, 0, 0], [0.34, 0.36, 0.3]);
+    b.ell('gold', [0, 1.04, -0.06], 0.05);
   } else if (style === 'dread') {
-    b.ell(hairKey, [0, 0.22, -0.1], [0.43, 0.39, 0.45]);
-    b.ell(hairKey, [0, 0.62, -0.1], [0.26, 0.28, 0.26]);
+    cap(0.036);
+    b.ell(hairKey, [0, 0.6, -0.1], [0.22, 0.24, 0.22]);
     for (let i = 0; i < 7; i += 1) {
       const a = PI * 0.15 + i / 6 * PI * 0.7;
-      b.path(hairKey, [[Math.cos(a) * 0.38, 0.2, -0.1 - Math.sin(a) * 0.35], [Math.cos(a) * 0.48, -0.25, -0.15 - Math.sin(a) * 0.32], [Math.cos(a) * 0.5, -0.7, -0.12 - Math.sin(a) * 0.3]], 0.06, 0.04);
+      b.path(hairKey, [[Math.cos(a) * 0.33, 0.2, -0.1 - Math.sin(a) * 0.34], [Math.cos(a) * 0.42, -0.25, -0.15 - Math.sin(a) * 0.32], [Math.cos(a) * 0.45, -0.7, -0.12 - Math.sin(a) * 0.3]], 0.055, 0.035);
     }
-    b.path('ash', [[-0.2, -0.35, 0.3], [0, -0.62, 0.3], [0.2, -0.35, 0.3]], 0.07, 0.07);   // the beard
+    b.path('ash', [[-0.18, -0.35, 0.3], [0, -0.62, 0.3], [0.18, -0.35, 0.3]], 0.065, 0.065);   // the beard
   } else if (style === 'flame') {
     fire(b, { y: 0.25, z: -0.1, h: 1.4, w: 0.9 });
   } else if (style === 'messy') {
-    b.ell(hairKey, [0, 0.22, -0.1], [0.43, 0.39, 0.45]);
-    for (let i = 0; i < 7; i += 1) {
-      const a = i / 7 * TAU;
-      b.put(k.cone, hairKey, [Math.cos(a) * 0.36, 0.42, -0.1 + Math.sin(a) * 0.36], [Math.sin(a) * 0.9, 0, -Math.cos(a) * 0.9], [0.09, 0.3, 0.09]);
+    // hair matted and standing on end
+    const at = cap(0.03);
+    for (let i = 0; i < (tiny ? 5 : 9); i += 1) {
+      const { p, n } = at(0.35 + (i % 3) * 0.2, i / (tiny ? 5 : 9) * TAU + 0.3);
+      b.orient(k.cone, hairKey, v3.add(p, v3.mul(n, 0.08)), v3.norm(v3.add(n, [0, 0.9, 0])), [1, 0, 0], [0.07, 0.24, 0.07]);
+    }
+  } else if (style === 'spikes') {
+    // the hungry ghosts' hair, drawn up from the crown in one dry tuft
+    // like a flame
+    const at = cap(0.026);
+    const top = at(1, 0).p;
+    for (let i = 0; i < (tiny ? 5 : 9); i += 1) {
+      const { p } = at(0.8 + (i % 2) * 0.12, i / (tiny ? 5 : 9) * TAU);
+      // each lock leans in towards the others, so they rise as one
+      const up = v3.norm(v3.add(v3.mul(v3.sub(top, p), 1.4), [Math.sin(i * 2.1) * 0.06, 1, Math.cos(i * 1.7) * 0.05]));
+      b.orient(k.cone, hairKey, v3.add(p, v3.mul(up, 0.2)), up, [1, 0, 0], [0.075, 0.46 + (i % 3) * 0.08, 0.075]);
     }
   }
 }
@@ -650,8 +811,9 @@ function figureDress(o) {
     jewels: dress === 'bare' && (hair === 'crown' || !!o.jewels) && !glass,
     border: hair === 'buddha' && !glass ? 'gold' : null,
     longEars: hair === 'buddha' || hair === 'crown',
+    neckFolds: hair === 'buddha',
     scalp: hair === 'shaved',
-    hair: (bb) => hairOf(bb, hair, null)
+    hair: (bb, detail) => hairOf(bb, hair, null, detail)
   };
 }
 
@@ -932,14 +1094,14 @@ function wrathBody(b, o = {}) {
    agony (thrown down on the back), fallen (face down). Without `legs` the
    being is sunk to the waist in whatever it stands in. */
 const SUFFER_STATURE = 0.58;
-function sufferer(b, { x = 0, y = 0, z = 0, s = 1, ry = 0, rx = 0, rz = 0, skin = 'skin', pose = 'writhe', legs = true, hair = 'black', blisters = null, holds = null, thin = false, belly = false } = {}) {
+function sufferer(b, { x = 0, y = 0, z = 0, s = 1, ry = 0, rx = 0, rz = 0, skin = 'skin', pose = 'writhe', legs = true, hair = 'black', style = null, blisters = null, holds = null, thin = false, belly = false } = {}) {
   b.at([x, y, z], [rx, ry, rz], s, () => {
     const S = SUFFER_STATURE;
     const made = POSES[pose] ? POSES[pose]() : POSES.writhe();
     const out = humanFigure(b, {
       stature: S, pose: made, dress: 'loin', skin, robe: 'ash', lower: 'ash', thin, noLegs: !legs,
       eyes: 'open', mouth: 'scream', scalp: !hair, iris: 'black', build: belly ? 1.05 : 1,
-      hair: (bb) => hairOf(bb, hair ? 'messy' : 'shaved', hair || null),
+      hair: (bb, detail) => hairOf(bb, hair ? (style || 'messy') : 'shaved', hair || null, detail),
       onHand: (i, wrist, dir) => { if (holds && i === 0) implement(b, holds, v3.add(wrist, v3.mul(v3.norm(dir), 0.02)), dir, 0.16); }
     });
     if (blisters) for (let i = 0; i < 7; i += 1) {
@@ -979,12 +1141,9 @@ function stupa(b, { x = 0, y = 0, z = 0, s = 1, body = 'white', gilt = 'gold' } 
     for (let f = 0; f < 4; f += 1) b.at([0, 0, 0], [0, f * PI / 2, 0], 1, () => {
       b.put(k.box, 'blue', [0, 0.045, 0.231], 0, [0.2, 0.05, 0.004]);
       for (const jx of [-0.06, 0, 0.06]) b.put(k.octa, ['jade', 'gold', 'red'][(jx > 0) + (jx === 0) * 2], [jx, 0.045, 0.236], 0, [0.012, 0.018, 0.006]);
-      for (const sx of [-1, 1]) {
-        b.ell('white', [sx * 0.17, 0.05, 0.215], [0.03, 0.03, 0.04]);
-        b.ell('white', [sx * 0.17, 0.08, 0.24], 0.022);
-        for (let m = 0; m < 5; m += 1) b.ell('turquoise', [sx * 0.17 + Math.cos(m * 1.26) * 0.022, 0.08 + Math.sin(m * 1.26) * 0.022, 0.232], 0.009);
-      }
     });
+    // the snow lions that bear the throne up, on the face that is seen
+    for (const sx of [-1, 1]) snowLion(b, { x: sx * 0.19, y: 0.004, z: 0.238, s: 0.1, ry: sx * 0.2, small: true });
     // four steps, each a cross in plan, banded in gold and colour
     let h = 0.093;
     [[0.4, 0.055], [0.35, 0.05], [0.3, 0.045], [0.26, 0.04]].forEach(([w, t], i) => {
@@ -1071,33 +1230,168 @@ function buddhaAureole(b, { y = 0.42, z = -0.12, w = 0.3, h = 0.36, headY = 0.62
   b.put(k.torus(0.06), 'red', [0, headY, z + 0.024], 0, [headR * 1.12, headR * 1.12, 0.06]);
   if (flames) for (let i = 0; i < 16; i += 1) {
     const a = (i + 0.5) / 16 * TAU;
-    b.put(k.flame, i % 2 ? 'gold' : 'ember', [Math.cos(a) * w * 1.03, y + Math.sin(a) * h * 1.03, z], [0, 0, a - PI / 2], [0.022, 0.05, 0.012]);
+    b.put(k.flameLow, i % 2 ? 'gold' : 'ember', [Math.cos(a) * w * 1.03, y + Math.sin(a) * h * 1.03, z], [0, 0, a - PI / 2], [0.022, 0.05, 0.012]);
   }
 }
 
-/* A throne for a Buddha: a dais in red and gold, jewels on its face, a snow
-   lion at each front corner, a brocade hanging between them. Returns the top. */
-function lionThrone(b, { y = 0, w = 0.44, d = 0.28, h = 0.12 } = {}) {
-  const k = b.kit;
-  b.put(k.box, 'red', [0, y + h / 2, 0], 0, [w, h, d]);
-  for (const yy of [y + 0.005, y + h - 0.005]) b.put(k.box, 'gold', [0, yy, 0], 0, [w + 0.014, 0.012, d + 0.014]);
-  b.put(k.box, 'blue', [0, y + h / 2, d / 2 + 0.002], 0, [w * 0.6, h * 0.5, 0.004]);
-  for (let i = 0; i < 5; i += 1) b.put(k.octa, ['jade', 'red', 'gold', 'red', 'jade'][i], [(i - 2) * w * 0.11, y + h / 2, d / 2 + 0.006], 0, [0.01, 0.016, 0.006]);
-  // the brocade over the front, gold with a red border
-  b.put(k.box, 'gold', [0, y + h * 0.75, d / 2 + 0.01], [0.08, 0, 0], [w * 0.36, h * 0.55, 0.006]);
-  b.put(k.box, 'red', [0, y + h * 0.5, d / 2 + 0.03], [0.08, 0, 0], [w * 0.36, 0.01, 0.007]);
-  for (const sx of [-1, 1]) {
-    const lx = sx * (w / 2 - 0.035);
-    b.ell('white', [lx, y + 0.055, d / 2 + 0.01], [0.032, 0.04, 0.045]);
-    b.ell('white', [lx, y + 0.1, d / 2 + 0.04], 0.026);
-    b.ell('lash', [lx, y + 0.104, d / 2 + 0.064], 0.005);
-    for (let m = 0; m < 7; m += 1) {
-      const a = m / 7 * TAU;
-      b.ell('turquoise', [lx + Math.cos(a) * 0.028, y + 0.1 + Math.sin(a) * 0.028, d / 2 + 0.03], 0.011);
+/* A snow lion, the guardian of a throne: sitting up on its haunches with
+   the forelegs straight, white, the mane, the brows, the tufts at its
+   elbows and the plume of its tail in curls of turquoise, the mouth open on
+   its fangs. A unit tall at s = 1, looking out along +z. */
+function snowLion(b, { x = 0, y = 0, z = 0, s = 1, ry = 0, body = 'white', mane = 'turquoise', mane2 = 'jade', small = false } = {}) {
+  b.at([x, y, z], [0, ry, 0], s, () => {
+    // a curl of the mane: a round lock, set in rows like a statue's
+    const curl = (p, r, key = mane) => b.put(b.kit.nub, key, p, 0, [r, r, r * 0.8]);
+    // the deep chest, the waist, the haunches it sits on
+    b.blob(body, [0, 0.3, -0.16], [0, 0.64, 0.07], 0.21, 0.19);
+    b.ell(body, [0, 0.42, -0.04], [0.16, 0.16, 0.19]);
+    for (const sx of [-1, 1]) {
+      b.ell(body, [sx * 0.16, 0.21, -0.12], [0.14, 0.18, 0.2]);          // the haunch
+      b.ell(body, [sx * 0.19, 0.05, 0.08], [0.075, 0.05, 0.12]);         // the hind paw, drawn forward
+      // the foreleg: the shoulder heavy with muscle, the elbow out, the
+      // forearm down to a broad paw and its toes
+      b.path(body, [[sx * 0.13, 0.6, 0.08], [sx * 0.165, 0.38, 0.14], [sx * 0.145, 0.13, 0.2], [sx * 0.14, 0.06, 0.23]], 0.072, 0.05);
+      b.ell(body, [sx * 0.14, 0.05, 0.26], [0.078, 0.05, 0.09]);
+      if (!small) for (const cx of [-0.04, 0, 0.04]) b.ell(body, [sx * 0.14 + cx, 0.035, 0.33], [0.025, 0.024, 0.026]);
+      // curls at the elbow
+      curl([sx * 0.2, 0.38, 0.1], 0.055, mane2);
+      if (!small) curl([sx * 0.2, 0.31, 0.08], 0.045);
     }
-    for (const fx of [-0.015, 0.015]) b.beam('white', [lx + fx, y + 0.04, d / 2 + 0.03], [lx + fx, y + 0.0, d / 2 + 0.04], 0.009);
+    // the head: a broad flat face, the brows heavy over bulging eyes, the
+    // nose broad, the jaws open on the fangs and the tongue
+    b.ell(body, [0, 0.88, 0.08], [0.17, 0.15, 0.15]);
+    for (const sx of [-1, 1]) b.ell(body, [sx * 0.085, 0.83, 0.18], [0.085, 0.078, 0.075]);
+    b.ell(body, [0, 0.81, 0.25], [0.1, 0.062, 0.08]);
+    b.ell(body, [0, 0.727, 0.21], [0.075, 0.033, 0.07]);                 // the lower jaw
+    b.ell('crimson~', [0, 0.765, 0.265], [0.07, 0.03, 0.05]);
+    b.ell('red', [0, 0.75, 0.285], [0.035, 0.012, 0.03]);                // the tongue
+    b.ell('lash', [0, 0.852, 0.322], [0.045, 0.026, 0.024]);              // the nose
+    for (const sx of [-1, 1]) {
+      b.ell('eyewhite', [sx * 0.068, 0.905, 0.222], 0.042);
+      b.ell('lash', [sx * 0.068, 0.905, 0.258], 0.019);
+      curl([sx * 0.07, 0.962, 0.215], 0.04);                              // the brows, in curls
+      curl([sx * 0.13, 0.95, 0.17], 0.036, mane2);
+      b.put(b.kit.cone, 'white', [sx * 0.04, 0.75, 0.3], [PI, 0, 0], [0.013, 0.035, 0.013]);   // the fangs
+      b.put(b.kit.cone, 'white', [sx * 0.035, 0.738, 0.275], 0, [0.011, 0.028, 0.011]);
+    }
+    // the mane: rows of curls round the face, the outer the larger, and a
+    // fall of them over the breast
+    for (const [n, R, r, zz, key] of small ? [[9, 0.2, 0.09, 0, mane]] : [[12, 0.215, 0.078, -0.03, mane2], [10, 0.17, 0.062, 0.03, mane]]) {
+      for (let i = 0; i < n; i += 1) {
+        const a = -PI * 0.2 + i / (n - 1) * PI * 1.4;
+        curl([Math.cos(a) * R, 0.87 + Math.sin(a) * R * 0.95, zz], r, key);
+      }
+    }
+    for (let i = 0; i < 4; i += 1) curl([(i - 1.5) * 0.08, 0.69 - Math.abs(i - 1.5) * 0.03, 0.15], 0.065, i % 2 ? mane2 : mane);
+    if (!small) for (let i = 0; i < 3; i += 1) curl([(i - 1) * 0.08, 0.6 - Math.abs(i - 1) * 0.02, 0.15], 0.055, i % 2 ? mane : mane2);
+    // the tail rising behind and breaking into a plume of curls
+    b.path(body, [[0, 0.3, -0.33], [0.06, 0.5, -0.41], [0.04, 0.66, -0.38]], 0.03, 0.022);
+    for (const [px, py, pz, r] of [[0.04, 0.7, -0.38, 0.06], [0.1, 0.76, -0.34, 0.055], [-0.02, 0.78, -0.35, 0.055], [0.05, 0.84, -0.3, 0.05]]) curl([px, py, pz], r, r > 0.055 ? mane : mane2);
+  });
+}
+
+/* A lion throne, the seat of a Buddha: a plinth stepped and banded in
+   gold, the body of the throne with its face sunk between gilt pilasters,
+   jewels on the panel, a moulded cornice and the top slab, a brocade laid
+   over it and hanging down the middle in its border and fringe, and a snow
+   lion to either side of the face, its head at the cornice. Returns the
+   top. */
+function lionThrone(b, { y = 0, w = 0.44, d = 0.28, h = 0.14 } = {}) {
+  const k = b.kit;
+  // the plinth
+  b.put(k.box, 'red', [0, y + 0.011, 0], 0, [w + 0.03, 0.022, d + 0.03]);
+  b.put(k.box, 'gold', [0, y + 0.024, 0], 0, [w + 0.034, 0.005, d + 0.034]);
+  b.put(k.box, 'crimson', [0, y + 0.033, 0], 0, [w + 0.012, 0.014, d + 0.012]);
+  // the body, its face sunk between the pilasters
+  const y0 = y + 0.04, y1 = y + h - 0.03, mid = (y0 + y1) / 2, tall = y1 - y0;
+  b.put(k.box, 'red', [0, mid, -0.014], 0, [w, tall, d - 0.028]);
+  for (const sx of [-1, 1]) {
+    b.put(k.box, 'red', [sx * (w / 2 - 0.024), mid, d / 2 - 0.022], 0, [0.048, tall, 0.044]);
+    b.put(k.box, 'gold', [sx * (w / 2 - 0.024), mid, d / 2 + 0.001], 0, [0.032, tall * 0.84, 0.004]);
+    b.put(k.octa, 'jade', [sx * (w / 2 - 0.024), mid, d / 2 + 0.005], 0, [0.009, 0.015, 0.005]);
   }
-  return y + h;
+  b.put(k.box, 'blue', [0, mid, d / 2 - 0.042], 0, [w - 0.096, tall * 0.84, 0.004]);
+  for (let i = 0; i < 2; i += 1) b.put(k.box, 'gold', [0, y0 + 0.006 + i * (tall - 0.012), d / 2 - 0.04], 0, [w - 0.096, 0.004, 0.004]);
+  // the cornice, a band of gold under the top slab
+  b.put(k.box, 'gold', [0, y1 + 0.004, 0], 0, [w + 0.012, 0.008, d + 0.012]);
+  b.put(k.box, 'red', [0, y1 + 0.018, 0], 0, [w + 0.026, 0.02, d + 0.026]);
+  b.put(k.box, 'gold', [0, y1 + 0.029, 0], 0, [w + 0.03, 0.004, d + 0.03]);
+  const top = y1 + 0.031;
+  // the snow lions, one to either side of the face, looking out, their
+  // manes against the cornice they bear up
+  for (const sx of [-1, 1]) snowLion(b, { x: sx * w * 0.29, y: y0 - 0.006, z: d / 2 - 0.028, s: tall * 0.98, ry: sx * 0.16 });
+  // the brocade over the top, hanging down the middle: gold, a blue panel
+  // at its heart, the border red, a fringe at the hem
+  const half = w * 0.15;
+  const edge = [[-half, top - 0.002, d / 2 + 0.016], [0, top - 0.002, d / 2 + 0.02], [half, top - 0.002, d / 2 + 0.016]];
+  b.put(clothFall(b.THREE, edge, { fall: () => tall + 0.01, pleats: 1.5, depth: 0.002, thick: 0.003, steps: 10, rows: 6,
+    drift: (t, s) => [0, 0, 0.006 * s],
+    colour: (t, s) => rgbOf(b, t < 0.13 || t > 0.87 || s > 0.82 ? 'red' : 'gold') }), 'gold');
+  b.put(k.octa, 'blue', [0, top - tall * 0.42, d / 2 + 0.026], 0, [0.012, 0.018, 0.006]);
+  for (let i = 0; i < 9; i += 1) b.ell('red', [-half * 0.88 + i * half * 0.22, top - tall - 0.012, d / 2 + 0.026], 0.0045);
+  return top;
+}
+
+/* A cushion with its border of brocade piped along the top edges. */
+function cushion(b, { x = 0, y = 0, z = 0, w = 0.3, d = 0.24, h = 0.04, key = 'maroon', border = 'gold' } = {}) {
+  b.put(b.kit.pillow, key, [x, y + h / 2, z], 0, [w, h, d]);
+  if (border) {
+    const t = y + h * 0.82, hw = w * 0.46, hd = d * 0.46;
+    const corners = [[-hw, -hd], [hw, -hd], [hw, hd], [-hw, hd], [-hw, -hd]];
+    for (let i = 0; i < 4; i += 1) b.beam(border, [x + corners[i][0], t, z + corners[i][1]], [x + corners[i + 1][0], t, z + corners[i + 1][1]], Math.min(w, d) * 0.018);
+  }
+  return y + h * 0.9;
+}
+
+/* A teaching throne: a plinth banded in gold, the body of the throne with
+   its jewels and the brocade hanging over its face, three cushions laid one
+   on another, and a low back. Returns the top. */
+function teachingThrone(b, { y = 0, w = 0.44, d = 0.3, h = 0.13, body = 'red' } = {}) {
+  const k = b.kit;
+  b.put(k.box, 'crimson', [0, y + 0.011, 0], 0, [w + 0.03, 0.022, d + 0.03]);
+  b.put(k.box, 'gold', [0, y + 0.024, 0], 0, [w + 0.034, 0.005, d + 0.034]);
+  const y0 = y + 0.026, y1 = y + h;
+  b.put(k.box, body, [0, (y0 + y1) / 2, 0], 0, [w, y1 - y0, d]);
+  b.put(k.box, 'gold', [0, y1 - 0.006, 0], 0, [w + 0.008, 0.012, d + 0.008]);
+  for (const sx of [-1, 1]) for (let i = 0; i < 2; i += 1) {
+    b.put(k.octa, i ? 'blue' : 'jade', [sx * w * (0.38 - i * 0.08), (y0 + y1) / 2, d / 2 + 0.004], 0, [0.01, 0.016, 0.005]);
+  }
+  // the brocade over the face: a gold field, a blue band, the edge red
+  const half = w * 0.26;
+  const edge = [[-half, y1 - 0.004, d / 2 + 0.008], [0, y1 - 0.004, d / 2 + 0.011], [half, y1 - 0.004, d / 2 + 0.008]];
+  b.put(clothFall(b.THREE, edge, { fall: () => y1 - y0 - 0.012, pleats: 2.5, depth: 0.0025, thick: 0.003, steps: 12, rows: 5,
+    drift: (t, s) => [0, 0, 0.004 * s],
+    colour: (t, s) => rgbOf(b, t < 0.07 || t > 0.93 || s > 0.88 ? 'red' : s > 0.74 || t < 0.16 || t > 0.84 ? 'blue' : 'gold') }), 'gold');
+  // the cushions, the lowest the broadest
+  let top = y1;
+  for (const [cw, ch, key, border] of [[0.94, 0.03, 'maroon', 'gold'], [0.88, 0.026, 'saffron', 'red'], [0.82, 0.026, 'red', 'gold']]) {
+    top = cushion(b, { y: top - 0.003, w: w * cw, d: d * cw, h: ch, key, border });
+  }
+  b.put(k.pillow, 'maroon', [0, top + 0.05, -d * 0.4], [-0.08, 0, 0], [w * 0.78, 0.11, 0.035]);
+  b.put(k.box, 'gold', [0, top + 0.104, -d * 0.4], [-0.08, 0, 0], [w * 0.8, 0.008, 0.04]);
+  return top;
+}
+
+/* A seat for the practice of a monk: a low base of wood and on it the
+   cushion with its border. */
+function meditationSeat(b, { y = 0, z = 0, w = 0.4, d = 0.3, key = 'maroon', border = 'gold', base = 'wood' } = {}) {
+  b.put(b.kit.box, base, [0, y + 0.02, z], 0, [w, 0.04, d]);
+  b.put(b.kit.box, base + '~', [0, y + 0.004, z], 0, [w + 0.012, 0.008, d + 0.012]);
+  return cushion(b, { y: y + 0.04, z, w: w * 0.9, d: d * 0.9, h: 0.045, key, border });
+}
+
+/* A mat of kuśa grass, the seat of those who sit in the forest. */
+function grassMat(b, { x = 0, y = 0, z = 0, w = 0.36, d = 0.26, key = 'fawn' } = {}) {
+  b.put(b.kit.pillow, key, [x, y + 0.008, z], 0, [w, 0.016, d]);
+  for (let i = 0; i < 7; i += 1) b.put(b.kit.box, key + '~', [x - w * 0.42 + i * w * 0.14, y + 0.0165, z], 0, [0.004, 0.002, d * 0.86]);
+  return y + 0.014;
+}
+
+/* A boulder to sit on, rough and worn. Returns its top. */
+function boulder(b, { x = 0, y = 0, z = 0, w = 0.3, h = 0.12, d = 0.22, key = 'rock', seed = 5 } = {}) {
+  b.put(b.kit.boulder(seed), key, [x, y + h * 0.6, z], [0, seed * 0.7, 0], [w / 2, h / 1.1, d / 2]);
+  b.put(b.kit.boulder(seed + 1), key + '~', [x + w * 0.3, y + h * 0.25, z + d * 0.25], [0, seed, 0], [w * 0.2, h * 0.3, d * 0.18]);
+  return y + h * 0.6 + h / 1.1 * 0.5;
 }
 
 /* A vajra along local y, one unit long at s = 1. */
@@ -1790,12 +2084,12 @@ const SQUARE_MODELS = {
   }],
   25: ['A teacher in a pandita’s hat on a lotus throne, the vajra and bell before him: entering the mantra path.', (b) => {
     aureole(b, 'ring', { y: 0.52, w: 0.88 });
-    b.put(b.kit.box, 'red', [0, 0.08, 0], 0, [0.46, 0.16, 0.32]);
-    b.put(b.kit.box, 'gold', [0, 0.165, 0], 0, [0.48, 0.015, 0.34]);
-    const top = lotus(b, { y: 0.16, r: 0.2, disc: 'white' });
+    const seat = teachingThrone(b, { y: 0, w: 0.44, d: 0.3, h: 0.12 });
+    const top = lotus(b, { y: seat - 0.012, r: 0.19, disc: 'white' });
     seated(b, { y: top - 0.02, s: 0.72, robe: 'maroon', hair: 'hat', mudra: 'teach', sash: 'saffron' });
-    vajra(b, { x: -0.09, y: 0.07, z: 0.19, s: 0.14, r: [0, 0, PI / 2] });
-    bell(b, { x: 0.1, y: 0.02, z: 0.19, s: 0.38 });
+    // the vajra and the bell laid before the throne
+    vajra(b, { x: -0.08, y: 0.04, z: 0.2, s: 0.13, r: [0, 0.3, PI / 2] });
+    bell(b, { x: 0.09, y: 0.027, z: 0.2, s: 0.33 });
   }],
   26: ['The golden wheel of the universal monarch, studded with jewels, standing on cloud.', (b) => {
     cloud(b, { y: 0, w: 0.6, h: 0.1, seed: 26 });
@@ -1831,18 +2125,18 @@ const SQUARE_MODELS = {
   }],
   39: ['A monk seated in calm abiding, applying stillness to the four truths.', (b) => {
     aureole(b, 'arch', { y: 0.05, w: 0.9, h: 0.98, outer: 'blue', inner: 'navy', band: 0.86, rim: 0.82 });
-    b.put(b.kit.box, 'sage', [0, 0.04, 0], 0, [0.5, 0.08, 0.32]);
-    seated(b, { y: 0.08, s: 1.05, robe: 'saffron', sash: 'maroon', hair: 'shaved' });
+    const top = meditationSeat(b, { w: 0.46, d: 0.3, key: 'maroon', border: 'gold' });
+    seated(b, { y: top - 0.012, s: 1.05, robe: 'saffron', sash: 'maroon', hair: 'shaved' });
   }],
   40: ['A monk seated before the wheel of the four truths, now seen directly.', (b) => {
     aureole(b, 'arch', { y: 0.05, w: 0.9, h: 0.98, outer: 'blue', inner: 'navy', band: 0.86, rim: 0.82 });
-    b.put(b.kit.box, 'sage', [0, 0.04, -0.04], 0, [0.5, 0.08, 0.3]);
-    seated(b, { y: 0.08, z: -0.06, s: 0.95, robe: 'saffron', sash: 'maroon', hair: 'shaved', halo: 'sky' });
+    const top = meditationSeat(b, { z: -0.04, w: 0.44, d: 0.28, key: 'maroon', border: 'gold' });
+    seated(b, { y: top - 0.012, z: -0.06, s: 0.95, robe: 'saffron', sash: 'maroon', hair: 'shaved', halo: 'sky' });
     wheel(b, { y: 0.15, z: 0.18, s: 0.1, spokes: 4, rim: 'gold', hub: 'gold' });
   }],
   41: ['A practitioner and the deity seated face to face as companions: the conduct tantra.', (b) => {
     aureole(b, 'ring', { y: 0.52, w: 0.88, outer: 'slate', inner: 'gold' });
-    lotus(b, { y: 0.02, r: 0.3, n: 12, disc: 'white' });
+    lotus(b, { y: 0.02, r: 0.3, n: 10, disc: 'white' });
     seated(b, { x: -0.13, y: 0.08, s: 0.65, robe: 'maroon', hair: 'shaved', ry: 0.6 });
     seated(b, { x: 0.13, y: 0.08, s: 0.68, robe: 'jade', body: 'white', skin: 'white', hair: 'crown', ry: -0.6, halo: 'gold', mudra: 'teach' });
   }],
@@ -1864,12 +2158,13 @@ const SQUARE_MODELS = {
     aureole(b, 'arch', { y: 0.05, w: 0.9, h: 0.98, outer: 'blue', inner: 'navy', band: 0.86, rim: 0.82 });
     b.put(b.kit.disc, 'grass', [0, 0.02, 0], 0, [0.36, 0.04, 0.24]);
     tree(b, { x: 0, z: -0.12, h: 0.78, r: 0.25, seed: 44, n: 7 });
-    seated(b, { y: 0.04, z: 0.06, s: 0.8, robe: 'saffron', hair: 'bun' });
+    const top = grassMat(b, { y: 0.04, z: 0.06, w: 0.32, d: 0.24 });
+    seated(b, { y: top - 0.006, z: 0.06, s: 0.8, robe: 'saffron', hair: 'bun' });
   }],
   45: ['A solitary figure at a charnel ground, ringed by the twelve links of dependent origination.', (b) => {
     aureole(b, 'arch', { y: 0.05, w: 0.9, h: 0.98, outer: 'blue', inner: 'navy', band: 0.86, rim: 0.82 });
     b.put(b.kit.disc, 'earth', [0, 0.02, 0], 0, [0.36, 0.04, 0.24]);
-    seated(b, { y: 0.04, s: 0.85, robe: 'saffron', hair: 'bun' });
+    seated(b, { y: grassMat(b, { y: 0.04, w: 0.32, d: 0.24, key: 'ash' }) - 0.006, s: 0.85, robe: 'saffron', hair: 'bun' });
     for (let i = 0; i < 12; i += 1) {
       const a = i / 12 * TAU;
       b.put(b.kit.sphere, i % 2 ? 'gold' : 'crimson', [Math.cos(a) * 0.3, 0.3 + Math.sin(a) * 0.27, 0.02], 0, 0.028);
@@ -1889,13 +2184,13 @@ const SQUARE_MODELS = {
   47: ['A pratyekabuddha seated beside his own small stupa: liberation reached alone.', (b) => {
     aureole(b, 'arch', { y: 0.05, w: 0.9, h: 0.98, outer: 'blue', inner: 'navy', band: 0.86, rim: 0.82 });
     b.put(b.kit.disc, 'sage', [0, 0.02, 0], 0, [0.38, 0.04, 0.24]);
-    seated(b, { x: -0.1, y: 0.04, s: 0.85, robe: 'saffron', hair: 'bun', halo: 'gold' });
+    seated(b, { x: -0.1, y: grassMat(b, { x: -0.1, y: 0.04, w: 0.3, d: 0.22 }) - 0.006, s: 0.85, robe: 'saffron', hair: 'bun', halo: 'gold' });
     stupa(b, { x: 0.22, y: 0.04, z: 0.02, s: 0.42 });
   }],
   48: ['An arhat absorbed in a sphere of peace, and Amitābha’s red light falling on him to rouse him.', (b) => {
     aureole(b, 'arch', { y: 0.05, w: 0.9, h: 0.98, outer: 'blue', inner: 'navy', band: 0.86, rim: 0.82 });
     b.put(b.kit.disc, 'sage', [0, 0.02, 0], 0, [0.3, 0.04, 0.22]);
-    seated(b, { y: 0.04, s: 0.7, robe: 'saffron', hair: 'shaved' });
+    seated(b, { y: grassMat(b, { y: 0.04, w: 0.28, d: 0.2 }) - 0.006, s: 0.7, robe: 'saffron', hair: 'shaved' });
     b.put(b.kit.sphere, 'mist', [0, 0.23, 0], 0, 0.24);
     b.put(b.kit.disc, 'red', [0, 0.72, -0.05], [PI / 2, 0, 0], [0.08, 0.02, 0.08]);
     b.put(b.kit.disc, 'ember', [0, 0.72, -0.04], [PI / 2, 0, 0], [0.05, 0.02, 0.05]);
@@ -1917,8 +2212,8 @@ const SQUARE_MODELS = {
   }],
   51: ['An arhat seated on a rock with halo, bowl and staff: the disciple’s liberation.', (b) => {
     aureole(b, 'arch', { y: 0.05, w: 0.9, h: 0.98, outer: 'blue', inner: 'navy', band: 0.86, rim: 0.82 });
-    b.put(b.kit.ball, 'rock', [0, 0.06, 0], 0, [0.3, 0.1, 0.2]);
-    seated(b, { y: 0.1, s: 0.92, robe: 'saffron', sash: 'maroon', hair: 'shaved', halo: 'gold', bowl: 'navy' });
+    const top = boulder(b, { w: 0.38, h: 0.11, d: 0.26, seed: 51 });
+    seated(b, { y: top - 0.012, s: 0.92, robe: 'saffron', sash: 'maroon', hair: 'shaved', halo: 'gold', bowl: 'navy' });
     b.beam('gold', [0.27, 0.04, 0.02], [0.24, 0.72, -0.02], 0.01);
     b.put(b.kit.torus(0.18), 'gold', [0.24, 0.75, -0.02], 0, 0.035);
   }],
@@ -2224,8 +2519,8 @@ const SQUARE_MODELS = {
   }],
   88: ['A meditator before a stack of books: the Hard to Conquer, meditation joined with learning.', (b) => {
     aureole(b, 'arch', { y: 0.05, w: 0.9, h: 0.98 });
-    b.put(b.kit.box, 'red', [0, 0.04, 0], 0, [0.5, 0.08, 0.32]);
-    seated(b, { y: 0.08, z: -0.05, s: 0.85, robe: 'maroon', sash: 'saffron', hair: 'shaved', halo: 'gold' });
+    const top = meditationSeat(b, { z: -0.04, w: 0.42, d: 0.28, key: 'red', border: 'gold' });
+    seated(b, { y: top - 0.012, z: -0.05, s: 0.85, robe: 'maroon', sash: 'saffron', hair: 'shaved', halo: 'gold' });
     for (let i = 0; i < 3; i += 1) book(b, { x: 0.2, y: 0.08 + i * 0.065, z: 0.08, s: 0.55, key: ['red', 'gold', 'blue'][i] });
   }],
   89: ['A body of rainbow light standing on a lotus: the illusory body, not yet pure.', (b) => {
@@ -2302,25 +2597,27 @@ const SQUARE_MODELS = {
   }],
   99: ['The emaciated ascetic, seated in his practice, a bowl of rice beside him.', (b) => {
     aureole(b, 'quatrefoil', { y: 0.48, w: 0.86, h: 1.0, outer: 'red', inner: 'crimson', band: 0.84, rim: 0.78 });
-    b.put(b.kit.ball, 'rock', [0, 0.07, 0], 0, [0.28, 0.08, 0.2]);
-    seated(b, { y: 0.11, s: 0.95, robe: 'ash', body: 'ash', skin: 'ash', arms: 'ash', hair: 'bun', thin: true, legs: 'saffron', halo: 'gold' });
+    const top = boulder(b, { w: 0.36, h: 0.1, d: 0.26, seed: 99 });
+    seated(b, { y: top - 0.012, s: 0.95, robe: 'ash', body: 'ash', skin: 'ash', arms: 'ash', hair: 'bun', thin: true, legs: 'saffron', halo: 'gold' });
     b.put(b.kit.bowl, 'gold', [0.22, 0.12, 0.12], [PI, 0, 0], [0.05, 0.035, 0.05]);
     b.put(b.kit.sphere, 'white', [0.22, 0.125, 0.12], 0, [0.04, 0.015, 0.04]);
   }],
   100: ['The Buddha touching the earth, Māra’s arrows falling as flowers.', (b) => {
     aureole(b, 'quatrefoil', { y: 0.48, w: 0.86, h: 1.0, outer: 'red', inner: 'crimson', band: 0.84, rim: 0.78 });
-    buddhaAureole(b, { y: 0.4, z: -0.13, w: 0.25, h: 0.3, headY: 0.545, headR: 0.1 });
-    const seat = lionThrone(b, { y: 0, w: 0.4, d: 0.26, h: 0.1 });
+    buddhaAureole(b, { y: 0.46, z: -0.13, w: 0.25, h: 0.3, headY: 0.608, headR: 0.1 });
+    const seat = lionThrone(b, { y: 0, w: 0.4, d: 0.26, h: 0.16 });
     const top = lotus(b, { y: seat, r: 0.2 });
     seated(b, { y: top - 0.02, s: 0.8, robe: 'red', body: 'crimson', skin: 'gilt', arms: 'gilt', hair: 'buddha', mudra: 'earth' });
     const rnd = seeded(100);
-    for (let i = 0; i < 10; i += 1) b.put(b.kit.sphere, i % 2 ? 'pink' : 'rose', [(rnd() - 0.5) * 0.7, 0.5 + rnd() * 0.35, 0.1 + rnd() * 0.06], 0, [0.025, 0.012, 0.025]);
+    for (let i = 0; i < 10; i += 1) b.ell(i % 2 ? 'pink' : 'rose', [(rnd() - 0.5) * 0.7, 0.5 + rnd() * 0.35, 0.1 + rnd() * 0.06], [0.025, 0.012, 0.025]);
   }],
   101: ['The Buddha under the bodhi tree on the vajra seat: awakening.', (b) => {
     aureole(b, 'quatrefoil', { y: 0.48, w: 0.86, h: 1.0, outer: 'red', inner: 'crimson', band: 0.84, rim: 0.78 });
     tree(b, { y: 0, z: -0.12, h: 0.95, r: 0.24, leaf: 'green', seed: 101, n: 8 });
-    b.at([0, 0, 0.05], 0, 1, () => lionThrone(b, { y: 0, w: 0.38, d: 0.24, h: 0.1 }));
-    seated(b, { y: 0.1, z: 0.06, s: 0.8, robe: 'red', body: 'crimson', skin: 'gilt', arms: 'gilt', hair: 'buddha', mudra: 'earth', halo: 'gold' });
+    // the vajra seat: the lion throne, the lotus and the moon on it
+    let top = 0;
+    b.at([0, 0, 0.05], 0, 1, () => { top = lotus(b, { y: lionThrone(b, { y: 0, w: 0.38, d: 0.24, h: 0.15 }), r: 0.18 }); });
+    seated(b, { y: top - 0.02, z: 0.06, s: 0.78, robe: 'red', body: 'crimson', skin: 'gilt', arms: 'gilt', hair: 'buddha', mudra: 'earth', halo: 'gold' });
   }],
   102: ['The golden wheel of Dharma between two deer kneeling to it, as in the deer park at Sārnāth.', (b) => {
     aureole(b, 'quatrefoil', { y: 0.48, w: 0.86, h: 1.0, outer: 'red', inner: 'crimson', band: 0.84, rim: 0.78 });
@@ -2368,8 +2665,8 @@ function yamaGuard(b, { x = 0, y = 0, z = 0, s = 0.5, ry = 0, skin = 'crimson', 
     humanFigure(b, {
       stature: 0.66, pose: POSES[pose] ? POSES[pose]() : POSES.fight(), dress: 'loin', skin, lower: 'saffron', robe: 'saffron',
       build: 1.18, eyes: 'open', mouth: 'scream', iris: 'ember', browKey: 'black',
-      hair: (bb) => {
-        hairOf(bb, 'messy', 'black');
+      hair: (bb, detail) => {
+        hairOf(bb, 'messy', 'black', detail);
         for (const sx of [-1, 1]) bb.path(horns, [[sx * 0.2, 0.4, -0.02], [sx * 0.36, 0.56, -0.04], [sx * 0.4, 0.78, 0.02], [sx * 0.32, 0.9, 0.08]], 0.075, 0.012);
         for (const sx of [-1, 1]) bb.put(bb.kit.cone, 'bone', [sx * 0.05, -0.27, 0.31], [PI, 0, 0], [0.018, 0.07, 0.018]);
       },
@@ -2378,30 +2675,28 @@ function yamaGuard(b, { x = 0, y = 0, z = 0, s = 0.5, ry = 0, skin = 'crimson', 
   });
 }
 
-/* A preta: the belly like a mountain, the neck like a hair, limbs like
-   sticks, the mouth the size of a needle's eye. */
-function preta(b, { x = 0, y = 0, z = 0, s = 1, ry = 0, bowl = true, skin = 'ghost' } = {}) {
+/* A hungry ghost, on the body everyone has, starved: the limbs and ribs
+   wasted, the belly swollen like a mountain, the neck drawn out thin as a
+   hair, the cheeks and temples hollow and the eyes sunk, a mouth no bigger
+   than the eye of a needle, the hair standing up dry like flame. Some burn
+   within, and fire comes from their mouths; some carry a begging bowl. */
+function preta(b, { x = 0, y = 0, z = 0, s = 1, ry = 0, pose = 'search', skin = 'parched', bowl = false, burning = false, hair = 'ash' } = {}) {
   b.at([x, y, z], [0, ry, 0], s, () => {
-    for (const sx of [-1, 1]) {
-      b.path(skin, [[sx * 0.06, 0.16, -0.01], [sx * 0.1, 0.08, 0.04], [sx * 0.085, 0.01, 0.02]], 0.014, 0.01);
-      b.ell(skin, [sx * 0.1, 0.08, 0.04], 0.018);
-      b.orient(b.kit.ball, skin, [sx * 0.09, 0.008, 0.045], [sx * 0.3, 0, 1], [0, 1, 0], [0.016, 0.034, 0.008]);
-    }
-    b.ell(skin, [0, 0.28, 0.02], [0.165, 0.175, 0.16]);
-    b.ell(skin + '~', [0, 0.25, 0.175], 0.01);
-    for (let i = 0; i < 4; i += 1) b.path(skin + '~', [[-0.13 + i * 0.07, 0.36, 0.1], [-0.12 + i * 0.07, 0.27, 0.15], [-0.1 + i * 0.065, 0.17, 0.1]], 0.003);
-    b.ell(skin, [0, 0.43, -0.01], [0.08, 0.05, 0.06]);
-    for (let i = 0; i < 3; i += 1) b.put(b.kit.torus(0.08, PI * 0.7), skin + '~', [0, 0.45 - i * 0.02, 0], [PI / 2, 0, PI * 0.15], [0.07, 0.055, 0.08]);
-    b.beam(skin, [0, 0.46, 0], [0, 0.6, 0.01], 0.006);
-    b.at([0, 0.64, 0.015], 0, 0.1, () => head(b, { skin, style: 'dread', hair: 'ash', eyes: 'open' }));
-    for (const sx of [-1, 1]) {
-      const w = bowl ? [sx * 0.07, 0.27, 0.2] : [sx * 0.16, 0.5, 0.12];
-      b.path(skin, [[sx * 0.07, 0.44, 0], [sx * 0.17, 0.33, 0.05], w], 0.011, 0.008);
-      hand(b, skin, w, bowl ? [-sx * 0.6, 0.2, 0.6] : [0, 1, 0.2], [0, bowl ? 1 : 0, bowl ? 0 : 1], sx, 0.8);
-    }
-    if (bowl) {
-      b.put(b.kit.lathe('almsbowl', [[0, 0], [0.04, 0.003], [0.058, 0.02], [0.06, 0.036], [0.054, 0.05], [0.05, 0.052], [0.04, 0.046], [0, 0.044]], 18), 'iron', [0, 0.27, 0.21], 0, 0.85);
-      fire(b, { y: 0.31, z: 0.21, h: 0.11, w: 0.055 });
+    const S = SUFFER_STATURE;
+    const out = humanFigure(b, {
+      stature: S, pose: POSES[pose] ? POSES[pose]() : POSES.search(), dress: 'loin', skin, robe: 'clay', lower: 'clay',
+      thin: 1.6, belly: 1, neckLen: 0.035, neckThin: 1, gaunt: true, eyes: 'open', mouth: 'pinhole', iris: 'black',
+      hair: (bb, detail) => hairOf(bb, 'spikes', hair, detail),
+      onHand: (i, wrist, dir) => {
+        if (bowl && i === 1) b.put(b.kit.lathe('almsbowl', [[0, 0], [0.04, 0.003], [0.058, 0.02], [0.06, 0.036], [0.054, 0.05], [0.05, 0.052], [0.04, 0.046], [0, 0.044]], 18),
+          'iron', v3.add(wrist, v3.mul(v3.norm(dir), 0.02)), 0, 0.45);
+      }
+    });
+    if (burning) {
+      // the fire that comes from the mouth of one who burns within
+      const H = 0.146 * S;
+      const mouth = out.frames.apply(out.frames.MH, [0, 0.3 * H - 0.24 * H, 0.1 * H + 0.34 * H]);
+      b.at(mouth, [PI / 2 - 0.35, 0, 0], 1, () => fire(b, { h: 0.03, w: 0.011, keys: ['fire', 'flame', 'ember'] }));
     }
   });
 }
@@ -2441,6 +2736,183 @@ function ironHouse(b, { x = 0, z = 0, w = 0.3, h = 0.28, walls = 'iron', glow = 
   }
   b.put(b.kit.box, 'fire', [x, h * 0.3, z + w * 0.455], 0, [w * 0.7, 0.008, 0.01]);
   for (let i = 0; i < 3; i += 1) b.put(b.kit.ball, 'slate', [x + Math.sin(i * 1.7) * 0.03, h + 0.12 + i * 0.06, z], 0, 0.04 + i * 0.012);
+}
+
+
+/* ── the pretas' ground ────────────────────────────────────────────────────
+   Five hundred yojanas beneath Jambudvīpa, where Yama's city stands: earth
+   so long without rain that it has cracked into plates, dust drifted
+   against low rises, the ground burning in places, bones; a spring that
+   turns to pus as they come to it and is guarded besides; a tree whose
+   fruit becomes fire in their hands. */
+
+/* The lie of the dry ground: its edge, irregular, and its height, low
+   rises drifted with dust and a long bank behind. */
+function dryLand(seed, R) {
+  const rnd = seeded(seed);
+  const rises = Array.from({ length: 9 }, () => [(rnd() - 0.5) * 0.8, (rnd() - 0.5) * 0.7, 0.006 + rnd() * 0.016, 0.07 + rnd() * 0.08]);
+  const edge = (a) => R * (1 + 0.05 * Math.sin(3 * a + 1.3) + 0.035 * Math.sin(7 * a + 0.4) + 0.02 * Math.sin(13 * a));
+  const height = (x, z) => {
+    let h = 0.012 + 0.03 * Math.max(0, Math.min(1, (-z - 0.12) / 0.22));
+    for (const [bx, bz, bh, br] of rises) h += bh * Math.exp(-((x - bx) ** 2 + (z - bz) ** 2) / (br * br));
+    return h;
+  };
+  return { edge, height };
+}
+
+function parchedGround(b, seed, { R = 0.42 } = {}) {
+  const { THREE } = b;
+  const land = dryLand(seed, R);
+  b.put(b.kit.once('parched:' + seed + ':' + R, () => {
+    const rings = 12, spokes = 44, pos = [0, land.height(0, 0), 0], col = [], idx = [];
+    const clay = rgbOf(b, 'clay'), dust = rgbOf(b, 'dust'), ash = rgbOf(b, 'ash');
+    const tone = (x, z, h) => {
+      const n = 0.5 + 0.25 * Math.sin(x * 23 + z * 7) * Math.sin(z * 19 - x * 5) + 0.25 * Math.sin(x * 61 + z * 47);
+      const drift = Math.min(1, (h - 0.012) * 40);
+      const c = clay.map((v, i) => v + (dust[i] - v) * (0.25 + 0.5 * drift) * n);
+      return c.map((v, i) => v + (ash[i] - v) * 0.18 * (1 - n));
+    };
+    col.push(...tone(0, 0, pos[1]));
+    for (let i = 1; i <= rings; i += 1) for (let j = 0; j < spokes; j += 1) {
+      const a = j / spokes * TAU, r = land.edge(a) * i / rings;
+      const x = Math.cos(a) * r, z = Math.sin(a) * r * 0.9;
+      const h = i === rings ? 0.0 : land.height(x, z) * (1 - Math.pow(i / rings, 6));
+      pos.push(x, h, z);
+      col.push(...tone(x, z, h).map((v) => v * (i === rings ? 0.75 : 1)));
+    }
+    for (let j = 0; j < spokes; j += 1) idx.push(0, 1 + (j + 1) % spokes, 1 + j);
+    for (let i = 1; i < rings; i += 1) for (let j = 0; j < spokes; j += 1) {
+      const jn = (j + 1) % spokes;
+      const a = 1 + (i - 1) * spokes + j, bq = 1 + (i - 1) * spokes + jn, c = 1 + i * spokes + j, d = 1 + i * spokes + jn;
+      idx.push(a, bq, c, bq, d, c);
+    }
+    const g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+    g.setAttribute('color', new THREE.Float32BufferAttribute(col, 3));
+    g.setIndex(idx);
+    g.computeVertexNormals();
+    return g;
+  }), 'clay');
+  return land;
+}
+
+/* The cracks of the dry earth, wandering and forking into its plates:
+   dark strips lying in the dust, two triangles to each step. */
+function cracks(b, seed, land, n = 9) {
+  const rnd = seeded(seed);
+  const pos = [], idx = [];
+  const strip = (x0, z0, x1, z1, r) => {
+    const dx = x1 - x0, dz = z1 - z0, l = Math.hypot(dx, dz) || 1, ox = -dz / l * r, oz = dx / l * r;
+    const base = pos.length / 3;
+    for (const [x, z] of [[x0 + ox, z0 + oz], [x0 - ox, z0 - oz], [x1 + ox, z1 + oz], [x1 - ox, z1 - oz]]) pos.push(x, land.height(x, z) + 0.0012, z);
+    idx.push(base, base + 2, base + 1, base + 1, base + 2, base + 3);
+  };
+  const walk = (x, z, a, steps, r) => {
+    let px = x, pz = z;
+    for (let i = 0; i < steps; i += 1) {
+      a += (rnd() - 0.5) * 0.7;
+      const nx = px + Math.cos(a) * 0.03, nz = pz + Math.sin(a) * 0.03;
+      if (Math.hypot(nx, nz / 0.9) > land.edge(Math.atan2(nz / 0.9, nx)) * 0.9) return;
+      strip(px, pz, nx, nz, r);
+      if (rnd() < 0.3 && steps > 2) walk(nx, nz, a + (rnd() < 0.5 ? 1 : -1) * (1.0 + rnd() * 0.5), Math.floor(steps * 0.6), r * 0.75);
+      px = nx; pz = nz;
+    }
+  };
+  for (let i = 0; i < n; i += 1) {
+    const a = rnd() * TAU, r = 0.05 + rnd() * 0.3;
+    walk(Math.cos(a) * r, Math.sin(a) * r * 0.9, rnd() * TAU, 5 + Math.floor(rnd() * 5), 0.0024);
+  }
+  const g = new b.THREE.BufferGeometry();
+  g.setAttribute('position', new b.THREE.Float32BufferAttribute(pos, 3));
+  g.setIndex(idx);
+  g.computeVertexNormals();
+  b.put(g, 'char');
+}
+
+/* A small fire: two tongues, for ground that burns and branches alight. */
+function smallFire(b, p, h = 0.05, lean = 0) {
+  b.put(b.kit.flameLow, 'fire', p, [0, 0, lean], [h * 0.42, h, h * 0.36]);
+  b.put(b.kit.flameLow, 'ember', [p[0], p[1], p[2] + h * 0.06], [0, 0, lean], [h * 0.26, h * 0.68, h * 0.22]);
+}
+
+/* A dead tree, its bark black and split, and its branches bursting into
+   flame as the hungry ghosts reach them. */
+function burningTree(b, { x = 0, z = 0, y = 0, h = 0.42, seed = 3 } = {}) {
+  const rnd = seeded(seed);
+  const k = h / 0.42;
+  b.path('wood~', [[x, y, z], [x + 0.012 * k, y + h * 0.3, z - 0.006], [x - 0.008 * k, y + h * 0.55, z + 0.01]], 0.03 * k, 0.017 * k);
+  for (let i = 0; i < 4; i += 1) {
+    const a = i / 4 * TAU + rnd();
+    b.beam('wood~', [x, y + 0.012, z], [x + Math.cos(a) * 0.06 * k, y, z + Math.sin(a) * 0.05 * k], 0.012 * k, 0.003 * k);
+  }
+  const branch = (p, dir, len, r, depth) => {
+    const bend = v3.norm(v3.add(dir, [(rnd() - 0.5) * 0.5, 0.15, (rnd() - 0.5) * 0.4]));
+    const mid = v3.add(p, v3.mul(dir, len * 0.5)), end = v3.add(mid, v3.mul(bend, len * 0.5));
+    b.beam('wood~', p, mid, r, r * 0.8);
+    b.beam('wood~', mid, end, r * 0.8, r * 0.55);
+    if (depth > 0) for (const turn of [-1, 1]) branch(end, v3.norm(v3.add(bend, [turn * 0.55, 0.25, (rnd() - 0.5) * 0.5])), len * 0.68, r * 0.6, depth - 1);
+    else if (rnd() < 0.6) smallFire(b, end, (0.04 + rnd() * 0.03) * k, (rnd() - 0.5) * 0.6);
+  };
+  const top = [x - 0.008 * k, y + h * 0.55, z + 0.01];
+  [[-0.7, 1, 0.2], [0.75, 1, -0.1], [0.05, 1, -0.6]].forEach((d) => branch(top, v3.norm(d), h * 0.3, 0.013 * k, 2));
+}
+
+/* Yama's city: walls battered in like a fortress of the snows, dark and
+   blind, a black frieze under the parapet, windows narrowing upward, the
+   gate with its lintel, a tower at either end, and over the gate a pavilion
+   under a gilt roof. */
+function yamaCity(b, { z = -0.34, w = 0.62, h = 0.18 } = {}) {
+  const k = b.kit;
+  const batter = k.once('batter', () => {
+    const g = new b.THREE.BoxGeometry(1, 1, 1);
+    const pos = g.attributes.position;
+    for (let i = 0; i < pos.count; i += 1) if (pos.getY(i) > 0) pos.setXYZ(i, pos.getX(i) * 0.88, pos.getY(i), pos.getZ(i) * 0.78);
+    g.computeVertexNormals();
+    return g;
+  });
+  const windows = (cx, cy, n, gap) => {
+    for (let i = 0; i < n; i += 1) {
+      const wx = cx + (i - (n - 1) / 2) * gap;
+      b.put(batter, 'char', [wx, cy, z + 0.03], 0, [0.016, 0.026, 0.012]);
+      b.put(k.box, 'wood', [wx, cy + 0.016, z + 0.034], 0, [0.022, 0.004, 0.008]);
+    }
+  };
+  b.put(batter, 'umber', [0, h / 2, z], 0, [w, h, 0.07]);
+  b.put(k.box, 'char', [0, h - 0.016, z + 0.004], 0, [w * 0.88, 0.022, 0.06]);
+  b.put(k.box, 'umber', [0, h + 0.005, z], 0, [w * 0.89, 0.012, 0.062]);
+  windows(-w * 0.24, h * 0.62, 3, 0.05);
+  windows(w * 0.24, h * 0.62, 3, 0.05);
+  for (const sx of [-1, 1]) {
+    const tx = sx * w * 0.5, th = h + 0.08;
+    b.put(batter, 'umber', [tx, th / 2, z], 0, [0.11, th, 0.11]);
+    b.put(k.box, 'char', [tx, th - 0.016, z + 0.003], 0, [0.096, 0.022, 0.092]);
+    b.put(k.box, 'umber', [tx, th + 0.005, z], 0, [0.1, 0.012, 0.094]);
+    b.put(batter, 'char', [tx, th * 0.55, z + 0.048], 0, [0.018, 0.032, 0.012]);
+  }
+  // the gate and over it the pavilion
+  b.put(k.box, 'char', [0, 0.055, z + 0.034], 0, [0.064, 0.11, 0.012]);
+  b.put(k.box, 'wood', [0, 0.115, z + 0.04], 0, [0.086, 0.012, 0.016]);
+  b.put(k.box, 'umber', [0, h + 0.04, z], 0, [0.12, 0.058, 0.07]);
+  b.put(k.box, 'char', [0, h + 0.04, z + 0.036], 0, [0.05, 0.03, 0.004]);
+  b.put(k.box, 'gold', [0, h + 0.072, z], 0, [0.15, 0.008, 0.095]);
+  b.put(k.pyramid, 'gold', [0, h + 0.1, z], 0, [0.12, 0.05, 0.08]);
+}
+
+/* Bones of those who died here before: skulls, and long bones bleached. */
+function bones(b, seed, land, n = 6) {
+  const rnd = seeded(seed);
+  for (let i = 0; i < n; i += 1) {
+    const a = rnd() * TAU, r = 0.12 + rnd() * 0.24;
+    const x = Math.cos(a) * r, z = Math.sin(a) * r * 0.9, y = land.height(x, z);
+    if (i % 3 === 0) skull(b, { x, y: y - 0.004, z, s: 0.32 + rnd() * 0.1 });
+    else {
+      const t = rnd() * PI, l = 0.035 + rnd() * 0.03;
+      const p0 = [x - Math.cos(t) * l, y + 0.004, z - Math.sin(t) * l], p1 = [x + Math.cos(t) * l, y + 0.004, z + Math.sin(t) * l];
+      b.beam('bone', p0, p1, 0.004);
+      b.ell('bone', p0, 0.007);
+      b.ell('bone', p1, 0.007);
+    }
+  }
 }
 
 const REALM_MODELS = {
@@ -2629,28 +3101,35 @@ const REALM_MODELS = {
     sufferer(b, { x: -0.15, z: 0.1, s: 0.46, ry: 0.4, skin: 'crimson', pose: 'huddle', blisters: 'bone' });
     sufferer(b, { x: 0.16, y: 0.01, z: 0.14, s: 0.44, ry: -0.5, skin: 'crimson', pose: 'agony', blisters: 'bone' });
   }],
-  preta_realm: ['The pretas’ ground, 500 yojanas beneath Jambudvīpa, where Yama’s city stands: dry earth, a spring that has failed, a dead tree, and the hungry ghosts, bellies like mountains and necks like hairs, searching.', (b) => {
-    b.put(b.kit.disc, 'earth', [0, 0.004, 0], 0, [0.46, 0.008, 0.42]);
-    const rnd = seeded(41);
-    for (let i = 0; i < 9; i += 1) {
-      const a = rnd() * TAU, r = 0.1 + rnd() * 0.3;
-      b.put(b.kit.box, 'earth~', [Math.cos(a) * r, 0.009, Math.sin(a) * r * 0.8], [0, rnd() * PI, 0], [0.12, 0.003, 0.006]);
+  preta_realm: ['The pretas’ ground, 500 yojanas beneath Jambudvīpa, where Yama’s city stands: earth cracked by a drought that does not end, burning in places, strewn with bones; a spring that turns to pus as they come to it, guarded by a servant of Yama with his club; a dead tree whose branches burst into flame as they reach for its fruit; and the hungry ghosts, bellies like mountains, necks like hairs, mouths like the eye of a needle, searching, begging, fighting over nothing, fire coming from the mouths of some.', (b) => {
+    const land = parchedGround(b, 41);
+    cracks(b, 42, land, 12);
+    yamaCity(b, { z: -0.33 });
+    bones(b, 44, land, 7);
+    // the ground burning
+    const rnd = seeded(45);
+    for (let i = 0; i < 5; i += 1) {
+      const a = rnd() * TAU, r = 0.15 + rnd() * 0.22, x = Math.cos(a) * r, z = Math.sin(a) * r * 0.85;
+      b.ell('char', [x, land.height(x, z) + 0.001, z], [0.034, 0.002, 0.024]);
+      smallFire(b, [x, land.height(x, z), z], 0.04 + rnd() * 0.03, (rnd() - 0.5) * 0.4);
     }
-    // the walls of Yama's city behind, and its gate
-    for (let i = -3; i <= 3; i += 1) {
-      b.put(b.kit.box, 'maroon', [i * 0.12, 0.13, -0.36], 0, [0.12, 0.26, 0.05]);
-      b.put(b.kit.box, 'maroon', [i * 0.12, 0.28, -0.36], 0, [0.05, 0.04, 0.05]);
+    // the tree whose fruit is fire
+    burningTree(b, { x: -0.24, z: -0.16, y: land.height(-0.24, -0.16) - 0.005, h: 0.44, seed: 46 });
+    preta(b, { x: -0.13, y: land.height(-0.13, -0.08), z: -0.08, s: 0.6, ry: -0.7, pose: 'reach' });
+    preta(b, { x: -0.3, y: land.height(-0.3, 0.06), z: 0.06, s: 0.52, ry: 0.9, pose: 'huddle', bowl: true });
+    // the spring gone to pus, and the servant of Yama who keeps them from it
+    const sx = 0.2, sz = 0.13, sy = land.height(sx, sz);
+    b.ell('pus', [sx, sy - 0.004, sz], [0.075, 0.008, 0.05]);
+    b.ell('crimson~', [sx + 0.02, sy - 0.002, sz + 0.01], [0.03, 0.006, 0.018]);
+    for (let i = 0; i < 7; i += 1) {
+      const a = i / 7 * TAU;
+      b.ell(i % 2 ? 'rock' : 'clay~', [sx + Math.cos(a) * 0.082, sy + 0.004, sz + Math.sin(a) * 0.056], [0.022, 0.013, 0.018], [0, a, 0.2]);
     }
-    b.put(b.kit.box, 'black', [0, 0.1, -0.33], 0, [0.09, 0.2, 0.02]);
-    b.put(b.kit.pyramid, 'iron', [0, 0.33, -0.36], 0, [0.16, 0.08, 0.1]);
-    // the spring that runs dry as they come to it, fire where the water was
-    b.put(b.kit.torus(0.2), 'rock', [0.24, 0.02, 0.06], [PI / 2, 0, 0], [0.08, 0.06, 0.08]);
-    b.put(b.kit.disc, 'ash', [0.24, 0.012, 0.06], 0, [0.07, 0.004, 0.05]);
-    fire(b, { x: 0.24, y: 0.014, z: 0.06, h: 0.07, w: 0.05 });
-    tree(b, { x: -0.3, z: -0.12, h: 0.42, r: 0.06, leaf: 'ash', trunk: 'wood', seed: 4, n: 2 });
-    preta(b, { x: -0.08, z: 0.08, s: 0.62, ry: 0.3 });
-    preta(b, { x: 0.18, z: -0.1, s: 0.5, ry: -0.6, bowl: false });
-    sufferer(b, { x: 0.06, z: 0.26, s: 0.38, ry: 0.2, skin: 'ghost', pose: 'kneel', thin: true, hair: 'ash' });
+    preta(b, { x: 0.06, y: sy, z: 0.18, s: 0.56, ry: 1.3, pose: 'crave' });
+    yamaGuard(b, { x: 0.33, y: land.height(0.33, 0.04), z: 0.04, s: 0.48, ry: -1.6, skin: 'umber', holds: 'club', pose: 'fight' });
+    // one searching with fire coming from its mouth, one fallen
+    preta(b, { x: 0.08, y: land.height(0.08, -0.12), z: -0.12, s: 0.6, ry: 0.3, pose: 'search', burning: true });
+    preta(b, { x: -0.1, y: land.height(-0.1, 0.27) + 0.005, z: 0.27, s: 0.54, ry: 2.4, pose: 'fallen' });
   }]
 };
 
@@ -2672,7 +3151,7 @@ export function buildRealmModel(THREE, id, materials, kit = makeKit(THREE)) {
 }
 
 /* The kit's figures, for studies and tests. */
-export const FIGURE_PARTS = { head, seated, standing, sufferer, guardian, yamaGuard, preta, lotus, cloud };
+export const FIGURE_PARTS = { head, seated, standing, sufferer, guardian, yamaGuard, preta, lotus, cloud, snowLion, lionThrone };
 
 export const MODEL_SQUARES = Object.keys(SQUARE_MODELS).map(Number);
 export const modelNote = (n) => (SQUARE_MODELS[n] ? SQUARE_MODELS[n][0] : '');

@@ -2191,7 +2191,7 @@ import { createModeSoundtrack } from './mode-soundtrack.js';
 import { createUiSound, installUiSound } from './ui-sound.js';
 import { createEndingSound } from './ending-sound.js';
 import { mansionSearchText } from './mansion-search.js';
-import { createHellRealm, createFormlessVeil } from './realm-atmospheres.js';
+import { createHellRealm, createPretaRealm, createFormlessVeil } from './realm-atmospheres.js';
 import { PLAYER_SKINS, PLAYER_CULTURES, normalizeSkin, PLAYER_PALETTE, paintPlayer, createPlayerArt } from './game-players.js';
 import { SESSION_KEY, makeSession, restoreSession, possibleThrows } from './game-session.js';
 import { WALKTHROUGH_KEY, WALKTHROUGH_STEPS } from './game-walkthrough.js';
@@ -2418,7 +2418,6 @@ const M = {
   emerald: mat('emerald_north', 0x3d7a5c, 0.46, 0.05),
   iron:    mat('iron', 0x4a4a50, 0.58, 0.35),
   ice:     mat('cold_hell_ice', 0xa8c3cd, 0.34, 0.06),
-  preta:   mat('preta_ground', 0x7d6b4f, 0.66, 0.04),
   sea:     createWaterMaterial(THREE, { name: 'inner_sea', normalMap: waterNormalMap }),
   ocean:   createWaterMaterial(THREE, { name: 'salt_ocean', normalMap: waterNormalMap, salt: true }),
   water:   mat('water_mandala', 0x3f6f8c, 0.3, 0.08,
@@ -3436,8 +3435,10 @@ const HELL_STEP = 0.12;
 const PRETA_Y = UNDER - 0.02;
 const HELL_FLOORS = new Map();
 const REALM_SPOTS = new Map();
-const pret = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.009, 0.15), M.preta);
+// dry ground cracked into plates, broken rock round it, dust in the air
+const pret = createPretaRealm(THREE, { side: 0.15 });
 pret.position.set(0, PRETA_Y, R);
+pret.traverse(o => { if (o.isMesh) o.name = 'preta_realm'; });
 add(pret, 'preta_realm');
 HELL_FLOORS.set('preta_realm', PRETA_Y + 0.0045);
 REALM_SPOTS.set('preta_realm', { x: 0, y: PRETA_Y + 0.0045, z: R, scale: 0.14 });
