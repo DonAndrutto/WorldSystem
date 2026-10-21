@@ -110,38 +110,3 @@ export function closeUpDirection(THREE, box, { floor = 0 } = {}) {
   return new THREE.Vector3(Math.sin(azimuth) * Math.cos(elevation), Math.sin(elevation),
     Math.cos(azimuth) * Math.cos(elevation));
 }
-
-/* The world round a place, for a visit's World overview: the plate to its
- * rim, Meru to its summit and the place itself, fitted closely in the free
- * canvas. From the place's side, turned a little so the place and Meru stand
- * apart, and from above so the plate reads as a disc — unless the place hangs
- * beneath the plate, where a low view looks in under it. */
-export function composeWorldOverview(THREE, { anchor, rim, floor, summit, viewport, rect, fov, fill = 0.92 }) {
-  const radial = Math.hypot(anchor.x, anchor.z);
-  const under = anchor.y < floor && radial < rim;
-  const azimuth = (radial > summit * 0.35 ? Math.atan2(anchor.x, anchor.z) : Math.atan2(1, 1.25)) + Math.PI / 6;
-  const elevation = under ? -0.12 : 0.5;
-  const direction = new THREE.Vector3(Math.sin(azimuth), elevation, Math.cos(azimuth)).normalize();
-  const right = new THREE.Vector3().crossVectors(new THREE.Vector3(0, 1, 0), direction).normalize();
-  const up = new THREE.Vector3().crossVectors(direction, right).normalize();
-  const bounds = new THREE.Box3(new THREE.Vector3(-rim, floor * 0.5, -rim), new THREE.Vector3(rim, summit, rim));
-  bounds.union(new THREE.Box3().setFromCenterAndSize(anchor, new THREE.Vector3(1, 1, 1).multiplyScalar(summit * 0.3)));
-  const points = [];
-  for (const x of [bounds.min.x, bounds.max.x]) for (const y of [bounds.min.y, bounds.max.y])
-    for (const z of [bounds.min.z, bounds.max.z]) points.push(new THREE.Vector3(x, y, z));
-  const centre = bounds.getCenter(new THREE.Vector3());
-  const half = Math.tan(fov * Math.PI / 360);
-  const tanX = half * rect.w / viewport.h * fill, tanY = half * rect.h / viewport.h * fill;
-  const offsetX = (rect.x - viewport.w / 2) * 2 / viewport.h * half;
-  const offsetY = -(rect.y - viewport.h / 2) * 2 / viewport.h * half;
-  let distance = 0.5;
-  for (const point of points) {
-    const delta = point.clone().sub(centre);
-    const z = delta.dot(direction);
-    distance = Math.max(distance,
-      z + Math.abs(delta.dot(right) + offsetX * z) / tanX,
-      z + Math.abs(delta.dot(up) + offsetY * z) / tanY);
-  }
-  const target = centre.clone().addScaledVector(right, -offsetX * distance).addScaledVector(up, -offsetY * distance);
-  return { position: target.clone().addScaledVector(direction, distance), target, under };
-}

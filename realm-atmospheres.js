@@ -1,16 +1,17 @@
 /* Bounded, static realm details: no particle simulation, lights or render targets.
-   Each hell uses a few instanced meshes; selection keeps the realm's own ID. */
-export function createHellRealm(THREE, {side, hot, depth = 0}) {
+   Each hell uses a few instanced meshes; selection keeps the realm's own ID.
+   The Vajra Hell beneath Avīci burns with black fire on a floor of night. */
+export function createHellRealm(THREE, {side, hot, depth = 0, vajra = false}) {
   const root = new THREE.Group();
   const floor = new THREE.MeshStandardMaterial({
-    color: hot ? 0x210606 : 0x18354f, roughness: hot ? .9 : .32,
-    metalness: hot ? .12 : .18, emissive: hot ? 0x9b1800 : 0x14466b,
-    emissiveIntensity: hot ? .09 + depth * .012 : .35
+    color: vajra ? 0x07081a : hot ? 0x210606 : 0x18354f, roughness: hot ? .9 : .32,
+    metalness: hot ? .12 : .18, emissive: vajra ? 0x1b2a8a : hot ? 0x9b1800 : 0x14466b,
+    emissiveIntensity: vajra ? .18 : hot ? .09 + depth * .012 : .35
   });
   const slab = new THREE.Mesh(new THREE.BoxGeometry(side, hot ? .011 : .008, side), floor);
   root.add(slab);
   const surface = new THREE.ShaderMaterial({
-    uniforms: { hot: {value: hot ? 1 : 0}, intensity: {value: .65 + depth * .045} },
+    uniforms: { hot: {value: hot && !vajra ? 1 : 0}, intensity: {value: vajra ? .55 : .65 + depth * .045} },
     vertexShader: 'varying vec2 uvRealm; void main(){ uvRealm=uv; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0); }',
     fragmentShader: `varying vec2 uvRealm; uniform float hot; uniform float intensity;
       void main(){
@@ -39,11 +40,11 @@ export function createHellRealm(THREE, {side, hot, depth = 0}) {
     }
     geometry.computeVertexNormals();geometry.computeBoundingSphere();
   }
-  const outer=new THREE.MeshBasicMaterial({color:hot?0xff3908:0x9ae4ff,
-    transparent:true,opacity:hot?.48:.72,depthWrite:false,toneMapped:false});
+  const outer=new THREE.MeshBasicMaterial({color:vajra?0x14081e:hot?0xff3908:0x9ae4ff,
+    transparent:true,opacity:vajra?.8:hot?.48:.72,depthWrite:false,toneMapped:false});
   const teeth=new THREE.InstancedMesh(geometry,outer,count);
   const cores=hot?new THREE.InstancedMesh(geometry,new THREE.MeshBasicMaterial({
-    color:0xffed96,transparent:true,opacity:.9,depthWrite:false,toneMapped:false}),count):null;
+    color:vajra?0x8a1430:0xffed96,transparent:true,opacity:.9,depthWrite:false,toneMapped:false}),count):null;
   const transform=new THREE.Object3D();
   for(let n=0;n<count;n++) {
     const edge=n%4, along=(Math.floor(n/4)/(count/4-1)-.5)*side*.93;

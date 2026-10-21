@@ -56,6 +56,8 @@ magnifiers in the header make the writing in every window larger or smaller.
 | `scripts/build-fonts.cjs` | Rebuilds the font sheet and its woff2 files from Google Fonts. |
 | `scripts/build-sw.cjs` | Writes the worker's list of files and the version it holds them under. |
 | `tests/offline.mjs` | Checks that nothing is asked of another origin, that the pinned hashes still hold, and that the worker's shelf matches the tree. |
+| `human-figure.js` | The one human body every figure is built on: a sculpted head with its face, a torso turned from anatomical sections, limbs swept through joints placed by the bones' lengths, five-fingered hands and feet, the robe and the lower garment draped on it, and the poses — seated with any gesture, standing, kneeling, huddled, writhing, fallen. |
+| `square-models.js` | The game's destinations as models, one recipe per square, and the models of the hells, the Vajra Hell and the pretas' ground that the world stands beneath Jambudvīpa (`REALM_MODELS`). |
 | `wheel-art.js` | The wheel of life, set up: the relief's six photographic layers, wall to fangs, a veil over them, and every part's outline over the layer it stands in. |
 | `wheel-parts.js` | Where each of the wheel's 88 parts is: its outline on the corrected photograph, and the layer it stands in. |
 | `wheel-relief.js` | Generated. The measured rims, spokes and dividers, the layers' pictures and where they go, and the outlines found by colour. |
@@ -238,7 +240,7 @@ The index runs from the ground up:
 - **The four continents** and **the eight subcontinents** — with the rose-apple tree, Lake Anavatapta and the Vajrāsana
 - **Sun and moon**
 - **The six desire heavens**, **the seventeen heavens of form** in their four dhyānas and five pure abodes, and **the four formless absorptions**
-- **The eight hot hells**, **the eight cold hells**, and **the other destinies**
+- **The eight hot hells**, **the Vajra Hell** beneath Avīci, **the eight cold hells**, and **the other destinies** — each hell and the pretas' ground peopled with what happens there (see below)
 - **The maṇḍala of thirty-seven**
 
 ## The game of rebirth
@@ -305,10 +307,13 @@ apart. Reading another player's trail never hands them the die.
 Read as a section, the board is already a cosmology, and that is what makes it
 sit on this model at all. Its row is height above or below the golden ground;
 its two columns of paths separate the tantric route from the route of the
-sūtras. Twenty-one squares name something this drawing already builds — the
-hot and cold hells, the four continents, the six heavens of sense desire, the
-Formless Realm, Akaniṣṭha — and their markers align with the existing
-geometry. The game’s Akaniṣṭha Buddha field shares the heaven’s horizontal
+sūtras. Twenty-two squares name something this drawing already builds — the
+hot and cold hells, the Vajra Hell, the pretas, the four continents, the six
+heavens of sense desire, the Formless Realm, Akaniṣṭha — and their markers
+align with the existing geometry. Where the world builds the thing itself, the
+game adds no second model of it: the continents (Aparagodānīya with its cow),
+the heavens, the formless spheres, and the hells and the pretas' ground are
+the world's own models, the same in Explorer and in Game. The game’s Akaniṣṭha Buddha field shares the heaven’s horizontal
 axis but rises above the tenth stages; the samsaric heaven stays in place.
 
 The other eighty-three have no coordinate here, and could not have one. They are
@@ -794,12 +799,11 @@ The arrival card and square entry both offer **Show in world**. This opens a
 temporary World view, folds the entry into a location caption, and brings the
 destination up close: its model fills about half the free canvas, lit from
 within and ringed with gold on its floor, with the traveller standing beside it.
-**Focus here** restores that composition after manual exploration; **World
-overview** steps back to the world round the place — the plate to its rim, Meru
-to its summit and the place, fitted closely, from the place's side
-(`composeWorldOverview`); **Return to board** (or
-Escape) restores the preceding board layout without changing the turn. The
-temporary visit does not overwrite the saved layout preference.
+**Focus here** restores that composition after manual exploration; **Return to
+world** (or Escape) closes the visit and goes back to the world arrangement and
+the traveller it follows — the board has its own switch in the rail — without
+changing the turn; **Full story** opens the square's entry with its whole
+passage. The temporary visit does not overwrite the saved layout preference.
 
 `game-camera.js` contains the perspective fitting and exterior camera path.
 The close-up angle (`closeUpDirection`) is the place's own, never the previous
@@ -917,7 +921,7 @@ squares, all 624 square/face combinations, the two counter traps, victory, the
 routes the Rules of Play claim, each player's trail, and that reading a player
 never hands them the die. Game mode itself — the mode switch, the 104 cells in
 the board's own order, an entry on every square, the world framed clear of the
-board, the twenty-one anchored squares standing on what the model draws for
+board, the twenty-two anchored squares standing on what the model draws for
 them, the shared selection, and a game played through the board — is checked in
 the maṇḍala suite, which builds the real scene.
 
@@ -957,7 +961,12 @@ Billion worlds uses depth shading and golden outlines of the smaller systems
 at their actual relative scale. Its million-point layers share 24 KB of position
 attributes; inactive levels are disposed after transitions. No full-screen
 postprocessing or continuously simulated particles are used. The hells use
-bounded instanced flame/ice details; the four formless outlines are larger and
+bounded instanced flame/ice details, and each hell, the Vajra Hell and the
+pretas' ground carries a model of what happens in it (`REALM_MODELS` in
+`square-models.js`), its crowd drawn at the figure's plainest level of detail —
+about 276k triangles for all seventeen, built one at a time while the browser
+is idle after the page is up, and at once on entering the game or opening a
+hell's entry; the four formless outlines are larger and
 transparent. The Monastic character background adds a monk and a nun without
 changing existing saved character IDs. Artwork prompt: `MONASTIC-ART-PROMPT.md`.
 

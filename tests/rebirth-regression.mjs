@@ -134,13 +134,13 @@ check('victory is declared on arrival and the stupa cannot undo it', () => {
 // check lives in tests/mandala-regression.mjs; here only the shape of the data.
 check('anchored squares name entries the world system already draws', () => {
   const anchored = SQUARES.filter(s => s.anchor);
-  assert.equal(anchored.length, 21);
+  assert.equal(anchored.length, 22);
   for (const s of anchored) {
     assert.match(s.anchor, /^[a-z0-9_]+$/);
     assert.equal(s.band, 'anchored', 'square ' + s.n + ' is anchored');
   }
   const loose = SQUARES.filter(s => !s.anchor);
-  assert.equal(loose.length, 83);
+  assert.equal(loose.length, 82);
   for (const s of loose) assert.notEqual(s.band, 'anchored', 'square ' + s.n + ' has nothing to anchor to');
 });
 

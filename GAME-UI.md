@@ -127,10 +127,13 @@ bowl and staff, the vase, crown, vajra and bell of the empowerments, the
 central channel, the Buddha under the tree, the stupa of Nirvana.
 [docs/SQUARE-MODELS.md](docs/SQUARE-MODELS.md) lists what each one shows.
 
-- Ninety-seven squares have a model. The seven the world already builds — the
-  Four Kings' terrace, the Thirty-three, Tuṣita, the two highest desire
-  heavens, the form-realm emblem and Śuddhāvāsa — keep the world's own
-  geometry and have none.
+- Eighty-three squares have a model. The twenty-one the world already builds
+  keep the world's own geometry and have none: the four continents (the
+  explorer's Aparagodānīya, with its cow, is the western continent of the
+  game too), the Four Kings' terrace, the Thirty-three, Yāma, Tuṣita, the two
+  highest desire heavens, the form-realm emblem, Śuddhāvāsa and the formless
+  spheres — and the hells and the pretas' ground, which are now the world's
+  own models and are shown in Explorer as in Game (below).
 - Everything is procedural, from one kit of parts; nothing is downloaded. The
   models are built the first time the game is opened, not when the page loads.
 - Each model turns about its own vertical to face the camera, so its front is
@@ -139,10 +142,50 @@ central channel, the Buddha under the tree, the stupa of Nirvana.
   faint; the squares in play stand at full weight, and Nirvana always does.
 - Tapping any part of a model opens that square's entry.
 - Each model is merged into at most four meshes (matte, metal, glowing,
-  translucent), with its colours in the vertices. In the opening overview the
-  whole scene draws in about 580 calls and 630k triangles (555k before the
-  figures had faces, hands and robes), against about 550 calls and 456k
-  triangles with the billboards.
+  translucent), with its colours in the vertices. The eighty-three come to
+  about 1.06M triangles, the heaviest under 40k.
+
+## One human body
+
+Every person in the destinations — the Buddha, an arhat, a monk with his
+bowl, a bodhisattva, a yogi, a being in the hells, a servant of Yama — is the
+same body (`human-figure.js`), built as a sculptor would build it rather than
+from beads: a head modelled as one surface, with the brow, the sockets, the
+cheekbones, the nose, the lips and the chin raised from it, and the brows,
+lashes and lips laid on it; a torso turned from anatomical sections — hips,
+waist, ribs, chest, shoulders — with the breast, the shoulder blades and the
+spine in it; arms and legs swept along their bones, the elbows and knees
+placed by the bones' own lengths, so a hand is only where an arm can reach;
+hands of a palm and five fingers, each bending at its three joints; feet with
+their toes. The robe is part of the same surfaces: over the left shoulder,
+its rolled edge across the breast and its folds following it, the right
+shoulder bare; the lower robe covers the crossed legs or falls in folds to the
+ankles.
+
+A pose is a set of joints, and the same body takes any of them: seated in the
+vajra posture with the gestures of meditation, touching the earth, teaching,
+protection, giving, the hands on the knees or joined at the heart; standing,
+with a bowl, a staff or a raised hand; kneeling, huddled, writhing, reaching,
+fighting, thrown down, fallen. The figure is built at three levels of
+detail: fine for the figure a destination is about (a seated figure is about
+13k triangles, what the old figure cost), coarser for a smaller one, and plain
+for the crowds of the hells.
+
+## The realms beneath Jambudvīpa
+
+The eight hot hells, the eight cold hells, the Vajra Hell and the pretas'
+ground each carry a model of what happens there, standing on its own floor in
+the world and seen in every mode: the beings of Sañjīva cutting one another
+down and revived by a cool wind; the black lines of Kālasūtra and the saw;
+the beast-headed mountains and the mortar of Saṃghāta; the doorless iron
+house of Raurava and the house within a house of Mahāraurava; the stakes of
+Tapana; the trident, the iron sheet and the cauldron of Pratāpana; Avīci's
+house of fire; the blisters, the chattering, the cries and the splitting
+flesh of the cold hells; the pretas searching dry ground before the wall of
+Yama's city. The Vajra Hell is the lowest, beneath Avīci, on a floor of night
+with black fire, the vajra standing as the walls of its prison; square 1
+stands on it. The squares that name a hell or the pretas stand on that
+realm's floor, and their travellers stand beside its model.
 - `node tests/square-models.mjs` checks that every unbuilt square has a model,
   that each stays within its unit, that neighbours on the spiral cannot touch
   however they are turned, the triangle and draw-call budgets, and the facing

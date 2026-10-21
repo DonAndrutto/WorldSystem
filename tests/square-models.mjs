@@ -12,7 +12,7 @@ let checks = 0;
 const check = (name, fn) => { fn(); checks += 1; console.log('  ok  ' + name); };
 
 // The squares the world itself builds; the page passes the same set.
-const WORLD_BUILT = new Set([27, 28, 30, 31, 32, 35, 37]);
+const WORLD_BUILT = new Set([1, 2, 3, 4, 5, 6, 7, 10, 17, 18, 19, 20, 27, 28, 29, 30, 31, 32, 35, 36, 37]);
 const worldContext = { RIM: 1.212415, FLOOR: -0.2, SUMMIT: 0.68, SAMSARA_TOP: 3.1298 };
 const materials = models.createModelMaterials(THREE);
 const built = new Map(models.MODEL_SQUARES.map((n) => [n, models.buildSquareModel(THREE, n, materials)]));
@@ -101,7 +101,7 @@ check('the set turns to the camera, and stands back unless in play', () => {
   assert.equal(set.models.size, 0, 'nothing is built until asked');
   set.showActive([24]);
   set.load();
-  assert.equal(set.models.size, 97);
+  assert.equal(set.models.size, 83);
   assert.ok(set.built());
   const faint = (n) => set.models.get(n).children.every((m) => m.material.name.endsWith('_faint'));
   assert.ok(!faint(24), 'a square asked for before the build is lit once built');
@@ -113,7 +113,7 @@ check('the set turns to the camera, and stands back unless in play', () => {
   camera.position.set(5, 3, -4);
   root.updateMatrixWorld(true);
   set.face(camera);
-  for (const n of [1, 59, 101]) {
+  for (const n of [8, 59, 101]) {
     const model = set.models.get(n);
     model.updateMatrixWorld(true);
     const forward = new THREE.Vector3(0, 0, 1).transformDirection(model.matrixWorld).setY(0).normalize();
@@ -122,6 +122,65 @@ check('the set turns to the camera, and stands back unless in play', () => {
   }
   const victory = set.models.get(VICTORY);
   assert.ok(Math.abs(victory.scale.x - worldContext.SUMMIT * models.MODEL_UNIT * models.VICTORY_SCALE) < 1e-9);
+});
+
+// The realms beneath Jambudvīpa are the world's: each hell, the Vajra Hell
+// and the pretas' ground has a model of its own, set on its floor.
+const realms = new Map(models.REALM_MODEL_IDS.map((id) => [id, models.buildRealmModel(THREE, id, materials)]));
+check('every realm beneath Jambudvīpa has its model, fitting its floor', () => {
+  const want = ['preta_realm', 'hell_vajra',
+    ...['sanjiva', 'kalasutra', 'samghata', 'raurava', 'maharaurava', 'tapana', 'pratapana', 'avichi'].map((n) => 'hell_' + n),
+    ...['arbuda', 'nirarbuda', 'atata', 'hahava', 'huhuva', 'utpala', 'padma', 'mahapadma'].map((n) => 'cold_' + n)];
+  assert.deepEqual([...realms.keys()].sort(), want.sort());
+  for (const [id, group] of realms) {
+    assert.ok(models.realmNote(id).length > 30, id + ' says what it shows');
+    const box = new THREE.Box3().setFromObject(group);
+    const size = box.getSize(new THREE.Vector3());
+    assert.ok(box.min.y > -0.06, id + ' stands on its floor (' + box.min.y.toFixed(2) + ')');
+    // the hot hells are a model's height apart: 0.12 world units at most
+    // 0.13 to the unit, and the floor above is 0.011 thick
+    assert.ok(box.max.y <= 0.82, id + ' clears the floor above (' + box.max.y.toFixed(2) + ')');
+    assert.ok(size.x <= 0.95 && size.z <= 0.9, id + ' stays inside its walls');
+    const keys = new Set();
+    for (const mesh of group.children) {
+      assert.ok(!keys.has(mesh.userData.finish), id + ' is merged into one mesh per finish');
+      keys.add(mesh.userData.finish);
+      assert.equal(mesh.userData.realm, id);
+      const pos = mesh.geometry.attributes.position.array;
+      for (let i = 0; i < pos.length; i += 1) assert.ok(Number.isFinite(pos[i]), id + ' has a finite vertex');
+    }
+  }
+});
+
+check('the realms are light enough to stand in every mode', () => {
+  let total = 0;
+  for (const [id, group] of realms) {
+    let t = 0;
+    group.children.forEach((m) => { t += m.geometry.index.count / 3; });
+    assert.ok(t < 32000, id + ' is not heavy: ' + t);
+    total += t;
+  }
+  assert.ok(total < 320000, 'all of them together: ' + total);
+});
+
+// One body for everyone: every pose builds, and the figure is as tall as it
+// should be, standing and seated, at no more than the old figure's cost.
+const { POSES } = await import(pathToFileURL(repo + '/human-figure.js'));
+check('the human figure takes every pose, at its own height', () => {
+  for (const name of Object.keys(POSES)) {
+    const group = models.buildRecipe(THREE, (b, F) => F.sufferer(b, { pose: name, s: 1 }), materials);
+    const box = new THREE.Box3().setFromObject(group);
+    assert.ok(!box.isEmpty() && Number.isFinite(box.max.y), name + ' builds');
+  }
+  const standing = models.buildRecipe(THREE, (b, F) => F.standing(b, { hair: 'shaved' }), materials);
+  const tall = new THREE.Box3().setFromObject(standing).max.y;
+  assert.ok(tall > 0.7 && tall < 0.8, 'a standing figure is about 0.74 tall: ' + tall.toFixed(3));
+  const seated = models.buildRecipe(THREE, (b, F) => F.seated(b, { hair: 'shaved' }), materials);
+  const sat = new THREE.Box3().setFromObject(seated);
+  assert.ok(sat.max.y > 0.5 && sat.max.y < 0.6, 'a seated figure is about 0.55 tall: ' + sat.max.y.toFixed(3));
+  let t = 0;
+  seated.children.forEach((m) => { t += m.geometry.index.count / 3; });
+  assert.ok(t < 16000, 'a seated figure with its face, hands and robe: ' + t);
 });
 
 console.log('\n' + checks + ' checks passed.');
