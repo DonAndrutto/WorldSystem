@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Buddha sculpture · Reference reconstruction</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#182126;color:#e5e8e6;font:14px/1.5 system-ui,sans-serif}header{padding:18px 24px;border-bottom:1px solid #ffffff20}h1{font:500 20px/1.3 Georgia,serif;margin:0 0 5px}p{margin:0;color:#a9b7b6}.controls{display:flex;gap:8px;flex-wrap:wrap;padding:12px 24px}button,select{font:inherit;color:inherit;background:#263438;border:1px solid #829b9755;border-radius:6px;padding:7px 11px}button:hover,button[aria-pressed=true]{background:#415955}canvas{width:100%;display:block;touch-action:none;outline:none}#stage{height:calc(100dvh - 290px);min-height:300px}footer{padding:10px 24px;color:#a9b7b6;font-size:12px}a{color:#dae6d7}#status{font-variant-numeric:tabular-nums}.downloads{display:flex;gap:16px;flex-wrap:wrap}
+@media(min-width:800px){body{display:grid;grid-template-columns:260px 1fr;grid-template-rows:auto auto auto 1fr;min-height:100dvh}header{grid-column:1;grid-row:1;padding:24px 20px}.controls{grid-column:1;padding:12px 20px}body>.controls{grid-row:2}#views{grid-row:3}#stage{grid-column:2;grid-row:1/5;height:100dvh;min-width:0;border-left:1px solid #ffffff18}footer{grid-column:1;grid-row:4;align-self:end;padding:20px}.downloads{gap:8px;flex-direction:column}select{max-width:220px;width:100%}}
+</style></head><body>
+<header><h1>Buddha sculpture</h1><p>Recreated from your five views · Drag to rotate; scroll to zoom.</p></header>
+<div class="controls"><select id="model" aria-label="Model"><option value="teach">Teaching gesture · reference study</option><option value="lap">Meditation gesture</option><option value="earth">Earth-touching gesture</option><option value="100">Game · Conquest of Māra</option><option value="101">Game · Buddhahood</option><option value="77">Game · Sukhāvatī</option><option value="93">Game · Dharma body</option></select><button id="material" aria-pressed="true">Neutral clay</button></div>
+<div class="controls" id="views"><button data-view="front">Front</button><button data-view="three">Three-quarter</button><button data-view="side">Side</button><button data-view="back">Back</button><button data-view="top">Above</button><button id="detail">Face detail</button><button id="hands">Hands detail</button><button id="feet">Feet detail</button><button id="arms">Arms detail</button></div>
+<div id="stage"></div><footer><div id="status">Building sculpture…</div><div class="downloads"><a href="docs/sculpture-review/buddha-teach.glb" download>Teaching GLB</a><a href="docs/sculpture-review/buddha-lap.glb" download>Meditation GLB</a><a href="docs/sculpture-review/buddha-earth.glb" download>Earth-touching GLB</a></div></footer>
+<script type="module">
+import * as THREE from './vendor/three@0.184.0/build/three.module.js';
+import {buildRecipe,buildSquareModel,createModelMaterials,createModelKit} from './square-models.js';
+import {seatedSculpture,sculptureLotus} from './seated-sculpture.js';
+const stage=document.querySelector('#stage'),renderer=new THREE.WebGLRenderer({antialias:true,preserveDrawingBuffer:true});
+renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.setClearColor(0x182126);renderer.outputColorSpace=THREE.SRGBColorSpace;
+renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.05;stage.append(renderer.domElement);renderer.domElement.setAttribute('aria-label','Rotatable 3D Buddha sculpture');renderer.domElement.tabIndex=0;
+const scene=new THREE.Scene(),camera=new THREE.PerspectiveCamera(32,1,.01,30);
+scene.add(new THREE.HemisphereLight(0xdde8ff,0x45413a,.65));
+for(const [color,intensity,p] of [[0xfff4e5,3,[-2,3,4]],[0xbacde5,.45,[3,1,2]],[0xffffff,1.8,[1,2,-3]]]){const l=new THREE.DirectionalLight(color,intensity);l.position.set(...p);if(intensity===3){l.castShadow=true;l.shadow.mapSize.set(2048,2048);Object.assign(l.shadow.camera,{left:-1.2,right:1.2,top:1.2,bottom:-1.2,near:.1,far:12});l.shadow.bias=-.00002;l.shadow.normalBias=.0004;}scene.add(l);}
+const clay=new THREE.MeshStandardMaterial({color:0xc6c8c4,roughness:.8,metalness:0}),materials=createModelMaterials(THREE),kit=createModelKit(THREE);
+let detail=false,fullCenter=new THREE.Vector3(),fullRadius=.5;
+let group,theta=0,phi=1.48,zoom=1,neutral=true,center=new THREE.Vector3(),radius=.5,drag=null;
+const render=()=>{if(!group)return;const aspect=stage.clientWidth/stage.clientHeight;camera.aspect=aspect;camera.updateProjectionMatrix();const fov=2*Math.atan(Math.tan(THREE.MathUtils.degToRad(16))*Math.min(1,aspect));const distance=radius/Math.sin(fov/2)*1.08*zoom;camera.position.set(Math.sin(theta)*Math.sin(phi),Math.cos(phi),Math.cos(theta)*Math.sin(phi)).multiplyScalar(distance).add(center);camera.lookAt(center);renderer.render(scene,camera);};
+const paint=()=>{group.traverse(m=>{if(m.isMesh)m.material=neutral?clay:m.userData.original;});document.querySelector('#material').textContent=neutral?'Neutral clay':'Game colours';document.querySelector('#material').setAttribute('aria-pressed',String(neutral));render();};
+function build(){
+ if(group){scene.remove(group);group.traverse(m=>{if(m.isMesh)m.geometry.dispose();});}
+ const choice=document.querySelector('#model').value;
+ for(const id of ['detail','hands','feet','arms'])document.querySelector('#'+id).disabled=/^\d+$/.test(choice);document.querySelector('#detail').textContent='Face detail';
+ group=/^\d+$/.test(choice)?buildSquareModel(THREE,+choice,materials,kit):buildRecipe(THREE,b=>{const top=sculptureLotus(b,{detailed:true,key:'pink',rim:'gold'});b.at([0,top,0],[0,0,0],1,()=>seatedSculpture(b,{detailed:true,mudra:choice,skin:'gilt',robe:'maroon',hair:'lapis'}));},materials,kit);
+ group.traverse(m=>{if(m.isMesh){m.userData.original=m.material;m.castShadow=true;m.receiveShadow=true;}});scene.add(group);
+ const bounds=new THREE.Box3().setFromObject(group),size=bounds.getSize(new THREE.Vector3());bounds.getCenter(center);radius=Math.max(size.y,size.x,size.z)*.51;
+ const triangles=group.children.reduce((s,m)=>s+m.geometry.index.count/3,0);document.querySelector('#status').textContent=`${triangles.toLocaleString()} triangles · ${group.children.length} draw calls · Local reconstruction, not published`;
+ fullCenter.copy(center);fullRadius=radius;detail=false;zoom=1;paint();
+}
+document.querySelector('#model').onchange=build;
+document.querySelector('#material').onclick=()=>{neutral=!neutral;paint();};
+function focusPart(part){
+ const choice=document.querySelector('#model').value;
+ detail=detail===part?false:part;center.copy(fullCenter);radius=fullRadius;
+ document.querySelector('#detail').textContent=detail?'Whole figure':'Face detail';
+ theta=0;phi=1.48;zoom=1;
+ if(detail==='face'){center.set(0,.57,.04);radius=.11;}
+ if(detail==='hands'){center.set(0,choice==='teach'?.37:.23,.15);radius=.11;if(choice==='earth'){center.set(-.17,.148,.173);radius=.075;theta=-.35;}}
+ if(detail==='arms'){center.set(0,.355,.070);radius=.195;}
+ if(detail==='feet'){center.set(.095,.222,.138);radius=.092;phi=.55;}
+ render();
+}
+document.querySelector('#detail').onclick=()=>focusPart(detail?detail:'face');
+document.querySelector('#hands').onclick=()=>focusPart('hands');
+document.querySelector('#feet').onclick=()=>focusPart('feet');
+document.querySelector('#arms').onclick=()=>focusPart('arms');
+document.querySelector('#views').onclick=e=>{if(!e.target.dataset.view)return;[theta,phi]=({front:[0,1.48],three:[.65,1.43],side:[Math.PI/2,1.5],back:[Math.PI,1.48],top:[0,.07]})[e.target.dataset.view];zoom=1;render();};
+renderer.domElement.onpointerdown=e=>{drag=[e.clientX,e.clientY];renderer.domElement.setPointerCapture(e.pointerId);};
+renderer.domElement.onpointermove=e=>{if(!drag)return;theta-=(e.clientX-drag[0])*.009;phi=Math.max(.04,Math.min(Math.PI-.04,phi+(e.clientY-drag[1])*.008));drag=[e.clientX,e.clientY];render();};
+renderer.domElement.onpointerup=renderer.domElement.onpointercancel=()=>drag=null;
+renderer.domElement.addEventListener('wheel',e=>{e.preventDefault();zoom=Math.max(.6,Math.min(2.3,zoom*Math.exp(e.deltaY*.001)));render();},{passive:false});
+renderer.domElement.onkeydown=e=>{if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.key)){e.preventDefault();theta+=e.key==='ArrowLeft'?-.12:e.key==='ArrowRight'?.12:0;phi=Math.max(.04,Math.min(3.1,phi+(e.key==='ArrowUp'?-.1:e.key==='ArrowDown'?.1:0)));render();}};
+new ResizeObserver(()=>{renderer.setSize(stage.clientWidth,stage.clientHeight,false);render();}).observe(stage);build();
+</script></body></html>
