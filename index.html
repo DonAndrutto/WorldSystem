@@ -1610,6 +1610,8 @@
     align-items: center; justify-content: center; padding: 6px 0 2px;
   }
   .bv-mark {
+    /* positioned, so the letters stand in front of the sun rather than under it */
+    position: relative;
     margin: 0; text-align: center; text-transform: uppercase; font-weight: 400;
     font-size: clamp(16px, 2.2vw, 25px); letter-spacing: .15em; line-height: 1.05;
     color: var(--ink);
@@ -6782,7 +6784,7 @@ const RB_MODELLED = new Set([...RB_UNDERWORLD, 17, 18, 19, 20, 27, 28, 29, 30, 3
    its field and its description (square-models.js): the board keeps the
    paintings, the world has the things. Nothing is built until the game is
    first opened. */
-const rbModels = createSquareModels(THREE, { SUMMIT, VICTORY: RB_VICTORY, modelled: RB_MODELLED });
+const rbModels = createSquareModels(THREE, { SUMMIT, VICTORY: RB_VICTORY, modelled: RB_MODELLED, onLoad: () => invalidate(4) });
 rbBoard.nodes.forEach((holder, n) => rbModels.attach(holder, n));
 
 const rbBox = new THREE.Box3();
@@ -8728,6 +8730,7 @@ controlsEl.querySelector('[data-menu="options"] .menu-body').append(endingOption
 installPanelLayout();
 window.WorldSystemReady = true;
 buildRealmsWhenIdle();
+rbModels.prefetch();          // the seated Buddhas' sculpted meshes, now the page is up
 window.dispatchEvent(new CustomEvent('ws-app-ready'));
 </script>
 

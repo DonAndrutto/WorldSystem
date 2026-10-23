@@ -19,6 +19,9 @@ const rbGame = await import(pathToFileURL(repo + '/rebirth-game.js'));
 const {SQUARE_NOTES, SQUARE_FULL} = await import(pathToFileURL(repo + '/rebirth-notes.js'));
 const rbIcons = await import(pathToFileURL(repo + '/rebirth-icons.js'));
 const squareModels = await import(pathToFileURL(repo + '/square-models.js'));
+// The page fetches the seated Buddhas' meshes once it is up; here they are in
+// hand first, so the game's models build in one pass under the fake clock.
+await (await import(pathToFileURL(repo + '/seated-sculpture.js'))).loadSculpture();
 const rbSound = await import(pathToFileURL(repo + '/rebirth-sound.js'));
 const gamePlayers = await import(pathToFileURL(repo + '/game-players.js'));
 const gameWalkthrough = await import(pathToFileURL(repo + '/game-walkthrough.js'));

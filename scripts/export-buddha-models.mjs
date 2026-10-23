@@ -2,7 +2,10 @@
 import * as THREE from 'three';
 import {mkdirSync,writeFileSync} from 'node:fs';
 import {buildRecipe,createModelMaterials,createModelKit} from '../square-models.js';
-import {seatedSculpture,sculptureLotus} from '../seated-sculpture.js';
+import {seatedSculpture,sculptureLotus,addSculptureDetail} from '../seated-sculpture.js';
+import {ROBES_DETAIL} from '../sculpture-robe-detail.js';
+import {ANATOMY_DETAIL} from '../sculpture-anatomy-detail.js';
+addSculptureDetail(ROBES_DETAIL,ANATOMY_DETAIL);
 const output=new URL('../docs/sculpture-review/',import.meta.url);mkdirSync(output,{recursive:true});
 const kit=createModelKit(THREE),materials=createModelMaterials(THREE);
 for(const pose of ['teach','lap','earth']){
