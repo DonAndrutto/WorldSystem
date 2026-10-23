@@ -39,6 +39,12 @@ body.presentation-view.game-view .rb-label { display: none !important; }
   .tour-panel .tour-progress { margin-bottom: 8px; }
   .tour-panel .tour-count { margin-bottom: 4px; }
 }
+/* Where the header takes two rows, the controls stand at the right beneath
+   it, and a right-hand panel below them is left too short to read. The left
+   side under the header is free: the panel takes it, at its full height. */
+@media (max-height: 500px) and (orientation: landscape) {
+  :root[data-header-rows="2"] body.presentation-view .panel-dock { top: var(--header-clearance, 74px); bottom: 12px; left: 14px; right: auto; }
+}
 /* Narrower than that, the controls hold the bottom edge: stop above them. */
 @media (max-height: 500px) and (orientation: landscape) and (max-width: 700px) {
   body.presentation-view .panel-dock { bottom: calc(66px + var(--sa-b)); }
