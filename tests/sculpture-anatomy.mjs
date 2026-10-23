@@ -1,6 +1,9 @@
 // Mesh-level regressions for the rebuilt hands and feet, independent of rendering.
 import assert from 'node:assert/strict';
-import { ANATOMY } from '../sculpture-anatomy-data.js';
+import { readFileSync } from 'node:fs';
+import { ANATOMY as GAME } from '../sculpture-anatomy-data.js';
+import { ANATOMY_DETAIL } from '../sculpture-anatomy-detail.js';
+const ANATOMY={...ANATOMY_DETAIL,...GAME};
 const unpack=(s,Type)=>new Type(Uint8Array.from(Buffer.from(s,'base64')).buffer);
 for(const [name,data] of Object.entries(ANATOMY)){
  const p=unpack(data.p,Int16Array),n=unpack(data.n,Int16Array),ix=unpack(data.i,Uint16Array);
@@ -29,4 +32,8 @@ for(const [name,data] of Object.entries(ANATOMY)){
  assert.ok(ix.length/3<(name.endsWith('-game')?6500:20000),name+' anatomy mesh budget');
  console.log('  ok ',name,'closed, connected, outward, five nail placements;',ix.length/3,'triangles');
 }
+// The page carries the game's meshes only; the study stays with the preview and export.
+assert.ok(Object.keys(GAME).every(name=>name.endsWith('-game')),'the page data holds the game meshes alone');
+assert.ok(Object.keys(ANATOMY_DETAIL).every(name=>!name.endsWith('-game')),'the study holds no game mesh');
+assert.ok(!/(from|import\()\s*['"][^'"]*-detail\.js/.test(readFileSync(new URL('../seated-sculpture.js',import.meta.url),'utf8')),'the page never imports the study');
 console.log(Object.keys(ANATOMY).length+' anatomy meshes passed.');

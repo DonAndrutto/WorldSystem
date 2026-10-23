@@ -163,13 +163,6 @@ body.board-only .bv-grid { order: 3; }
 .bv-guide-bhumis { display: flex; gap: 8px; flex-wrap: wrap; }
 .bv-guide-bhumis .btn { min-height: 44px; white-space: normal; }
 body.world-only .bv-guide { width: 100%; order: 1; }
-/* On touch-sized boards, keep the overview compact and make a readable board
-   an immediate choice, rather than hiding it in the general Options menu. */
-.bv-size-toggle { display: none; }
-@media (max-width: 1100px) {
-  .bv-size-toggle { display: inline-flex; align-items: center; min-height: 44px; gap: 5px; cursor: pointer; font-size: 13px; }
-  body.world-only .bv-size-toggle { display: none; }
-}
 @media (max-width: 700px) {
   body.board-only .bv-head { display: none; }
   .bv-guide > summary { padding: 7px 9px; gap: 8px; }
@@ -190,23 +183,14 @@ body.world-only .bv-guide { width: 100%; order: 1; }
   body.board-only .board-view:not(.large-squares) .bv-grid { gap: 2px; padding: 3px; }
 }
 
-.bv-mapbar { display: flex; flex: none; gap: 8px; align-items: stretch; width: min(100%, 1120px); order: 2; }
-.bv-mapbar .bv-guide { width: auto; flex: 1; min-width: 0; }
-.bv-mapbar .bv-size-toggle { flex: none; max-width: 96px; white-space: normal; line-height: 1.3; letter-spacing: .02em; padding: 6px 8px; background: var(--card); }
-body.world-only .bv-mapbar { width: 100%; order: 1; }
 .rb-label .rb-realm { display: block; white-space: normal; }
 @media (max-width: 700px) {
-  .bv-mapbar { gap: 5px; }
-  .bv-mapbar .bv-size-toggle { max-width: 65px; font-size: 10px; padding: 5px; }
-  .bv-mapbar .bv-guide-title { max-width: 55px; white-space: normal; line-height: 1.2; }
   body.world-only .bv-guide-title { max-width: none; }
 }
 
 /* A backdrop filter creates a containing block for fixed descendants. The
    guide must stay attached to the viewport, including in the night palette. */
 .bv-guide, body.night .bv-guide { backdrop-filter: none; -webkit-backdrop-filter: none; }
-.bv-mapbar .bv-guide { order: 0; }
-.bv-mapbar .bv-size-toggle { order: 1; }
 
 .bv-guide-body { border-radius: 14px; }
 body.world-only .board-view { flex-direction: column; }
@@ -227,7 +211,7 @@ body.game-setup .bv-advance { display: none; }
 .bv-walkthrough h2 { font-size: clamp(20px, 2.5vw, 26px); font-weight: 500; line-height: 1.15; margin: 3px 0 8px; }
 .bv-walkthrough-copy { font-size: 16px; line-height: 1.4; margin: 0; }
 .bv-walkthrough-location { font-size: 13px; line-height: 1.4; margin: 9px 0 0; font-weight: 600; }
-body.guided-game .bv-rail, body.guided-game .bv-head, body.guided-game .bv-mapbar { display: none; }
+body.guided-game .bv-rail, body.guided-game .bv-head { display: none; }
 @media (max-width: 700px) {
   .bv-walkthrough { padding: 8px 12px 12px; max-height: 36dvh; }
   .bv-walkthrough-copy { font-size: 15px; }

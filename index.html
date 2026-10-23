@@ -1610,6 +1610,8 @@
     align-items: center; justify-content: center; padding: 6px 0 2px;
   }
   .bv-mark {
+    /* positioned, so the letters stand in front of the sun rather than under it */
+    position: relative;
     margin: 0; text-align: center; text-transform: uppercase; font-weight: 400;
     font-size: clamp(16px, 2.2vw, 25px); letter-spacing: .15em; line-height: 1.05;
     color: var(--ink);
@@ -2006,7 +2008,6 @@
       <label>Animation pace <select id="g-pace"><option value="calm">Calm</option><option value="quick">Quick</option><option value="instant">Instant</option></select></label>
       <label class="sw"><input type="checkbox" id="g-follow" checked> Camera follows the traveler</label>
       <label class="sw"><input type="checkbox" id="g-large-board"> Larger board squares (scroll)</label>
-      <button class="btn bv-size-toggle" type="button" data-game="board-size" aria-pressed="false">Larger squares</button>
       <p class="bv-save" role="status"></p>
       <p>Throw the die to follow its destination. A missing destination means stay and pass. In a trap, collect the required faces; a needed face gives another throw. Reach 104 to win.</p>
       <button class="btn" type="button" data-game="replay-guide">Replay guided game</button>
@@ -5837,7 +5838,10 @@ function syncChrome() {
   document.body.classList.toggle('game-view', mode === 'game');
   if (mode === 'game') {
     const rail = boardEl.querySelector('.bv-rail').getBoundingClientRect();
-    document.documentElement.style.setProperty('--world-card-top', Math.ceil(rail.bottom + 10) + 'px');
+    // A presentation hides the board, rail and all: its panel then stands
+    // below the application's own controls, as in every other mode.
+    if (rail.height) document.documentElement.style.setProperty('--world-card-top', Math.ceil(rail.bottom + 10) + 'px');
+    else document.documentElement.style.removeProperty('--world-card-top');
     const focusHeight = gameFocusEl.hidden ? 0 : gameFocusEl.getBoundingClientRect().height;
     document.documentElement.style.setProperty('--world-focus-clearance', Math.ceil((tightScreen() ? 140 : 88) + focusHeight + 12) + 'px');
   }
@@ -6782,7 +6786,7 @@ const RB_MODELLED = new Set([...RB_UNDERWORLD, 17, 18, 19, 20, 27, 28, 29, 30, 3
    its field and its description (square-models.js): the board keeps the
    paintings, the world has the things. Nothing is built until the game is
    first opened. */
-const rbModels = createSquareModels(THREE, { SUMMIT, VICTORY: RB_VICTORY, modelled: RB_MODELLED });
+const rbModels = createSquareModels(THREE, { SUMMIT, VICTORY: RB_VICTORY, modelled: RB_MODELLED, onLoad: () => invalidate(4) });
 rbBoard.nodes.forEach((holder, n) => rbModels.attach(holder, n));
 
 const rbBox = new THREE.Box3();
@@ -7657,11 +7661,7 @@ rbFollowBox.addEventListener('change', () => {
   if (rbFollowing()) rbFrameFollow(700);
   else if (rbView3D === 'world' && !gameFocus) reframeGame(700);
 });
-const rbSizeToggle = boardEl.querySelector('[data-game="board-size"]');
-rbSizeToggle.addEventListener('click', () => rbLargeBoard.click());
 function rbSyncBoardSize() {
-  rbSizeToggle.setAttribute('aria-pressed', String(rbLargeBoard.checked));
-  rbSizeToggle.textContent = rbLargeBoard.checked ? 'Whole board' : 'Larger squares';
   boardEl.classList.toggle('large-squares', rbLargeBoard.checked);
   rbScrollSelected();
 }
@@ -8728,6 +8728,7 @@ controlsEl.querySelector('[data-menu="options"] .menu-body').append(endingOption
 installPanelLayout();
 window.WorldSystemReady = true;
 buildRealmsWhenIdle();
+rbModels.prefetch();          // the seated Buddhas' sculpted meshes, now the page is up
 window.dispatchEvent(new CustomEvent('ws-app-ready'));
 </script>
 

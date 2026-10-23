@@ -7,7 +7,7 @@ const {chromium} = require(process.env.WORLDSYSTEM_PLAYWRIGHT || 'playwright');
 // WORLDSYSTEM_CHANNEL=chromium runs it in Playwright's own browser where Google Chrome is not installed.
 const browser = await chromium.launch({channel: process.env.WORLDSYSTEM_CHANNEL || 'chrome', headless: true});
 const url = process.env.WORLDSYSTEM_URL || 'http://127.0.0.1:4174/';
-const counts = {explore:104, mandala:37, game:105, wheel:92};
+const counts = {explore:105, mandala:37, game:105, wheel:92};
 try {
   for (const config of [
     {width:390,height:844}, {width:320,height:568},

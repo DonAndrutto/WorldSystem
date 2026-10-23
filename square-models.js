@@ -26,7 +26,7 @@ export const MODEL_UNIT = 0.14;      // × SUMMIT: one model unit in the world
 export const MODEL_LIFT = 0.058;     // × SUMMIT: the model stands above the realm gem
 export const VICTORY_SCALE = 2.6;    // Nirvana stands alone and is drawn larger
 
-import { seatedSculpture, sculptureLotus } from './seated-sculpture.js';
+import { seatedSculpture, sculptureLotus, loadSculpture, SCULPTURE_PENDING } from './seated-sculpture.js';
 import { humanFigure, POSES, sculptedHead, hairCap, clothFall, clothBand } from './human-figure.js';
 
 const TAU = Math.PI * 2;
@@ -3263,11 +3263,20 @@ export function createSquareModels(THREE, ctx) {
     model.children.forEach((mesh) => { mesh.material = set[mesh.userData.finish]; });
   }
 
+  /* The seated Buddhas wait for their sculpted meshes (seated-sculpture.js),
+     which come after the page; the rest are built at once, and those four
+     as soon as the meshes are here — then ctx.onLoad redraws. */
+  let waiting = null;
   function load() {
     if (!materials) { materials = createModelMaterials(THREE); kit = makeKit(THREE); }
     holders.forEach((holder, square) => {
       if (models.has(square)) return;
-      const model = buildSquareModel(THREE, square, materials, kit);
+      let model;
+      try { model = buildSquareModel(THREE, square, materials, kit); } catch (err) {
+        if (err.message !== SCULPTURE_PENDING) throw err;
+        waiting ||= loadSculpture().then(() => { waiting = null; load(); ctx.onLoad?.(); }, () => { waiting = null; });
+        return;
+      }
       const victory = square === ctx.VICTORY;
       model.scale.setScalar(unit * (victory ? VICTORY_SCALE : 1));
       model.position.y = holder.userData.modelLift ?? ctx.SUMMIT * (victory ? 0.1 : MODEL_LIFT);
@@ -3305,5 +3314,6 @@ export function createSquareModels(THREE, ctx) {
   }
 
   return { attach, load, face, showActive, highlight, models, holders, modelled,
+           prefetch: () => loadSculpture().catch(() => {}),   // load() asks again
            built: () => models.size === holders.size && holders.size > 0 };
 }

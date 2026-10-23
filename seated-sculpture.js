@@ -3,8 +3,29 @@
  * +z is the face, -x is the figure's right. Geometry is closed and smooth;
  * cloth folds displace the garment itself. No images or external assets load.
  */
-import { ROBES } from './sculpture-robe-data.js';
-import { ANATOMY } from './sculpture-anatomy-data.js';
+
+// The sculpted meshes are data, and heavy: 1.2 MB for the game's, which only
+// the four seated Buddhas of the game use. So they are not part of this
+// module. loadSculpture() fetches them, once the page is up; a figure asked
+// for before then throws SCULPTURE_PENDING, and its builder tries again when
+// they have come. The full-resolution study (`detailed`), three times the
+// game's weight, serves the preview page and the GLB export alone: it lives
+// in sculpture-*-detail.js and is handed over by whoever imports it.
+export const SCULPTURE_PENDING='seated-sculpture: the sculpted meshes have not loaded yet';
+let game=null,loading=null;
+const study={robes:{},anatomy:{}};
+export function loadSculpture() {
+  return loading||=Promise.all([import('./sculpture-robe-data.js'),import('./sculpture-anatomy-data.js')])
+    .then(([r,a])=>{game={robes:r.ROBES,anatomy:a.ANATOMY};},err=>{loading=null;throw err;});
+}
+export const sculptureReady=()=>!!game;
+export function addSculptureDetail(robes,anatomy) { Object.assign(study.robes,robes);Object.assign(study.anatomy,anatomy); }
+const meshData=(kind,key)=>{
+  const forGame=key.endsWith('-game'),table=forGame?game?.[kind]:study[kind];
+  if(table?.[key])return table[key];
+  if(forGame&&!game)throw new Error(SCULPTURE_PENDING);
+  throw new Error(`seated-sculpture: no '${key}' mesh`+(forGame?'':'; the detailed study needs addSculptureDetail()'));
+};
 
 const TAU = Math.PI * 2;
 const clamp = x => Math.max(0, Math.min(1, x));
@@ -151,12 +172,12 @@ function head(b,skin,hair,detailed) {
 function garment(b,key,mudra,detailed) {
   const pose=(['teach','earth'].includes(mudra)?mudra:'lap')+(detailed?'':'-game');
   const geometry=b.kit.once('sculpture-robe:'+pose,()=>{
-    const unpack=(s,Type)=>{const bytes=Uint8Array.from(atob(s),c=>c.charCodeAt(0));return new Type(bytes.buffer);};
-    const raw=unpack(ROBES[pose].p,Int16Array),positions=new Float32Array(raw.length);
+    const data=meshData('robes',pose),unpack=(s,Type)=>{const bytes=Uint8Array.from(atob(s),c=>c.charCodeAt(0));return new Type(bytes.buffer);};
+    const raw=unpack(data.p,Int16Array),positions=new Float32Array(raw.length);
     for(let i=0;i<raw.length;i++)positions[i]=raw[i]/32767;
     const g=new b.THREE.BufferGeometry();g.setAttribute('position',new b.THREE.BufferAttribute(positions,3));
-    g.setIndex(new b.THREE.BufferAttribute(unpack(ROBES[pose].i,Uint16Array),1));
-    const rawNormals=unpack(ROBES[pose].n,Int16Array),normals=new Float32Array(rawNormals.length);for(let i=0;i<normals.length;i++)normals[i]=rawNormals[i]/32767;
+    g.setIndex(new b.THREE.BufferAttribute(unpack(data.i,Uint16Array),1));
+    const rawNormals=unpack(data.n,Int16Array),normals=new Float32Array(rawNormals.length);for(let i=0;i<normals.length;i++)normals[i]=rawNormals[i]/32767;
     g.setAttribute('normal',new b.THREE.BufferAttribute(normals,3));return g;
   });
   b.put(geometry,key);
@@ -169,7 +190,7 @@ function anatomyGeometry(b,name,detailed) {
   const key=name+(detailed?'':'-game');
   return b.kit.once('sculpture-anatomy:'+key,()=>{
     const unpack=(s,Type)=>new Type(Uint8Array.from(atob(s),c=>c.charCodeAt(0)).buffer);
-    const data=ANATOMY[key],g=new b.THREE.BufferGeometry();
+    const data=meshData('anatomy',key),g=new b.THREE.BufferGeometry();
     for(const [field,attribute] of [['p','position'],['n','normal']]){
       const raw=unpack(data[field],Int16Array),values=Float32Array.from(raw,v=>v/32767);
       g.setAttribute(attribute,new b.THREE.BufferAttribute(values,3));
@@ -188,7 +209,7 @@ function hand(b,skin,wrist,up,palm,side,gesture,detailed) {
   if(!detailed)return;
   const T=b.THREE,d=new T.Vector3(...up).normalize(),x=new T.Vector3().crossVectors(d,new T.Vector3(...palm)).normalize(),n=new T.Vector3().crossVectors(x,d);x.multiplyScalar(-side);
   const transform=p=>x.clone().multiplyScalar(p[0]).addScaledVector(d,p[1]).addScaledVector(n,p[2]);
-  for(const nail of ANATOMY[gesture].nails)b.orient(nailGeometry(b),skin,transform(nail.center).add(new T.Vector3(...wrist)).toArray(),transform(nail.tangent).toArray(),transform(nail.normal).toArray(),[nail.width,nail.length,.0008]);
+  for(const nail of meshData('anatomy',gesture).nails)b.orient(nailGeometry(b),skin,transform(nail.center).add(new T.Vector3(...wrist)).toArray(),transform(nail.tangent).toArray(),transform(nail.normal).toArray(),[nail.width,nail.length,.0008]);
 }
 
 // A folded cloth lip surrounds an actual recessed sleeve opening. Its small
@@ -259,7 +280,7 @@ function feet(b,skin,detailed) {
     const origin=[side*.055,front?.224:.254,front?.240:.187],roll=Math.PI*(front?.88:.93);
     const transform=p=>[side*p[0],Math.cos(roll)*p[1]-Math.sin(roll)*p[2],Math.sin(roll)*p[1]+Math.cos(roll)*p[2]];
     b.put(foot,skin,origin,[roll,0,0],[side,1,1]);
-    if(detailed)for(const nail of ANATOMY.foot.nails){
+    if(detailed)for(const nail of meshData('anatomy','foot').nails){
       b.orient(nailGeometry(b),skin,transform(nail.center).map((v,i)=>v+origin[i]),transform(nail.tangent),transform(nail.normal),[nail.width,nail.length,.0008]);
     }
   }

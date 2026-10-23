@@ -157,7 +157,13 @@ body.tour-view .compass { top: calc(86px + var(--sa-t)); }
   .menu-body .menu-row .seg .btn { min-height: 44px; }
   .sheet .sheet-scroll { font-size: 18px; }
   body.board-only .board-view { padding-top: calc(72px + var(--sa-t)); }
+  /* The header now spans the top edge; the rose stands just below it. */
+  .compass { top: var(--header-clearance); }
   body.tour-view .compass { top: calc(74px + var(--sa-t)); }
+}
+/* A sideways phone's panel reaches up to the header, where the rose stands. */
+@media (max-width: 700px) and (max-height: 500px) {
+  body.panel-open .compass, body.index-open .compass { opacity: 0; }
 }
 @media (max-width: 360px) {
   .controls > .btn, .controls .menu > .btn { font-size: 11px; letter-spacing: 0; }

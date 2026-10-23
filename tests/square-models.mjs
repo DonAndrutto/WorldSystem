@@ -15,6 +15,27 @@ const check = (name, fn) => { fn(); checks += 1; console.log('  ok  ' + name); }
 const WORLD_BUILT = new Set([1, 2, 3, 4, 5, 6, 7, 10, 17, 18, 19, 20, 27, 28, 29, 30, 31, 32, 35, 36, 37]);
 const worldContext = { RIM: 1.212415, FLOOR: -0.2, SUMMIT: 0.68, SAMSARA_TOP: 3.1298 };
 const materials = models.createModelMaterials(THREE);
+
+// The seated Buddhas' meshes are fetched after the page is up. A set asked to
+// build before they have come builds the rest, then finishes those four.
+const sculpture = await import(pathToFileURL(repo + '/seated-sculpture.js'));
+{
+  assert.ok(!sculpture.sculptureReady(), 'importing the models fetches no sculpture');
+  assert.throws(() => models.buildSquareModel(THREE, 93, materials), { message: sculpture.SCULPTURE_PENDING });
+  let redraws = 0, arrived;
+  const loaded = new Promise((resolve) => { arrived = resolve; });
+  const set = models.createSquareModels(THREE, { SUMMIT: worldContext.SUMMIT, VICTORY, modelled: WORLD_BUILT,
+    onLoad: () => { redraws += 1; arrived(); } });
+  for (const n of [24, 77, 93, 100, 101]) set.attach(new THREE.Group(), n);
+  set.load();
+  assert.deepEqual([...set.models.keys()], [24], 'the rest are built at once');
+  assert.ok(!set.built());
+  set.load();                                    // asking again does not fetch twice
+  await loaded;
+  assert.deepEqual([...set.models.keys()].sort((a, b) => a - b), [24, 77, 93, 100, 101], 'and the Buddhas once it has come');
+  assert.ok(set.built() && redraws === 1, 'with one redraw');
+  checks += 1; console.log('  ok  the seated Buddhas wait for their sculpture, and nothing else does');
+}
 const built = new Map(models.MODEL_SQUARES.map((n) => [n, models.buildSquareModel(THREE, n, materials)]));
 
 check('every square the world does not build has a model, and no other', () => {

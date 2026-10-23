@@ -46,8 +46,8 @@ try {
       const box=await page.locator(selector).boundingBox();
       assert.ok(box&&box.x>=-1&&box.y>=-1&&box.x+box.width<=config.width+1&&box.y+box.height<=config.height+1,tag+' fits '+selector+' '+JSON.stringify(box));
     };
-    await fits('.bv-grid');await fits('.bv-mapbar');
-    if (await page.locator('[data-game=board-size]').getAttribute('aria-pressed') === 'true') {
+    await fits('.bv-grid');await fits('.bv-rail');
+    if (await page.locator('#g-large-board').isChecked()) {
       await page.waitForFunction(() => {
         const grid=document.querySelector('.bv-grid').getBoundingClientRect();
         const cell=document.querySelector('.bv-sq[aria-selected=true]').getBoundingClientRect();
@@ -72,16 +72,21 @@ try {
     assert.match(await page.locator('.sheet').innerText(),/Bhūmi 1 (of|z) 10/);
     await snap('first-bhumi');
     await page.keyboard.press('Escape');
-    // On a touch board, the readable view is available without opening Options.
+    // On a touch board, the readable view is one setting of the Game menu.
     if(config.width<=1100){
-      if (await page.locator('[data-game=board-size]').getAttribute('aria-pressed') === 'false') await page.locator('[data-game=board-size]').click();
-      assert.equal(await page.locator('[data-game=board-size]').getAttribute('aria-pressed'),'true');
+      const largeSquares=async on=>{
+        if(!await page.locator('.bv-tools').evaluate(d=>d.open))await page.locator('.bv-tools>summary').click();
+        await page.locator('#g-large-board').setChecked(on);
+        if(await page.locator('.bv-tools').evaluate(d=>d.open))await page.locator('.bv-tools>summary').click();
+      };
+      await largeSquares(true);
+      assert.ok(await page.locator('.board-view').evaluate(e=>e.classList.contains('large-squares')));
       assert.ok(await page.locator('.bv-grid').evaluate(e=>e.scrollHeight>e.clientHeight));
       await fits('.bv-grid');await snap('large-squares');
-      await page.locator('[data-game=board-size]').click();
+      await largeSquares(false);
     }
     await page.locator('[data-layout=world]').first().click();
-    await fits('.bv-mapbar');
+    await fits('.bv-rail');
     assert.match(await page.locator('.rb-realm').innerText(),/Bhūmi 1 (of|z) 10/);
     await snap('world');
     await page.locator('[data-game=throw]').click();await page.locator('.bv-card').waitFor({state:'visible'});

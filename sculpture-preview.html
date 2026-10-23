@@ -12,9 +12,13 @@
 <script type="module">
 import * as THREE from './vendor/three@0.184.0/build/three.module.js';
 import {buildRecipe,buildSquareModel,createModelMaterials,createModelKit} from './square-models.js';
-import {seatedSculpture,sculptureLotus} from './seated-sculpture.js';
+import {seatedSculpture,sculptureLotus,addSculptureDetail,loadSculpture} from './seated-sculpture.js';
+import {ROBES_DETAIL} from './sculpture-robe-detail.js';
+import {ANATOMY_DETAIL} from './sculpture-anatomy-detail.js';
+addSculptureDetail(ROBES_DETAIL,ANATOMY_DETAIL);
+await loadSculpture();   // the game's meshes, for the four game locations
 const stage=document.querySelector('#stage'),renderer=new THREE.WebGLRenderer({antialias:true,preserveDrawingBuffer:true});
-renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFShadowMap;
 renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.setClearColor(0x182126);renderer.outputColorSpace=THREE.SRGBColorSpace;
 renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.05;stage.append(renderer.domElement);renderer.domElement.setAttribute('aria-label','Rotatable 3D Buddha sculpture');renderer.domElement.tabIndex=0;
 const scene=new THREE.Scene(),camera=new THREE.PerspectiveCamera(32,1,.01,30);

@@ -16,6 +16,10 @@ const crypto = require('node:crypto');
 
 const root = path.resolve(__dirname, '..');
 
+// The sculpture's full-resolution study: 3.4 MB that only sculpture-preview.html
+// and scripts/export-buddha-models.mjs load. The page never asks for it.
+const STUDY = ['sculpture-robe-detail.js', 'sculpture-anatomy-detail.js'];
+
 // Everything the running page asks for. The source artwork under
 // assets/Game of Liberation English titles/, assets/app-icon/ and
 // assets/wheel-reference/ and assets/mansions/src/, and the flat sky previews, are the material the
@@ -27,7 +31,7 @@ const SHELL = [
   'docs/NAKSHATRA-ENGINE.md',
   ['.', /\.css$/],                           // all shared and mode styles
   'manifest.webmanifest',
-  ['.', /\.js$/, { skip: ['sw.js'] }],        // the page's modules and the stage
+  ['.', /\.js$/, { skip: ['sw.js', ...STUDY] }], // the page's modules and the stage
   ['locales', /\.js$/],                       // language packs loaded by the page
   ['vendor', /\.js$/, { deep: true }],        // three.js, vendored beside them
   ['assets/fonts', /\.(css|woff2)$/],

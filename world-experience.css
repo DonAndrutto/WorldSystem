@@ -20,6 +20,14 @@
 .bv-rail > .bv-guide { width: auto; flex: 0 0 auto; align-self: center; order: 3; background: transparent; border: 0; box-shadow: none; }
 .bv-rail .bv-guide > summary, .bv-rail .bv-tools > summary, .bv-rail .bv-options > summary { min-height: 44px; height: 44px; display: flex; align-items: center; justify-content: center; padding: 8px 10px; font: 12px/1.2 "IBM Plex Mono", monospace; letter-spacing: .02em; text-transform: none; border-radius: var(--radius-in); }
 .bv-rail .bv-guide-title { font: inherit; max-width: none; white-space: nowrap; }
+/* The guide is the first of three equal menu cells; it wears their frame. */
+.bv-rail .bv-guide > summary { border: 1px solid var(--rule-2); color: var(--ink-2); transition: color .16s, background-color .16s, border-color .16s; }
+.bv-rail .bv-guide > summary:hover { color: var(--ink); background: var(--hi); border-color: var(--ink-3); }
+/* With one row to share, the die and the view switch take the menus' height. */
+@media (min-width: 701px) {
+  .bv-rail > .die-face { width: 44px; height: 44px; }
+  body.game-view .bv-rail > .bv-views .btn { min-height: 42px; }
+}
 .bv-rail .bv-guide-key { display: none; }
 .bv-rail .bv-tools { order: 5; }
 .bv-rail .bv-options { order: 4; }
@@ -89,6 +97,9 @@ body.resizing-panel { user-select: none; cursor: ns-resize; }
 .controls .btn .t { line-height: 1.2; white-space: normal; text-align: center; }
 @media (max-width: 700px) {
   .controls, body.board-only .controls { width: auto; }
+  /* Shares sized to what they say (app-chrome.css): equal thirds cut off
+     "Explorer" at 320 px and "Eksplorator" up to 390 px. */
+  .controls { grid-template-columns: repeat(3, auto); }
   .controls .btn .t { font-size: 11px; }
 }
 .dropdown-positioned, body.board-only .dropdown-positioned { min-width: 0; }
@@ -153,10 +164,13 @@ body.game-view.guided-game .bv-rail { display: none; }
     bottom: calc(88px + var(--sa-b)); width: var(--world-panel-width);
   }
   body.world-only:has(.game-focus:not([hidden])) .panel-dock { bottom: var(--world-focus-clearance, 250px); }
+  /* a presentation hides the throw, and the room kept for it */
+  body.world-only.presentation-view .panel-dock { bottom: 24px; }
 }
 @media (max-width: 700px) {
   .game-focus { bottom: calc(140px + var(--sa-b)); }
   body.game-view .panel-dock { bottom: calc(140px + var(--sa-b)); }
+  body.game-view.presentation-view .panel-dock { bottom: calc(66px + var(--sa-b)); }
   body.world-only:has(.game-focus:not([hidden])) .panel-dock { bottom: calc(var(--world-focus-clearance, 280px) + var(--sa-b)); }
 }
 @media (min-width: 701px) {
