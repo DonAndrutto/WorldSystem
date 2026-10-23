@@ -7,6 +7,22 @@ const clamp=x=>Math.max(0,Math.min(1,x)),gauss=(x,w)=>Math.exp(-.5*(x/w)**2);
 const union=(a,b,k=.003)=>{const h=Math.max(k-Math.abs(a-b),0)/k;return Math.min(a,b)-h*h*k*.25;};
 const ell=(p,c,r)=>(Math.hypot(...p.map((v,i)=>(v-c[i])/r[i]))-1)*Math.min(...r);
 function capsule(p,a,b,r0,r1){const v=b.map((x,i)=>x-a[i]),t=clamp(v.reduce((s,x,i)=>s+x*(p[i]-a[i]),0)/v.reduce((s,x)=>s+x*x,0));return Math.hypot(...p.map((x,i)=>x-a[i]-v[i]*t))-(r0+(r1-r0)*t);}
+// Centripetal curves space their knots by Math.pow(d²,.25), whose last bit differs
+// between engines (V8 and JavaScriptCore disagree for some inputs). Nails keep full
+// precision, so the curves get the correctly rounded fourth root on every engine.
+const word=new DataView(new ArrayBuffer(8)),enginePow=Math.pow;
+const bits=v=>{word.setFloat64(0,v);const b=word.getBigUint64(0),e=Number(b>>52n);return [b&0xfffffffffffffn|(e?1n<<52n:0n),Math.max(e,1)-1075];};
+const step=(v,k)=>{word.setFloat64(0,v);word.setBigUint64(0,word.getBigUint64(0)+BigInt(k));return word.getFloat64(0);};
+function fourthRoot(x){
+ const [mx,ex]=bits(x);
+ // Exact test of ((a+b)/2)^4 < x for neighbouring doubles a<b.
+ const below=(a,b)=>{const [ma,ea]=bits(a),[mb,eb]=bits(b),e=Math.min(ea,eb),m=(ma<<BigInt(ea-e))+(mb<<BigInt(eb-e)),s=Math.min(4*e-4,ex);return m**4n<<BigInt(4*e-4-s)<mx<<BigInt(ex-s);};
+ let r=Math.sqrt(Math.sqrt(x));
+ while(!below(step(r,-1),r))r=step(r,-1);
+ while(below(r,step(r,1)))r=step(r,1);
+ return r;
+}
+Math.pow=(x,y)=>y===.25&&x>0&&x<Infinity?fourthRoot(x):enginePow(x,y);
 let activeNails=[];
 function finger(points,radius,nailAxis=[0,0,-1]){
  const curve=new CatmullRomCurve3(points.map(p=>new Vector3(...p)),false,'centripetal'),segments=[];
