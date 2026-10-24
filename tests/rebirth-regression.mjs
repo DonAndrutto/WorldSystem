@@ -228,17 +228,45 @@ check('the winding path stays finite and finishes on the axis', () => {
   }
   assert.ok(at[0].y < ctx.FLOOR, 'the first square is below the ground');
   assert.ok(at[103].y > ctx.SAMSARA_TOP, 'the last is beyond all samsaric heavens');
-  let wound = 0, previous = Math.atan2(at[0].z, at[0].x);
-  for (const p of at.slice(1, -1)) {
-    const a = Math.atan2(p.z, p.x);
-    let step = a - previous;
-    if (step < -Math.PI) step += 2 * Math.PI;
-    if (step > Math.PI) step -= 2 * Math.PI;
-    wound += step;
-    previous = a;
+  // every square has exactly one place in the figure
+  const listed = [...board.LAYOUT.underworld, ...board.LAYOUT.underworldAnchored, ...board.LAYOUT.ground,
+    ...board.LAYOUT.groundAnchored, ...board.LAYOUT.heavens, ...board.LAYOUT.strands.tantra,
+    ...board.LAYOUT.strands.sutra, board.LAYOUT.summit, ...board.LAYOUT.crown, VICTORY];
+  assert.deepEqual([...listed].sort((a, b) => a - b), SQUARES.map(s => s.n), 'each square is placed once');
+  const angle = (p) => Math.atan2(p.z, p.x);
+  const turn = (a, b) => { let d = b - a; while (d <= -Math.PI) d += 2 * Math.PI; while (d > Math.PI) d -= 2 * Math.PI; return d; };
+  // the rings are level and evenly spaced
+  for (const ring of [board.LAYOUT.underworld, board.LAYOUT.ground]) {
+    const ps = ring.map((n) => position(n));
+    for (const p of ps) assert.ok(Math.abs(p.y - ps[0].y) < 1e-9 && Math.abs(radius(p) - radius(ps[0])) < 1e-9, 'a level ring');
+    for (let i = 1; i < ps.length; i++) {
+      assert.ok(Math.abs(turn(angle(ps[i - 1]), angle(ps[i])) - 2 * Math.PI / ps.length) < 1e-9, 'evenly spaced');
+    }
+  }
+  // the two strands are one double helix: point for point opposite across
+  // the axis, level with each other, a twelfth of a turn on at every step
+  const { tantra, sutra } = board.LAYOUT.strands;
+  assert.equal(tantra.length, sutra.length, 'strands of one length');
+  let wound = 0;
+  for (let i = 0; i < tantra.length; i++) {
+    const t = position(tantra[i]), s = position(sutra[i]);
+    assert.ok(Math.abs(t.y - s.y) < 1e-9, 'level pair ' + tantra[i] + '/' + sutra[i]);
+    assert.ok(Math.abs(t.x + s.x) < 1e-9 && Math.abs(t.z + s.z) < 1e-9, 'opposite pair ' + tantra[i] + '/' + sutra[i]);
+    if (i) {
+      const step = turn(angle(position(tantra[i - 1])), angle(t));
+      assert.ok(Math.abs(step - Math.PI / 6) < 1e-9, 'a twelfth of a turn to ' + tantra[i]);
+      assert.ok(radius(t) < radius(position(tantra[i - 1])), 'the helix draws in at ' + tantra[i]);
+      wound += step;
+    }
   }
   assert.ok(Math.abs(wound / (2 * Math.PI) - board.SPIRAL.turns) < 1e-9,
-    'the winding path makes the turns it says it makes');
+    'the strands make the turns they say they make');
+  // the curve drawn along a strand passes through each of its squares
+  const curve = board.strandCurve('tantra', ctx, 8);
+  tantra.forEach((n, i) => {
+    const p = position(n), c = curve[i * 8];
+    assert.ok(Math.hypot(p.x - c.x, p.y - c.y, p.z - c.z) < 1e-9, 'the thread passes through ' + n);
+  });
   assert.ok(radius(at[0]) > ctx.RIM, 'the widest turn is outside the rim');
   assert.ok(radius(at[102]) < radius(at[0]) * 0.3, 'the last acts draw near the axis');
   assert.equal(radius(at[103]), 0, 'Nirvana closes the ascent on the axis');

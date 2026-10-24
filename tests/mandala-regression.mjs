@@ -24,6 +24,7 @@ const squareModels = await import(pathToFileURL(repo + '/square-models.js'));
 await (await import(pathToFileURL(repo + '/seated-sculpture.js'))).loadSculpture();
 const rbSound = await import(pathToFileURL(repo + '/rebirth-sound.js'));
 const gamePlayers = await import(pathToFileURL(repo + '/game-players.js'));
+const nirvanaFinale = await import(pathToFileURL(repo + '/nirvana-finale.js'));
 const gameWalkthrough = await import(pathToFileURL(repo + '/game-walkthrough.js'));
 const gameSession = await import(pathToFileURL(repo + '/game-session.js'));
 const gameCamera = await import(pathToFileURL(repo + '/game-camera.js'));
@@ -81,7 +82,7 @@ const THREE = {...RealThree, TextureLoader: class {
   loadAsync(url) { return new Promise((resolve,reject)=>this.load(url,resolve,undefined,reject)); }
   load(url, success, progress, failure) { textureRequests.push({url, success, failure}); }
 }};
-Object.assign(window, {createWorldEnding, installPanelLayout: () => {}, createOfferingModels, OFFERING_ART, offeringBackground, TOUR_NOTES, createPresentationTours, createPresentationPlayer, WORLD_ORDERS, installViewportGestures}, surfaces, skyClouds, gameCamera, gamePlayers, gameSession, gameWalkthrough, summitDetail, continentModels, wheelView, wheelNotes, {drawWheel: wheelArt.drawWheel}, {
+Object.assign(window, {createWorldEnding, installPanelLayout: () => {}, createOfferingModels, OFFERING_ART, offeringBackground, TOUR_NOTES, createPresentationTours, createPresentationPlayer, WORLD_ORDERS, installViewportGestures}, surfaces, skyClouds, gameCamera, gamePlayers, nirvanaFinale, gameSession, gameWalkthrough, summitDetail, continentModels, wheelView, wheelNotes, {drawWheel: wheelArt.drawWheel}, {
   createThousandWorlds: thousandWorlds.createThousandWorlds, worldsFramingDistance: thousandWorlds.framingDistance,
   RB_SQUARES: rbBoard.SQUARES, RB_SPECIAL: rbBoard.SPECIAL, RB_START: rbBoard.START,
   RB_VICTORY: rbBoard.VICTORY, TRAP_QUOTA: rbBoard.TRAP_QUOTA, TRAP_QUOTA_NOTE64: rbBoard.TRAP_QUOTA_NOTE64,
@@ -1622,8 +1623,8 @@ console.log(JSON.stringify({result:'PASS',heaps:37,illustrations:24,triangles,at
    + 'of them the whole screen: the board alone as a diagram of positions, and the world alone, with a preference '
    + 'remembered from the Both that stood between them opening on the board. A card that carries the field, both '
    + 'names and the way into the whole passage, and waits while it is read. Nirvana on the axis above the whole world '
-   + 'system, drawn as open rings rather than as somewhere to stand. One rising spiral in the '
-   + 'board\'s own order, each square on a plinth; the squares a selected one reaches lit on the board and drawn as '
+   + 'system, drawn as open rings rather than as somewhere to stand. One double helix in the '
+   + 'board\'s own order, symmetrical about the axis, each square on a plinth; the squares a selected one reaches lit on the board and drawn as '
    + 'lines in the world, named where they stand; and a new game that asks first, takes the players\' names, and '
    + 'changes nothing when cancelled.',
  limits:'DOM and GPU substitutes; actual CSS layout, WebGL rendering and devices were not tested.'},null,2));

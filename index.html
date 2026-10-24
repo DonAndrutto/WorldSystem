@@ -1106,6 +1106,18 @@
     border-color: var(--accent); border-left-color: var(--accent);
   }
   .bv-sq[data-victory] .n, .bv-sq[data-victory] .nm, .bv-sq[data-victory] .tb { color: var(--accent); }
+  /* Reached: the cell glows as the stupa in the world does, a slow breath of
+     gold from its middle; still, without motion. */
+  .bv-sq[data-victory].attained {
+    background: radial-gradient(circle at 50% 46%, rgba(255, 226, 150, 0.95), rgba(255, 210, 120, 0.35) 48%, transparent 76%);
+    box-shadow: 0 0 14px 2px rgba(240, 190, 80, 0.55), inset 0 0 0 1.5px var(--accent);
+    animation: bv-attained 3.2s ease-in-out infinite;
+    z-index: 1;
+  }
+  @keyframes bv-attained {
+    50% { box-shadow: 0 0 26px 6px rgba(255, 210, 110, 0.75), inset 0 0 0 1.5px var(--accent); }
+  }
+  @media (prefers-reduced-motion: reduce) { .bv-sq[data-victory].attained { animation: none; } }
   /* Whoever is standing here, said in their own colour over the whole field.
      A dot in the corner of a cell the size of a thumbnail is not something
      you can find a token by, and finding your token is the one thing the
@@ -2194,6 +2206,7 @@ import { createEndingSound } from './ending-sound.js';
 import { mansionSearchText } from './mansion-search.js';
 import { createHellRealm, createPretaRealm, createFormlessVeil } from './realm-atmospheres.js';
 import { PLAYER_SKINS, PLAYER_CULTURES, normalizeSkin, PLAYER_PALETTE, paintPlayer, createPlayerArt } from './game-players.js';
+import { createNirvanaFinale, FINALE } from './nirvana-finale.js';
 import { SESSION_KEY, makeSession, restoreSession, possibleThrows } from './game-session.js';
 import { WALKTHROUGH_KEY, WALKTHROUGH_STEPS } from './game-walkthrough.js';
 import { drawWheel } from './wheel-art.js';
@@ -5492,6 +5505,7 @@ const drawLoop = () => {
   }
   if (cosmos !== null && cosmos.tick(performance.now())) invalidate(2);   // an order fading in or out
   ctr.update();                        // fires 'change' → invalidate, when moving
+  if (mode === 'game' && rbFinale.tick()) invalidate(2);
   if (frames <= 0) return;
   if (worldHidden()) { frames = 0; return; }
   frames--;
@@ -6788,6 +6802,9 @@ const RB_MODELLED = new Set([...RB_UNDERWORLD, 17, 18, 19, 20, 27, 28, 29, 30, 3
    first opened. */
 const rbModels = createSquareModels(THREE, { SUMMIT, VICTORY: RB_VICTORY, modelled: RB_MODELLED, onLoad: () => invalidate(4) });
 rbBoard.nodes.forEach((holder, n) => rbModels.attach(holder, n));
+// what the world does when a traveller reaches Nirvana (nirvana-finale.js)
+const rbFinale = createNirvanaFinale(THREE, { board: rbBoard, models: rbModels, SUMMIT, VICTORY: RB_VICTORY,
+  paths: rbBoard.paths, invalidate: (n) => invalidate(n) });
 
 const rbBox = new THREE.Box3();
 function positionOfEntry(id) {
@@ -6802,7 +6819,8 @@ function positionOfEntry(id) {
 let rbGame = createGame({ players: 2 });
 let rbSession = null, rbEvents = [], rbPending = null;
 let rbWalkthrough = null, rbGuideSeen = false;
-const rbPlayerArt = createPlayerArt(THREE, rbBoard.tokens, SUMMIT, () => invalidate(3));
+// once the travellers' faces are painted, the portraits on the page take them up
+const rbPlayerArt = createPlayerArt(THREE, rbBoard.tokens, SUMMIT, () => invalidate(3), () => rbSync());
 // how far a traveller stands aside of the model of the square they are on
 const rbAside = (n) => (rbModels.models.has(n) || RB_UNDERWORLD.has(n) ? SUMMIT * RB_MODEL_UNIT * (n === RB_VICTORY ? 1.5 : 0.62) : 0);
 const rbEscape = value => String(value).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -7229,6 +7247,10 @@ rbTrail.addEventListener('click', (ev) => {
   if (chip) show('rebirth_sq_' + chip.dataset.square, true);
 });
 function rbSync() {
+  // a game that is over keeps the stupa's light; any other has none
+  if (!rbGame.over && rbFinale.active()) { rbFinale.reset(); clearTimeout(rbCelebration); }
+  else if (rbGame.over && !rbFinale.active() && !rbCelebration) rbFinale.play({ quiet: true });
+  boardEl.querySelector('.bv-sq[data-victory]')?.classList.toggle('attained', rbGame.over);
   const player = rbGame.players[rbGame.turn];
   const quotas = rbGame.quotas;
   if (player.trap) {
@@ -7424,6 +7446,37 @@ function rbFinishThrow(animate = false) {
   rbSay.setAttribute('aria-live', 'polite');
   rbResolve(face, animate);
 }
+/* Nirvana reached: once the traveller has arrived, the world lights the way
+   up to the stupa and the stupa blazes (nirvana-finale.js). The eye stands
+   back to see the whole ascent lit, then comes to the stupa as it opens. With
+   reduced motion, or at the instant pace, it is shown already settled. */
+let rbCelebration = null;
+function rbCelebrate(delay = 0) {
+  clearTimeout(rbCelebration);
+  const quiet = rbInstant() || mode !== 'game';
+  rbCelebration = setTimeout(() => {
+    rbCelebration = null;
+    if (!rbGame.over) return;
+    rbFinale.play({ quiet });
+    if (quiet || worldHidden() || rbView3D !== 'world') return;
+    rbClearFocus();
+    world.updateMatrixWorld(true);
+    const box = new THREE.Box3(), p = new THREE.Vector3();
+    rbBoard.nodes.forEach((holder, n) => { if (n > 16) box.expandByPoint(holder.getWorldPosition(p)); });
+    const sphere = box.getBoundingSphere(new THREE.Sphere()), fr = freeRect();
+    const half = Math.tan(cam.fov * Math.PI / 360), h = Math.max(stage.clientHeight, 1);
+    const direction = cam.position.clone().sub(ctr.target).setY(0);
+    if (direction.lengthSq() < 1e-9) direction.set(1, 0, 1);
+    direction.normalize().setY(0.28).normalize();
+    aimAt(sphere.center, sphere.radius * 1.05 / half * h / Math.min(fr.w, fr.h), fr, direction, 1400, true);
+    rbCelebration = setTimeout(() => {
+      rbCelebration = null;
+      if (!rbGame.over || mode !== 'game' || rbView3D !== 'world') return;
+      const place = rbLocation('rebirth_sq_' + RB_VICTORY);
+      if (place) closeUp(place.box, { dur: 2400, padding: 1.9, exterior: true, sphere: place.sphere });
+    }, (FINALE.bloom - 0.6) * 1000);
+  }, delay);
+}
 function rbResolve(face, animate = true) {
   const player = rbGame.players[rbGame.turn], who = rbEscape(player.name);
   const oldWorld = rbBoard.tokens[player.i].position.clone();
@@ -7438,6 +7491,7 @@ function rbResolve(face, animate = true) {
                                 : '<b>Nothing follows.</b> The victory already stands.';
     rbLog('<span class="mono">' + face + '</span> stupa throw');
     rbShowCard(face, 'The stupa throw', null, ev.placed ? 'The relics are placed.' : 'Nothing follows.', ev.placed);
+    if (ev.placed) rbFinale.relics({ quiet: rbInstant() });
   } else if (ev.kind === 'dead') {
     rbSay.innerHTML = '<b>A dead face.</b> Square ' + ev.square + ' lists no move on a ' + face + ', so the token stays and the die passes.';
     rbLog('<span class="mono">' + face + '</span> ' + who + ' dead at ' + ev.square);
@@ -7474,6 +7528,7 @@ function rbResolve(face, animate = true) {
       'Nirvana. Beyond the round the rest of the board draws.', true);
     rbFlash(ev.to);
     rbSelect(ev.to, false);
+    rbCelebrate(animate && !rbInstant() ? (rbPace.value === 'quick' ? 500 : 1000) : 0);
   } else {
     rbSay.innerHTML = '<b>' + who + '</b> threw a ' + face + ': '
       + ev.from + ' &rarr; ' + ev.to + ', ' + RB_BY_N.get(ev.to).name + '.';
@@ -7486,7 +7541,7 @@ function rbResolve(face, animate = true) {
   rbSync();
   const moving = animate && ev.to && ev.from !== ev.to && !rbInstant() && mode === 'game';
   if (moving) rbAnimateMove(player, oldRect, oldWorld);
-  if (ev.kind !== 'stupa') {
+  if (ev.kind !== 'stupa' && ev.kind !== 'victory') {
     rbFollowed = player.i;
     // the eye leaves with the token and arrives with it
     if (rbFollowing()) rbFrameFollow(moving ? (rbPace.value === 'quick' ? 420 : 900) : 650);
