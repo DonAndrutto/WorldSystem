@@ -28,7 +28,10 @@ magnifiers in the header make the writing in every window larger or smaller.
 | `assets/offerings/` | Three locally served artwork sheets, with the generation prompts. |
 | `ARTWORK.md` | Image provenance, source references and iconographic adaptations. |
 | `tests/mandala-regression.mjs` | DOM and geometry regression checks. |
-| `rebirth-board.js` | The 104 squares of the game of rebirth, their Tibetan names, the die-to-destination graph, and the armature that places the squares the world system has no room for. |
+| `rebirth-board.js` | The 104 squares of the game of rebirth, their Tibetan names, the die-to-destination graph, and the symmetrical figure — two rings, a double helix and a crown — that places the squares the world system has no room for. |
+| `nirvana-finale.js` | What the world does when a traveller reaches Nirvana: light climbing both strands to the stupa, the stupa's glow and turning rays, rainbow rings, a rain of flowers, then a quiet glow until the next game; and the relics coming down into the dome. |
+| `player-moods.js` | The travellers' faces in four moods — weary in the lower realms, neutral in the human world, joyful in the heavens, serene on the path — repainted from the artwork's own pixels. |
+| `tests/player-moods.mjs` | The moods by square, the warps of each face, and the finale's timeline, without a browser. |
 | `rebirth-game.js` | The rules on their own: dead faces, the two counter traps, victory at 104, and each player's trail. No DOM, no WebGL. |
 | `content/squares-1-104-blurbs.md`, `content/squares-1-104-full.md` | The write-ups on the 104 squares, authored as Markdown: the short one a square opens with, and the full one it expands to. |
 | `scripts/build-square-notes.cjs` | Turns those two files into `rebirth-notes.js`. |
@@ -321,17 +324,26 @@ paths, stages of training, wisdom-holder attainments, sacred lands and Buddha
 fields, and the sources are explicit that Buddha fields lie outside the Meru
 world system. **These are the destinations that exist only in game mode.**
 
-They stand on one rising spiral: square 1 below the golden ground at the
-widest turn, square 104 on the axis above the whole ascent, and the hundred
-and two between them winding inward over three and a quarter turns. The angle
-follows the printed board; height follows attainment, including the sūtra
-stages whose square numbers run backwards. Realization clears the measured
-top of all samsaric heavens and formless emblems, so taller world geometry
-cannot overtake the upper path. These are symbolic positions, not physical
-altitudes of spiritual attainment. Nothing in the Meru system has that shape — it is the board's
-shape, not the world's, which is why it is drawn as a path through the world
-rather than as part of it. How far each square stands off the spiral still says
-which route it belongs to, so the two ascents remain separable by eye. Every
+They stand in one symmetrical figure about the world's axis. The beings beneath
+the ground — the temporary hells, Yama, the animals, the nāgas, the asuras — lie
+on a level ring of eight outside the iron mountains, and the human squares on a
+ring of four just above the golden ground. From there the two great routes climb
+as one double helix: the tantric route on one strand and the sutra route on the
+other, the board's sacred lands, Buddha fields and worldly powers shared out
+between them by the side of the board they are printed on, so that the strands
+are of one length. The two are point for point opposite each other across the
+axis, every pair level, each square a twelfth of a turn on from the last, and
+the helix draws in evenly as it rises; a fine thread in each route's colour
+runs along each strand, and a gold circle through each ring. The preparation
+climbs beside the heavens; height follows attainment, including the sūtra
+stages whose square numbers run backwards, and everything from the paths of
+vision up clears the measured top of all samsaric heavens and formless
+emblems, so taller world geometry cannot overtake the upper path. Above both
+strands the acts of a Buddha make one closed crown about the axis, and square
+104, Nirvana, stands over it on the axis itself. These are symbolic positions,
+not physical altitudes of spiritual attainment. Nothing in the Meru system has
+that shape — it is the board's shape, not the world's, which is why it is drawn
+as a path through the world rather than as part of it. Every
 square stands on a plinth, and every square has an index entry giving its place
 on the board and all six of its die results.
 
@@ -828,6 +840,7 @@ The test harness needs Node and two development dependencies:
 npm install --no-save --package-lock=false three@0.184.0 jsdom@26
 node tests/mandala-regression.mjs
 node tests/rebirth-regression.mjs
+node tests/player-moods.mjs
 node tests/viewport-gestures.mjs
 node tests/world-surfaces.mjs
 node tests/summit-detail.mjs

@@ -13,6 +13,8 @@ Built on main after the stage 1 camera and popup-navigation change (#26).
 - The Game menu contains Replay guided game, New game, Move log, animation pace (Calm, Quick, Instant), a larger-square scrolling board, save status and rules. Skip animation finishes the already chosen result. Reduced-motion preference bypasses dice, movement and board-transition animation.
 - Switching between the board and world plays a short, staggered assembly/disassembly of the board tiles. This is a presentation transition, not a morph of the physical world or a change to the board's mapping.
 - Reaching Nirvana shows each player's throw and journey totals and Play again. The ceremonial stupa throw cannot change the winner.
+- In the world, reaching Nirvana is celebrated (`nirvana-finale.js`): the eye stands back to see the whole ascent while a light climbs each strand of the helix, meets in the crown of the acts of a Buddha and rises to the stupa; then the eye comes to the stupa as it blazes — a glow behind it, rays turning about it, the niche round the Buddha alight, rainbow rings spreading over the world and a rain of flowers. After about fifteen seconds it settles into a quiet glow that stays until a new game. Placing the relics brings a mote of light down into the dome. Instant pace and reduced motion show it already settled; the Nirvana cell on the board glows too.
+- Travellers wear the mood of where they stand (`player-moods.js`): tired and worried in the hells, among the pretas, the animals and the troubled spirits; neutral in the human world and the worldly places; happy and elated in the heavens; and on the stages of the path, the bhūmis, the sacred lands, the Buddha fields and Buddhahood, the eyes lowered in a quiet smile, with a golden aura about the figure in the world and round the portrait on the page. The faces are repainted from the artwork itself, with the eyes and mouth of each of the fourteen measured by hand.
 
 ## The phone pass
 
@@ -209,7 +211,7 @@ the vajra standing as the walls of its prison; square 1 stands on it. The
 squares that name a hell or the pretas stand on that realm's floor, and their
 travellers stand beside its model. - `node tests/square-models.mjs` checks
 that every unbuilt square has a model,   that each stays within its unit,
-that neighbours on the spiral cannot touch   however they are turned, the
+that neighbours on the helix cannot touch   however they are turned, the
 triangle and draw-call budgets, and the facing   and fading.
 
 ## Character artwork

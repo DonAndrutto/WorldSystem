@@ -216,64 +216,139 @@ export const BAND_COLOUR = {
 
 const TAU = Math.PI * 2;
 
-// Where a square stands, when the model has nowhere to put it.
-export const SPIRAL = { turns: 3.25, phase: 0.18 };
+/* Where a square stands, when the model has nowhere to put it.
 
-/* How far off the spiral each band stands. The spiral carries the board's
-   order; the radius still says which route a square belongs to, so the two
-   ascents remain separable by eye where they run side by side. */
-const BAND_RADIUS = {
-  below: 1.00, ground: 1.08, sutra: 0.90, tantra: 1.10,
-  island: 1.26, field: 1.16, axis: 0.52, anchored: 1.00
+   The figure is a regular one, and symmetrical about the axis of the world.
+   The round of birth lies in two level rings outside the iron mountains: the
+   beings beneath the ground on one, eight places evenly spaced, and the human
+   squares just above the golden ground on the other, four places between
+   them. From there the two great routes climb as one double helix, point for
+   point opposite each other across the axis: the tantric route on one strand
+   and the sutra route on the other, each square a twelfth of a turn on from
+   the last and level with its counterpart, the helix drawing in as it rises.
+   The preparation climbs beside the heavens; everything from the paths of
+   vision up clears the whole samsaric stack. Above both strands the acts of a
+   Buddha make one closed crown about the axis, and Nirvana stands over it on
+   the axis itself.
+
+   This is presentation only: the square numbers, the rules and the world's
+   own realms are untouched. Every square has a place in exactly one list. */
+export const LAYOUT = {
+  // the beings beneath the ground: places of their own, and the hells' and
+  // the pretas' squares, which stand on their own floors, between them
+  underworld: [8, 9, 11, 12, 13, 14, 15, 16],
+  underworldAnchored: [1, 2, 3, 4, 5, 6, 7, 10],
+  // the human squares, and the four continents between them
+  ground: [21, 22, 23, 24],
+  groundAnchored: [17, 18, 19, 20],
+  // the heavens the world builds, in their order up the axis
+  heavens: [27, 28, 29, 30, 31, 32, 35, 36, 37],
+  /* The two strands, in attainment order. The first five of each are the
+     preparation that climbs beside the heavens. The board's other squares —
+     its sacred lands, Buddha fields and worldly powers — are shared out by the
+     side of the board they are printed on, so the strands are of one length. */
+  strands: {
+    tantra: [25, 33, 34, 41, 42,
+      49, 50, 57, 58, 59, 61, 62, 65, 66, 67, 68, 69, 70, 72, 73, 74, 75, 76,
+      81, 82, 83, 85, 89, 90, 91],
+    sutra: [26, 38, 39, 43, 44,
+      40, 45, 46, 47, 48, 51, 52, 53, 54, 55, 56, 60, 63, 64, 71, 77,
+      80, 79, 78, 88, 87, 86, 96, 95, 94]
+  },
+  // the Buddha field Akaniṣṭha, on the axis, then the acts of a Buddha
+  summit: 84,
+  crown: [93, 92, 97, 98, 99, 100, 101, 102, 103]
 };
+const PREPARATION = 5;                   // per strand, beside the heavens
+const STRAND_STEP = 1 / 12;              // of a turn, from one square to the next
+const STRAND_RISE = 0.14;                // × SUMMIT, above the heavens
+const CROWN_RISE = 0.17;                 // × SUMMIT, from one act to the next
+const RING_RADIUS = 1.3;                 // × RIM: outside the iron mountains
 
-/* The printed sutra stages run right to left within their rows. Their numbers
-   therefore descend while realization ascends. The Buddha-field Akaniṣṭha
-   leads from the tenth stages to Dharma Body, Enjoyment Body and the acts of
-   a Buddha; its game destination must not fall back to the form-realm heaven
-   with the same name. These are presentation slots, never changes to rules,
-   square numbers, or the world's physical realm locations. */
-const ASCENT_SLOT = {
-  40: 46.25, 45: 46.5, 46: 46.75,
-  78: 80, 79: 79, 80: 78,
-  86: 88, 87: 87, 88: 86,
-  94: 96, 95: 95, 96: 94,
-  84: 97, 93: 98, 92: 99,
-  97: 100, 98: 101, 99: 102, 100: 103, 101: 104, 102: 105, 103: 106
-};
+// the turn the rings, the strands and the crown each start from
+export const SPIRAL = { phase: 0.125, turns: (LAYOUT.strands.sutra.length - 1) * STRAND_STEP };
 
-function ascentHeight(square, { FLOOR, SUMMIT, SAMSARA_TOP }) {
-  const slot = ASCENT_SLOT[square.n] || square.n;
-  // Preserve the below-ground and human approach. Preparatory paths then
-  // climb beside the heavens; vision, cultivation, arhatship and subsequent
-  // attainment clear the complete stack, including the highest formless sphere.
-  if (slot <= 24) return FLOOR * 1.15 + (slot - 1) / 23 * (SUMMIT * 0.30 - FLOOR * 1.15);
-  if (slot <= 46) return SUMMIT * 0.40 + (slot - 25) / 21 * (SAMSARA_TOP - SUMMIT * 0.17);
-  const stagesTop = SAMSARA_TOP + SUMMIT * (0.44 + 49 * 0.07);
-  // Wider steps near the axis keep the late-act models from stacking on
-  // itself as the spiral narrows. Nirvana has its own clear interval above.
-  if (square.n === VICTORY) return stagesTop + SUMMIT * (10 * 0.17 + 0.85);
-  if (slot > 96) return stagesTop + SUMMIT * (slot - 96) * 0.17;
-  return SAMSARA_TOP + SUMMIT * (0.44 + (slot - 47) * 0.07);
+const PLACE = new Map();
+for (const [key, list] of Object.entries(LAYOUT)) {
+  if (key === 'strands') {
+    for (const [route, strand] of Object.entries(list)) strand.forEach((n, i) => PLACE.set(n, { key: 'strand', route, i }));
+  } else if (Array.isArray(list)) list.forEach((n, i) => PLACE.set(n, { key, i, of: list.length }));
+  else PLACE.set(list, { key });
+}
+PLACE.set(VICTORY, { key: 'victory' });
+
+/* How high each part of the figure stands. The rings answer to the ground;
+   everything above them answers to the top of the samsaric stack, measured
+   from the live world, so that nothing on the path is ever level with a
+   heaven however the heavens are drawn. */
+function heights({ FLOOR, SUMMIT, SAMSARA_TOP }) {
+  const beside = SUMMIT * 0.40, above = SAMSARA_TOP + SUMMIT * 0.44;
+  const strandTop = above + SUMMIT * STRAND_RISE * (LAYOUT.strands.sutra.length - PREPARATION - 1);
+  const crownTop = strandTop + SUMMIT * CROWN_RISE * (LAYOUT.crown.length + 1);
+  return {
+    underworld: FLOOR * 1.15, ground: SUMMIT * 0.25, beside, above, strandTop, crownTop,
+    preparation: (i) => beside + i / PREPARATION * (SAMSARA_TOP - beside),
+    victory: crownTop + SUMMIT * 0.85
+  };
 }
 
-/* One inward winding ascent. Angle follows the printed board; height follows
-   realization and is measured against the live world's samsaric ceiling,
-   not Meru's much lower summit. This remains a symbolic path through the
-   model rather than another cosmological distance scale. */
+function ascentHeight(square, ctx) {
+  const at = PLACE.get(square.n), h = heights(ctx), { SUMMIT } = ctx;
+  switch (at.key) {
+    case 'underworld': case 'underworldAnchored': return h.underworld;
+    case 'ground': case 'groundAnchored': return h.ground;
+    case 'heavens': return h.preparation(at.i * PREPARATION / at.of);
+    case 'strand': return at.i < PREPARATION ? h.preparation(at.i)
+      : h.above + SUMMIT * STRAND_RISE * (at.i - PREPARATION);
+    case 'summit': return h.strandTop + SUMMIT * CROWN_RISE;
+    case 'crown': return h.strandTop + SUMMIT * CROWN_RISE * (at.i + 2);
+    default: return h.victory;
+  }
+}
+
+/* The radius of the helix narrows evenly from the first square of a strand
+   to the last, so the figure reads as one cone, a spire round the world's
+   axis. */
+function strandRadius(i, { RIM, SUMMIT }) {
+  const t = i / (LAYOUT.strands.sutra.length - 1);
+  return RIM * 1.12 + (SUMMIT * 1.0 - RIM * 1.12) * t;
+}
+
 export function seamPosition(square, ctx) {
-  const { RIM } = ctx;
-  const { band, n } = square;
-  const rise = ascentHeight(square, ctx);
-  if (n === VICTORY) return { x: 0, y: rise, z: 0 };
-  const t = (n - 1) / 102;
-  // Retain enough circumference for neighbouring models even where the
-  // path narrows. The axis band still draws the final acts inward, and the
-  // open Nirvana cap closes the ascent on the axis itself.
-  const radius = Math.max(RIM * (1.30 - 1.02 * Math.pow(t, 0.85)), ctx.SUMMIT * 1.16)
-    * (BAND_RADIUS[band] || 1);
-  const angle = (SPIRAL.phase + t * SPIRAL.turns) * TAU;
-  return { x: Math.cos(angle) * radius, y: rise, z: Math.sin(angle) * radius };
+  const { RIM, SUMMIT } = ctx;
+  const at = PLACE.get(square.n);
+  const y = ascentHeight(square, ctx);
+  const ring = (radius, turn) => {
+    const angle = (SPIRAL.phase + turn) * TAU;
+    return { x: Math.cos(angle) * radius, y, z: Math.sin(angle) * radius };
+  };
+  switch (at.key) {
+    // the anchored squares stand halfway between the places of the others
+    case 'underworld': case 'ground': return ring(RIM * RING_RADIUS, at.i / at.of);
+    case 'underworldAnchored': case 'groundAnchored': return ring(RIM * RING_RADIUS * 0.94, (at.i + 0.5) / at.of);
+    case 'strand': return ring(strandRadius(at.i, ctx), at.i * STRAND_STEP + (at.route === 'sutra' ? 0.5 : 0));
+    case 'crown': return ring(SUMMIT * 0.62, at.i / at.of);
+    default: return { x: 0, y, z: 0 };    // the heavens, Akaniṣṭha and Nirvana: the axis
+  }
+}
+
+/* The two strands as curves, for the threads drawn along them: every square
+   of a strand lies on its curve, and the curve runs smoothly between them. */
+export function strandCurve(route, ctx, samples = 16) {
+  const strand = LAYOUT.strands[route];
+  const points = [];
+  for (let i = 0; i < strand.length - 1; i += 1) {
+    const a = seamPosition(BY_N.get(strand[i]), ctx), b = seamPosition(BY_N.get(strand[i + 1]), ctx);
+    const ra = Math.hypot(a.x, a.z), rb = Math.hypot(b.x, b.z);
+    const ta = Math.atan2(a.z, a.x);
+    for (let k = 0; k < samples; k += 1) {
+      const t = k / samples, e = t * t * (3 - 2 * t);
+      const angle = ta + t * STRAND_STEP * TAU, radius = ra + (rb - ra) * t;
+      points.push({ x: Math.cos(angle) * radius, y: a.y + (b.y - a.y) * e, z: Math.sin(angle) * radius });
+    }
+  }
+  points.push(seamPosition(BY_N.get(strand.at(-1)), ctx));
+  return points;
 }
 
 // One marker per square. Anchored squares float their marker above whatever
@@ -340,8 +415,8 @@ export function createBoardLayer(THREE, ctx) {
     mark.receiveShadow = false;
     mark.position.y = ctx.SUMMIT * 0.030;
     mark.renderOrder = OVER_WATER;
-    if (beyond) mark.scale.setScalar(3.2);
-    holder.add(mark);
+    // Nirvana's model is its own marker: no gem hangs beneath the stupa
+    if (!beyond) holder.add(mark);
     const plinth = beyond
       ? new THREE.Mesh(new THREE.RingGeometry(ctx.SUMMIT * 0.24, ctx.SUMMIT * 0.285, 64), beyondMat)
       : new THREE.Mesh(plinthGeo, faintPlinthMat);
@@ -484,6 +559,38 @@ export function createBoardLayer(THREE, ctx) {
   links.visible = false;
   group.add(links);
 
+  /* The figure drawn as a figure: a fine thread along each strand of the
+     helix, in its route's colour, and a gold circle through each ring and
+     through the crown. They carry nothing a tap can find. */
+  const threads = new THREE.Group();
+  threads.name = 'rebirth_threads';
+  const thread = (points, color, opacity, closed = false) => {
+    const geometry = new THREE.BufferGeometry().setFromPoints(points.map((p) => vec(THREE, p)));
+    const line = new (closed ? THREE.LineLoop : THREE.Line)(geometry,
+      new THREE.LineBasicMaterial({ color, transparent: true, opacity, depthWrite: false }));
+    line.renderOrder = OVER_WATER;
+    line.raycast = () => {};
+    threads.add(line);
+  };
+  const paths = { tantra: strandCurve('tantra', ctx), sutra: strandCurve('sutra', ctx) };
+  thread(paths.tantra, BAND_COLOUR.tantra, 0.55);
+  thread(paths.sutra, BAND_COLOUR.sutra, 0.55);
+  for (const list of [LAYOUT.underworld, LAYOUT.ground, LAYOUT.crown]) {
+    const first = seamPosition(BY_N.get(list[0]), ctx);
+    const radius = Math.hypot(first.x, first.z);
+    const ys = list.map((n) => seamPosition(BY_N.get(n), ctx).y);
+    const rising = ys.at(-1) - ys[0];
+    const points = [];
+    // the crown rises a step at a time, so its circle rises with it
+    for (let i = 0; i <= 96; i += 1) {
+      const t = i / 96, angle = (SPIRAL.phase + t) * TAU;
+      points.push({ x: Math.cos(angle) * radius, y: ys[0] + rising * Math.min(1, t * list.length / (list.length - 1)), z: Math.sin(angle) * radius });
+    }
+    thread(points, BAND_COLOUR.axis, 0.5, !rising);
+    if (list === LAYOUT.crown) paths.crown = points;
+  }
+  group.add(threads);
+
   function showLinks(square) {
     const row = square === null ? null : MOVES[square];
     const from = square === null ? null : positionOf(square);
@@ -543,7 +650,8 @@ export function createBoardLayer(THREE, ctx) {
   function showActive(active) {
     const lit = new Set(active);
     nodes.forEach((holder, n) => {
-      const on = lit.has(n) || n === VICTORY;
+      if (n === VICTORY) return;             // always open, always its own light
+      const on = lit.has(n);
       if (holder.userData.lit === on) return;
       holder.userData.lit = on;
       holder.traverse((o) => {
@@ -555,7 +663,7 @@ export function createBoardLayer(THREE, ctx) {
   }
 
   return { group, nodes, tokens, links, showLinks, showActive, placeTokens,
-           placeAnchored, positionOf, materials: mats };
+           placeAnchored, positionOf, materials: mats, paths };
 }
 
 function vec(THREE, p) { return new THREE.Vector3(p.x, p.y, p.z); }

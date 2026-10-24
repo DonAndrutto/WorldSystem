@@ -218,3 +218,8 @@ body.guided-game .bv-rail, body.guided-game .bv-head { display: none; }
 }
 /* An open reading panel sits above the persistent play action. */
 .bv-guide[open] { z-index: 12; }
+/* On the path a traveller's portrait carries the aura the figure carries in
+   the world (player-moods.js gives the face its mood). */
+.player-art[data-mood="serene"] {
+  filter: drop-shadow(0 0 2px rgba(255, 222, 130, .95)) drop-shadow(0 0 5px rgba(255, 200, 90, .75));
+}
