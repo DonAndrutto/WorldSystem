@@ -26,7 +26,7 @@ export const MODEL_UNIT = 0.14;      // × SUMMIT: one model unit in the world
 export const MODEL_LIFT = 0.058;     // × SUMMIT: the model stands above the realm gem
 export const VICTORY_SCALE = 2.6;    // Nirvana stands alone and is drawn larger
 
-import { seatedSculpture, sculptureLotus, loadSculpture, SCULPTURE_PENDING } from './seated-sculpture.js';
+import { seatedSculpture, sculptureLotus, loadSculpture, retrySculpture, sculptureStatus, onSculptureStatus, SCULPTURE_PENDING } from './seated-sculpture.js';
 import { humanFigure, POSES, sculptedHead, hairCap, clothFall, clothBand } from './human-figure.js';
 
 const TAU = Math.PI * 2;
@@ -162,7 +162,10 @@ const v3 = {
    Parts are collected with their transforms and baked into one geometry per
    material when the model is finished. `at` nests a frame, so a figure or a
    lotus can be composed once and set down anywhere at any size. */
-function makeBuilder(THREE, kit) {
+/* `standIn` builds the seated Buddhas as the plain human figure instead of the
+   sculpted one, which is what stands in a square's place while the sculpture's
+   meshes have not come (or could not). */
+function makeBuilder(THREE, kit, standIn = false) {
   const parts = [];
   const stack = [new THREE.Matrix4()];
   const q = new THREE.Quaternion(), eu = new THREE.Euler();
@@ -176,7 +179,7 @@ function makeBuilder(THREE, kit) {
     return new THREE.Matrix4().compose(pv, q, sv);
   }
   const b = {
-    THREE, kit,
+    THREE, kit, standIn,
     put(geometry, key, p, r, s) {
       parts.push({ geometry, key, matrix: stack[stack.length - 1].clone().multiply(local(p, r, s)) });
       return b;
@@ -838,7 +841,7 @@ function seated(b, o = {}) {
   const { x = 0, y = 0, z = 0, s = 1, halo = null, bowl = null, mudra = 'lap', ry = 0, aura = null } = o;
   b.at([x, y, z], [0, ry, 0], s, () => {
     const k = b.kit;
-    if (o.hair === 'buddha' && !paintOf(o.skin || 'skin').glass) {
+    if (o.hair === 'buddha' && !b.standIn && !paintOf(o.skin || 'skin').glass) {
       seatedSculpture(b, { skin: o.skin || 'skin', robe: o.body || o.robe || 'maroon', mudra, hair: 'lapis' });
     } else {
       humanFigure(b, { ...figureDress(o), stature: SEATED_STATURE, pose: POSES.seated(mudra) });
@@ -3199,13 +3202,14 @@ export const modelNote = (n) => (SQUARE_MODELS[n] ? SQUARE_MODELS[n][0] : '');
 
 /* Build one destination into a group of merged meshes, one per material.
    Exported for previews and tests; the page goes through createSquareModels. */
-export function buildSquareModel(THREE, n, materials, kit = makeKit(THREE)) {
+export function buildSquareModel(THREE, n, materials, kit = makeKit(THREE), { standIn = false } = {}) {
   const recipe = SQUARE_MODELS[n];
   if (!recipe) return null;
-  const b = makeBuilder(THREE, kit);
+  const b = makeBuilder(THREE, kit, standIn);
   recipe[1](b);
   const group = new THREE.Group();
   group.name = 'rebirth_model_' + n;
+  group.userData.standIn = standIn;
   for (const [key, geometry] of bake(THREE, b.parts)) {
     const mesh = new THREE.Mesh(geometry, materials.lit[key]);
     mesh.name = 'rebirth_model_' + n;
@@ -3299,29 +3303,62 @@ export function createSquareModels(THREE, ctx) {
     model.children.forEach((mesh) => { mesh.material = set[mesh.userData.finish]; });
   }
 
-  /* The seated Buddhas wait for their sculpted meshes (seated-sculpture.js),
-     which come after the page; the rest are built at once, and those four
-     as soon as the meshes are here — then ctx.onLoad redraws. */
-  let waiting = null;
+  /* The seated Buddhas need their sculpted meshes (seated-sculpture.js), which
+     come after the page. Everything else is built at once. A Buddha asked for
+     before they have come is not left out: after a moment's grace — long
+     enough that a quick connection never shows it — or at once if the request
+     has failed, the plain human figure stands in the square, flagged
+     `standIn`, and the sculpture replaces it whenever the meshes do arrive,
+     by whatever route (the first request, a late answer, an explicit retry).
+     The square, its holder, its picking and its lighting are the same either
+     way; only the geometry changes. `ctx.onLoad` redraws after each change. */
+  const GRACE = ctx.standInDelay ?? 1500;
+  // the module's own loader unless a test hands over another
+  const sculpture = ctx.sculpture || { status: sculptureStatus, subscribe: onSculptureStatus, load: loadSculpture, retry: retrySculpture };
+  let opened = false, graceTimer = null, graceOver = false;
+  const dispose = (model) => model.children.forEach((mesh) => mesh.geometry.dispose());
   function load() {
+    opened = true;
     if (!materials) { materials = createModelMaterials(THREE); kit = makeKit(THREE); }
+    const failed = sculpture.status().state === 'failed';
+    if (failed && graceTimer) { clearTimeout(graceTimer); graceTimer = null; }
+    let waiting = false, changed = false;
     holders.forEach((holder, square) => {
-      if (models.has(square)) return;
-      let model;
+      const had = models.get(square);
+      if (had && !had.userData.standIn) return;
+      let model, standIn = false;
       try { model = buildSquareModel(THREE, square, materials, kit); } catch (err) {
         if (err.message !== SCULPTURE_PENDING) throw err;
-        waiting ||= loadSculpture().then(() => { waiting = null; load(); ctx.onLoad?.(); }, () => { waiting = null; });
-        return;
+        waiting = true;
+        if (had || !(failed || graceOver)) return;
+        model = buildSquareModel(THREE, square, materials, kit, { standIn: true });
+        standIn = true;
       }
       const victory = square === ctx.VICTORY;
       model.scale.setScalar(unit * (victory ? VICTORY_SCALE : 1));
       model.position.y = holder.userData.modelLift ?? ctx.SUMMIT * (victory ? 0.1 : MODEL_LIFT);
       model.userData.lit = null;
+      if (had) { holder.remove(had); dispose(had); }
       holder.add(model);
       models.set(square, model);
       paint(square);
+      changed = true;
+      if (standIn) waiting = true;
     });
+    if (waiting) {
+      // Only ever the first request: a failed one is retried by the reader's
+      // say-so (or the browser's coming back online), never from here.
+      if (sculpture.status().state === 'idle') sculpture.load().catch(() => {});
+      if (!graceOver && !graceTimer && !failed) {
+        graceTimer = setTimeout(() => { graceTimer = null; graceOver = true; load(); ctx.onLoad?.(); }, GRACE);
+      }
+    } else if (graceTimer) { clearTimeout(graceTimer); graceTimer = null; }
+    return changed;
   }
+  const stopWatching = sculpture.subscribe(({ state }) => {
+    if (!opened || (state !== 'ready' && state !== 'failed')) return;
+    if (load()) ctx.onLoad?.();
+  });
 
   function showActive(active) {
     lit.clear();
@@ -3349,7 +3386,12 @@ export function createSquareModels(THREE, ctx) {
     });
   }
 
+  /* `built` is true when every square has its model; `sculpted` when none of
+     them is a stand-in. */
   return { attach, load, face, showActive, highlight, models, holders, modelled,
-           prefetch: () => loadSculpture().catch(() => {}),   // load() asks again
-           built: () => models.size === holders.size && holders.size > 0 };
+           prefetch: () => sculpture.load().catch(() => {}),   // the state is read through onSculptureStatus
+           retry: () => sculpture.retry().catch(() => {}),
+           stopWatching,
+           built: () => models.size === holders.size && holders.size > 0,
+           sculpted: () => models.size > 0 && ![...models.values()].some((m) => m.userData.standIn) };
 }

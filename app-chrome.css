@@ -10,7 +10,7 @@ html, body { touch-action: pan-x pan-y pinch-zoom; }
   outline: 3px solid var(--accent); outline-offset: 3px;
 }
 .app-header {
-  position: fixed; z-index: 10; top: calc(18px + var(--sa-t)); left: 22px;
+  position: fixed; z-index: 10; top: calc(18px + var(--sa-t)); left: calc(22px + var(--sa-l));
   display: flex; align-items: center; gap: 4px; padding: 4px 6px;
   border-radius: var(--radius); background: var(--menu); pointer-events: auto;
 }
@@ -132,12 +132,12 @@ body.game-setup .app-header { visibility: hidden; }
 body.tour-view .compass { top: calc(86px + var(--sa-t)); }
 @media (min-width: 701px) and (max-width: 1080px) {
   .app-brand { font-size: 18px; padding-right: 6px; }
-  .app-header { left: 14px; }
-  .controls { right: 14px; }
+  .app-header { left: calc(14px + var(--sa-l)); }
+  .controls { right: calc(14px + var(--sa-r)); }
 }
 @media (max-width: 700px) {
   :root { --header-clearance: calc(70px + var(--sa-t)); }
-  .app-header { top: calc(8px + var(--sa-t)); left: 9px; right: 9px; gap: 1px; padding: 3px; }
+  .app-header { top: calc(8px + var(--sa-t)); left: calc(9px + var(--sa-l)); right: calc(9px + var(--sa-r)); gap: 1px; padding: 3px; }
   .app-brand { margin-right: auto; padding: 0 6px; font-size: 18px; }
   .app-header .btn { padding: 8px; }
   .app-text-size .btn { min-width: 38px; padding: 8px 5px; }
@@ -164,6 +164,12 @@ body.tour-view .compass { top: calc(86px + var(--sa-t)); }
 /* A sideways phone's panel reaches up to the header, where the rose stands. */
 @media (max-width: 700px) and (max-height: 500px) {
   body.panel-open .compass, body.index-open .compass { opacity: 0; }
+}
+/* The header's six parts fill a 320px screen to the pixel with the word Donate (or
+   Wesprzyj, wider still) left out: with it, the word ran under the magnifier
+   beside it. The heart stays, and so does the name, in the link's own label. */
+@media (max-width: 340px) {
+  .app-donate span { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 }
 @media (max-width: 360px) {
   .controls > .btn, .controls .menu > .btn { font-size: 11px; letter-spacing: 0; }

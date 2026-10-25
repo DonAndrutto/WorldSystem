@@ -591,10 +591,18 @@ export function createBoardLayer(THREE, ctx) {
   }
   group.add(threads);
 
+  /* Whether each of the two overlays is wanted (the page's display switches).
+     They are asked about by the page and answered here; what a link says about
+     the game is the same whether or not it is drawn, and showLinks still
+     reports the fields it reaches. */
+  let linksWanted = true, linkCount = 0;
+  const setLinks = (on) => { linksWanted = !!on; links.visible = linksWanted && linkCount > 0; };
+  const setGuides = (on) => { threads.visible = !!on; };
+
   function showLinks(square) {
     const row = square === null ? null : MOVES[square];
     const from = square === null ? null : positionOf(square);
-    if (!row || !from) { links.visible = false; return []; }
+    if (!row || !from) { linkCount = 0; links.visible = false; return []; }
     const reached = [];
     const points = [];
     for (const face of FACES) {
@@ -608,7 +616,8 @@ export function createBoardLayer(THREE, ctx) {
     links.geometry.dispose();
     links.geometry = new THREE.BufferGeometry();
     links.geometry.setAttribute('position', new THREE.Float32BufferAttribute(points, 3));
-    links.visible = points.length > 0;
+    linkCount = points.length;
+    links.visible = linksWanted && linkCount > 0;
     return reached;
   }
 
@@ -662,7 +671,7 @@ export function createBoardLayer(THREE, ctx) {
     });
   }
 
-  return { group, nodes, tokens, links, showLinks, showActive, placeTokens,
+  return { group, nodes, tokens, links, threads, setLinks, setGuides, showLinks, showActive, placeTokens,
            placeAnchored, positionOf, materials: mats, paths };
 }
 

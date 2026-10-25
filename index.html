@@ -91,6 +91,10 @@
     --tap: 44px;
     --sa-t: env(safe-area-inset-top, 0px);
     --sa-b: env(safe-area-inset-bottom, 0px);
+    /* a phone on its side has a notch, a rounded corner and a sensor housing at its ends: the
+       controls stand clear of them (only the top and the foot were, before) */
+    --sa-l: env(safe-area-inset-left, 0px);
+    --sa-r: env(safe-area-inset-right, 0px);
     --bl: 0px;          /* height of whatever sits in the bottom-left corner */
   }
   /* Night is read over a dark, moving scene rather than over paper: the
@@ -119,7 +123,12 @@
     --card: rgba(22, 25, 32, .98);
     --gold-1: #d8b978; --gold-2: #b7924a; --gold-ink: #1a1408;
   }
-  html, body { margin: 0; height: 100%; overflow: hidden; touch-action: pan-x pan-y; }
+  /* Pan and pinch belong to the reader everywhere except over the scene itself
+     (three-d-stage below, and viewport-gestures.js): text in a panel, a menu or
+     a card can be magnified with the browser's own pinch. This once said
+     `pan-x pan-y` alone, which took pinch-zoom from the whole page; app-chrome.css
+     gave it back, and this says the same so the two cannot be read as a quarrel. */
+  html, body { margin: 0; height: 100%; overflow: hidden; touch-action: pan-x pan-y pinch-zoom; }
   body {
     font-family: "EB Garamond", Georgia, serif; color: var(--ink);
     background: var(--paper); transition: background-color .55s ease;
@@ -210,7 +219,7 @@
   /* Two things the page occasionally has to say for itself, in one shape: the
      browser has taken the drawing's context away — taken back down the moment
      it is handed back — or a newer version of the whole world is ready. */
-  .glnote, .swnote {
+  .glnote, .swnote, .sculpt-note {
     position: absolute; left: 50%; transform: translateX(-50%);
     top: calc(84px + var(--sa-t)); margin: 0; z-index: 9;
     width: min(420px, calc(100vw - 28px)); padding: 11px 13px;
@@ -218,10 +227,13 @@
     border-radius: 6px; font-size: 13px; line-height: 1.35; color: var(--ink-2);
     pointer-events: auto;
   }
-  .glnote[hidden], .swnote[hidden] { display: none; }
-  .glnote span, .swnote span { flex: 1; }
+  .glnote[hidden], .swnote[hidden], .sculpt-note[hidden] { display: none; }
+  .glnote span, .swnote span, .sculpt-note span { flex: 1; }
   /* both at once is all but impossible; if it happens they stand in a column */
   .glnote:not([hidden]) ~ .swnote { top: calc(150px + var(--sa-t)); }
+  /* in the game's world it stands below the rail, which is what the panels do */
+  .sculpt-note { top: var(--world-card-top, calc(84px + var(--sa-t))); padding: 8px 11px; font-size: 12.5px; }
+  .sculpt-note .btn { flex: none; }
 
   /* ── the control strip ────────────────────────────────────────────────
      Three controls, never more: the index, the view you are in, and the
@@ -293,12 +305,25 @@
     font-family: inherit; font-size: 13px; letter-spacing: 0;
     text-transform: none; padding: 2px 9px;
   }
+  /* Five switches in two columns, each a button of its own: the row's words on
+     one line, the switches under them with the whole width of the menu, so
+     Polish and a 320px phone wrap inside a switch rather than push one off. */
+  .menu-body .display-row .toggles {
+    flex: 1 1 100%; display: grid; gap: 4px;
+    grid-template-columns: repeat(auto-fit, minmax(min(7.5em, 100%), 1fr));
+  }
+  .menu-body .display-row .toggles .btn {
+    justify-content: center; text-align: center; min-width: 0; min-height: 36px;
+    padding: 5px 6px 4px; line-height: 1.2; white-space: normal; overflow-wrap: anywhere;
+    border: 1px solid var(--rule-2); border-radius: 6px; font-size: 10px;
+  }
+  .menu-body .display-row .toggles .btn[aria-pressed="false"] { color: var(--ink-2); text-decoration: line-through; text-decoration-thickness: 1px; }
 
   /* compass — a small rose that turns with the view, so that north can be
      found without turning the world to look for it. It takes the corner the
      export buttons used to stand in, and gives way to the drawer. */
   .compass {
-    position: absolute; right: 22px; bottom: 22px; width: 46px; height: 46px;
+    position: absolute; right: calc(22px + var(--sa-r)); bottom: 22px; width: 46px; height: 46px;
     border-radius: 50%; border: 1px solid var(--rule); background: var(--surface);
     pointer-events: none; z-index: 3; opacity: .9;
     transition: right .34s cubic-bezier(.4,0,.2,1), background-color .55s ease,
@@ -320,8 +345,8 @@
   /* on a phone the controls hold the bottom edge and the hint stands above
      them: the rose takes the free corner, top right, and is a little smaller */
   @media (max-width: 700px) {
-    .compass { top: calc(9px + var(--sa-t)); right: 9px; bottom: auto; width: 40px; height: 40px; }
-    body.index-open .compass { right: 9px; }
+    .compass { top: calc(9px + var(--sa-t)); right: calc(9px + var(--sa-r)); bottom: auto; width: 40px; height: 40px; }
+    body.index-open .compass { right: calc(9px + var(--sa-r)); }
   }
   /* the mandala view is seen from straight above, north at the top: the
      four directions are lettered at the edge of the plate instead */
@@ -339,7 +364,7 @@
 
   /* the item sheet */
   .sheet {
-    position: absolute; left: 22px; top: 92px; width: 406px; z-index: 5;
+    position: absolute; left: calc(22px + var(--sa-l)); top: 92px; width: 406px; z-index: 5;
     max-height: calc(100dvh - 138px - var(--bl)); display: flex; flex-direction: column;
     padding: 0; pointer-events: auto;
   }
@@ -723,9 +748,9 @@
     /* On a phone the strip holds the bottom edge, three thumb-sized shares of
        it, and the menus open upward into the screen rather than off it. */
     .controls {
-      top: auto; bottom: calc(9px + var(--sa-b)); left: 9px; right: 9px; z-index: 6;
+      top: auto; bottom: calc(9px + var(--sa-b)); left: calc(9px + var(--sa-l)); right: calc(9px + var(--sa-r)); z-index: 6;
     }
-    body.index-open .controls { right: 9px; }
+    body.index-open .controls { right: calc(9px + var(--sa-r)); }
     .controls > .btn, .controls > .menu { flex: 1; }
     .controls > .btn, .controls .menu > .btn { padding: 13px 0 12px; justify-content: center; }
     .controls > .btn .t, .controls .menu > .btn .t { display: inline; }
@@ -748,7 +773,7 @@
     .menu-body .menu-row { padding: 9px 13px 8px; }
     .index { padding-bottom: calc(66px + var(--sa-b)); }
     .sheet {
-      left: 9px; right: 9px; width: auto; top: auto;
+      left: calc(9px + var(--sa-l)); right: calc(9px + var(--sa-r)); width: auto; top: auto;
       bottom: calc(58px + var(--sa-b) + var(--bl));
       max-height: min(56dvh, calc(100dvh - var(--bl) - 104px - var(--sa-b) - var(--sa-t)));
     }
@@ -756,7 +781,7 @@
     .sheet h2 { font-size: 22px; }
     .sheet-foot { padding: 8px 10px; }
     .mandala-note {
-      left: 9px; right: 9px; width: auto; bottom: calc(58px + var(--sa-b));
+      left: calc(9px + var(--sa-l)); right: calc(9px + var(--sa-r)); width: auto; bottom: calc(58px + var(--sa-b));
       max-height: 60dvh; overflow-y: auto; overscroll-behavior: contain;
     }
     .off-full { max-height: 24dvh; }
@@ -770,8 +795,10 @@
     .mk:hover .lb, .mk[aria-current="true"] .lb, .mk.now .lb { opacity: 1; }
     .mk .lb { font-size: 11.5px; }
     /* the offering's own controls, two to a row rather than three to two */
-    .off-foot { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 9px; }
-    .off-foot .btn { min-height: 40px; }
+    /* minmax(0, 1fr): "About the offering" held the first column wide enough that at 320px
+       "Whole mandala" in the second ran into the panel's edge */
+    .off-foot { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; margin-top: 9px; }
+    .off-foot .btn { min-height: 40px; min-width: 0; white-space: normal; line-height: 1.25; }
     .off-player { gap: 4px; }
     .mandala-note h3 { margin-bottom: 5px; }
   }
@@ -796,8 +823,8 @@
 
   /* A single dock prevents the index, entry and offering panels overlapping. */
   .panel-dock {
-    position: absolute; right: 22px; top: 82px; bottom: 84px;
-    width: min(406px, calc(100vw - 44px)); pointer-events: none;
+    position: absolute; right: calc(22px + var(--sa-r)); top: 82px; bottom: 84px;
+    width: min(406px, calc(100vw - 44px - var(--sa-l) - var(--sa-r))); pointer-events: none;
     display: flex; flex-direction: column; align-items: stretch; gap: 8px; z-index: 5;
   }
   .panel-dock[hidden], .panel-dock [hidden] { display: none !important; }
@@ -889,7 +916,7 @@
   .panel-dock .grip { cursor: default; touch-action: auto; }
   .sheet-foot { flex-wrap: wrap; justify-content: flex-start; }
   .sheet-foot .stepper { margin-left: auto; }
-  .controls, body.index-open .controls { right: 22px; top: 22px; left: auto; bottom: auto; max-width: calc(100vw - 44px); }
+  .controls, body.index-open .controls { right: calc(22px + var(--sa-r)); top: 22px; left: auto; bottom: auto; max-width: calc(100vw - 44px - var(--sa-l) - var(--sa-r)); }
   .controls .btn { min-height: 40px; }
   .mode-tabs { display: flex; gap: 5px; margin-bottom: 18px; }
   .mode-tabs .btn { flex: 1; white-space: normal; font-size: 11px; letter-spacing: .03em; min-height: 42px; }
@@ -934,19 +961,25 @@
   .art-status .btn { margin-top: 6px; }
   body.tour-view .marks .mk:not([aria-current="true"]), body.tour-view .marks .cp { display: none !important; }
   body.tour-view .mk .lb { display: none; }
-  body.tour-view .compass { display: block; top: 22px; bottom: auto; left: 22px; right: auto; }
+  body.tour-view .compass { display: block; top: 22px; bottom: auto; left: calc(22px + var(--sa-l)); right: auto; }
   :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
   @media (max-width: 700px) {
-    .controls, body.index-open .controls { top: auto; bottom: calc(9px + var(--sa-b)); left: 9px; right: 9px; max-width: none; }
+    .controls, body.index-open .controls { top: auto; bottom: calc(9px + var(--sa-b)); left: calc(9px + var(--sa-l)); right: calc(9px + var(--sa-r)); max-width: none; }
     .controls .btn { min-height: 44px; }
     /* Every panel on a phone is a sheet along the foot. Half the screen was
        the model's share of it, but a panel is only ever open because
        something is being read in it — and the model behind it is still a
        third of the screen, still turning, still there to go back to. */
-    .panel-dock { left: 9px; right: 9px; top: auto; bottom: calc(66px + var(--sa-b));
+    .panel-dock { left: calc(9px + var(--sa-l)); right: calc(9px + var(--sa-r)); top: auto; bottom: calc(66px + var(--sa-b));
       width: auto; max-height: min(62dvh, calc(100dvh - 126px - var(--sa-b) - var(--sa-t))); }
     .panel-dock > .sheet, .panel-dock > .mandala-note, .panel-dock > .index, .panel-dock > .tour-panel,
     .panel-dock > .lm-panel, .panel-dock > .jy-panel { max-height: inherit; }
+    /* On the shortest phones a panel of 62% leaves the model a band of 80px, in which
+       the heap being read lands under the panel's edge (a mark is 26px across whatever
+       the room). They keep the 54% the panels had before the phone pass. */
+    @media (max-height: 640px) and (orientation: portrait) {
+      .panel-dock { max-height: min(54dvh, calc(100dvh - 126px - var(--sa-b) - var(--sa-t))); }
+    }
     .lm-form, .lm-more { margin-left: 0; }
     .lm-more dl, .jy-out { grid-template-columns: minmax(0, 1fr); gap: 0 0; }
     .lm-more dd, .jy-out dd { margin-bottom: 6px; }
@@ -979,7 +1012,7 @@
     .tour-foot .btn { min-height: 42px; font-size: 10px; padding: 7px 6px; }
     /* the way back out, kept to the line it needs and no more */
     .tour-overview { min-height: 34px; font-size: 9.5px; padding: 6px 8px; margin-top: 6px; }
-    body.tour-view .compass { top: calc(9px + var(--sa-t)); left: 9px; }
+    body.tour-view .compass { top: calc(9px + var(--sa-t)); left: calc(9px + var(--sa-l)); }
   }
   @media (max-height: 480px) and (min-width: 701px) {
     .panel-dock { top: 74px; bottom: 12px; width: 340px; }
@@ -1003,7 +1036,7 @@
      screen and the board never scrolls. Asked for, it takes the screen; the
      two arrangements below dress it for the one it is in. */
   .board-view {
-    position: absolute; left: 22px; right: 22px; top: 82px; bottom: 84px;
+    position: absolute; left: calc(22px + var(--sa-l)); right: calc(22px + var(--sa-r)); top: 82px; bottom: 84px;
     width: auto; min-width: 300px;
     display: flex; flex-direction: column; gap: 9px; z-index: 5;
     pointer-events: auto;
@@ -1128,15 +1161,17 @@
       color-mix(in srgb, var(--pc-2, var(--pc, transparent)) 30%, transparent));
     box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--pc, transparent) 62%, transparent);
   }
-  .bv-sq[aria-selected="true"] { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
-  .bv-sq.held[aria-selected="true"] {
+  /* the frames below are the board's highlights: Game display → Highlights takes them
+     off, and :where() lets it do so without changing which rule wins */
+  :where(body:not(.gd-no-highlights)) .bv-sq[aria-selected="true"] { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+  :where(body:not(.gd-no-highlights)) .bv-sq.held[aria-selected="true"] {
     box-shadow: inset 0 0 0 1px var(--accent),
                 inset 0 0 0 3px color-mix(in srgb, var(--pc, transparent) 55%, transparent);
   }
-  .bv-sq.lit { background-color: var(--hi-2); }
+  :where(body:not(.gd-no-highlights)) .bv-sq.lit { background-color: var(--hi-2); }
   /* the squares the selected one's faces lead to */
-  .bv-sq.reached { box-shadow: inset 0 0 0 1px var(--rule-2); }
-  .bv-sq.reached .n { color: var(--accent); }
+  :where(body:not(.gd-no-highlights)) .bv-sq.reached { box-shadow: inset 0 0 0 1px var(--rule-2); }
+  :where(body:not(.gd-no-highlights)) .bv-sq.reached .n { color: var(--accent); }
   /* whoever is standing here, in the corner so the field keeps its middle */
   .bv-toks {
     position: absolute; right: 2px; bottom: 1px; z-index: 3;
@@ -1426,8 +1461,8 @@
   .wl-tip i { display: block; font-style: normal; font-size: 12px; color: var(--ink-2); }
   body.board-only .rb-label { display: none; }
   .game-focus {
-    position: fixed; z-index: 4; left: 22px; bottom: 22px;
-    max-width: min(490px, calc(100vw - 44px)); padding: 13px 16px;
+    position: fixed; z-index: 4; left: calc(22px + var(--sa-l)); bottom: 22px;
+    max-width: min(490px, calc(100vw - 44px - var(--sa-l) - var(--sa-r))); padding: 13px 16px;
     background: var(--menu); border: 1px solid var(--rule-2);
     box-shadow: var(--shadow); border-radius: 10px; pointer-events: auto;
   }
@@ -1444,7 +1479,7 @@
   }
   .rb-focus-pin[hidden] { display: none !important; }
   @media (max-width: 700px) {
-    .game-focus { left: 9px; right: 9px; bottom: calc(64px + var(--sa-b)); max-width: none; padding: 10px 12px; }
+    .game-focus { left: calc(9px + var(--sa-l)); right: calc(9px + var(--sa-r)); bottom: calc(64px + var(--sa-b)); max-width: none; padding: 10px 12px; }
     .game-focus strong { font-size: 17px; }
     .game-focus nav { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
     .game-focus .btn { min-height: 44px; font-size: 10px; padding: 7px 9px; }
@@ -1452,12 +1487,12 @@
   }
   body.board-only .board-view,
   body.board-only.index-open .board-view {
-    left: 22px; right: 22px; width: auto; max-width: none;
+    left: calc(22px + var(--sa-l)); right: calc(22px + var(--sa-r)); width: auto; max-width: none;
   }
   /* Below this width the board and the world cannot share the screen, so they
      take turns: the board holds it, and one control hands it to the world. */
   @media (max-width: 1080px) {
-    .board-view { left: 14px; right: 14px; width: auto; }
+    .board-view { left: calc(14px + var(--sa-l)); right: calc(14px + var(--sa-r)); width: auto; }
     /* a dialog that says a game will be lost is the whole screen's business */
     .bv-ask { position: fixed; }
     body.world-only .die-face { display: none; }
@@ -1487,7 +1522,7 @@
      everything left over is the board's. */
   @media (max-width: 700px) {
     .board-view, body.index-open .board-view {
-      left: 9px; right: 9px; width: auto; top: calc(9px + var(--sa-t));
+      left: calc(9px + var(--sa-l)); right: calc(9px + var(--sa-r)); width: auto; top: calc(9px + var(--sa-t));
       bottom: calc(66px + var(--sa-b)); flex-direction: column-reverse;
     }
     .bv-rail { padding: 7px 8px; gap: 6px; align-items: center; }
@@ -1556,7 +1591,7 @@
        stands square across the top rather than off to one side */
     body.world-only .board-view,
     body.world-only.index-open .board-view {
-      left: 9px; right: 9px; max-width: none; top: calc(9px + var(--sa-t)); bottom: auto;
+      left: calc(9px + var(--sa-l)); right: calc(9px + var(--sa-r)); max-width: none; top: calc(9px + var(--sa-t)); bottom: auto;
     }
 
   }
@@ -1709,10 +1744,10 @@
      the board itself. The field gives up the bottom of the cell for it. */
   body.board-only .bv-icon { inset: 0 0 26% 0; height: 100%; opacity: 1; }
   body.board-only .bv-sq .nm { color: var(--ink); }
-  body.board-only .bv-sq[aria-selected="true"] {
+  body.board-only:where(:not(.gd-no-highlights)) .bv-sq[aria-selected="true"] {
     border-color: var(--gold-2); box-shadow: 0 0 0 2px var(--hi-2), inset 0 0 0 1px var(--gold-2);
   }
-  body.board-only .bv-sq.lit { background-color: var(--hi); }
+  body.board-only:where(:not(.gd-no-highlights)) .bv-sq.lit { background-color: var(--hi); }
 
   /* the throw, said over a board that stands back while it is read */
   body.board-only .bv-card {
@@ -1907,6 +1942,18 @@
             <button class="btn" type="button" data-lang="bo" aria-pressed="false" title="Tibetan names — t" lang="bo">བོད</button>
           </span>
         </div>
+        <!-- what the game draws over its squares: five switches, each its own; where
+             each acts is in its title, and what they keep is game-display.js -->
+        <div class="menu-row display-row" role="group" aria-label="Game display">
+          <span class="g" aria-hidden="true">▤</span><span class="t">Game display</span>
+          <span class="toggles">
+            <button class="btn" type="button" data-display="names" aria-pressed="true" title="Field names — on the board and in the world">Field names</button>
+            <button class="btn" type="button" data-display="numbers" aria-pressed="true" title="Field numbers — on the board and in the world">Field numbers</button>
+            <button class="btn" type="button" data-display="highlights" aria-pressed="true" title="Highlights — the selected field and the fields a throw from it reaches, on the board and in the world">Highlights</button>
+            <button class="btn" type="button" data-display="guides" aria-pressed="true" title="Route guides — in the world: the two strands of the ascent and the rings">Route guides</button>
+            <button class="btn" type="button" data-display="links" aria-pressed="true" title="Move links — in the world: lines from the selected field to where each throw leads">Move links</button>
+          </span>
+        </div>
         <div class="menu-row lang ui-lang-row" role="group" aria-label="Interface language">
           <span class="g" aria-hidden="true">文</span><span class="t">Language</span>
           <span class="seg">
@@ -1932,6 +1979,13 @@
   <p class="swnote card" role="status" hidden>
     <span>A newer drawing is ready. It opens on the next start, or now.</span>
     <button class="btn" type="button" data-act="update">Open it now</button>
+  </p>
+
+  <!-- said in the game's world while the sculpted Buddhas are slow to arrive or
+       could not: plainer figures stand in until they do (seated-sculpture.js) -->
+  <p class="sculpt-note card" role="status" hidden>
+    <span>Loading the sculpted buddhas…</span>
+    <button class="btn" type="button" data-sculpture-retry hidden>Retry</button>
   </p>
 
   <div class="compass" aria-hidden="true">
@@ -2197,6 +2251,8 @@ import { createGame, throwDie, view as rbView, destination as rbDestination } fr
 import { SQUARE_NOTES, SQUARE_FULL } from './rebirth-notes.js';
 import { SQUARE_ART, cellBackground, LIBERATION_ART } from './rebirth-icons.js';
 import { createSquareModels, MODEL_UNIT as RB_MODEL_UNIT, buildRealmModel, createModelMaterials, createModelKit } from './square-models.js';
+import { sculptureStatus, onSculptureStatus } from './seated-sculpture.js';
+import { DISPLAY_LAYERS, DISPLAY_DEFAULTS, readDisplay, writeDisplay } from './game-display.js';
 import { createSoundKit, voiceFor as rbVoice } from './rebirth-sound.js';
 import { searchText } from './search-text.js';
 import { createSynth } from './synth.js';
@@ -4902,6 +4958,10 @@ function placeFocusRing(box, radius = null) {
   focusRing.visible = true;
   invalidate();
 }
+/* What the game draws over its squares (game-display.js). It is state of its own,
+   kept apart from the game, and read here so that what picks a square can ask it. */
+const rbDisplay = { ...DISPLAY_DEFAULTS };
+const rbGameSquare = (id) => /^rebirth_sq_\d+$/.test(id || '');
 let picked = [], pickedMats = [], current = null;
 /* What is picked is lit from within with the gold of the board's frames:
    enough to find it at once among everything round it, not so much that its
@@ -5005,7 +5065,7 @@ function show(id, reveal) {
   if (mode === 'wheel') wheelView.select(wheelPart(id));
   const ms = meshesFor(id);
   ms.forEach((m) => {
-    if (!tintable(m)) return;
+    if (!tintable(m) || (rbGameSquare(id) && !rbDisplay.highlights)) return;
     picked.push(m); pickedMats.push(m.material);
     m.material = tint(m.material);
   });
@@ -5824,6 +5884,50 @@ function reframeAfterPanels(delay = 90) {
   clearTimeout(panelReframe);
   panelReframe = setTimeout(reframeCurrent, delay);
 }
+/* ── the sculpted Buddhas, arriving ───────────────────────────────────
+   Four squares of the game (77, 93, 100, 101) carry a seated Buddha sculpted
+   from meshes that come after the page (seated-sculpture.js). The page says so
+   only where it matters — the game's world — and only when it is true: not
+   while a quick connection is still bringing them, but if they are slow, and
+   with a way to ask again if they have failed. Until they come a plainer
+   figure stands in each square, so nothing is bare and nothing is mislabelled;
+   the square, its name and its entry are the same. Nothing else waits. */
+const sculptNote = document.querySelector('.sculpt-note');
+const sculptRetry = sculptNote.querySelector('[data-sculpture-retry]');
+const SCULPT_SAYS = {
+  loading: 'Loading the sculpted buddhas…',
+  failed: 'The sculpted buddhas could not be loaded; plainer figures stand in. The game is unaffected.',
+  offline: 'You are offline: plainer figures stand in for the sculpted buddhas until the connection returns.'
+};
+const SCULPT_SLOW_MS = 1200;
+let sculptSlow = false, sculptSlowTimer = null, sculptFailedHidden = false;
+function syncSculptNote() {
+  const { state, offline } = sculptureStatus();
+  const here = mode === 'game' && document.body.classList.contains('world-only');
+  const show = here && (state === 'failed' || (state === 'loading' && sculptSlow));
+  sculptNote.hidden = !show;
+  if (!show) return;
+  const line = state === 'failed' ? (offline ? SCULPT_SAYS.offline : SCULPT_SAYS.failed) : SCULPT_SAYS.loading;
+  const text = sculptNote.querySelector('span');
+  if (text.textContent !== line) text.textContent = line;
+  sculptRetry.hidden = state !== 'failed';
+}
+onSculptureStatus(({ state }) => {
+  clearTimeout(sculptSlowTimer);
+  sculptSlow = false;
+  if (state === 'loading') sculptSlowTimer = setTimeout(() => { sculptSlow = true; syncSculptNote(); }, SCULPT_SLOW_MS);
+  sculptFailedHidden = state === 'failed' && document.hidden;
+  syncSculptNote();
+});
+sculptRetry.addEventListener('click', () => rbModels.retry());
+// The browser's own word that the network is back, or the page being handed
+// back after a request was cut off in the background, is one more try — never
+// a loop: each needs a failure to answer, and a failure needs a request.
+window.addEventListener('online', () => { if (sculptureStatus().state === 'failed') rbModels.retry(); });
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden && sculptFailedHidden && sculptureStatus().state === 'failed') { sculptFailedHidden = false; rbModels.retry(); }
+});
+
 /* One active panel occupies the shared dock. Its footprint is also used
    to frame the model in the remaining canvas area. */
 function syncChrome() {
@@ -5845,6 +5949,7 @@ function syncChrome() {
      shape as well as size: frame it again whenever the dock comes or goes */
   if (dock.hidden !== dockWas) reframeAfterPanels();
   artStatus.hidden = !mandala || !imageStates.some(s => s === 'loading' || s === 'failed');
+  syncSculptNote();
   document.body.classList.toggle('panel-open', !dock.hidden);
   document.body.classList.toggle('min-menus', minPlay);
   document.body.classList.toggle('tour-view', touring);
@@ -7024,7 +7129,7 @@ function rbPlaceToken() {
    someone is standing on. */
 function rbLight() {
   const active = rbGame.players.map((p) => p.pos);
-  if (rbSelected !== null) active.push(rbSelected);
+  if (rbSelected !== null && rbDisplay.highlights) active.push(rbSelected);
   rbBoard.showActive(active);
   rbModels.showActive(active);
 }
@@ -7456,7 +7561,10 @@ function rbCelebrate(delay = 0) {
   const quiet = rbInstant() || mode !== 'game';
   rbCelebration = setTimeout(() => {
     rbCelebration = null;
-    if (!rbGame.over) return;
+    // leaving the game in the moment between arriving and the celebration must not
+    // fly the eye to the stupa from somewhere else: the world is played quietly
+    // when the game is next entered (rbSync)
+    if (!rbGame.over || mode !== 'game') return;
     rbFinale.play({ quiet });
     if (quiet || worldHidden() || rbView3D !== 'world') return;
     rbClearFocus();
@@ -8004,6 +8112,46 @@ function rbSetTibetan(to) {
    the English otherwise. The drawer gives both, always. */
 const rbCalled = (n) => (rbTib && rbTibetan(n)) || RB_BY_N.get(n).name;
 
+/* ── what is drawn over the squares ─────────────────────────────────────
+   Five switches under Options → Game display, each of them its own: field
+   names, field numbers, highlights, route guides, move links (game-display.js
+   says what each is and where it is drawn). They only change what is drawn.
+   The language of the names (Names above) and of the interface are other
+   settings and are not read here; a hidden name is hidden from the eye and
+   not from the page (game-ui.css), so cells keep their accessible names and
+   the board its keyboard; players, their colours and whose turn it is are not
+   layers at all and always stand. Nothing here reaches the game or its save. */
+const rbDisplayButtons = [...document.querySelectorAll('[data-display]')];
+function rbApplyDisplay() {
+  for (const layer of DISPLAY_LAYERS) document.body.classList.toggle('gd-no-' + layer, !rbDisplay[layer]);
+  rbDisplayButtons.forEach((b) => b.setAttribute('aria-pressed', String(!!rbDisplay[b.dataset.display])));
+  rbBoard.setGuides(rbDisplay.guides);
+  rbBoard.setLinks(rbDisplay.links);
+  rbLight();
+  // a visit to a square: the gold of its model and the ring on its floor
+  if (gameFocus && mode === 'game') {
+    const square = /^rebirth_sq_(\d+)$/.exec(gameFocus.id), place = rbLocation(gameFocus.id);
+    rbModels.highlight(square && rbDisplay.highlights ? Number(square[1]) : null);
+    placeFocusRing(rbDisplay.highlights && place ? place.box : null, place?.ring ?? null);
+  }
+  // the entry open on a square of the game wears the same gold as its marker
+  if (rbGameSquare(current)) {
+    clearPick();
+    if (rbDisplay.highlights) meshesFor(current).forEach((m) => {
+      if (!tintable(m)) return;
+      picked.push(m); pickedMats.push(m.material);
+      m.material = tint(m.material);
+    });
+  }
+  invalidate(3);
+}
+function rbSetDisplay(layer, on) {
+  if (!DISPLAY_LAYERS.includes(layer)) return;
+  rbDisplay[layer] = !!on;
+  rbApplyDisplay();
+  writeDisplay({ setItem: (k, v) => localStorage.setItem(k, v), removeItem: (k) => localStorage.removeItem(k) }, rbDisplay);
+}
+
 /* The overview includes the whole ascent, including Nirvana. The bounds
    follow the live destinations so raising the spire cannot crop its cap. */
 const WORLD_R = BASE_DIST * Math.tan(cam.fov * Math.PI / 360);
@@ -8085,8 +8233,8 @@ function rbFrameFocus(dur = 650) {
   const place = rbLocation(gameFocus.id);
   if (!place) return;
   const square = /^rebirth_sq_(\d+)$/.exec(gameFocus.id);
-  rbModels.highlight(square ? Number(square[1]) : null);
-  placeFocusRing(place.box, place.ring);
+  rbModels.highlight(square && rbDisplay.highlights ? Number(square[1]) : null);
+  placeFocusRing(rbDisplay.highlights ? place.box : null, place.ring);
   gameFocusEl.querySelector('p').textContent = 'Close view · drag to look around, or choose Return to world to step back.';
   closeUp(place.box, { dur, exterior: true, sphere: place.sphere });
   invalidate(4);
@@ -8168,7 +8316,7 @@ function rbFrameFollow(dur = 650) {
   return true;
 }
 function rbPlaceFocusPin() {
-  if (!gameFocus || gameFocusEl.hidden) { gameFocusPin.hidden = true; return; }
+  if (!gameFocus || gameFocusEl.hidden || !rbDisplay.highlights) { gameFocusPin.hidden = true; return; }
   const point = gameFocus.anchor.clone().project(cam);
   gameFocusPin.hidden = point.z < -1 || point.z > 1 || Math.abs(point.x) > 1 || Math.abs(point.y) > 1;
   if (gameFocusPin.hidden) return;
@@ -8245,6 +8393,7 @@ function enterGame() {
 }
 function leaveGame() {
   if (rbWalkthrough) rbEndWalkthrough();
+  clearTimeout(rbCelebration); rbCelebration = null;   // a celebration still to come stays unplayed
   rbAdvance.hidden = true; rbThrowHome.appendChild(rbThrowBtn);
   document.body.classList.remove('game-fast');
   clearTimeout(rbLayoutTimer);
@@ -8324,6 +8473,8 @@ controlsEl.addEventListener('click', (ev) => {
   // not a reason to shut the menu that holds the rest of the settings
   const lang = ev.target.closest('[data-lang]');
   if (lang) { rbSetTibetan(lang.dataset.lang === 'bo'); return; }
+  const display = ev.target.closest('[data-display]');
+  if (display) { rbSetDisplay(display.dataset.display, display.getAttribute('aria-pressed') !== 'true'); return; }
   const pace = ev.target.closest('[data-speed]');
   if (pace) { setMotionPace(pace.dataset.speed); return; }
   const act = ev.target.closest('[data-act],[data-mode]');
@@ -8519,6 +8670,8 @@ try {
   savedGameView = localStorage.getItem('ws-game-view');
   savedTibetan = localStorage.getItem('ws-tibetan');
 } catch (err) {}
+Object.assign(rbDisplay, readDisplay({ getItem: (k) => localStorage.getItem(k) }));
+rbApplyDisplay();
 rbRestore();
 rbLayout(savedGameView || 'board', false);
 rbSetTibetan(savedTibetan === '1');

@@ -16,6 +16,14 @@ Built on main after the stage 1 camera and popup-navigation change (#26).
 - In the world, reaching Nirvana is celebrated (`nirvana-finale.js`): the eye stands back to see the whole ascent while a light climbs each strand of the helix, meets in the crown of the acts of a Buddha and rises to the stupa; then the eye comes to the stupa as it blazes — a glow behind it, rays turning about it, the niche round the Buddha alight, rainbow rings spreading over the world and a rain of flowers. After about fifteen seconds it settles into a quiet glow that stays until a new game. Placing the relics brings a mote of light down into the dome. Instant pace and reduced motion show it already settled; the Nirvana cell on the board glows too.
 - Travellers wear the mood of where they stand (`player-moods.js`): tired and worried in the hells, among the pretas, the animals and the troubled spirits; neutral in the human world and the worldly places; happy and elated in the heavens; and on the stages of the path, the bhūmis, the sacred lands, the Buddha fields and Buddhahood, the eyes lowered in a quiet smile, with a golden aura about the figure in the world and round the portrait on the page. The faces are repainted from the artwork itself, with the eyes and mouth of each of the fourteen measured by hand.
 
+## Game display
+
+Options → Game display has five switches that draw nothing into the game and take nothing out of it: **Field names**, **Field numbers**, **Highlights**, **Route guides**, **Move links** (`game-display.js`; README, *Reading the board and the world*). Names and numbers are hidden with the visually-hidden clip, not `display: none`, so cells keep their accessible names; the board's selection and destination frames are written `:where(body:not(.gd-no-highlights)) …` so that the switch can take them off without changing which rule wins; the world's half is `rbApplyDisplay` (the two overlays in `rebirth-board.js`, which the page asks to show or hide, the selected square standing forward in `rbLight`, the gold of a visit and its ring). The held square's frame, the player chips and the throw are never layers. Kept in `ws-game-display` as the list of layers that are off; the saved game is untouched. Tests: `tests/game-display.mjs`, `tests/browser-game-display.mjs`.
+
+## The sculpted Buddhas arriving
+
+Squares 77, 93, 100 and 101 wait for `sculpture-robe-data.js` and `sculpture-anatomy-data.js` (`seated-sculpture.js`). While they load, or if they cannot, each of the four stands as the plain human figure (`standIn`), after a grace of 1.5 s unless the request has already failed; a note under the rail says what is happening in the world arrangement only, and **Retry** asks again under a new `?retry=n` address (see the README on why). Tests: `tests/sculpture-loading.mjs`, `tests/browser-sculpture-recovery.mjs`.
+
 ## The phone pass
 
 - The rail is three short rows in both arrangements: the die with the
@@ -61,6 +69,20 @@ Built on main after the stage 1 camera and popup-navigation change (#26).
   no separators, and the dialog's sticky footer transparent with the form
   running under it.
 
+## What an iPhone audit changed
+
+Found by walking the page at 320–844 px, in both languages, by day and night, with and without reduced motion, and kept from returning by `tests/browser-iphone-layout.mjs` (the evidence is in `docs/IPHONE-AUDIT.md`):
+
+- The header's Donate word stands aside below 340px, where it ran under the magnifier beside it.
+- The tour's three foot buttons and the offering panel's two use `minmax(0, 1fr)` columns, so a long Polish word wraps instead of holding a column wider than the screen.
+- Panels take 54% of a portrait screen shorter than 640px (the 62% of the phone pass stays above that): the heap being read no longer lands under the panel's edge on a 320×568 phone.
+- The visit panel (Focus here · Return to world · Full story) is one compact piece on a phone held sideways, at the foot beside the throw or in one row under the rail, instead of standing under the rail and the controls where a finger could not reach it.
+- The safe area is respected at the ends as well as top and foot (`--sa-l`, `--sa-r`): on a notched phone held sideways the brand, Options and the throw stood under the notch and the corners.
+
+## Reaching Nirvana, and leaving
+
+The celebration is timed from the throw that wins (`rbCelebrate`). Leaving the game before it has begun cancels it — it used to fire in the explorer and fly the eye to a stupa it could not show — and the game is lit again, settled, the next time it is entered. See `tests/browser-nirvana-lifecycle.mjs`.
+
 ## Orientation
 
 Only the board asks for the phone upright. The model is better across a wide
@@ -98,7 +120,7 @@ board they competed with the hundred and four fields.
 
 - `node tests/game-session.mjs`: replay/recovery, both quota variants and trap exits, all 624 destination previews, malformed saves and appearance defaults.
 - `node tests/mandala-regression.mjs`: existing DOM/geometry suite plus appearance selection, shared atlas in 3D, safe player names, skip, navigation during movement, mode exit during a throw, state/save agreement, rapid layout switches and Instant pace.
-- Existing rebirth, gestures, world-surfaces and offline suites remain applicable. Run `node scripts/build-sw.cjs` after served assets change.
+- Existing rebirth, gestures, world-surfaces and offline suites remain applicable; `node tests/game-display.mjs`, `node tests/sculpture-loading.mjs` and, in a browser, `tests/browser-game-display.mjs`, `tests/browser-sculpture-recovery.mjs` and `tests/browser-nirvana-lifecycle.mjs` cover the display switches, the loading of the Buddhas and the end of the game. Run `node scripts/build-sw.cjs` after served assets change.
 - Browser checks cover desktop and a 390 × 844 phone viewport, character setup, arrival cards, world focus, resume, game menu and large-square view. These are desktop browser viewport checks, not physical-device testing.
 
 ## The camera follows the traveler

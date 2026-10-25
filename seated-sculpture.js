@@ -7,23 +7,95 @@
 // The sculpted meshes are data, and heavy: 1.2 MB for the game's, which only
 // the four seated Buddhas of the game use. So they are not part of this
 // module. loadSculpture() fetches them, once the page is up; a figure asked
-// for before then throws SCULPTURE_PENDING, and its builder tries again when
-// they have come. The full-resolution study (`detailed`), three times the
-// game's weight, serves the preview page and the GLB export alone: it lives
-// in sculpture-*-detail.js and is handed over by whoever imports it.
+// for before then throws SCULPTURE_PENDING, and the set of models either waits or
+// stands a plainer figure in its place (`standIn`, in square-models.js). The full-
+// resolution study (`detailed`), three times the game's weight, serves the
+// preview page and the GLB export alone: it lives in sculpture-*-detail.js and
+// is handed over by whoever imports it.
+//
+// A request can fail, or stall, and neither may leave those four squares bare
+// without anyone being told. The loader therefore has a visible state
+// (idle, loading, failed, ready) that the page watches, and a retry that
+// works: a browser keeps the *failure* of a module fetch in its module map
+// just as it keeps a success, so importing the same address again answers with
+// the same error however well the network has recovered. A retry asks for the
+// same file under a new `?retry=` address, which is a module of its own to the
+// browser and the same file to the server and to the service worker (which
+// matches the shelf with the query ignored, so an installed copy still answers
+// from it). Each of the two files is kept the moment it arrives, so a retry
+// asks only for what is missing, and one that arrives late is still taken.
 export const SCULPTURE_PENDING='seated-sculpture: the sculpted meshes have not loaded yet';
-let game=null,loading=null;
-const study={robes:{},anatomy:{}};
-export function loadSculpture() {
-  return loading||=Promise.all([import('./sculpture-robe-data.js'),import('./sculpture-anatomy-data.js')])
-    .then(([r,a])=>{game={robes:r.ROBES,anatomy:a.ANATOMY};},err=>{loading=null;throw err;});
+const SCULPTURE_PARTS=[['robes','./sculpture-robe-data.js','ROBES'],['anatomy','./sculpture-anatomy-data.js','ANATOMY']];
+export const SCULPTURE_TIMEOUT=25000;
+
+/* `importModule` is `(url) => import(url)` in the page and a stand-in in tests:
+   `import()` resolves its specifier against the module that calls it, so the
+   page's loader has to be the one that makes the call. */
+export function createSculptureLoader({importModule,timeout=SCULPTURE_TIMEOUT,setTimer=setTimeout,clearTimer=clearTimeout,isOffline=()=>typeof navigator!=='undefined'&&navigator.onLine===false}={}) {
+  const have={},listeners=new Set();
+  let state='idle',attempt=0,inflight=null,error=null,offline=false;
+  const ready=()=>SCULPTURE_PARTS.every(([key])=>have[key]);
+  const snapshot=()=>({state,attempt,error,offline});
+  const set=(next,why=null)=>{
+    if(state===next&&why===error)return;
+    state=next;error=why;offline=next==='failed'&&isOffline();
+    for(const listener of [...listeners])try{listener(snapshot());}catch(err){console.error(err);}
+  };
+  function request(){
+    attempt++;
+    const mine=attempt,suffix=mine>1?'?retry='+mine:'';
+    const fetchPart=url=>{try{return Promise.resolve(importModule(url));}catch(err){return Promise.reject(err);}};
+    const parts=SCULPTURE_PARTS.filter(([key])=>!have[key]).map(([key,url,name])=>
+      fetchPart(url+suffix).then(module=>{
+        // taken whenever it arrives, even after this attempt has been given up on
+        if(!have[key]&&module[name]){have[key]=module[name];if(ready())set('ready');}
+      }));
+    const settled=new Promise((resolve,reject)=>{
+      let timer=setTimer(()=>{timer=null;reject(new Error('The sculpted meshes did not arrive within '+timeout/1000+' s.'));},timeout);
+      Promise.all(parts).then(()=>{
+        clearTimer(timer);
+        if(ready())resolve();else reject(new Error('The sculpted meshes arrived without their data.'));
+      },err=>{clearTimer(timer);reject(err);});
+    });
+    const run=settled.then(()=>{if(inflight===run)inflight=null;},err=>{
+      if(inflight===run)inflight=null;
+      if(!ready())set('failed',String(err&&err.message||err));
+      if(!ready())throw err;
+    });
+    inflight=run;
+    return run;
+  }
+  /* Resolves when the meshes are here; rejects when this attempt has failed.
+     Asking while an attempt is under way joins it rather than starting another. */
+  function load() {
+    if(ready())return Promise.resolve();
+    if(inflight)return inflight;
+    set('loading');
+    return request();
+  }
+  /* The explicit retry: only from a failure, and never beside a live attempt. */
+  function retry() {
+    if(ready())return Promise.resolve();
+    if(inflight)return inflight;
+    if(state==='idle')return load();
+    set('loading');
+    return request();
+  }
+  return {load,retry,ready,status:snapshot,get(kind){return have[kind];},
+    subscribe(listener){listeners.add(listener);return ()=>listeners.delete(listener);}};
 }
-export const sculptureReady=()=>!!game;
+const loader=createSculptureLoader({importModule:url=>import(url)});
+export const loadSculpture=()=>loader.load();
+export const retrySculpture=()=>loader.retry();
+export const sculptureReady=()=>loader.ready();
+export const sculptureStatus=()=>loader.status();
+export const onSculptureStatus=listener=>loader.subscribe(listener);
+const study={robes:{},anatomy:{}};
 export function addSculptureDetail(robes,anatomy) { Object.assign(study.robes,robes);Object.assign(study.anatomy,anatomy); }
 const meshData=(kind,key)=>{
-  const forGame=key.endsWith('-game'),table=forGame?game?.[kind]:study[kind];
+  const forGame=key.endsWith('-game'),table=forGame?loader.get(kind):study[kind];
   if(table?.[key])return table[key];
-  if(forGame&&!game)throw new Error(SCULPTURE_PENDING);
+  if(forGame&&!loader.ready())throw new Error(SCULPTURE_PENDING);
   throw new Error(`seated-sculpture: no '${key}' mesh`+(forGame?'':'; the detailed study needs addSculptureDetail()'));
 };
 

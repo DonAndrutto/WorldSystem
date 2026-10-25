@@ -53,7 +53,7 @@
 .panel-minimized.sheet .sheet-scroll { padding-top: 8px; padding-bottom: 8px; }
 .panel-minimized .sub { margin: 3px 0 0; }
 body.resizing-panel { user-select: none; cursor: ns-resize; }
-.world-ending { position: fixed; z-index: 9; right: 22px; bottom: 24px; width: min(460px, calc(100vw - 44px)); padding: 14px 16px 0; pointer-events: auto; color: var(--ink); background: var(--menu); border-radius: var(--radius); box-shadow: var(--shadow); }
+.world-ending { position: fixed; z-index: 9; right: calc(22px + var(--sa-r)); bottom: 24px; width: min(460px, calc(100vw - 44px - var(--sa-l) - var(--sa-r))); padding: 14px 16px 0; pointer-events: auto; color: var(--ink); background: var(--menu); border-radius: var(--radius); box-shadow: var(--shadow); }
 .world-ending[hidden] { display: none; }
 .world-ending-head { display: flex; gap: 10px; align-items: center; }
 .world-ending-head h2 { flex: 1; margin: 0; font-size: 23px; font-weight: 500; }
@@ -113,7 +113,7 @@ body.board-only .controls, body.board-only.index-open .controls {
   transform: none; left: calc(50% - var(--utility-half, 207px)); right: auto; width: var(--utility-width, 414px);
 }
 @media (max-width: 700px) {
-  body.board-only .controls, body.board-only.index-open .controls { left: 9px; right: 9px; width: auto; }
+  body.board-only .controls, body.board-only.index-open .controls { left: calc(9px + var(--sa-l)); right: calc(9px + var(--sa-r)); width: auto; }
 }
 .world-ending.resizable-panel[data-panel-height]:not(.panel-minimized) { overflow-y: auto; }
 /* The three game menus occupy three equal cells of the existing play header. */
@@ -147,16 +147,16 @@ body.game-view.guided-game .bv-rail { display: none; }
   }
   body.world-only { --world-panel-width: min(390px, 36vw); }
   body.world-only .bv-card {
-    inset: var(--world-card-top, calc(var(--chrome-clearance, var(--header-clearance)) + 72px)) 22px calc(88px + var(--sa-b)) auto;
+    inset: var(--world-card-top, calc(var(--chrome-clearance, var(--header-clearance)) + 72px)) calc(22px + var(--sa-r)) calc(88px + var(--sa-b)) auto;
     width: var(--world-panel-width); display: flex; align-items: flex-start; justify-content: center;
   }
   body.world-only .bv-card-in { width: 100%; max-width: none; max-height: 100%; }
   body.world-only .bv-advance {
-    left: auto; right: 22px; bottom: calc(24px + var(--sa-b)); transform: none;
+    left: auto; right: calc(22px + var(--sa-r)); bottom: calc(24px + var(--sa-b)); transform: none;
     width: var(--world-panel-width);
   }
   body.world-only .game-focus {
-    left: auto; right: 22px; bottom: calc(88px + var(--sa-b));
+    left: auto; right: calc(22px + var(--sa-r)); bottom: calc(88px + var(--sa-b));
     width: var(--world-panel-width); max-width: none;
   }
   body.world-only .panel-dock {
@@ -173,6 +173,42 @@ body.game-view.guided-game .bv-rail { display: none; }
   body.game-view.presentation-view .panel-dock { bottom: calc(66px + var(--sa-b)); }
   body.world-only:has(.game-focus:not([hidden])) .panel-dock { bottom: calc(var(--world-focus-clearance, 280px) + var(--sa-b)); }
 }
+/* The visit panel on a phone held sideways. Between the rail above and the throw
+   below there is less than the panel's height — with its note and a second row of
+   buttons it stood under the rail (and, at 812×375 and 844×340, under the controls
+   as well), so Focus here and Return to world could not be touched. On a short
+   screen it is one compact piece, the note kept for a screen reader and not for
+   the eye, and it is set where nothing else is.
+   Wide enough for the throw to have a column of its own: the foot of the screen,
+   to the left of the throw. */
+@media (max-height: 500px) and (min-width: 701px) {
+  body.world-only .game-focus {
+    left: calc(22px + var(--sa-l)); right: auto; top: auto; bottom: calc(24px + var(--sa-b));
+    width: min(470px, calc(100vw - var(--world-panel-width) - 66px - var(--sa-l) - var(--sa-r)));
+    padding: 8px 10px; z-index: 12;
+  }
+  body.world-only .game-focus strong { font-size: 16px; line-height: 1.2; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  body.world-only .game-focus nav { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 5px; margin-top: 6px; }
+  body.world-only .game-focus .btn { min-height: 36px; padding: 6px 8px; font-size: 10px; white-space: normal; line-height: 1.25; text-align: center; }
+}
+/* Narrower than that (667×375, 568×320) the throw runs across the middle and the
+   controls along the foot: the panel is one row directly under the rail, the
+   name beside the three buttons. */
+@media (max-height: 430px) and (max-width: 700px) {
+  body.world-only .game-focus {
+    top: var(--world-card-top, auto); bottom: auto; left: calc(9px + var(--sa-l)); right: calc(9px + var(--sa-r)); z-index: 12;
+    display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 2.4fr); align-items: center; gap: 8px; padding: 6px 10px;
+  }
+  body.world-only .game-focus strong { font-size: 15px; line-height: 1.2; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  body.world-only .game-focus nav { gap: 5px; }
+  body.world-only .game-focus .btn { min-height: 36px; padding: 5px 6px; }
+}
+@media (max-height: 500px) {
+  body.world-only .game-focus > p {
+    position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap;
+  }
+}
+
 @media (min-width: 701px) {
   body.world-only .bv-card-acts {
     position: sticky; bottom: -18px; z-index: 1; flex: none;
@@ -182,7 +218,7 @@ body.game-view.guided-game .bv-rail { display: none; }
 }
 @media (max-width: 700px) {
   body.world-only .bv-card {
-    inset: var(--world-card-top, calc(var(--header-clearance) + 100px)) 9px calc(140px + var(--sa-b));
+    inset: var(--world-card-top, calc(var(--header-clearance) + 100px)) calc(9px + var(--sa-r)) calc(140px + var(--sa-b)) calc(9px + var(--sa-l));
     width: auto; display: flex; align-items: flex-end; justify-content: center;
   }
   body.world-only .bv-card-in { width: 100%; max-width: none; max-height: min(100%, 44dvh); }
