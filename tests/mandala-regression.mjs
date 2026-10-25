@@ -19,6 +19,8 @@ const rbGame = await import(pathToFileURL(repo + '/rebirth-game.js'));
 const {SQUARE_NOTES, SQUARE_FULL} = await import(pathToFileURL(repo + '/rebirth-notes.js'));
 const rbIcons = await import(pathToFileURL(repo + '/rebirth-icons.js'));
 const squareModels = await import(pathToFileURL(repo + '/square-models.js'));
+const seatedSculpture = await import(pathToFileURL(repo + '/seated-sculpture.js'));
+const gameDisplay = await import(pathToFileURL(repo + '/game-display.js'));
 // The page fetches the seated Buddhas' meshes once it is up; here they are in
 // hand first, so the game's models build in one pass under the fake clock.
 await (await import(pathToFileURL(repo + '/seated-sculpture.js'))).loadSculpture();
@@ -94,6 +96,8 @@ Object.assign(window, {createWorldEnding, installPanelLayout: () => {}, createOf
   LIBERATION_ART: rbIcons.LIBERATION_ART, rbTibetan: rbBoard.tibetanOf,
   createSoundKit: rbSound.createSoundKit, rbVoice: rbSound.voiceFor,
   createGame: rbGame.createGame, throwDie: rbGame.throwDie,
+  sculptureStatus: seatedSculpture.sculptureStatus, onSculptureStatus: seatedSculpture.onSculptureStatus,
+  DISPLAY_LAYERS: gameDisplay.DISPLAY_LAYERS, DISPLAY_DEFAULTS: gameDisplay.DISPLAY_DEFAULTS, readDisplay: gameDisplay.readDisplay, writeDisplay: gameDisplay.writeDisplay,
   rbView: rbGame.view, rbDestination: rbGame.destination
 }, {
   MANSIONS: lunarMansions.MANSIONS, MANSION_BY_ID: lunarMansions.MANSION_BY_ID, ringAngle: lunarMansions.ringAngle,
