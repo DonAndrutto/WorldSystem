@@ -4,6 +4,7 @@ import {JSDOM} from 'jsdom';
 import {PerspectiveCamera, Vector3} from 'three';
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls.js';
 import {fileURLToPath, pathToFileURL} from 'node:url';
+import fs from 'node:fs';
 const repo = process.env.WORLDSYSTEM_REPO || fileURLToPath(new URL('../', import.meta.url));
 const {installViewportGestures} = await import(pathToFileURL(repo + '/viewport-gestures.js'));
 const {window} = new JSDOM('<div id="stage"></div><div id="marks"><button class="mk">17</button></div><aside id="menu">Menu</aside>', {pretendToBeVisual:true});
@@ -87,4 +88,16 @@ const heap=new Vector3(1,0,1), initial=heap.clone().project(camera);
 controls.autoRotate=true; controls.update(1); camera.updateMatrixWorld();
 assert.ok(heap.clone().project(camera).distanceTo(initial)>.001,'An overhead mandala still turns its heap positions on screen');
 controls.dispose();
-console.log('PASS: real OrbitControls wheel/pinch, marker gesture routing and tap, Safari gesture fallback, no double pinch, menu scrolling, keyboard zoom and rotation. Native browser gesture recognition and physical devices are not simulated.');
+// The page as a whole may be pinched: only the scene keeps the gesture for the camera.
+{
+  const html=fs.readFileSync(repo+'/index.html','utf8'), chrome=fs.readFileSync(repo+'/app-chrome.css','utf8');
+  const viewport=/<meta name="viewport" content="([^"]*)"/.exec(html)[1];
+  assert.ok(!/user-scalable\s*=\s*(no|0)|maximum-scale\s*=\s*1(\.0)?\b|minimum-scale/.test(viewport),'The viewport does not forbid zooming: '+viewport);
+  for(const [name,source] of [['index.html',html],['app-chrome.css',chrome]]){
+    const rules=[...source.matchAll(/(?:^|[}\s])html\s*,\s*body\s*\{[^}]*touch-action\s*:\s*([^;}]*)/g)].map(m=>m[1].trim());
+    assert.ok(rules.length>0,name+' says what the page may do with a touch');
+    for(const rule of rules)assert.match(rule,/\bpinch-zoom\b/,name+' leaves pinch-zoom to the page: touch-action: '+rule);
+  }
+  assert.match(html,/three-d-stage\s*\{[^}]*touch-action\s*:\s*none/,'and keeps every touch on the scene for the camera');
+}
+console.log('PASS: real OrbitControls wheel/pinch, marker gesture routing and tap, Safari gesture fallback, no double pinch, menu scrolling, keyboard zoom and rotation, and no page-wide pinch prohibition in the viewport or the touch-action rules. Native browser gesture recognition and physical devices are not simulated.');

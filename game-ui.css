@@ -126,7 +126,7 @@ body.game-view .bv-sq { background-color: var(--realm-wash); border-left: 3px so
 body.game-view .bv-sq[data-bhumi] { border: 3px double var(--realm); }
 body.game-view .bv-sq[data-victory] { border: 2px solid var(--realm); }
 body.game-view .bv-sq:hover { filter: brightness(1.06); }
-body.game-view .bv-sq[aria-selected="true"] { outline: 2px solid var(--ink); outline-offset: -2px; }
+body.game-view:where(:not(.gd-no-highlights)) .bv-sq[aria-selected="true"] { outline: 2px solid var(--ink); outline-offset: -2px; }
 body.game-view .bv-sq .n { background: var(--realm-wash); color: var(--ink); text-shadow: none; border-radius: 0 0 4px 0; padding: 1px 3px; line-height: 1.2; }
 body.game-view .bv-sq .nm { background: color-mix(in srgb, var(--realm-wash) 92%, transparent); width: 100%; border-radius: 3px; text-shadow: none; }
 .bv-bhumi { position: absolute; z-index: 3; top: 0; right: 0; border-radius: 0 0 0 5px; background: #087768; color: #fff; padding: 1px 3px; font: 500 10px/1.2 "IBM Plex Mono", monospace; }
@@ -223,3 +223,29 @@ body.guided-game .bv-rail, body.guided-game .bv-head { display: none; }
 .player-art[data-mood="serene"] {
   filter: drop-shadow(0 0 2px rgba(255, 222, 130, .95)) drop-shadow(0 0 5px rgba(255, 200, 90, .75));
 }
+
+/* ── Game display (game-display.js) ────────────────────────────────────────
+   Field names and field numbers are taken off the screen, not out of the
+   page: a cell is a button whose accessible name is made of its number and its
+   name, so what is switched off is set aside with the visually-hidden clip
+   rather than display:none, and a screen reader, the focus ring and the
+   keyboard walk through the same board as before. Which language a name is in
+   is the Names setting and is not touched here; neither is the interface's.
+   Highlights are not here: they are the board's own rules, guarded where
+   they are written (`:where(body:not(.gd-no-highlights))`), and the world's
+   half is the page's script. */
+body.gd-no-names .bv-sq .nm,
+body.gd-no-names .bv-sq .tb,
+body.gd-no-names .rb-label .t,
+body.gd-no-names .rb-label .rb-realm,
+body.gd-no-numbers .bv-sq:not([data-trap]) .n,
+body.gd-no-numbers .rb-label .n {
+  position: absolute !important; width: 1px !important; height: 1px !important; margin: -1px !important;
+  padding: 0 !important; border: 0 !important; overflow: hidden !important; clip-path: inset(50%) !important;
+  white-space: nowrap !important;
+}
+/* a trap's ◈ is not its number: the digits go, the sign stays */
+body.gd-no-numbers .bv-sq[data-trap] .n { font-size: 0 !important; }
+body.gd-no-numbers .bv-sq[data-trap] .n::after { font-size: 10px; }
+/* with neither, the label has nothing to say and is not drawn (still in the tree) */
+body.gd-no-names.gd-no-numbers .rb-label { opacity: 0; pointer-events: none; }

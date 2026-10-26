@@ -7,7 +7,10 @@
 .tour-panel .tour-foot .btn, .tour-panel .tour-overview, .tour-panel .tour-links .btn { font-size: 13px; letter-spacing: 0; text-transform: none; min-height: 44px; }
 .tour-panel .tour-links { display: flex; flex-wrap: wrap; }
 .tour-panel .tour-links .btn { flex: 1 1 90px; }
-.tour-panel .tour-foot { display: grid; grid-template-columns: 1fr 1fr 1fr; }
+/* `minmax(0, 1fr)`, not `1fr`: a track will not shrink below its content, and at 320px in
+   Polish "Zakończ zwiedzanie" held the third column wider than the screen. The words wrap instead. */
+.tour-panel .tour-foot { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.tour-panel .tour-foot .btn { min-width: 0; white-space: normal; overflow-wrap: anywhere; line-height: 1.2; }
 .tour-panel .tour-foot .tour-overview { margin: 0; }
 .tour-panel .tour-title { overflow-wrap: anywhere; }
 .tour-panel .tour-copy { overflow-wrap: anywhere; }
@@ -31,7 +34,7 @@ body.presentation-view.game-view .rb-label { display: none !important; }
 }
 /* A phone turned sideways needs a side panel rather than a bottom sheet. */
 @media (max-height: 500px) and (orientation: landscape) {
-  body.presentation-view .panel-dock { top: var(--chrome-clearance, var(--header-clearance, 74px)); bottom: 12px; left: auto; right: 10px; width: min(340px, 45vw); max-height: none; }
+  body.presentation-view .panel-dock { top: var(--chrome-clearance, var(--header-clearance, 74px)); bottom: 12px; left: auto; right: calc(10px + var(--sa-r)); width: min(340px, 45vw); max-height: none; }
   .tour-panel .mode-tabs { display: none; }
   .tour-panel .tour-foot .btn, .tour-panel .tour-overview, .tour-playback .btn, .tour-playback select { min-height: 40px; }
   .tour-playback label { font-size: 12px; }
@@ -43,7 +46,7 @@ body.presentation-view.game-view .rb-label { display: none !important; }
    it, and a right-hand panel below them is left too short to read. The left
    side under the header is free: the panel takes it, at its full height. */
 @media (max-height: 500px) and (orientation: landscape) {
-  :root[data-header-rows="2"] body.presentation-view .panel-dock { top: var(--header-clearance, 74px); bottom: 12px; left: 14px; right: auto; }
+  :root[data-header-rows="2"] body.presentation-view .panel-dock { top: var(--header-clearance, 74px); bottom: 12px; left: calc(14px + var(--sa-l)); right: auto; }
 }
 /* Narrower than that, the controls hold the bottom edge: stop above them. */
 @media (max-height: 500px) and (orientation: landscape) and (max-width: 700px) {

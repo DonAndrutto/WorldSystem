@@ -30,6 +30,10 @@ magnifiers in the header make the writing in every window larger or smaller.
 | `tests/mandala-regression.mjs` | DOM and geometry regression checks. |
 | `rebirth-board.js` | The 104 squares of the game of rebirth, their Tibetan names, the die-to-destination graph, and the symmetrical figure — two rings, a double helix and a crown — that places the squares the world system has no room for. |
 | `nirvana-finale.js` | What the world does when a traveller reaches Nirvana: light climbing both strands to the stupa, the stupa's glow and turning rays, rainbow rings, a rain of flowers, then a quiet glow until the next game; and the relics coming down into the dome. |
+| `game-display.js` | What the game draws over its squares — field names, field numbers, highlights, route guides, move links — as five independent switches: where each is drawn (board, world or both), and the one key (`ws-game-display`) in which the layers that are *off* are kept. No DOM. |
+| `tests/game-display.mjs`, `tests/browser-game-display.mjs` | That state and its storage, without a browser; and each layer, alone and together, in both arrangements, in Polish, across reloads and modes, with the game itself unchanged by any of it. |
+| `tests/sculpture-loading.mjs`, `tests/browser-sculpture-recovery.mjs` | The seated Buddhas' loader (a failed or stalled request, a retry that works, no overlap, no runaway) and the stand-in figures, without a browser; and the same broken in a real browser — delayed, failed, retried, offline, installed. |
+| `tests/browser-nirvana-lifecycle.mjs` | The finale at Nirvana lived through in a browser: leaving at the moment of arrival, the board over it, backgrounding, reload, a new game, reduced motion, a phone on its side. |
 | `player-moods.js` | The travellers' faces in four moods — weary in the lower realms, neutral in the human world, joyful in the heavens, serene on the path — repainted from the artwork's own pixels. |
 | `tests/player-moods.mjs` | The moods by square, the warps of each face, and the finale's timeline, without a browser. |
 | `rebirth-game.js` | The rules on their own: dead faces, the two counter traps, victory at 104, and each player's trail. No DOM, no WebGL. |
@@ -135,7 +139,7 @@ It works offline. Everything the page draws with is in this repository, the
 library among it, and the service worker in `sw.js` puts the whole of it by on
 the first visit: the page, its modules, three.js, the two typefaces, the three
 offering sheets, the board's four painted fields and the wheel of life in its
-layers. Sixty-seven files, about 12 MB, fetched once. From the second visit on, the network is never asked for any
+layers. About a hundred and fifty files, 23 MB, fetched once (`node tests/offline.mjs` says exactly how many). From the second visit on, the network is never asked for any
 of them — only ever whether there is a newer world.
 
 So: open it once with a connection, add it to the home screen, turn the network
@@ -162,6 +166,23 @@ since the next cold start opens it anyway, which for a home-screen app is
 usually the same evening. The browser looks for a new worker on every
 navigation, and the page asks again itself when it is brought back after an hour
 away — an installed copy can stay open for days without ever navigating.
+
+**The game's sculpted Buddhas arrive after the page.** Squares 77, 93, 100 and
+101 carry a seated Buddha sculpted from two data files (1.2 MB,
+`sculpture-robe-data.js`, `sculpture-anatomy-data.js`) that are fetched once the
+page is up, not before it can start. If they are slow, a restrained note says so
+in the game's world; until they come a plainer figure stands in each square — the
+square, its name and its entry are the same — and the sculpture replaces it when
+they do. If the request fails the note says so and offers **Retry**. A retry asks
+for the same files under a new `?retry=n` address, because a browser keeps the
+failure of a module fetch as it keeps a success: asking again at the same address
+would fail again however well the network had recovered. (The service worker
+matches its shelf with the query ignored, so an installed copy answers a retry
+offline.) A request that stalls is given up on after 25 s but is still taken if it
+arrives; nothing is requested twice at once; and nothing retries on its own except
+once when the browser says the network is back, or the page is handed back after
+a request was cut off in the background. The full-resolution study meshes
+(`sculpture-*-detail.js`, 3.4 MB) are in neither the page nor the shelf.
 
 **What is not put by.** The 105 source paintings under `assets/Game of Liberation
 English titles/`, the app-icon master and the flat sky previews are what the
@@ -280,6 +301,32 @@ read in — where the row is too short for the whole name, the beginning of it.
 **Names**, among the settings under Options (`t`), is a selector of two with the
 language in force held down; the entry in the drawer always gives both. See
 [ARTWORK.md](ARTWORK.md) for how the paintings are served.
+
+### Reading the board and the world
+
+**Options → Game display** has five switches, each independent of the others and
+of the language settings. They change what is drawn and nothing else: not a
+throw, a move, a victory, the selection or the saved game.
+
+| switch | board | world | what it is |
+| --- | :-: | :-: | --- |
+| **Field names** | ● | ● | the name in a cell, and in the label beside the selected field |
+| **Field numbers** | ● | ● | the number in a cell, and in the same label |
+| **Highlights** | ● | ● | the selected field's frame and those of the fields a throw from it reaches; in the world, the selected field standing forward, and the gold and the ring of a visit |
+| **Route guides** | | ● | the threads along the two strands of the ascent and the rings — the figure, not the game |
+| **Move links** | | ● | lines from the selected field to where each throw from it leads — these change with the selection |
+
+All five are on, as they always were, until turned off; the choice is kept on
+this device under `ws-game-display` as the list of switches that are *off*, so a
+switch added later is on for everyone and the saved game (`ws-game-session-v1`)
+is not touched. **Names** (Eng/Polski or བོད) and the interface language decide
+*which* name and *which* language; Field names decides only whether it is
+shown, and a name that is not shown is hidden from the eye alone — a cell keeps
+its accessible name, the board its keyboard and its focus ring. Players, the
+colour each stands in, whose turn it is and where each token is, are not layers
+and are always shown. The traveller's history is not an overlay: it is the trail
+of chips and the move log in the rail, which stay. At the Nirvana finale a light
+still climbs the strands whether or not the guides are drawn.
 
 Two arrangements of the same game, switched from the rail or handed over with
 `b` or `w`, and each of them is the whole screen:
@@ -521,7 +568,8 @@ the entries the legend sat beside.
 | **View** `e` `m` `g` `l` | Explorer, Maṇḍala, Game, Wheel. Explorer is the model and its index; Maṇḍala is the thirty-seven heaps, in the order the offering names them; Game is the board of rebirth, and the world it is a section through; Wheel is the wheel of life, a relief on a wall. |
 | **Board or world** `b` `w` | In game mode, which of the two has the screen: the board alone, or the world alone. Kept between visits, and only while the game is on the screen — the arrangement is the game's dress and comes off with it. A preference remembered from the Both that used to stand between them opens on the board. The board takes the whole page as a printed board rather than a panel: a painted sky of the model's own clouds, the wordmark over it, the throw, the players, the square in hand and the karmic trail on one card, the hundred and four named fields under that, and the three controls docked along the foot. It has a night palette of its own, gold on ink. |
 | **Names** `t` | Which language the squares are named in, in passing, wherever they are named — Tibetan, or whatever the interface is in. Under Options, as a selector of two with the one in force held down; the side that is not Tibetan says Eng while the interface is English and PL while it is Polish, because that is what the names are then. The entry always gives both. |
-| **Options** | Motion and its pace, night, sound, the language of the names, full screen and reset view, under one control. |
+| **Game display** | Under Options, five switches for what the game draws over its squares, each its own — see *Reading the board and the world* below. |
+| **Options** | Motion and its pace, night, sound, the language of the names, the game's display, full screen and reset view, under one control. |
 | **Motion** `r` | Sets the sun and moon on their circuit around Meru and lets the view turn slowly with them. They go east, then south — clockwise, seen from above with north at the top, the way the sun is seen to go from Jambudvīpa. The sun is what lights the world, so Meru's shadow walks round the continents with it. The moon does not stand opposite it — directly behind Meru it would sit in the mountain's own shadow and never be lit at all — so it runs a little under a half-turn away. On when the model is first opened, unless the system asks for less movement; whether it stays on is kept between visits. |
 | **Speed** | Three paces for that one movement: slow, medium and fast — a circuit in 160, 80 or 40 seconds, the last of them the pace the model used to hold. Slow to begin with, so the world turns gently enough to be read against, and kept between visits. Changing the pace does not stop the circuit or send the sun back to the east. |
 | **Night** `n` | Paper or dark. At night the moon takes over the lighting, and the clouds stand against a faint field of stars. |

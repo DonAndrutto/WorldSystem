@@ -117,7 +117,9 @@
     root.style.setProperty('--utility-half', rect.width / 2 + 'px');
     root.style.setProperty('--header-clearance', clearance);
     // Stack only when both cards cannot fit, and reserve the entire header.
-    root.dataset.headerRows = innerWidth > 700 && innerWidth < rect.width * 2 + 56 ? '2' : '1';
+    // (the notch and corners of a phone on its side take their share of the width)
+    const sides = (() => { const probe = document.createElement('div'); probe.style.cssText = 'position:fixed;visibility:hidden;padding:0 env(safe-area-inset-right,0px) 0 env(safe-area-inset-left,0px)'; document.body.append(probe); const s = getComputedStyle(probe); const px = (parseFloat(s.paddingLeft) || 0) + (parseFloat(s.paddingRight) || 0); probe.remove(); return px; })();
+    root.dataset.headerRows = innerWidth > 700 && innerWidth - sides < rect.width * 2 + 56 ? '2' : '1';
     const menuRect = controls.getBoundingClientRect();
     const menuBottom = menuRect.height > 0 && menuRect.top < innerHeight / 2 ? menuRect.bottom : 0;
     const workspace = Math.ceil(Math.max(rect.bottom, menuBottom) + 10) + 'px';
