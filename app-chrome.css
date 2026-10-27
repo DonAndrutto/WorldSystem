@@ -171,6 +171,19 @@ body.tour-view .compass { top: calc(86px + var(--sa-t)); }
 @media (max-width: 340px) {
   .app-donate span { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 }
+/* A screen too narrow for the header and the control strip side by side
+   (app-chrome.js sets this) gets the header as a row of symbols: the same
+   words stay on the heart and the question mark as their accessible names. */
+:root[data-header-compact="1"] .app-donate span,
+:root[data-header-compact="1"] .app-help-label {
+  position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap;
+}
+/* The two cards stand level, one corner each. The strip used to hang 4px
+   lower than the header (22px against 18px), which showed whenever the two
+   shared a row. */
+@media (min-width: 701px) {
+  .controls, body.index-open .controls { top: calc(18px + var(--sa-t)); }
+}
 @media (max-width: 360px) {
   .controls > .btn, .controls .menu > .btn { font-size: 11px; letter-spacing: 0; }
   .controls .btn .g { margin-right: 4px; }

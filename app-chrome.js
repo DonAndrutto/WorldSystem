@@ -108,7 +108,17 @@
   header.querySelector('.app-brand').addEventListener('click', () => document.dispatchEvent(new CustomEvent('ws-about-open')));
   const controls = document.querySelector('.controls');
   const measureHeader = () => {
-    const root = document.documentElement, rect = header.getBoundingClientRect();
+    const root = document.documentElement;
+    // (the notch and corners of a phone on its side take their share of the width)
+    const sides = (() => { const probe = document.createElement('div'); probe.style.cssText = 'position:fixed;visibility:hidden;padding:0 env(safe-area-inset-right,0px) 0 env(safe-area-inset-left,0px)'; document.body.append(probe); const s = getComputedStyle(probe); const px = (parseFloat(s.paddingLeft) || 0) + (parseFloat(s.paddingRight) || 0); probe.remove(); return px; })();
+    // The header and the control strip are two cards of one width, a corner each,
+    // with the middle of the screen left to the model. The header gives up its
+    // words (Donate, Help) before the pair give up the row: stacked, they were
+    // two bars of different lengths over the top of the world.
+    const fits = () => innerWidth - sides >= header.getBoundingClientRect().width * 2 + 56;
+    root.dataset.headerCompact = '0';
+    if (innerWidth > 700 && !fits()) root.dataset.headerCompact = '1';
+    const rect = header.getBoundingClientRect();
     const width = rect.width + 'px', clearance = Math.ceil(rect.bottom + 10) + 'px';
     const previousWidth = root.style.getPropertyValue('--utility-width');
     const previousClearance = root.style.getPropertyValue('--header-clearance');
@@ -116,10 +126,8 @@
     root.style.setProperty('--utility-width', width);
     root.style.setProperty('--utility-half', rect.width / 2 + 'px');
     root.style.setProperty('--header-clearance', clearance);
-    // Stack only when both cards cannot fit, and reserve the entire header.
-    // (the notch and corners of a phone on its side take their share of the width)
-    const sides = (() => { const probe = document.createElement('div'); probe.style.cssText = 'position:fixed;visibility:hidden;padding:0 env(safe-area-inset-right,0px) 0 env(safe-area-inset-left,0px)'; document.body.append(probe); const s = getComputedStyle(probe); const px = (parseFloat(s.paddingLeft) || 0) + (parseFloat(s.paddingRight) || 0); probe.remove(); return px; })();
-    root.dataset.headerRows = innerWidth > 700 && innerWidth - sides < rect.width * 2 + 56 ? '2' : '1';
+    // Stack only when both cards cannot fit even so, and reserve the entire header.
+    root.dataset.headerRows = innerWidth > 700 && !fits() ? '2' : '1';
     const menuRect = controls.getBoundingClientRect();
     const menuBottom = menuRect.height > 0 && menuRect.top < innerHeight / 2 ? menuRect.bottom : 0;
     const workspace = Math.ceil(Math.max(rect.bottom, menuBottom) + 10) + 'px';
