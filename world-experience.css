@@ -75,7 +75,7 @@ body.resizing-panel { user-select: none; cursor: ns-resize; }
   .bv-rail .bv-mid { flex: 1 1 200px; }
 }
 @media (max-width: 700px) {
-  .controls, body.index-open .controls, body.board-only .controls, body.board-only.index-open .controls { width: auto; left: 9px; right: 9px; top: auto; bottom: calc(9px + var(--sa-b)); transform: none; padding: 4px; }
+  .controls, body.index-open .controls, body.board-only .controls, body.board-only.index-open .controls { width: auto; left: calc(9px + var(--sa-l)); right: calc(9px + var(--sa-r)); top: auto; bottom: calc(9px + var(--sa-b)); transform: none; padding: 4px; }
   .controls > .btn, .controls .menu > summary { padding: 8px 5px; }
   .controls .btn .g { width: 22px; height: 22px; }
   .bv-rail { gap: 4px; }
@@ -229,3 +229,81 @@ body.game-view.guided-game .bv-rail { display: none; }
 }
 
 @media (min-width: 701px) { body.world-only .bv-guide-groups { grid-template-columns: minmax(0, 1fr); } }
+
+/* ── a phone held sideways: two cards a side, and Meru between them ─────────
+   The header and the control strip are one width and a corner each
+   (app-chrome.js). The rail under them was a third card the whole width of
+   the screen, and it stood across the middle of the model — the spire of the
+   heavens, which is what rises there, went behind it. Here the rail is two
+   cards the width of the two above, one under each, so the screen is a
+   mirrored pair of columns and a clear middle. The turn and Realms & path
+   stand under the header; what is shown, Destinations and Game under the
+   strip. Each is laid out against the width of those cards (--utility-width),
+   so the four edges line up in either language. The rail itself draws
+   nothing and takes no touches: the gap between its cards belongs to the
+   model, and still turns it. */
+@media (min-width: 701px) and (max-height: 500px) {
+  body.world-only .board-view,
+  body.world-only.index-open .board-view { pointer-events: none; }
+  body.world-only .board-view > :not(.bv-rail) { pointer-events: auto; }
+  body.world-only.game-view .bv-rail {
+    --w: var(--utility-width, 336px);
+    display: grid; align-items: center; gap: 0; padding: 0; border: 0; background: none;
+    box-shadow: none; pointer-events: none;
+    grid-template-columns:
+      minmax(0, calc(var(--w) * .52)) minmax(0, calc(var(--w) * .48))
+      minmax(0, 1fr)
+      minmax(0, calc(var(--w) * .46)) minmax(0, calc(var(--w) * .28)) minmax(0, calc(var(--w) * .26));
+    grid-template-rows: auto;
+  }
+  body.world-only.game-view .bv-rail::before,
+  body.world-only.game-view .bv-rail::after {
+    content: ''; grid-row: 1; align-self: stretch; z-index: 0; pointer-events: auto;
+    background: var(--menu); border: 1px solid var(--rule); border-radius: var(--radius); box-shadow: var(--shadow);
+  }
+  body.world-only.game-view .bv-rail::before { grid-column: 1 / 3; }
+  body.world-only.game-view .bv-rail::after { grid-column: 4 / 7; }
+  body.world-only.game-view .bv-rail > * {
+    position: relative; z-index: 1; grid-row: 1; order: 0; margin: 6px 3px; min-width: 0;
+    pointer-events: auto;
+  }
+  body.world-only.game-view .bv-rail > .die-face,
+  body.world-only.game-view .bv-rail > .bv-mid { display: none; }
+  body.world-only.game-view .bv-rail > .bv-act { grid-column: 1; margin-left: 12px; max-width: none; flex: none; }
+  body.world-only.game-view .bv-rail > .bv-guide { grid-column: 2; width: auto; margin-right: 6px; }
+  body.world-only.game-view .bv-rail > .bv-views { grid-column: 4; width: auto; margin-left: 6px; }
+  body.world-only.game-view .bv-rail > .bv-options { grid-column: 5; width: auto; }
+  body.world-only.game-view .bv-rail > .bv-tools { grid-column: 6; width: auto; margin-right: 6px; }
+  body.world-only.game-view .bv-rail > .bv-skip { grid-row: 2; grid-column: 1 / 3; margin: 6px 0 0; }
+  body.world-only.game-view .bv-rail > .bv-views .btn { flex: 1 1 0; min-width: 0; padding: 8px 4px; letter-spacing: 0; font-size: 10px; }
+  body.world-only.game-view .bv-rail > .bv-views .btn .g { display: none; }
+  body.world-only.game-view .bv-rail > :is(.bv-guide, .bv-options, .bv-tools) > summary { width: 100%; box-sizing: border-box; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding-inline: 4px; font-size: 10.5px; letter-spacing: .02em; }
+  body.world-only.game-view .bv-rail .bv-guide-title { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  body.world-only.game-view .bv-rail .bv-guide > summary { display: flex; align-items: center; justify-content: center; }
+  body.world-only.game-view .bv-rail .bv-turn { margin: 0; font-size: 12px; line-height: 1.25; }
+}
+/* On a phone upright the die is gone from the world's rail, and the switch
+   between the board and the world was left in two thirds of its row under
+   an empty third. It takes the row. */
+@media (max-width: 700px) {
+  body.world-only.game-view .bv-rail .bv-views { grid-column: 1 / -1; }
+}
+/* A small phone on its side (a width under 700px with 375px or less of
+   height) has no room for two rows of controls over the model: the same
+   four controls stand in one row. */
+@media (max-width: 700px) and (max-height: 430px) {
+  body.world-only.game-view .bv-rail { grid-template-columns: minmax(0, 1.5fr) repeat(3, minmax(0, 1fr)); }
+  body.world-only.game-view .bv-rail .bv-views { grid-column: 1; grid-row: 1; order: 0; }
+  body.world-only.game-view .bv-rail .bv-guide { grid-column: 2; grid-row: 1; order: 0; }
+  body.world-only.game-view .bv-rail .bv-options { grid-column: 3; grid-row: 1; order: 0; }
+  body.world-only.game-view .bv-rail .bv-tools { grid-column: 4; grid-row: 1; order: 0; }
+  body.world-only.game-view .bv-rail > .bv-act { display: none; }
+  body.world-only.game-view .bv-rail > .bv-skip { grid-column: 1 / -1; grid-row: 2; }
+}
+/* The three controls along the foot share it as thirds, as the two cards at
+   the top of a wider screen do, and give way only to a word that will not
+   fit: sized to their words they stood unevenly, each centred in a different
+   share of the bar. */
+@media (max-width: 700px) {
+  .controls, body.board-only .controls { grid-template-columns: repeat(3, minmax(min-content, 1fr)); }
+}
