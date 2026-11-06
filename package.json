@@ -1,0 +1,17 @@
+{
+  "name": "world-system",
+  "private": true,
+  "description": "Development checks for the static World System app",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "test": "node scripts/test.cjs",
+    "test:offline": "node tests/offline.mjs",
+    "test:upgrade": "node tests/browser-offline-upgrade.mjs",
+    "build:offline": "node scripts/build-sw.cjs"
+  },
+  "devDependencies": {
+    "jsdom": "26.1.0",
+    "playwright": "1.65.0",
+    "three": "0.184.0"
+  }
+}

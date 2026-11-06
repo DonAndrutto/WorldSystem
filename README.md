@@ -882,10 +882,13 @@ pop-up entry points, return navigation and material restoration. Actual browser
 layout and GPU rendering still require the visual checks described below.
 
 The browser reads three.js through the pinned import map, now from `vendor/`.
-The test harness needs Node and two development dependencies:
+The test harness needs Node 22 or newer and the pinned development dependencies:
 
 ```sh
-npm install --no-save --package-lock=false three@0.184.0 jsdom@26
+npm ci
+# Run every Node suite, including the offline release consistency check:
+npm test
+# Or run an individual suite:
 node tests/mandala-regression.mjs
 node tests/rebirth-regression.mjs
 node tests/player-moods.mjs
@@ -925,7 +928,12 @@ An optional Chrome suite checks rendered controls, tour playback, language,
 reduced motion, the Throw button, recitation Numbers and modal focus:
 
 ```sh
-npm install --no-save --package-lock=false three@0.184.0 jsdom@26 playwright
+npm ci
+npx playwright install chromium
+# Self-hosted offline upgrade test; no separate server or GPU needed:
+npm run test:upgrade
+# Existing visual suites use the server below. Use WORLDSYSTEM_CHANNEL=chromium
+# for suites supporting it when Google Chrome is not installed.
 python3 -m http.server 4174
 # In another terminal (Google Chrome installed):
 WORLDSYSTEM_URL=http://127.0.0.1:4174 node tests/browser-ui.mjs
@@ -1004,6 +1012,24 @@ none of them needs a development dependency:
 
 The last one is the one that is easy to forget. `node tests/offline.mjs` fails
 if `sw.js` is behind the tree, which is the whole reason it exists.
+
+`Application checks` now runs all Node suites and the Chromium offline-upgrade
+test on pull requests and pushes to `main`. It checks the committed worker;
+it deliberately does not regenerate it and conceal a stale release. Before
+committing a runtime change, run `npm run build:offline`, then `npm test`.
+The lockfile pins development dependencies; the deployed app still uses local
+vendored libraries and needs no npm install to run.
+
+The upgrade test uses the actual worker and update-button code in a minimal
+non-WebGL page. It checks failed installation, waiting for acceptance, new
+assets after reload, retained saves/preferences, pending-die recovery and
+offline access to Polish, artwork and lazy sculpture assets. It does not
+establish full-app rendering, Safari or physical iPhone behaviour.
+
+To enforce these checks, repository settings must require the `Application
+checks` status before merging into `main`. The existing Pages publisher is
+independent: adding this workflow alone does not prevent direct pushes or a
+Pages deployment after a failed check. See [the prioritized repair plan](docs/RELIABILITY-PLAN.md).
 
 To rebuild the icon assets, install Sharp as an additional development dependency
 (`npm install --no-save --package-lock=false three@0.184.0 jsdom@26 sharp`) and run
