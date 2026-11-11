@@ -39,6 +39,7 @@ const endingSound = await import(pathToFileURL(repo + '/ending-sound.js'));
 const continentModels = await import(pathToFileURL(repo + '/continent-models.js'));
 const wheelArt = await import(pathToFileURL(repo + '/wheel-art.js'));
 const wheelView = await import(pathToFileURL(repo + '/wheel-view.js'));
+const {createWheelMode} = await import(pathToFileURL(repo + '/wheel-mode.js'));
 const wheelNotes = await import(pathToFileURL(repo + '/wheel-notes.js'));
 // Every square is painted: the field it is drawn as on the board, served as
 // four atlas sheets that the module lays out from the square numbers alone.
@@ -84,7 +85,7 @@ const THREE = {...RealThree, TextureLoader: class {
   loadAsync(url) { return new Promise((resolve,reject)=>this.load(url,resolve,undefined,reject)); }
   load(url, success, progress, failure) { textureRequests.push({url, success, failure}); }
 }};
-Object.assign(window, {createWorldEnding, installPanelLayout: () => {}, createOfferingModels, OFFERING_ART, offeringBackground, TOUR_NOTES, createPresentationTours, createPresentationPlayer, WORLD_ORDERS, installViewportGestures}, surfaces, skyClouds, gameCamera, gamePlayers, nirvanaFinale, gameSession, gameWalkthrough, summitDetail, continentModels, wheelView, wheelNotes, {drawWheel: wheelArt.drawWheel}, {
+Object.assign(window, {createWorldEnding, installPanelLayout: () => {}, createOfferingModels, OFFERING_ART, offeringBackground, TOUR_NOTES, createPresentationTours, createPresentationPlayer, WORLD_ORDERS, installViewportGestures}, surfaces, skyClouds, gameCamera, gamePlayers, nirvanaFinale, gameSession, gameWalkthrough, summitDetail, continentModels, wheelView, wheelNotes, {createWheelMode, drawWheel: wheelArt.drawWheel}, {
   createThousandWorlds: thousandWorlds.createThousandWorlds, worldsFramingDistance: thousandWorlds.framingDistance,
   RB_SQUARES: rbBoard.SQUARES, RB_SPECIAL: rbBoard.SPECIAL, RB_START: rbBoard.START,
   RB_VICTORY: rbBoard.VICTORY, TRAP_QUOTA: rbBoard.TRAP_QUOTA, TRAP_QUOTA_NOTE64: rbBoard.TRAP_QUOTA_NOTE64,
@@ -1390,7 +1391,10 @@ assert.equal(JSON.parse(window.localStorage.getItem(gameSession.SESSION_KEY)).ro
    dock, the index and the Escape cascade with everything else. */
 app.setMode('explore'); advance(1200);
 assert.equal(document.querySelectorAll('.wheel-stage .wl-layer').length, 0, 'the relief is not built until it is asked for');
-app.setMode('wheel'); advance(1200);
+app.setMode('wheel');
+assert.equal(document.querySelectorAll('.wheel-stage .wl-layer').length, 7, 'enter builds the relief in the same turn');
+assert.equal(app.wheelView().isHome(), true, 'enter frames the wall before the next animation frame');
+advance(1200);
 assert.equal(app.state().mode, 'wheel');
 assert.ok(document.body.classList.contains('wheel-on'), 'the page knows the wheel is up');
 assert.equal(q('.wheel-stage').hidden, false);
@@ -1414,12 +1418,42 @@ assert.equal(wheelIndex.length, Object.keys(wheelNotes.WHEEL_ENTRIES).length, 'e
 const tapOn = (el) => {
   for (const type of ['pointerdown', 'pointerup']) el.dispatchEvent(new window.MouseEvent(type, {bubbles: true, clientX: 10, clientY: 10, button: 0}));
 };
+const beforeWheelPick = app.wheelView().state().view;
 tapOn(q('.wheel-stage .wl-wheel [data-wl="wl_hub_pig"]'));
+assert.deepEqual(app.wheelView().state().view, beforeWheelPick, 'picking opens the entry without moving the wall');
 assert.equal(app.state().current, 'wl_hub_pig', 'the innermost part is the one tapped');
 assert.equal(q('.sheet').hidden, false); assert.equal(app.state().mode, 'wheel');
 assert.ok(q('.wheel-stage .wl-wheel [data-wl="wl_hub_pig"]').classList.contains('wl-sel'), 'and it is marked');
 assert.equal(q('.wheel-stage [data-wl="wl_hub"]').classList.contains('wl-sel'), false, 'but not the hub around it');
 assert.equal(q('.sheet .zoom').textContent, 'Zoom in');
+advance(1200);
+assert.equal(app.wheelView().state().view.x, beforeWheelPick.x, 'the pick does not start a flight to the part');
+assert.equal(app.wheelView().state().view.y, beforeWheelPick.y);
+tapOn(q('.wheel-stage .wl-back'));
+assert.equal(q('.sheet').hidden, true, 'a tap on the bare wall puts the entry away');
+assert.equal(app.state().current, null);
+assert.equal(app.wheelView().state().selected, null, 'the bare wall clears the part selection');
+// Hover names use the live language choice and stay inside either screen edge.
+const wheelStage = q('.wheel-stage'), wheelTip = q('.wl-tip');
+Object.defineProperty(wheelStage, 'clientWidth', {value:400, configurable:true});
+Object.defineProperties(wheelTip, {
+  offsetWidth: {value:100, configurable:true}, offsetHeight: {value:40, configurable:true}
+});
+const hoverPig = (x, y) => q('.wheel-stage .wl-wheel [data-wl="wl_hub_pig"]').dispatchEvent(
+  new window.MouseEvent('pointermove', {bubbles:true, clientX:x, clientY:y}));
+q('[data-lang="en"]').click(); hoverPig(1, 10);
+assert.equal(wheelTip.innerHTML, 'The pig — ignorance<i>delusion</i>');
+assert.equal(wheelTip.hidden, false);
+assert.equal(wheelTip.style.left, '58px'); assert.equal(wheelTip.style.top, '10px');
+assert.equal(wheelTip.classList.contains('below'), true, 'a name near the top is shown below the pointer');
+q('[data-lang="bo"]').click(); hoverPig(399, 100);
+assert.equal(wheelTip.innerHTML, '<span lang="bo">གཏི་མུག</span><i>The pig — ignorance</i>');
+assert.equal(wheelTip.style.left, '342px'); assert.equal(wheelTip.style.top, '100px');
+assert.equal(wheelTip.classList.contains('below'), false);
+wheelStage.dispatchEvent(new window.MouseEvent('pointerleave'));
+assert.equal(wheelTip.hidden, true);
+q('[data-lang="en"]').click();
+delete wheelStage.clientWidth; delete wheelTip.offsetWidth; delete wheelTip.offsetHeight;
 // the hells of the model, opened from the index while the wheel is up, are framed on the wheel
 const avichi = [...document.querySelectorAll('.index .row')].find(r => r.dataset.id === 'hell_avichi');
 avichi.click(); advance(1200);

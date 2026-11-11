@@ -25,7 +25,7 @@
    current shelf or the runtime one, so old versions do not accumulate. */
 
 /* ── written by scripts/build-sw.cjs — do not edit below ─────────────── */
-const VERSION = 'd56113f349492945';
+const VERSION = 'ace1e5c7d10b77c2';
 const SHELL = [
   "app-chrome.css",
   "app-chrome.js",
@@ -170,6 +170,7 @@ const SHELL = [
   "vendor/three@0.184.0/examples/jsm/controls/OrbitControls.js",
   "viewport-gestures.js",
   "wheel-art.js",
+  "wheel-mode.js",
   "wheel-notes.js",
   "wheel-parts.js",
   "wheel-relief.js",

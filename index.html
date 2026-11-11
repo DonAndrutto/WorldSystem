@@ -2266,7 +2266,7 @@ import { createNirvanaFinale, FINALE } from './nirvana-finale.js';
 import { SESSION_KEY, makeSession, restoreSession, possibleThrows } from './game-session.js';
 import { WALKTHROUGH_KEY, WALKTHROUGH_STEPS } from './game-walkthrough.js';
 import { drawWheel } from './wheel-art.js';
-import { createWheelView } from './wheel-view.js';
+import { createWheelMode } from './wheel-mode.js';
 import { WHEEL_ENTRIES, WHEEL_TREE, WHEEL_ALSO } from './wheel-notes.js';
 import { composeGameFocus, composeGameOverview, orbitFlightPoint, closeUpDirection } from './game-camera.js';
 import { MANSIONS, MANSION_BY_ID, ringAngle, glyphUrl, evidenceLine, CATALOGUE_SOURCE } from './lunar-mansions.js';
@@ -5016,11 +5016,6 @@ const entryArt = sheet.querySelector('.entry-art');
 
 /* the wheel of life's view, made once the page is built (below) */
 let wheelView = null;
-function wheelPart(id) {
-  if (!wheelView || !id) return null;
-  if (wheelView.has(id)) return id;
-  return WHEEL_ALSO[id] && wheelView.has(WHEEL_ALSO[id]) ? WHEEL_ALSO[id] : null;
-}
 function close() {
   if (touring) { visitHeap(tourIndex, false); return; }
   if (guidedMode) { renderGuidedStop(tourPlayer.state(), false); return; }
@@ -5062,7 +5057,7 @@ function show(id, reveal) {
   current = id;
   // an entry of the 28 is the same selection as its glyph and its index row
   if (/^lm_/.test(id) && mansionUI.selected !== id && !presentationActive()) mansionUI.select(id, { source: 'entry', announce: false });
-  if (mode === 'wheel') wheelView.select(wheelPart(id));
+  if (mode === 'wheel') wheelView.select(wheelMode.part(id));
   const ms = meshesFor(id);
   ms.forEach((m) => {
     if (!tintable(m) || (rbGameSquare(id) && !rbDisplay.highlights)) return;
@@ -5107,7 +5102,7 @@ function show(id, reveal) {
   // Source entries are authored with the app, including linked text and licence credits.
   sSrc.innerHTML = e.src || '';
   sSrc.hidden = !e.src;
-  zoomBtn.disabled = !ms.length && !(mode === 'wheel' && wheelPart(id)) && worldsStop(id) === null && !MANSION_BY_ID.has(id);
+  zoomBtn.disabled = !ms.length && !(mode === 'wheel' && wheelMode.part(id)) && worldsStop(id) === null && !MANSION_BY_ID.has(id);
   syncZoom();
   sheet.hidden = false;
   worldEndEntryButton.hidden = id !== 'about_destruction';
@@ -5180,7 +5175,7 @@ function syncZoom() {
   if (mode === 'wheel') {
     // on the wheel a part is zoomed to; anything else is shown in the world
     zoomBtn.hidden = false;
-    zoomBtn.textContent = current && !wheelPart(current) ? 'Show in world' : 'Zoom in';
+    zoomBtn.textContent = current && !wheelMode.part(current) ? 'Show in world' : 'Zoom in';
     return;
   }
   const inGame = mode === 'game';
@@ -5209,7 +5204,7 @@ zoomBtn.addEventListener('click', () => {
     return;
   }
   if (mode === 'wheel') {
-    const part = wheelPart(current);
+    const part = wheelMode.part(current);
     if (part) { wheelView.focus(part); return; }
     const id = current;
     setMode('explore');
@@ -6174,7 +6169,7 @@ function setMandala(on) {
   // show() and the offering controls force mandala mode without going through
   // setMode, so the board has to be put away here as well.
   const leavingGame = on && mode === 'game', leavingWheel = on && mode === 'wheel';
-  if (leavingWheel) leaveWheel();
+  if (leavingWheel) wheelMode.leave();
   const previousMode = mode;
   mode = on ? 'mandala' : (mode === 'mandala' ? 'explore' : mode);
   if (mode !== previousMode) document.dispatchEvent(new CustomEvent('ws-mode-change', { detail: { mode } }));
@@ -6419,7 +6414,7 @@ noteEl.querySelector('[data-p="overview"]').addEventListener('click', () => {
 resetPlay();
 /* while the mandala is shown, selecting an entry must not fly the camera */
 const goTo = (id) => {
-  if (mode === 'wheel') { const part = wheelPart(id); if (part) wheelView.focus(part); return; }
+  if (mode === 'wheel') { const part = wheelMode.part(id); if (part) wheelView.focus(part); return; }
   if (touring && HEAP_NUMBERS.has(id)) visitHeap(HEAP_NUMBERS.get(id) - 1);
   // a square is framed with the world it stands over, not flown into
   else if (mode === 'game' && /^rebirth_sq_/.test(id)) {
@@ -6602,7 +6597,7 @@ function renderGuidedStop(state, move = true) {
   tourSelect.value = String(state.index);
   tourEl.querySelector('.tour-scroll').scrollTop = 0;
   if (guidedMode === 'game' && /^rebirth_sq_/.test(stop.id)) rbSelect(Number(stop.id.slice(11)), false);
-  if (guidedMode === 'wheel') wheelView.select(wheelPart(stop.id));
+  if (guidedMode === 'wheel') wheelView.select(wheelMode.part(stop.id));
   else if (guidedMode === 'mansions') { mansionLayer.select(stop.id); invalidate(3); }
   else tintOnly(stop.id);
   syncChrome();
@@ -6621,8 +6616,8 @@ function framePresentationStop() {
     frameMansion(stop.id, false);
   } else if (guidedMode === 'wheel') {
     wheelView.resize();
-    const part = wheelPart(stop.id) || E[stop.id]?.rel?.find(id => wheelPart(id));
-    if (part) wheelView.focus(wheelPart(part)); else wheelView.home();
+    const part = wheelMode.part(stop.id) || E[stop.id]?.rel?.find(id => wheelMode.part(id));
+    if (part) wheelView.focus(wheelMode.part(part)); else wheelView.home();
   } else if (guidedMode === 'game') {
     if (!/^rebirth_sq_/.test(stop.id)) { reframeGame(); return; }
     const anchor = rbFocusAnchor(stop.id);
@@ -6813,55 +6808,13 @@ const setOpen = (open, reframeView = true) => {
   try { localStorage.setItem('ws-index', open ? '1' : '0'); } catch (err) {}
 };
 
-/* ── the wheel of life ──────────────────────────────────────────────────
-   The fourth view is not a view of the model at all but a thing on a wall:
-   the bhavacakra as a painted relief, every part of it an entry. It shares
-   the dock, the index and the entries with the rest of the page, and it has
-   a camera of its own that can bring the wall close and turn it a little,
-   but not around. */
-const wheelTip = wheelEl.querySelector('.wl-tip');
-wheelView = createWheelView({
-  host: wheelEl, art: drawWheel, freeRect,
-  reducedMotion: () => window.matchMedia('(prefers-reduced-motion: reduce)').matches,
-  titleOf: (id) => (E[id] ? E[id].t : id)
+const wheelMode = createWheelMode({
+  host: wheelEl, art: drawWheel, freeRect, also: WHEEL_ALSO,
+  entry: (id) => E[id], isTibetan: () => rbTib, isSheetOpen: () => !sheet.hidden,
+  show, close, syncChrome, syncHome, getMode: () => mode,
+  reducedMotion: () => window.matchMedia('(prefers-reduced-motion: reduce)').matches
 });
-// A tap on a part opens its entry, where it is: the wheel does not fly to
-// what it was tapped on. A tap on the bare wall puts the entry away.
-wheelView.on('pick', (id) => {
-  if (id && E[id]) show(id, true);
-  else if (!sheet.hidden) close();
-});
-wheelView.on('hover', (id, p) => {
-  const e = id && E[id];
-  if (!e || !p) { wheelTip.hidden = true; return; }
-  const bo = rbTib && /[\u0F00-\u0FFF]/.test(e.tib || '');
-  const html = bo ? '<span lang="bo">' + e.tib + '</span><i>' + e.t + '</i>' : e.t + (e.k ? '<i>' + e.k + '</i>' : '');
-  if (wheelTip.dataset.id !== id + bo) { wheelTip.innerHTML = html; wheelTip.dataset.id = id + bo; }
-  wheelTip.hidden = false;
-  /* over the pointer, and on the screen: a part at the top of it has its name
-     shown under the pointer instead, and one at a side is not cut off by it */
-  const tw = wheelTip.offsetWidth, th = wheelTip.offsetHeight;
-  const x = Math.min(wheelEl.clientWidth - tw / 2 - 8, Math.max(tw / 2 + 8, p.x));
-  const below = p.y - th - 16 < 8;
-  wheelTip.style.left = x + 'px';
-  wheelTip.style.top = p.y + 'px';
-  wheelTip.classList.toggle('below', below);
-});
-wheelView.on('change', () => setTimeout(syncHome, 0));
-function enterWheel() {
-  syncChrome();
-  wheelView.build();
-  /* Framed now, without a flight: it is arriving, and the stage has had its
-     size since syncChrome showed it. Not a frame later, which would undo an
-     entry opened with the wheel, flown to as the wheel comes up. */
-  wheelView.home(0);
-}
-function leaveWheel() {
-  wheelTip.hidden = true;
-  close();
-  wheelView.select(null);
-}
-window.addEventListener('resize', () => { if (mode === 'wheel') wheelView.resize(); });
+wheelView = wheelMode.view;
 
 /* ── the game of rebirth ────────────────────────────────────────────────
    A board laid over the world system. Squares that name a region bind to the
@@ -8438,14 +8391,14 @@ function setMode(next, { workspace = true } = {}) {
   if (presentationActive()) endPresentation(false);
   if (mode === 'astrology') closeLunarPanels();
   if (mode === 'game') leaveGame();
-  if (mode === 'wheel') leaveWheel();
+  if (mode === 'wheel') wheelMode.leave();
   if (next === 'mandala') setMandala(true);
   else {
     if (mandala) setMandala(false);
     mode = next;
   }
   if (next === 'game') enterGame();
-  else if (next === 'wheel') enterWheel();
+  else if (next === 'wheel') wheelMode.enter();
   else if (next === 'explore' && !mandala) home();
   syncModeButtons();
   syncChrome();
