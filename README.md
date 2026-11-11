@@ -69,6 +69,7 @@ magnifiers in the header make the writing in every window larger or smaller.
 | `wheel-parts.js` | Where each of the wheel's 88 parts is: its outline on the corrected photograph, and the layer it stands in. |
 | `wheel-relief.js` | Generated. The measured rims, spokes and dividers, the layers' pictures and where they go, and the outlines found by colour. |
 | `wheel-view.js` | The wheel on its wall: zoom, pan, a turn that stops well short of edge-on, picking, the veil round a picked part, and framing a part. |
+| `wheel-mode.js` | The wheel's mode controller: entry picks, hover tips, enter/leave, part lookup and resize wiring. |
 | `wheel-notes.js` | The entries for the wheel's 88 parts and four index-only entries, the wheel's share of the index, and which of the model's own entries it can frame. |
 | `scripts/build-wheel-relief.py` | Corrects the photographs, cuts the relief into its layers, and writes `assets/wheel/` and `wheel-relief.js`. |
 | `assets/wheel-reference/` | The five photographs of the relief the wheel is made from. Not served. |

@@ -82,7 +82,7 @@ assert.equal(read('sw.js'), written.source,
 const worker = read('sw.js');
 const shell = JSON.parse(worker.match(/const SHELL = (\[[\s\S]*?\]);/)[1]);
 for (const file of shell) assert.ok(fs.existsSync(at(file)), 'the worker would cache ' + file + ', which is not here');
-for (const needed of ['index.html', 'manifest.webmanifest', 'three-d-stage.js',
+for (const needed of ['index.html', 'manifest.webmanifest', 'three-d-stage.js', 'wheel-mode.js',
   'assets/fonts/fonts.css', 'assets/offerings/goddess-atlas.webp', 'assets/rebirth/squares-1.webp']) {
   assert.ok(shell.includes(needed), needed + ' is not among the files put by');
 }
