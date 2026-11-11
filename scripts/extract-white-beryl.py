@@ -4,8 +4,14 @@ Block numbers are zero-based body-child offsets in word/document.xml.
 from pathlib import Path
 from zipfile import ZipFile
 from xml.etree import ElementTree as ET
+import argparse
 import json
 ROOT = Path(__file__).resolve().parent.parent
+parser = argparse.ArgumentParser(description=__doc__)
+parser.add_argument('output', nargs='?', type=Path,
+    default=ROOT/'docs/WHITE-BERYL-CH33-EXTRACT.json',
+    help='output JSON path (default: docs/WHITE-BERYL-CH33-EXTRACT.json)')
+args = parser.parse_args()
 NS = {'w': 'http://schemas.openxmlformats.org/wordprocessingml/2006/main'}
 W = '{'+NS['w']+'}'
 with ZipFile(ROOT/'docs/White Beryl Chapter 33.docx') as z:
@@ -27,5 +33,5 @@ for i, e in enumerate(body):
     else:
         text=' '.join(t.text or '' for t in e.findall('.//w:t',NS))
         if text: blocks.append({'block':i,'text':text})
-(ROOT/'docs/WHITE-BERYL-CH33-EXTRACT.json').write_text(json.dumps(blocks,ensure_ascii=False,indent=2)+'\n')
+args.output.write_text(json.dumps(blocks,ensure_ascii=False,indent=2)+'\n', encoding='utf-8')
 print(f'Extracted {len(blocks)} blocks, including {sum("table" in b for b in blocks)} tables')

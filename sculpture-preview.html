@@ -8,7 +8,14 @@
 <header><h1>Buddha sculpture</h1><p>Recreated from your five views · Drag to rotate; scroll to zoom.</p></header>
 <div class="controls"><select id="model" aria-label="Model"><option value="teach">Teaching gesture · reference study</option><option value="lap">Meditation gesture</option><option value="earth">Earth-touching gesture</option><option value="100">Game · Conquest of Māra</option><option value="101">Game · Buddhahood</option><option value="77">Game · Sukhāvatī</option><option value="93">Game · Dharma body</option></select><button id="material" aria-pressed="true">Neutral clay</button></div>
 <div class="controls" id="views"><button data-view="front">Front</button><button data-view="three">Three-quarter</button><button data-view="side">Side</button><button data-view="back">Back</button><button data-view="top">Above</button><button id="detail">Face detail</button><button id="hands">Hands detail</button><button id="feet">Feet detail</button><button id="arms">Arms detail</button></div>
-<div id="stage"></div><footer><div id="status">Building sculpture…</div><div class="downloads"><a href="docs/sculpture-review/buddha-teach.glb" download>Teaching GLB</a><a href="docs/sculpture-review/buddha-lap.glb" download>Meditation GLB</a><a href="docs/sculpture-review/buddha-earth.glb" download>Earth-touching GLB</a></div></footer>
+<div id="stage"></div><footer><div id="status">Building sculpture…</div><p>GLB downloads are available on localhost after running <code>node scripts/export-buddha-models.mjs</code>.</p><div class="downloads" id="local-downloads"></div></footer>
+<template id="local-download-template"><a href="docs/sculpture-review/buddha-teach.glb" download>Teaching GLB</a><a href="docs/sculpture-review/buddha-lap.glb" download>Meditation GLB</a><a href="docs/sculpture-review/buddha-earth.glb" download>Earth-touching GLB</a></template>
+<script>
+if (['localhost', '127.0.0.1', '[::1]'].includes(location.hostname)) {
+  document.querySelector('#local-downloads').append(
+    document.querySelector('#local-download-template').content.cloneNode(true));
+}
+</script>
 <script type="module">
 import * as THREE from './vendor/three@0.184.0/build/three.module.js';
 import {buildRecipe,buildSquareModel,createModelMaterials,createModelKit} from './square-models.js';
