@@ -4,6 +4,15 @@ import { JSDOM } from 'jsdom';
 const read = file => fs.readFileSync(new URL('../'+file, import.meta.url),'utf8');
 const dom = new JSDOM(read('index.html'), {runScripts:'outside-only',url:'https://worldsystem.test/'});
 const {window:win}=dom, doc=win.document;
+const aboutCopy = JSON.parse(read('index.html').match(/"The White Beryl interpretation presents[^"\n]+"/)[0]);
+const aboutCopyNode = doc.createElement('p');
+aboutCopyNode.textContent = aboutCopy;
+doc.body.append(aboutCopyNode);
+assert.ok(aboutCopy.endsWith('Interface labels and guidance follow the selected language; reading texts remain in English.'));
+for (const file of ['index.html', 'app-chrome.js']) {
+  assert.doesNotMatch(read(file), /Polish translation (?:is )?pending|polskie tłumaczenie[^.\n]*przygotowaniu/i,
+    file + ' must not promise Polish reading translations');
+}
 win.ResizeObserver=class { observe(){} };
 win.HTMLDialogElement.prototype.showModal=function(){this.open=true;};
 win.HTMLDialogElement.prototype.close=function(){this.open=false;this.dispatchEvent(new win.Event('close'));};
@@ -31,6 +40,9 @@ assert.equal(doc.querySelector('[data-language-flag]').textContent, '🇵🇱');
 assert.equal(doc.querySelector('[data-mode=astrology] .t').textContent,'Astrologia');
 assert.match(doc.querySelector('#intro-title').textContent,/sześć/);
 assert.equal(doc.querySelector('.app-brand').title,'O modelu');
+assert.ok(aboutCopyNode.textContent.startsWith('Interpretacja Białego Berylu przedstawia'));
+assert.ok(aboutCopyNode.textContent.endsWith('Etykiety i objaśnienia interfejsu są w wybranym języku; teksty interpretacji pozostają po angielsku.'),
+  'the Polish About translation must follow the updated English dictionary key');
 assert.match(entry.querySelector('.interpretation-references').textContent,/teksty interpretacji pozostają po angielsku/);
 assert.match(entry.querySelector('.interpretation-references > summary').textContent,/Źródła i uwagi do przekładu/);
 assert.equal(entry.querySelector('[role=tab]').textContent,'Działania');
@@ -38,6 +50,8 @@ assert.equal(entry.querySelector('summary > span').textContent,'Interpretacja');
 assert.equal(entry.querySelector('.interpretation-expand').textContent,'Rozwiń');
 assert.deepEqual([...entry.querySelectorAll('[role=tab]')].map(x=>x.textContent),['Działania','Narodziny','Połączenia','Rytuały']);
 assert.equal(entry.querySelector('[role=tabpanel] li').textContent,'Teaching Dharma');
+assert.ok(entry.querySelector('[role=tabpanel] li').closest('[data-no-localize]'),
+  'English reading payloads must remain opted out of localization');
 assert.match(entry.querySelector('summary').textContent,/Aśvinī/);
 dom.window.close();
 console.log('PASS: six menu/intro modes, brand About action, Polish interpretation chrome and preserved English readings.');

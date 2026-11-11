@@ -106,6 +106,13 @@ for (const needed of ['locales/pl.js', 'locales/pl-texts.js', 'game-display.js',
   assert.ok(shell.includes(needed), needed + ' is not among the files put by: an installed copy would lose it');
 }
 // the study's full-resolution meshes are for the preview page and the export alone
+assert.ok(!shell.some(file => /\.glb$/i.test(file)), 'review GLBs must not be downloaded on installation');
+assert.ok(!shell.some(file => file.startsWith('docs/sculpture-review/')),
+  'sculpture review files must not be downloaded on installation');
+for (const file of shell.filter(f => /\.(js|html)$/.test(f))) {
+  assert.doesNotMatch(read(file), /docs\/sculpture-review\/|buddha-(?:teach|lap|earth)\.glb/i,
+    file + ' must not request the optional sculpture review GLBs');
+}
 for (const study of ['sculpture-robe-detail.js', 'sculpture-anatomy-detail.js']) {
   assert.ok(!shell.includes(study), study + ' would be downloaded on every install');
   for (const file of shell.filter(f => /\.(js|html)$/.test(f) && f !== 'sw.js')) {

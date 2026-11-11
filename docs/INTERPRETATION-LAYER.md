@@ -49,6 +49,13 @@ are folded (including Ł/ł); Tibetan vowel signs are preserved.
 
 ## Verification
 
+`npm test` checks the provenance chain: `docs/White Beryl Chapter 33.docx` →
+`docs/WHITE-BERYL-CH33-EXTRACT.json` → each entry's `source_tibetan` at
+`source_block`. `tests/white-beryl-extract.mjs` re-extracts to a temporary file
+and requires byte-for-byte equality; `tests/jyotisha-interpret.mjs` checks the
+passages. Re-extract with `python3 scripts/extract-white-beryl.py`, or supply an
+optional output path to compare without overwriting the checked-in JSON.
+
 `tests/jyotisha-interpret.mjs` checks all source passages, table preservation,
 196 weekday/mansion pairs, named-list identities, ambiguity handling, safe
 rendering and integration. `tests/search-places.mjs` checks city source parity,
