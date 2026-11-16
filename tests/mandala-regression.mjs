@@ -1386,6 +1386,43 @@ face = 4; q('[data-game="throw"]').click();
 assert.equal(q('[data-game="throw"]').disabled, false); assert.equal(q('.bv-card').hidden, false);
 assert.equal(JSON.parse(window.localStorage.getItem(gameSession.SESSION_KEY)).rolls.length, 4);
 
+// Full Story follows the player taking each throw, including multiplayer
+// handoffs and results that leave the token where it already stood.
+clearCard(); newGame(2, ['A', 'B']);
+q('#g-pace').value = 'calm'; q('#g-pace').dispatchEvent(new window.Event('change'));
+app.show('rebirth_sq_2', true);
+q('.sheet .more').open = true;
+face = 1; q('[data-game="throw"]').click();
+assert.equal(app.state().current, 'rebirth_sq_24', 'the open story follows the throwing player before the die lands');
+advance(3200);
+assert.equal(app.rbGame().players[0].pos, 27);
+assert.equal(app.state().current, 'rebirth_sq_27', 'the story follows the landing, not the next player in the turn order');
+assert.ok(q('.sheet h2').textContent.startsWith('27. '));
+assert.equal(q('.sheet .more').open, true, 'Full Story stays expanded');
+assert.equal(q('.sheet .more-body').innerHTML, app.E.rebirth_sq_27.more.map(p => '<p class="body">' + p + '</p>').join(''));
+face = 2; q('.bv-card-go').click();
+assert.equal(app.state().current, 'rebirth_sq_24', 'the card throw switches the story to player B');
+advance(3200);
+assert.equal(app.rbGame().players[1].pos, 17);
+assert.equal(app.state().current, 'rebirth_sq_17');
+assert.equal(q('.sheet .more').open, true);
+clearCard();
+app.rbGame().players[0].pos = 9;
+app.show('rebirth_sq_2', true); q('.sheet .more').open = true;
+throwFace(6);
+assert.equal(app.rbGame().players[0].pos, 9, 'a dead face leaves the player in place');
+assert.equal(app.state().current, 'rebirth_sq_9', 'a dead face still replaces a previously browsed story');
+clearCard(); app.close(); throwFace(1);
+assert.equal(q('.sheet').hidden, true, 'throws do not open a closed story panel');
+clearCard(); app.show('rebirth_sq_2', true);
+assert.equal(q('.sheet .more').open, false);
+throwFace(1);
+assert.equal(app.state().current, 'rebirth_sq_' + app.rbGame().players[0].pos);
+assert.equal(q('.sheet .more').open, false, 'a collapsed entry remains collapsed');
+clearCard(); app.show('about', true); throwFace(1);
+assert.equal(app.state().current, 'about', 'non-field reading is left alone');
+clearCard(); app.close();
+
 /* ── the wheel of life ─────────────────────────────────────────────────
    The fourth view: a relief on a wall, every part of it an entry, sharing the
    dock, the index and the Escape cascade with everything else. */

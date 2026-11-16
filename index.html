@@ -7474,11 +7474,22 @@ function rbTumble(final, done) {
   };
   rbTumbleTimer = setTimeout(step, at(1));
 }
+// An open field story follows the player taking the throw. Keep the reader's
+// expanded Full Story state; a closed panel stays closed.
+function rbSyncStory(n) {
+  if (mode !== 'game' || sheet.hidden || !/^rebirth_sq_/.test(current)) return;
+  const id = 'rebirth_sq_' + n;
+  if (current === id) return;
+  const full = sMore.open;
+  show(id, false);
+  sMore.open = full && !sMore.hidden;
+}
 function rbThrow() {
   if (rbWalkthrough) { rbNextGuidedThrow(); return; }
   if (rbRolling || rbGame.over && rbGame.stupa !== null) return;
   rbClearFocus();
   rbHideCard();
+  rbSyncStory(rbGame.players[rbGame.turn].pos);
   boardEl.querySelector('.bv-tools').open = false;
   rbSession ||= makeSession(rbGame);
   rbPending = 1 + Math.floor(Math.random() * 6);
@@ -7599,6 +7610,7 @@ function rbResolve(face, animate = true) {
     rbFlash(ev.to);
     rbSelect(ev.to, false);
   }
+  rbSyncStory(player.pos);
   rbSync();
   const moving = animate && ev.to && ev.from !== ev.to && !rbInstant() && mode === 'game';
   if (moving) rbAnimateMove(player, oldRect, oldWorld);

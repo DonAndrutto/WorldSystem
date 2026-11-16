@@ -1149,112 +1149,67 @@ function guardian(b, { x = 0, y = 0, z = 0, s = 0.5, ry = 0, skin = 'crimson', h
     heads: [{ skin, at: [0, 0.79, 0.02], scale: 0.17, horns, crown: false, hairFan: true, third: false, hair: 'black', hairTip: 'crimson' }] });
 }
 
-/* A stupa: stepped base, vase-shaped dome, harmikā, thirteen rings, parasol,
-   and the moon and sun at the top. About 1 unit tall at s = 1. */
-/* A stupa of enlightenment: the lion throne, four stepped tiers each with
-   its projecting middle and its bands of colour, the seat of the vase, the
-   white dome hung with gold garlands and a Buddha in its niche, the harmikā,
-   thirteen wheels, the parasol with its silks, and the moon, the sun and the
-   flaming jewel at the top. About one unit tall at s = 1. */
-function stupa(b, { x = 0, y = 0, z = 0, s = 1, body = 'white', gilt = 'gold' } = {}) {
+/* The reference stupa: a broad white stepped plinth, square throne and
+   terraces, a plain vase dome with a gold doorway, white harmikā, thirteen
+   gold rings and a parasol crowned by the moon, sun and jewel. The shared
+   model keeps the same height and niche position at both world scales. */
+function stupa(b, { x = 0, y = 0, z = 0, s = 1, body = 'snow', gilt = 'gold' } = {}) {
   b.at([x, y, z], 0, s, () => {
     const k = b.kit;
-    // the throne, a lion at each front corner and jewels on its face
-    b.put(k.box, 'red', [0, 0.045, 0], 0, [0.46, 0.09, 0.46]);
-    for (const yy of [0.004, 0.088]) b.put(k.box, gilt, [0, yy, 0], 0, [0.475, 0.01, 0.475]);
-    for (let f = 0; f < 4; f += 1) b.at([0, 0, 0], [0, f * PI / 2, 0], 1, () => {
-      b.put(k.box, 'blue', [0, 0.045, 0.231], 0, [0.2, 0.05, 0.004]);
-      for (const jx of [-0.06, 0, 0.06]) b.put(k.octa, ['jade', 'gold', 'red'][(jx > 0) + (jx === 0) * 2], [jx, 0.045, 0.236], 0, [0.012, 0.018, 0.006]);
-    });
-    // the snow lions that bear the throne up, on the face that is seen
-    for (const sx of [-1, 1]) snowLion(b, { x: sx * 0.19, y: 0.004, z: 0.238, s: 0.1, ry: sx * 0.2, small: true });
-    // four steps, each a cross in plan, banded in gold and colour
-    let h = 0.093;
-    [[0.4, 0.055], [0.35, 0.05], [0.3, 0.045], [0.26, 0.04]].forEach(([w, t], i) => {
-      b.put(k.box, body, [0, h + t / 2, 0], 0, [w, t, w * 0.82]);
-      b.put(k.box, body, [0, h + t / 2, 0], 0, [w * 0.82, t, w]);
-      b.put(k.box, i % 2 ? 'blue' : 'red', [0, h + t * 0.35, 0], 0, [w * 0.83, t * 0.18, w + 0.004]);
-      b.put(k.box, i % 2 ? 'blue' : 'red', [0, h + t * 0.35, 0], 0, [w + 0.004, t * 0.18, w * 0.83]);
-      b.put(k.box, gilt, [0, h + t - 0.003, 0], 0, [w + 0.008, 0.007, w * 0.82 + 0.008]);
-      b.put(k.box, gilt, [0, h + t - 0.003, 0], 0, [w * 0.82 + 0.008, 0.007, w + 0.008]);
-      h += t;
-    });
-    // the seat of the vase
-    for (const [r, t] of [[0.12, 0.025], [0.105, 0.02]]) {
-      b.put(k.cyl, body, [0, h + t / 2, 0], 0, [r, t, r]);
-      b.put(k.torus(0.15), gilt, [0, h + t, 0], [PI / 2, 0, 0], [r, r, 0.1]);
-      h += t;
-    }
-    // the dome, garlanded, on a ring of gilt lotus petals
-    const dome = k.lathe('stupa-bumpa', smoothProfile([[0, 0], [0.11, 0], [0.155, 0.03], [0.17, 0.09], [0.16, 0.15], [0.125, 0.2], [0.07, 0.228], [0, 0.235]], 3), 40);
+    let h = 0;
+    // Thin grey reveals separate the white stone courses, as in the reference.
+    const course = (width, height) => {
+      b.put(k.box, 'ash', [0, h + 0.002, 0], 0, [width, 0.004, width]);
+      b.put(k.box, body, [0, h + (height + 0.004) / 2, 0], 0, [width, height - 0.004, width]);
+      h += height;
+    };
+    course(0.64, 0.045);
+    course(0.59, 0.025);
+    course(0.54, 0.025);
+    course(0.48, 0.085);
+    course(0.56, 0.025);
+    for (const width of [0.48, 0.42, 0.36, 0.30]) course(width, 0.031);
+
+    const dome = k.lathe('stupa-bumpa', smoothProfile([
+      [0, 0], [0.12, 0], [0.13, 0.015], [0.145, 0.08],
+      [0.17, 0.15], [0.165, 0.185], [0.14, 0.215], [0.07, 0.235], [0, 0.235]
+    ], 3), 40);
     b.put(dome, body, [0, h, 0]);
-    for (let i = 0; i < (s < 0.8 ? 0 : 24); i += 1) {
-      const a = (i + 0.5) / 24 * TAU;
-      if (Math.abs(Math.sin(a)) < 0.3 && Math.cos(a) > 0) continue;   // not across the niche
-      const sa = Math.sin(a), ca = Math.cos(a);
-      b.orient(k.leaf(false), gilt, [sa * 0.112, h + 0.002, ca * 0.112], v3.norm([sa * 0.5, 1, ca * 0.5]), v3.norm([-sa, 0.5, -ca]), [0.04, 0.04, 0.04]);
-    }
-    for (let i = 0; i < 8; i += 1) {
-      const a = (i + 0.5) / 8 * TAU;
-      if (i === 3 || i === 4) continue;    // the niche's side is left open
-      b.at([Math.sin(a) * 0.128, h + 0.19, Math.cos(a) * 0.128], [0, a, 0], 1, () => {
-        b.put(k.torus(0.1, PI), gilt, [0, 0, 0.004], [-0.5, 0, PI], [0.045, 0.03, 0.04]);
-        b.ell('red', [0, -0.03, 0.01], 0.007);
-      });
-    }
-    /* The niche: an arch let into the dome, deep blue within, framed in gold
-       with a jewel in flames at its point. In it the Buddha touches the earth,
-       as he did at Bodhgayā, seated on a lotus and moon with his halo and the
-       light of his body behind him. */
-    b.at([0, h + 0.024, 0.158], 0, 1, () => {
-      const W = 0.05, H = 0.075;           // the half-width, and the height of the arch's spring
-      b.put(k.box, 'navy', [0, H / 2, 0], 0, [W * 2, H, 0.04]);
-      b.put(k.disc, 'navy', [0, H, 0], [PI / 2, 0, 0], [W, 0.04, W]);
+    // A dark arched doorway with a raised gold surround, without dome garlands.
+    b.at([0, h + 0.024, 0.15], 0, 1, () => {
+      const W = 0.047, H = 0.085;
+      b.put(k.box, 'char', [0, H / 2, 0], 0, [W * 2, H, 0.04]);
+      b.put(k.disc, 'char', [0, H, 0], [PI / 2, 0, 0], [W, 0.04, W]);
       for (const sx of [-1, 1]) {
-        b.put(k.box, gilt, [sx * (W + 0.005), H / 2, 0.022], 0, [0.011, H, 0.012]);
-        b.ell(gilt, [sx * (W + 0.005), H, 0.026], [0.009, 0.006, 0.008]);
+        b.put(k.box, gilt, [sx * (W + 0.005), H / 2, 0.024], 0, [0.012, H, 0.016]);
+        b.put(k.box, 'brass', [sx * (W + 0.016), H / 2, 0.018], 0, [0.007, H, 0.012]);
       }
-      b.put(k.box, gilt, [0, -0.003, 0.022], 0, [W * 2 + 0.026, 0.01, 0.024]);
-      b.put(k.torus(0.13, PI), gilt, [0, H, 0.022], 0, [W + 0.005, W + 0.005, 0.07]);
-      b.put(k.flame, 'ember', [0, H + W + 0.002, 0.024], 0, [0.016, 0.042, 0.012]);
-      b.ell('red', [0, H + W + 0.012, 0.03], 0.0055);
-      // the light of his body and his halo, behind him, each rimmed in gold
-      b.put(k.disc, 'light', [0, 0.044, 0.016], [PI / 2, 0, 0], [0.032, 0.003, 0.04]);
-      b.put(k.torus(0.06), gilt, [0, 0.044, 0.018], 0, [0.032, 0.04, 0.05]);
-      b.put(k.disc, 'ember', [0, 0.066, 0.019], [PI / 2, 0, 0], [0.0165, 0.003, 0.0165]);
-      b.put(k.torus(0.08), gilt, [0, 0.066, 0.021], 0, [0.017, 0.017, 0.05]);
-      b.at([0, 0.002, 0.03], 0, 0.16, () => lotus(b, { r: 0.22, n: 12, disc: 'white' }));
-      b.at([0, 0.015, 0.03], 0, 0.1, () => humanFigure(b, {
-        ...figureDress({ hair: 'buddha', skin: 'gilt', robe: 'red' }),
-        // a small stupa's Buddha is drawn plainly: there is less of him to see
-        stature: SEATED_STATURE, detail: s < 0.8 ? -1 : 0, pose: POSES.seated('earth')
-      }));
+      b.put(k.torus(0.13, PI), gilt, [0, H, 0.024], 0, [W + 0.005, W + 0.005, 0.07]);
+      b.put(k.torus(0.06, PI), 'brass', [0, H, 0.018], 0, [W + 0.017, W + 0.017, 0.07]);
+      b.put(k.box, gilt, [0, -0.003, 0.028], 0, [0.13, 0.012, 0.055]);
+      b.put(k.flame, gilt, [0, H + W + 0.008, 0.024], 0, [0.018, 0.035, 0.012]);
     });
     h += 0.235;
-    // the harmikā
-    b.put(k.box, body, [0, h + 0.02, 0], 0, [0.1, 0.04, 0.1]);
-    b.put(k.box, 'red', [0, h + 0.02, 0], 0, [0.104, 0.012, 0.104]);
-    b.put(k.box, gilt, [0, h + 0.043, 0], 0, [0.12, 0.008, 0.12]);
-    h += 0.047;
-    // thirteen wheels on the spire
-    const spire = k.lathe('stupa-spire', [[0, 0], [0.05, 0], [0.024, 0.25], [0, 0.26]], 16);
-    b.put(spire, gilt, [0, h, 0]);
+    course(0.12, 0.012);
+    course(0.10, 0.028);
+    course(0.125, 0.012);
+
+    // White between the thirteen fine gold rings, tapering toward the parasol.
+    const spire = k.lathe('stupa-spire', [[0, 0], [0.052, 0], [0.023, 0.25], [0, 0.25]], 32);
+    b.put(spire, body, [0, h, 0]);
     for (let i = 0; i < 13; i += 1) {
-      const t = i / 13;
-      b.put(k.torus(0.35), gilt, [0, h + 0.012 + t * 0.235, 0], [PI / 2, 0, 0], [0.056 - t * 0.03, 0.056 - t * 0.03, 0.035]);
+      const t = i / 12, r = 0.054 - t * 0.029;
+      b.put(k.torus(0.12), gilt, [0, h + 0.007 + t * 0.235, 0], [PI / 2, 0, 0], [r, r, 0.028]);
     }
     h += 0.255;
-    // the parasol with its hanging silks
-    b.put(k.cone, gilt, [0, h + 0.012, 0], 0, [0.085, 0.03, 0.085]);
-    b.put(k.torus(0.1), gilt, [0, h - 0.002, 0], [PI / 2, 0, 0], [0.085, 0.085, 0.1]);
-    ['red', 'blue', 'jade', 'gold', 'white', 'red', 'blue', 'jade', 'gold', 'white', 'red', 'blue'].forEach((key, i) => {
-      const a = i / 12 * TAU;
-      b.put(k.box, key, [Math.sin(a) * 0.08, h - 0.022, Math.cos(a) * 0.08], [0, a, 0], [0.018, 0.04, 0.003]);
-    });
-    // the moon, the sun and the jewel
-    b.put(k.torus(0.28, PI), 'silver', [0, h + 0.07, 0], [0, 0, PI], 0.03);
-    b.ell(gilt, [0, h + 0.09, 0], 0.022);
-    b.put(k.flame, 'ember', [0, h + 0.11, 0], 0, [0.022, 0.065, 0.018]);
+    const parasol = k.lathe('stupa-parasol', [[0, 0], [0.075, 0], [0.043, 0.036], [0.036, 0.04], [0, 0.04]], 32);
+    b.put(parasol, gilt, [0, h, 0]);
+    b.put(k.torus(0.08), 'brass', [0, h, 0], [PI / 2, 0, 0], [0.075, 0.075, 0.035]);
+    const moon = k.lathe('stupa-moon-seat', [[0, 0], [0.031, 0], [0.049, 0.026], [0.043, 0.029], [0.025, 0.005], [0, 0.005]], 32);
+    b.put(moon, gilt, [0, h + 0.043, 0]);
+    b.ell(gilt, [0, h + 0.104, 0], [0.019, 0.03, 0.01]);
+    b.put(k.torus(0.1), 'brass', [0, h + 0.104, 0], 0, [0.022, 0.033, 0.035]);
+    b.put(k.flame, gilt, [0, h + 0.14, 0], 0, [0.015, 0.035, 0.012]);
   });
 }
 
@@ -2687,7 +2642,6 @@ const SQUARE_MODELS = {
   }],
   104: ['The stupa that receives the relics, gold and white, in the gold-rimmed cartouche of the last act.', (b) => {
     aureole(b, 'quatrefoil', { y: 0.48, w: 0.86, h: 1.0, outer: 'red', inner: 'gold', band: 0.84, rim: 0.76 });
-    lotus(b, { y: 0, r: 0.3, n: 12, disc: null, open: 1.0 });
     stupa(b, { y: 0.05, s: 0.92 });
   }]
 };
