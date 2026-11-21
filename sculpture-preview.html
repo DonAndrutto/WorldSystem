@@ -1,6 +1,15 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="referrer" content="no-referrer">
 <title>Buddha sculpture · Reference reconstruction</title>
+<script type="importmap">
+{
+  "imports": { "three": "./vendor/three@0.184.0/build/three.module.min.js" },
+  "integrity": {
+    "./vendor/three@0.184.0/build/three.module.min.js": "sha384-35WaVqXNGvw49+RCXk67Ci9ebo55/5+CfirDbAVSG21KV8/7gO4xwIkhA5ZRcUHc",
+    "./vendor/three@0.184.0/build/three.core.min.js": "sha384-/2vXInuUL2LKgd3n86c5RIzG+YC7vk3zYPTknaEkF2H2sauHtaOrS8swZ+MURxU6"
+  }
+}
+</script>
 <style>
 *{box-sizing:border-box}body{margin:0;background:#182126;color:#e5e8e6;font:14px/1.5 system-ui,sans-serif}header{padding:18px 24px;border-bottom:1px solid #ffffff20}h1{font:500 20px/1.3 Georgia,serif;margin:0 0 5px}p{margin:0;color:#a9b7b6}.controls{display:flex;gap:8px;flex-wrap:wrap;padding:12px 24px}button,select{font:inherit;color:inherit;background:#263438;border:1px solid #829b9755;border-radius:6px;padding:7px 11px}button:hover,button[aria-pressed=true]{background:#415955}canvas{width:100%;display:block;touch-action:none;outline:none}#stage{height:calc(100dvh - 290px);min-height:300px}footer{padding:10px 24px;color:#a9b7b6;font-size:12px}a{color:#dae6d7}#status{font-variant-numeric:tabular-nums}.downloads{display:flex;gap:16px;flex-wrap:wrap}
 @media(min-width:800px){body{display:grid;grid-template-columns:260px 1fr;grid-template-rows:auto auto auto 1fr;min-height:100dvh}header{grid-column:1;grid-row:1;padding:24px 20px}.controls{grid-column:1;padding:12px 20px}body>.controls{grid-row:2}#views{grid-row:3}#stage{grid-column:2;grid-row:1/5;height:100dvh;min-width:0;border-left:1px solid #ffffff18}footer{grid-column:1;grid-row:4;align-self:end;padding:20px}.downloads{gap:8px;flex-direction:column}select{max-width:220px;width:100%}}
@@ -17,7 +26,7 @@ if (['localhost', '127.0.0.1', '[::1]'].includes(location.hostname)) {
 }
 </script>
 <script type="module">
-import * as THREE from './vendor/three@0.184.0/build/three.module.js';
+import * as THREE from 'three';
 import {buildRecipe,buildSquareModel,createModelMaterials,createModelKit} from './square-models.js';
 import {seatedSculpture,sculptureLotus,addSculptureDetail,loadSculpture} from './seated-sculpture.js';
 import {ROBES_DETAIL} from './sculpture-robe-detail.js';

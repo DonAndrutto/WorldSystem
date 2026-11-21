@@ -13,7 +13,7 @@
     '3 seconds': '3 sekundy',
     '5 seconds': '5 sekund',
     '8 seconds': '8 sekund',
-    'Show or hide heap numbers': 'Pokaż lub ukryj numery kopców',
+    'Show or hide heap numbers': 'Pokaż lub ukryj numery kopczyków',
     'End tour': 'Zakończ zwiedzanie',
     'Restart': 'Od początku',
     'Pace': 'Tempo',

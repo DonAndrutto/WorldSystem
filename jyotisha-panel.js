@@ -104,6 +104,7 @@ export function createJyotishaPanel({ doc = document, panel, provider = createEn
           <dt>Nakṣatra from</dt><dd data-out="from">—</dd>
           <dt>Nakṣatra until</dt><dd data-out="until">—</dd>
           <dt>Pada until</dt><dd data-out="padaEnd">—</dd>
+          <dt>Vāra at the moment entered</dt><dd data-out="vara">—</dd>
         </dl>
         <h4 class="jy-sub">At sunrise on the date entered</h4>
         <dl class="jy-out jy-udaya">
@@ -112,7 +113,6 @@ export function createJyotishaPanel({ doc = document, panel, provider = createEn
           <dt>Tithi until</dt><dd data-out="tithiEnd">—</dd>
           <dt>Yoga</dt><dd data-out="yoga">—</dd>
           <dt>Karaṇa</dt><dd data-out="karana">—</dd>
-          <dt>Vāra at the moment entered</dt><dd data-out="vara">—</dd>
         </dl>
         <div class="jy-interpretation"></div>
         <button class="btn" type="button" data-jy="show" disabled>Show in world</button>
@@ -212,7 +212,10 @@ export function createJyotishaPanel({ doc = document, panel, provider = createEn
     if (!placePicker.contains(event.target)) { placePointer = null; closePlaces(); }
   });
   placeInput.addEventListener('keydown', event => {
-    if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); closePlaces(); return; }
+    if (event.key === 'Escape') {
+      if (!placeList.hidden) { event.preventDefault(); event.stopPropagation(); closePlaces(); }
+      return;
+    }
     if (event.key === 'Enter' && !placeList.hidden && activePlace >= 0) {
       event.preventDefault(); choosePlace(suggestions[activePlace]); return;
     }
@@ -398,7 +401,7 @@ export function createJyotishaPanel({ doc = document, panel, provider = createEn
         const clock = localClock(now(), basis);
         if (basis.zone) form.elements.zone.value = basis.zone;
         form.elements.date.value = clock.date;
-        form.elements.time.value = clock.time;
+        form.elements.time.value = clock.timeWithSeconds || clock.time;
         syncTimeParts();
         form.elements.date.dispatchEvent(new doc.defaultView.Event('input', { bubbles: true }));
         showErrors({});

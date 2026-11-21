@@ -18,8 +18,8 @@ const root = path.resolve(__dirname, '..');
 
 // Where each file lands under vendor/, and where it lives inside the tarball.
 const FILES = [
-  ['build/three.module.js', 'build/three.module.js'],
-  ['build/three.core.js', 'build/three.core.js'],
+  ['build/three.module.min.js', 'build/three.module.min.js'],
+  ['build/three.core.min.js', 'build/three.core.min.js'],
   ['examples/jsm/controls/OrbitControls.js', 'examples/jsm/controls/OrbitControls.js'],
   ['LICENSE', 'LICENSE']
 ];
@@ -46,8 +46,7 @@ async function main() {
       { encoding: 'utf8' }).trim().split('\n').pop();
     execFileSync('tar', ['-xzf', path.join(work, tarball), '-C', work]);
 
-    const target = path.join(root, dir);
-    await fs.rm(target, { recursive: true, force: true });
+    const verified = [];
     for (const [to, from] of FILES) {
       const data = await fs.readFile(path.join(work, 'package', from));
       const declared = integrity['./' + dir + '/' + to];
@@ -55,9 +54,14 @@ async function main() {
         throw new Error(to + ' does not match the hash pinned in index.html:\n'
           + '  index.html: ' + declared + '\n  three@' + version + ': ' + sha384(data));
       }
+      verified.push([to, data, !!declared]);
+    }
+    const target = path.join(root, dir);
+    await fs.rm(target, { recursive: true, force: true });
+    for (const [to, data, hasHash] of verified) {
       await fs.mkdir(path.join(target, path.dirname(to)), { recursive: true });
       await fs.writeFile(path.join(target, to), data);
-      console.log((declared ? 'verified ' : 'copied   ') + dir + '/' + to);
+      console.log((hasHash ? 'verified ' : 'copied   ') + dir + '/' + to);
     }
   } finally {
     await fs.rm(work, { recursive: true, force: true });

@@ -7,7 +7,7 @@ export const INTERPRETATIONS = {
     "sanskrit": "Aśvinī",
     "element": "wind",
     "nag_rtsis_element": "water",
-    "deity": "Gandharva (dri za)",
+    "deity": "Gandharva (dri za; Ch. 33 edition, OCR has gap)",
     "symbol": "Horse head and neck",
     "electional": {
       "favorable": [
@@ -456,7 +456,7 @@ export const INTERPRETATIONS = {
     "sanskrit": "Punarvasu",
     "element": "wind",
     "nag_rtsis_element": "wood",
-    "deity": "Deity of the sun (nyi ma'i lha)",
+    "deity": "Deity of the sun (nyi ma’i lha)",
     "symbol": "Throne leg",
     "electional": {
       "favorable": [
@@ -608,7 +608,7 @@ export const INTERPRETATIONS = {
     "sanskrit": "Āśleṣā",
     "element": "water",
     "nag_rtsis_element": "earth",
-    "deity": "Serpents (lto 'gro)",
+    "deity": "Serpents (lto ’gro)",
     "symbol": "Expanded serpent hood",
     "electional": {
       "favorable": [
@@ -757,7 +757,7 @@ export const INTERPRETATIONS = {
     "sanskrit": "Pūrvaphalgunī",
     "element": "fire",
     "nag_rtsis_element": "fire",
-    "deity": "Vishnu (khyab 'jug)",
+    "deity": "Viṣṇu (khyab ’jug)",
     "symbol": "Human leg",
     "electional": {
       "favorable": [
@@ -907,7 +907,7 @@ export const INTERPRETATIONS = {
     "sanskrit": "Hasta",
     "element": "wind",
     "nag_rtsis_element": "fire",
-    "deity": "Agni, the fire deity (me lha)",
+    "deity": "Agni, the fire deity (me lha; Ch. 33 edition, cut off in OCR)",
     "symbol": "Hand",
     "electional": {
       "favorable": [
@@ -983,7 +983,7 @@ export const INTERPRETATIONS = {
     "sanskrit": "Citrā",
     "element": "wind",
     "nag_rtsis_element": "fire",
-    "deity": "Sun (nyi ma)",
+    "deity": "Sun (nyi ma; Ch. 33 edition, cut off in OCR)",
     "symbol": "Lotus seed-head (fruit)",
     "electional": {
       "favorable": [
@@ -1059,7 +1059,7 @@ export const INTERPRETATIONS = {
     "sanskrit": "Svātī",
     "element": "wind",
     "nag_rtsis_element": "fire",
-    "deity": "Wind deity (rlung lha)",
+    "deity": "Vāyu, the wind deity (rlung lha)",
     "symbol": "Jewel",
     "electional": {
       "favorable": [
@@ -1135,7 +1135,7 @@ export const INTERPRETATIONS = {
     "sanskrit": "Viśākhā",
     "element": "fire",
     "nag_rtsis_element": "earth",
-    "deity": "Agni (me lha)",
+    "deity": "Agni (me lha; Ch. 33 edition; OCR division uncertain)",
     "symbol": "Goat head (ra mgo)",
     "electional": {
       "favorable": [
@@ -1214,7 +1214,7 @@ export const INTERPRETATIONS = {
     "sanskrit": "Anurādhā",
     "element": "earth",
     "nag_rtsis_element": "iron",
-    "deity": "Sun (nyi)",
+    "deity": "Sun (nyi; Ch. 33 edition, cut off in OCR)",
     "symbol": "Elephant (glang po)",
     "electional": {
       "favorable": [
@@ -1596,7 +1596,7 @@ export const INTERPRETATIONS = {
     "sanskrit": "Śravaṇa",
     "element": "earth",
     "nag_rtsis_element": "iron",
-    "deity": "Vishnu (khyab 'jug)",
+    "deity": "Viṣṇu (khyab ’jug)",
     "symbol": "Grain measure (bre)",
     "electional": {
       "favorable": [
@@ -1672,7 +1672,7 @@ export const INTERPRETATIONS = {
     "sanskrit": "Abhijit",
     "element": "earth",
     "nag_rtsis_element": "earth",
-    "deity": "Brahma (tshangs pa)",
+    "deity": "Brahmā (tshangs pa)",
     "symbol": "Ox head (glang mgo)",
     "electional": {
       "favorable": [
@@ -1898,7 +1898,7 @@ export const INTERPRETATIONS = {
     "sanskrit": "Pūrvabhādrapadā",
     "element": "fire",
     "nag_rtsis_element": "water",
-    "deity": "'ba' zhig 'tsho ba (Tibetan deity name; identification unresolved)",
+    "deity": "’ba’ zhig ’tsho ba (Tibetan deity name; identification unresolved)",
     "symbol": "Cart",
     "electional": {
       "favorable": [
@@ -1975,7 +1975,7 @@ export const INTERPRETATIONS = {
     "sanskrit": "Uttarabhādrapadā",
     "element": "water",
     "nag_rtsis_element": "water",
-    "deity": "Serpent planet (sbrul gza')",
+    "deity": "Serpent planet (sbrul gza’; Ch. 33 edition, opening lost in OCR)",
     "symbol": "Ear",
     "electional": {
       "favorable": [

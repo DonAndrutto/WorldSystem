@@ -20,23 +20,26 @@ export function createWheelMode({ host, art, freeRect, also, entry, isTibetan, i
     if (id && entry(id)) show(id, true);
     else if (isSheetOpen()) close();
   });
+  let tipW = 0, tipH = 0;
   view.on('hover', (id, p) => {
     const e = id && entry(id);
     if (!e || !p) { wheelTip.hidden = true; return; }
     const bo = isTibetan() && /[\u0F00-\u0FFF]/.test(e.tib || '');
     const html = bo ? '<span lang="bo">' + e.tib + '</span><i>' + e.t + '</i>' : e.t + (e.k ? '<i>' + e.k + '</i>' : '');
-    if (wheelTip.dataset.id !== id + bo) { wheelTip.innerHTML = html; wheelTip.dataset.id = id + bo; }
+    const changed = wheelTip.dataset.id !== id + bo;
+    if (changed) { wheelTip.innerHTML = html; wheelTip.dataset.id = id + bo; }
+    const wasHidden = wheelTip.hidden;
     wheelTip.hidden = false;
+    if (changed || wasHidden) { tipW = wheelTip.offsetWidth; tipH = wheelTip.offsetHeight; }
     /* over the pointer, and on the screen: a part at the top of it has its name
        shown under the pointer instead, and one at a side is not cut off by it */
-    const tw = wheelTip.offsetWidth, th = wheelTip.offsetHeight;
-    const x = Math.min(host.clientWidth - tw / 2 - 8, Math.max(tw / 2 + 8, p.x));
-    const below = p.y - th - 16 < 8;
+    const x = Math.min(host.clientWidth - tipW / 2 - 8, Math.max(tipW / 2 + 8, p.x));
+    const below = p.y - tipH - 16 < 8;
     wheelTip.style.left = x + 'px';
     wheelTip.style.top = p.y + 'px';
     wheelTip.classList.toggle('below', below);
   });
-  view.on('change', () => win.setTimeout(syncHome, 0));
+  view.on('change', () => syncHome());
   function enter() {
     syncChrome();
     view.build();
@@ -49,6 +52,7 @@ export function createWheelMode({ host, art, freeRect, also, entry, isTibetan, i
     wheelTip.hidden = true;
     close();
     view.select(null);
+    view.teardown?.();
   }
   function part(id) {
     if (!id) return null;

@@ -45,7 +45,7 @@ const T={
   "Practice traveler": "Gracz próbny",
   "Learn by playing": "Nauka przez grę",
   "This short practice game uses chosen throws. Your saved game stays safe. The die names a destination; it does not count spaces. Tap the button below for each turn.": "Ta krótka gra próbna korzysta z wybranych rzutów. Twoja zapisana gra pozostaje bezpieczna. Kość wskazuje cel ruchu, a nie liczbę pól. W każdej turze dotknij przycisku poniżej.",
-  "Start · 24 · Heavenly Highway": "Start · 24 · Niebiański Trakt",
+  "Start · 24 · Heavenly Highway": "Start · 24 · Niebiańska Droga",
   "A fall into the lower realms": "Upadek do niższych sfer",
   "A 6 took us from 24 to 6. The red-brown squares mark lower realms within saṃsāra. A high die roll does not guarantee a better rebirth.": "Wynik 6 przeniósł nas z pola 24 na 6. Czerwonobrązowe pola oznaczają niższe sfery samsary. Wysoki wynik rzutu nie gwarantuje lepszego odrodzenia.",
   "Throw 6 · 24 → 6 · Lower realms": "Rzut 6 · 24 → 6 · Niższe sfery",
@@ -177,7 +177,7 @@ const T={
   "Its four phases": "Cztery fazy",
   "creation, duration, destruction, void — 20 each": "powstawanie, trwanie, zniszczenie, pustka: po 20 kalp",
   "Lifespans above the desire realm are given in kalpas, and the word carries two magnitudes. An intermediate kalpa is one cycle in which human life falls from countless years to ten and rises again. Eighty of them make a great kalpa, which is the full life of a world system: twenty intermediate kalpas of forming, twenty of standing, twenty of destruction, twenty of emptiness.": "Długość życia powyżej sfery pragnienia podaje się w kalpach, lecz słowo to oznacza dwie różne wielkości. Kalpa pośrednia to jeden cykl, w którym długość ludzkiego życia maleje z niezliczonych lat do dziesięciu i ponownie wzrasta. Osiemdziesiąt takich kalp tworzy wielką kalpę, czyli pełny okres istnienia systemu świata: dwadzieścia kalp pośrednich powstawania, dwadzieścia trwania, dwadzieścia zniszczenia i dwadzieścia pustki.",
-  "The Kośa notes that from Parīttābha upward the kalpas counted are great kalpas; in the first dhyāna below it, halves. A world system is destroyed seven times by fire for once by water, and seven such water-destructions for one by wind.": "Kośa zaznacza, że od Parīttābhy wzwyż liczy się wielkie kalpy, a w pierwszej dhjanie poniżej niej ich połowy. Na jedno zniszczenie świata przez wodę przypada siedem zniszczeń przez ogień, a na jedno przez wiatr siedem takich zniszczeń przez wodę.",
+  "The Kośa notes that from Parīttābha upward the kalpas counted are great kalpas; in the first dhyāna below it, halves. Across a cycle of sixty-four great kalpas, a world system is destroyed fifty-six times by fire, seven times by water, and once by wind.": "Kośa zaznacza, że od Parīttābhy wzwyż liczy się wielkie kalpy, a w pierwszej dhjanie poniżej niej ich połowy. W cyklu sześćdziesięciu czterech wielkich kalp system świata ulega zniszczeniu pięćdziesiąt sześć razy przez ogień, siedem razy przez wodę i raz przez wiatr.",
   "Mount Meru": "Góra Meru",
   "the king of mountains": "król gór",
   "80,000 up": "80 000 ponad wodą",
@@ -281,20 +281,20 @@ const T={
   "Collapse": "Zwiń",
   "Source review needed. See Sources and translation notes.": "Wymagana weryfikacja źródła. Zobacz „Źródła i uwagi do przekładu”.",
   "Combinations": "Połączenia",
-  "When the Moon occupies": "Gdy Księżyc przebywa w domu księżycowym",
-  "The activity lists describe the mansion at the selected moment. They apply whenever this mansion recurs, rather than to every hour of the calendar day.": "Listy działań opisują dom księżycowy aktywny w wybranej chwili. Odnoszą się do każdego powrotu Księżyca do tego domu, a nie do wszystkich godzin danego dnia kalendarzowego.",
+  "When the Moon occupies": "Gdy Księżyc przebywa w rezydencji księżycowej",
+  "The activity lists describe the mansion at the selected moment. They apply whenever this mansion recurs, rather than to every hour of the calendar day.": "Listy działań opisują rezydencję księżycową aktywną w wybranej chwili. Odnoszą się do każdego powrotu Księżyca do tej rezydencji, a nie do wszystkich godzin danego dnia kalendarzowego.",
   "Timing uses the Indian Lahiri calculation, cross-referenced to the Tibetan catalogue.": "Czas wyznacza się według indyjskich obliczeń z ajanamsą Lahiri, z odwołaniem do katalogu tybetańskiego.",
-  "This is a general mansion reading, not a reading for today. Calculate a date, local time and place to see which mansion is active.": "To ogólna interpretacja domu księżycowego, a nie interpretacja na dziś. Podaj datę, czas lokalny i miejsce w kalkulatorze, aby sprawdzić, który dom księżycowy jest aktywny.",
+  "This is a general mansion reading, not a reading for today. Calculate a date, local time and place to see which mansion is active.": "To ogólna interpretacja rezydencji księżycowej, a nie interpretacja na dziś. Podaj datę, czas lokalny i miejsce w kalkulatorze, aby sprawdzić, która rezydencja księżycowa jest aktywna.",
   "Electional astrology means choosing a time to begin an activity. Favorable and unfavorable refer to the activities listed below. Check Combinations for the weekday’s additional influence.": "Astrologia elekcyjna polega na wyborze czasu rozpoczęcia działania. Określenia „korzystne” i „niekorzystne” odnoszą się do działań wymienionych poniżej. Zakładka „Połączenia” opisuje dodatkowy wpływ dnia tygodnia.",
   "Deity:": "Bóstwo:",
-  "No activity reading is available for this mansion.": "Brak interpretacji działań dla tego domu księżycowego.",
+  "No activity reading is available for this mansion.": "Brak interpretacji działań dla tej rezydencji księżycowej.",
   "Traditional readings for choosing a time for an activity": "Tradycyjne interpretacje służące wyborowi czasu działania",
   "Favorable": "Korzystne",
   "Unfavorable": "Niekorzystne",
   "✅ Favorable": "✅ Korzystne",
   "❌ Unfavorable": "❌ Niekorzystne",
-  "Birth traditions for a person born while the Moon occupies": "Tradycyjne opisy osoby urodzonej, gdy Księżyc przebywa w domu księżycowym",
-  ". Use a birth date and time to identify the birth mansion; these descriptions do not describe the day’s activities.": ". Datę i godzinę urodzenia należy podać, aby ustalić urodzeniowy dom księżycowy; te opisy nie dotyczą działań podejmowanych danego dnia.",
+  "Birth traditions for a person born while the Moon occupies": "Tradycyjne opisy osoby urodzonej, gdy Księżyc przebywa w rezydencji księżycowej",
+  ". Use a birth date and time to identify the birth mansion; these descriptions do not describe the day’s activities.": ". Datę i godzinę urodzenia należy podać, aby ustalić urodzeniową rezydencję księżycową; te opisy nie dotyczą działań podejmowanych danego dnia.",
   "Health": "Zdrowie",
   "Wealth": "Majątek",
   "Relationships": "Relacje",
@@ -307,25 +307,25 @@ const T={
   "Mode of death:": "Sposób śmierci:",
   "Spiritual:": "Duchowość:",
   "Natal readings not loaded yet.": "Interpretacje urodzeniowe nie zostały jeszcze wczytane.",
-  "Traditional readings associated with the birth mansion": "Tradycyjne interpretacje związane z urodzeniowym domem księżycowym",
+  "Traditional readings associated with the birth mansion": "Tradycyjne interpretacje związane z urodzeniową rezydencją księżycową",
   "These inherited portraits include lifespan and health motifs. Tibetan astrology treats a life’s course as conditional on actions and circumstances, not as a fixed destiny.": "Te tradycyjne opisy obejmują motywy długości życia i zdrowia. Astrologia tybetańska uznaje przebieg życia za zależny od działań i okoliczności, a nie za ustalony los.",
-  "Choose a date, local time and place in the calculator. Combinations depend on both the weekday and the mansion at that moment.": "Wybierz datę, czas lokalny i miejsce w kalkulatorze. Połączenia zależą zarówno od dnia tygodnia, jak i od domu księżycowego aktywnego w danej chwili.",
-  "The mansion reading is available, but no sunrise-based weekday could be resolved for this place and date.": "Interpretacja domu księżycowego jest dostępna, lecz dla tego miejsca i daty nie udało się ustalić dnia tygodnia liczonego od wschodu słońca.",
-  "No match in the named weekday–mansion lists implemented here.": "Brak dopasowania w uwzględnionych tu listach nazwanych połączeń dnia tygodnia i domu księżycowego.",
+  "Choose a date, local time and place in the calculator. Combinations depend on both the weekday and the mansion at that moment.": "Wybierz datę, czas lokalny i miejsce w kalkulatorze. Połączenia zależą zarówno od dnia tygodnia, jak i od rezydencji księżycowej aktywnej w danej chwili.",
+  "The mansion reading is available, but no sunrise-based weekday could be resolved for this place and date.": "Interpretacja rezydencji księżycowej jest dostępna, lecz dla tego miejsca i daty nie udało się ustalić dnia tygodnia liczonego od wschodu słońca.",
+  "No match in the named weekday–mansion lists implemented here.": "Brak dopasowania w uwzględnionych tu listach nazwanych połączeń dnia tygodnia i rezydencji księżycowej.",
   "Read each combination for its named activities. A specific prohibition takes precedence over a general favorable indication.": "Każde połączenie należy odczytywać w odniesieniu do wymienionych w nim działań. Szczegółowy zakaz ma pierwszeństwo przed ogólnym korzystnym wskazaniem.",
   "Five-element relationship table (nag rtsis)": "Tabela relacji pięciu żywiołów (nag rtsis)",
-  "Enemy-element mansions:": "Domy księżycowe żywiołu wrogiego:",
-  "Mother, child, friend and enemy name relationships between elements. This table groups mansions by element; it does not compare an individual birth chart.": "Matka, dziecko, przyjaciel i wróg to nazwy relacji między żywiołami. Ta tabela grupuje domy księżycowe według żywiołu; nie służy do porównywania indywidualnego horoskopu urodzeniowego.",
-  "These rituals concern illness beginning under a mansion. They are separate from choosing a date for an activity.": "Te rytuały dotyczą choroby rozpoczynającej się, gdy Księżyc przebywa w danym domu księżycowym. To osobny kontekst, niezwiązany z wyborem daty działania.",
-  "Illness beginning under": "Początek choroby w domu księżycowym",
+  "Enemy-element mansions:": "Rezydencje księżycowe żywiołu wrogiego:",
+  "Mother, child, friend and enemy name relationships between elements. This table groups mansions by element; it does not compare an individual birth chart.": "Matka, dziecko, przyjaciel i wróg to nazwy relacji między żywiołami. Ta tabela grupuje rezydencje księżycowe według żywiołu; nie służy do porównywania indywidualnego horoskopu urodzeniowego.",
+  "These rituals concern illness beginning under a mansion. They are separate from choosing a date for an activity.": "Te rytuały dotyczą choroby rozpoczynającej się, gdy Księżyc przebywa w danej rezydencji księżycowej. To osobny kontekst, niezwiązany z wyborem daty działania.",
+  "Illness beginning under": "Początek choroby w rezydencji księżycowej",
   "Historical ritual context, not a treatment recommendation.": "Historyczny kontekst rytualny, a nie zalecenie lecznicze.",
-  "A lunar mansion is a station of the Moon in its journey around the zodiac. Activity timing, birth interpretation and illness-onset rituals answer different questions and are read separately.": "Dom księżycowy to przystanek Księżyca w jego wędrówce po zodiaku. Wybór czasu działania, interpretacja urodzeniowa i rytuały związane z początkiem choroby odpowiadają na różne pytania i należy je odczytywać osobno.",
-  "The four elements used for weekday–mansion combinations are earth, water, fire and wind. The five-element system uses wood, fire, earth, iron and water, with relationships called mother, child, friend and enemy.": "Cztery żywioły używane w połączeniach dnia tygodnia i domu księżycowego to ziemia, woda, ogień i wiatr. System pięciu żywiołów obejmuje drewno, ogień, ziemię, żelazo i wodę, a relacje między nimi określa się jako matkę, dziecko, przyjaciela i wroga.",
-  "Tibetan astrology brings together Indian, Chinese and Tibetan traditions. A full almanac considers more than the mansion alone, including lunar dates and other calendar factors.": "Astrologia tybetańska łączy tradycje indyjskie, chińskie i tybetańskie. Pełny almanach uwzględnia nie tylko dom księżycowy, lecz także daty księżycowe i inne czynniki kalendarzowe.",
+  "A lunar mansion is a station of the Moon in its journey around the zodiac. Activity timing, birth interpretation and illness-onset rituals answer different questions and are read separately.": "Rezydencja księżycowa to przystanek Księżyca w jego wędrówce po zodiaku. Wybór czasu działania, interpretacja urodzeniowa i rytuały związane z początkiem choroby odpowiadają na różne pytania i należy je odczytywać osobno.",
+  "The four elements used for weekday–mansion combinations are earth, water, fire and wind. The five-element system uses wood, fire, earth, iron and water, with relationships called mother, child, friend and enemy.": "Cztery żywioły używane w połączeniach dnia tygodnia i rezydencji księżycowej to ziemia, woda, ogień i wiatr. System pięciu żywiołów obejmuje drewno, ogień, ziemię, żelazo i wodę, a relacje między nimi określa się jako matkę, dziecko, przyjaciela i wroga.",
+  "Tibetan astrology brings together Indian, Chinese and Tibetan traditions. A full almanac considers more than the mansion alone, including lunar dates and other calendar factors.": "Astrologia tybetańska łączy tradycje indyjskie, chińskie i tybetańskie. Pełny almanach uwzględnia nie tylko rezydencję księżycową, lecz także daty księżycowe i inne czynniki kalendarzowe.",
   "In the activity lists, peaceful rites concern pacification, increasing rites concern prosperity and growth, magnetizing rites concern gathering favorable conditions, and forceful rites concern overcoming obstacles.": "Na listach działań rytuały uspokajające dotyczą wyciszania, pomnażające — dobrobytu i rozwoju, przyciągające — gromadzenia sprzyjających warunków, a gwałtowne — pokonywania przeszkód.",
-  "White Beryl, chapter 33: selected English readings from the supplied Tibetan text. The original passage is included below. Interface labels and guidance follow the selected language; reading texts remain in English.": "Biały beryl, rozdział 33: wybrane interpretacje w języku angielskim na podstawie dostarczonego tekstu tybetańskiego. Oryginalny fragment znajduje się poniżej. Etykiety i objaśnienia interfejsu są w wybranym języku; teksty interpretacji pozostają po angielsku.",
+  "White Beryl, chapter 33: selected English readings from the supplied Tibetan text. The original passage is included below. Interface labels and guidance follow the selected language; reading texts remain in English.": "Biały Beryl, rozdział 33: wybrane interpretacje w języku angielskim na podstawie dostarczonego tekstu tybetańskiego. Oryginalny fragment znajduje się poniżej. Etykiety i objaśnienia interfejsu są w wybranym języku; teksty interpretacji pozostają po angielsku.",
   "Institutional background for the traditions and five-element relationships.": "Informacje instytucji o tradycjach i relacjach pięciu żywiołów.",
-  "Calendar-making, activity timing, lunar mansions and the conditional nature of birth readings.": "Tworzenie kalendarzy, wybór czasu działania, domy księżycowe i warunkowy charakter interpretacji urodzeniowych.",
+  "Calendar-making, activity timing, lunar mansions and the conditional nature of birth readings.": "Tworzenie kalendarzy, wybór czasu działania, rezydencje księżycowe i warunkowy charakter interpretacji urodzeniowych.",
   "Almanacs and calendars for consulting the Tibetan calendar directly.": "Almanachy i kalendarze umożliwiające bezpośrednie sprawdzenie kalendarza tybetańskiego.",
   "Tibetan source passage": "Tybetański fragment źródłowy",
   "apparitional — a god appears as a child of five years": "spontaniczne: bóg pojawia się jako pięcioletnie dziecko",
@@ -459,7 +459,7 @@ const T={
   "Sea without": "Morze na zewnątrz",
   "the salt ocean, 322,000 wide": "słony ocean o szerokości 322 000 jodźan",
   "gold": "złoto",
-  "Seven ranges of gold enclose Meru in concentric squares — drawn here as circles, as the Tibetan tradition draws them — each half the height and half the width of the one within, and each separated from it by a sea of the same width as itself. All seven stand 80,000 yojanas deep in the water, as Meru does. The outer four are drawn wider and higher than the figures allow, so that all seven can be seen and picked.": "Siedem złotych pasm otacza Meru koncentrycznymi kwadratami. Tutaj, zgodnie z tybetańską tradycją przedstawień, ukazano je jako okręgi. Każde ma połowę wysokości i szerokości poprzedniego oraz jest od niego oddzielone morzem o szerokości równej własnej. Wszystkie siedem, podobnie jak Meru, sięga 80 000 jodźan w głąb wody. Cztery zewnętrzne pasma poszerzono i podwyższono względem podanych wymiarów, aby wszystkie były widoczne i dostępne do kliknięcia.",
+  "Seven ranges of gold enclose Meru in concentric squares — drawn here as circles, as the Tibetan tradition draws them — each half the height and half the width of the one within, and each separated from it by a sea twice as wide as itself (equal to the width of Meru or the range within). All seven stand 80,000 yojanas deep in the water, as Meru does. The outer four are drawn wider and higher than the figures allow, so that all seven can be seen and picked.": "Siedem złotych pasm otacza Meru koncentrycznymi kwadratami. Tutaj, zgodnie z tybetańską tradycją przedstawień, ukazano je jako okręgi. Każde ma połowę wysokości i szerokości poprzedniego oraz jest od niego oddzielone morzem dwa razy szerszym od niego samego (równym szerokości Meru lub pasma wewnątrz). Wszystkie siedem, podobnie jak Meru, sięga 80 000 jodźan w głąb wody. Cztery zewnętrzne pasma poszerzono i podwyższono względem podanych wymiarów, aby wszystkie były widoczne i dostępne do kliknięcia.",
   "The seven inner seas": "Siedem mórz wewnętrznych",
   "the fresh waters": "wody słodkie",
   "fresh water": "woda słodka",
@@ -469,7 +469,7 @@ const T={
   "80,000 yojanas throughout": "wszędzie 80 000 jodźan",
   "Eight qualities": "Osiem właściwości",
   "cool, sweet, light, soft, clear, odourless, kind to the throat, kind to the stomach": "chłodna, słodka, lekka, miękka, czysta, bezwonna, łagodna dla gardła i żołądka",
-  "Fresh water fills the seven gaps between Meru and the ranges, each sea as wide as the range outside it and each half the width of the one within. The innermost, between Meru and Yugandhara, is the widest at 80,000 yojanas.": "Słodka woda wypełnia siedem przestrzeni między Meru a pasmami. Każde morze jest tak szerokie jak pasmo po jego zewnętrznej stronie i ma połowę szerokości poprzedniego. Najbardziej wewnętrzne, między Meru a Yugandharą, jest najszersze: liczy 80 000 jodźan.",
+  "Fresh water fills the seven gaps between Meru and the ranges, each sea twice as wide as the range outside it and each half the width of the one within. The innermost, between Meru and Yugandhara, is the widest at 80,000 yojanas.": "Słodka woda wypełnia siedem przestrzeni między Meru a pasmami. Każde morze jest dwa razy szersze od pasma po jego zewnętrznej stronie i ma połowę szerokości poprzedniego. Najbardziej wewnętrzne, między Meru a Yugandharą, jest najszersze: liczy 80 000 jodźan.",
   "All the waters of the system are held in place by the wind and stand 80,000 yojanas deep on the golden floor. The nāgas live in them.": "Wszystkie wody systemu utrzymuje na miejscu wiatr. Ich głębokość nad złotym dnem wynosi 80 000 jodźan. Zamieszkują je nagowie.",
   "The outer ocean": "Ocean zewnętrzny",
   "the eighth sea · salt water": "ósme morze · słona woda",
@@ -648,7 +648,7 @@ const T={
   "streaming radiance": "promieniujący blask",
   "8 yojanas": "8 jodźan",
   "8 great kalpas": "8 wielkich kalp",
-  "The ceiling of destruction by fire: when a world system burns, everything below this level is consumed and its gods are reborn here.": "Górna granica zniszczenia przez ogień: gdy system świata płonie, wszystko poniżej tego poziomu zostaje strawione, a jego bogowie odradzają się tutaj.",
+  "The highest heaven of the second dhyāna: when a world system burns, everything below the second dhyāna is consumed, while the second dhyāna remains untouched.": "Najwyższe niebo drugiej dhjany: gdy system świata płonie, wszystko poniżej drugiej dhjany zostaje strawione, natomiast druga dhjana pozostaje nietknięta.",
   "limited virtue": "ograniczone dobro",
   "3rd": "3.",
   "16 yojanas": "16 jodźan",
@@ -660,7 +660,7 @@ const T={
   "perfect virtue": "pełnia dobra",
   "64 yojanas": "64 jodźany",
   "64 great kalpas": "64 wielkie kalpy",
-  "The ceiling of destruction by water.": "Górna granica zniszczenia przez wodę.",
+  "The highest heaven of the third dhyāna: when a world system dissolves in water, everything below the third dhyāna is undone, while the third dhyāna remains untouched.": "Najwyższe niebo trzeciej dhjany: gdy system świata rozpuszcza się w wodzie, wszystko poniżej trzeciej dhjany ulega zniszczeniu, natomiast trzecia dhjana pozostaje nietknięta.",
   "cloudless": "bezchmurne",
   "4th": "4.",
   "125 yojanas": "125 jodźan",
@@ -672,7 +672,7 @@ const T={
   "vast fruit": "rozległy owoc",
   "500 yojanas": "500 jodźan",
   "500 great kalpas": "500 wielkich kalp",
-  "The ceiling of destruction by wind. Above this level a world system is never undone.": "Górna granica zniszczenia przez wiatr. Ponad tym poziomem system świata nigdy nie ulega zagładzie.",
+  "In the fourth dhyāna, above the reach of cosmic wind: none of the fourth-dhyāna heavens is undone when a world system ends.": "W czwartej dhjanie, ponad zasięgiem kosmicznego wichru: żadne z niebios czwartej dhjany nie ulega zagładzie, gdy kończy się system świata.",
   "not falling away": "nieupadające",
   "4th · pure": "4. · czyste",
   "1,000 yojanas": "1000 jodźan",
@@ -821,15 +821,15 @@ const T={
   "By fire": "Przez ogień",
   "seven suns appear; everything up to the first dhyāna burns": "pojawia się siedem słońc; wszystko aż po pierwszą dhjanę płonie",
   "By water": "Przez wodę",
-  "after seven destructions by fire, one by water, to Śubhakṛtsna": "po siedmiu zniszczeniach przez ogień jedno przez wodę, do Śubhakṛtsny",
+  "after seven destructions by fire, one by water, up through the second dhyāna": "po siedmiu zniszczeniach przez ogień jedno przez wodę, aż po drugą dhjanę",
   "By wind": "Przez wiatr",
-  "after seven by water, one by wind, to Bṛhatphala": "po siedmiu zniszczeniach przez wodę jedno przez wiatr, do Bṛhatphali",
+  "after seven by water and seven more by fire, one by wind, up through the third dhyāna": "po siedmiu zniszczeniach przez wodę i siedmiu kolejnych przez ogień jedno przez wiatr, aż po trzecią dhjanę",
   "Untouched": "Nietknięte",
-  "the pure abodes and the formless absorptions": "czyste siedziby i bezforemne skupienia",
+  "the entire fourth dhyāna (including the pure abodes) and the formless absorptions": "cała czwarta dhjana (łącznie z czystymi siedzibami) oraz bezforemne skupienia",
   "Then": "Następnie",
   "twenty intermediate kalpas of emptiness, and a new world forms": "dwadzieścia kalp pośrednich pustki i powstaje nowy świat",
   "A world system lasts one great kalpa and is undone in the same order in which it was made, from the bottom up. No new being is born in hell; those already there finish their term and the hells stand empty. Then the animals and pretas, then the human beings of the continents, then the gods of the mountain and the heavens above it.": "System świata trwa jedną wielką kalpę i rozpada się w tej samej kolejności, w której powstał: od dołu ku górze. Żadna nowa istota nie rodzi się w piekle; obecne kończą swój pobyt i piekła pustoszeją. Potem znikają zwierzęta i prety, następnie ludzie na kontynentach, wreszcie bogowie góry i wyższych niebios.",
-  "Seven suns rise in turn, drying the rivers, then Anavatapta, then the great ocean, and at last Meru itself burns to nothing. Everything below the second dhyāna is consumed. The Kośa gives the ratio exactly: seven destructions by fire for one by water, and seven by water for one by wind — and above Bṛhatphala nothing is destroyed at all.": "Kolejno wschodzi siedem słońc, wysuszając rzeki, potem Anavataptę, następnie wielki ocean, aż wreszcie sama Meru spala się doszczętnie. Wszystko poniżej drugiej dhjany zostaje strawione. Kośa podaje dokładną proporcję: siedem zniszczeń przez ogień na jedno przez wodę i siedem przez wodę na jedno przez wiatr. Powyżej Bṛhatphali nic nie ulega zniszczeniu.",
+  "Seven suns rise in turn, drying the rivers, then Anavatapta, then the great ocean, and at last Meru itself burns to nothing. Everything below the second dhyāna is consumed. The Kośa gives the cycle of sixty-four destructions exactly: seven by fire followed by one by water, repeated seven times, then seven more by fire and a final sixty-fourth by wind — and the entire fourth dhyāna above is never destroyed at all.": "Kolejno wschodzi siedem słońc, wysuszając rzeki, potem Anavataptę, następnie wielki ocean, aż wreszcie sama Meru spala się doszczętnie. Wszystko poniżej drugiej dhjany zostaje strawione. Kośa podaje dokładny cykl sześćdziesięciu czterech zniszczeń: siedem przez ogień i jedno przez wodę powtórzone siedem razy, następnie jeszcze siedem przez ogień i ostatnie, sześćdziesiąte czwarte przez wiatr — a cała czwarta dhjana powyżej nigdy nie ulega zniszczeniu.",
   "A thousand worlds": "Tysiąc światów",
   "What lies beyond the iron rim": "Co leży za żelazną obręczą",
   "10⁹ systems": "10⁹ systemów",
@@ -853,7 +853,6 @@ const T={
   "Game": "Gra",
   "Wheel": "Koło",
   "Wheel of life — l": "Koło życia — l",
-  "Explorer e · Mandala m · Game g · Wheel l": "Eksplorator e · Mandala m · Gra g · Koło l",
   "The wheel of life": "Koło życia",
   "The hub": "Piasta",
   "The paths of karma": "Ścieżki karmy",
@@ -1015,7 +1014,7 @@ const BOARD_NAMES={
   "Beginning the Tantra": "Początek tantry",
   "Wheel-Turning King (Cakravartin)": "Władca Obracający Kołem (Cakravartin)",
   "Heaven of the Four Great Kings": "Niebo Czterech Wielkich Królów",
-  "Heaven of the Thirty-three (Trāyatriṁśa)": "Niebo Trzydziestu Trzech (Trāyatriṃśa)",
+  "Heaven of the Thirty-three (Trāyastriṃśa)": "Niebo Trzydziestu Trzech (Trāyastriṃśa)",
   "Heaven Without Fighting (Yāma)": "Niebo Wolne od Walki (Yāma)",
   "The Joyful (Tuṣita) Heaven": "Niebo Radosne (Tuṣita)",
   "Delighting in Emanations (Nirmāṇa-rati)": "Rozkoszujący się emanacjami (Nirmāṇa-rati)",
@@ -1075,7 +1074,7 @@ const BOARD_NAMES={
   'Modern painted interpretation': 'Współczesna interpretacja malarska',
   'Some illustrations could not load. The numbered offerings and text are still available.': 'Nie udało się wczytać części ilustracji. Numerowane ofiarowania i tekst są nadal dostępne.',
   'Loading the offering illustrations…': 'Wczytywanie ilustracji ofiarowania…', 'In this illustration': 'Na tej ilustracji',
-  ' Artwork: contemporary AI-assisted illustration; <a href="https://github.com/DonAndrutto/WorldSystem/blob/main/ARTWORK.md" target="_blank" rel="noopener">visual sources and adaptations</a>.': ' Ilustracja współczesna, wykonana przy pomocy AI; <a href="https://github.com/DonAndrutto/WorldSystem/blob/main/ARTWORK.md" target="_blank" rel="noopener">źródła wizualne i adaptacje</a>.',
+  ' Artwork: contemporary AI-assisted illustration; <a href="https://github.com/DonAndrutto/WorldSystem/blob/main/ARTWORK.md" target="_blank" rel="noopener noreferrer">visual sources and adaptations</a>.': ' Ilustracja współczesna, wykonana przy pomocy AI; <a href="https://github.com/DonAndrutto/WorldSystem/blob/main/ARTWORK.md" target="_blank" rel="noopener noreferrer">źródła wizualne i adaptacje</a>.',
   'Press play: the world system is laid out heap by heap, in the order the verse names it.': 'Naciśnij „Odtwórz”: system świata układa się kopczyk po kopczyku, w kolejności strofy.',
   'Hide verse': 'Ukryj strofę', 'Full verse': 'Pełna strofa',
   'The sun, the moon, the precious umbrella,': 'Słońce, księżyc i drogocenny parasol:', 'All this:': 'To wszystko:', 'I offer—': 'Ofiarowuję —', 'Please accept it, with compassion, for the benefit of beings.': 'Przyjmij to z łaską, dla dobra istot.', 'Having accepted it, please grant your blessing!': 'Przyjąwszy to, udziel błogosławieństwa!',
@@ -1153,7 +1152,6 @@ Object.assign(T, {
   "Turning the Wheel of Dharma": "Obrócenie Koła Dharmy",
   "Demonstration of Miracles": "Demonstracja cudów",
   "Nirvana": "Nirwana",
-  "Explorer e · Mandala m · Game g": "Eksplorator e · Mandala m · Gra g",
   "Motion, night, full screen, reset": "Ruch, noc, pełny ekran, reset",
   "Sound — buttons, the voice each square answers in, and the endings of worlds": "Dźwięk — przyciski, głos każdego pola i kres światów",
   "Eng": "Ang",
@@ -1473,7 +1471,6 @@ Object.assign(T, {
   "Mahāyāna sutra path": "Ścieżka sutry Mahajany",
   "Mythic and sacred lands": "Mityczne i święte krainy",
   "Wisdom-holder attainments": "Osiągnięcia widjadharów",
-  "Buddha fields": "Pola buddy",
   "Buddha bodies": "Ciała buddy",
   "Acts of the Emanation body": "Czyny Nirmāṇakāji",
   "One to each side": "Po jednym z każdej strony",
@@ -1549,7 +1546,7 @@ Object.assign(T, {
   "apparitional — a god appears on the lap of another, a child of five years in the lowest heaven and ten in the highest": "spontaniczne — bóg pojawia się na kolanach innego, jako pięcioletnie dziecko w najniższym niebie i dziesięcioletnie w najwyższym",
   "immediate; there is no infancy": "natychmiastowe; nie ma niemowlęctwa",
   "as human beings do in the two lowest heavens; above, by embrace, by taking hands, by a smile, by a look": "tak jak u ludzi w dwóch najniższych niebiosach; wyżej — przez objęcie, przez ujęcie za ręce, przez uśmiech, przez spojrzenie",
-  "a quarter krośa in the lowest heaven, doubling upward": "ćwierć krośa w najniższym niebie, podwajająca się ku górze",
+  "a quarter krośa in the lowest heaven, adding a quarter krośa at each level up to one and a half": "ćwierć krośa w najniższym niebie, rosnąc o ćwierć krośa na każdym poziomie aż do półtora",
   "appears with the body and is never soiled — until the end": "pojawia się wraz z ciałem i nigdy się nie brudzi — aż do samego końca",
   "160,000 yojanas above the water": "160 000 jodźan ponad wodą",
   "200 human years to one day": "200 ludzkich lat na jeden dzień",
@@ -1725,7 +1722,6 @@ Object.assign(T, {
   "90. Ninth Tantra Stage": "90. Dziewiąty stopień tantry",
   "91. Tenth Tantra Stage": "91. Dziesiąty stopień tantry",
   "93. Great Dharma Body (Dharma-Kāya)": "93. Wielka Dharmakāja",
-  "a 1 to 73. Second Tantra Stage, in another witness": "a1 do 73. Drugi stopień tantry, w innym świadectwie tekstu",
   "95. Ninth Sutra Stage": "95. Dziewiąty stopień sutry",
   "96. Eighth Sutra Stage": "96. Ósmy stopień sutry",
   "97. Adopting a Physical Form": "97. Przyjęcie fizycznej postaci",
@@ -2514,29 +2510,29 @@ Object.assign(T, {
    Tibetan, Wylie and Sanskrit names are not in the table and are left as
    they stand. Draft Polish for the translator's review. */
 Object.assign(T, {
-  "28 Lunar Mansions": "28 domów księżycowych",
-  "The 28 Lunar Mansions": "28 domów księżycowych",
+  "28 Lunar Mansions": "28 rezydencji księżycowych",
+  "The 28 Lunar Mansions": "28 rezydencji księżycowych",
   "Show": "Pokaż",
-  "Show the 28 Lunar Mansions in the world": "Pokaż 28 domów księżycowych w świecie",
-  "The index of the 28 Lunar Mansions": "Indeks 28 domów księżycowych",
-  "Jyotiṣa calculator": "Kalkulator dźjotiszy",
-  "Indian Jyotiṣa calculation · Lahiri ayanamsa": "Indyjskie obliczenie dźjotiszy · ajanamsa Lahiriego",
-  "Indian Jyotiṣa · a separate system": "Indyjska dźjotisza · osobny system",
+  "Show the 28 Lunar Mansions in the world": "Pokaż 28 rezydencji księżycowych w świecie",
+  "The index of the 28 Lunar Mansions": "Indeks 28 rezydencji księżycowych",
+  "Jyotiṣa calculator": "Kalkulator Jyotiṣa",
+  "Indian Jyotiṣa calculation · Lahiri ayanamsa": "Indyjskie obliczenie Jyotiṣa · ajanamsa Lahiri",
+  "Indian Jyotiṣa · a separate system": "Indyjska Jyotiṣa · osobny system",
   "Return to previous view": "Wróć do poprzedniego widoku",
-  "Mansion index": "Indeks domów księżycowych",
-  "White Beryl · Tibetan catalogue": "Biały beryl · katalog tybetański",
-  "Close the mansion index": "Zamknij indeks domów księżycowych",
+  "Mansion index": "Indeks rezydencji księżycowych",
+  "White Beryl · Tibetan catalogue": "Biały Beryl · katalog tybetański",
+  "Close the mansion index": "Zamknij indeks rezydencji księżycowych",
   "Close the calculator": "Zamknij kalkulator",
-  "After Desi Sangye Gyatso’s <i>White Beryl</i> (Phug tradition), read with Mipham’s separately attributed notes.": "Według <i>Białego berylu</i> Desiego Sangje Gjaco (tradycja Phug), czytanego z osobno przypisanymi uwagami Mipama.",
+  "After Desi Sangye Gyatso’s <i>White Beryl</i> (Phug tradition), read with Mipham’s separately attributed notes.": "Według <i>Białego Berylu</i> Desiego Sangje Gjaco (tradycja Phug), czytanego z osobno przypisanymi uwagami Mipama.",
   "Show in the world": "Pokaż w świecie",
   "Tour the 28": "Przejdź przez 28",
   "Clear selection": "Wyczyść wybór",
-  "In the world the 28 stand in equal places on a ring, grouped by White Beryl’s elemental directions: six to each cardinal direction, one to each intermediate one. The arrangement is illustrative and does not show astronomical positions.": "W świecie 28 domów stoi w równych odstępach na pierścieniu, pogrupowanych według kierunków żywiołów z Białego berylu: po sześć na każdy kierunek główny i po jednym na każdy pośredni. Układ jest poglądowy i nie przedstawia położeń astronomicznych.",
+  "In the world the 28 stand in equal places on a ring, grouped by White Beryl’s elemental directions: six to each cardinal direction, one to each intermediate one. The arrangement is illustrative and does not show astronomical positions.": "W świecie 28 rezydencji stoi w równych odstępach na pierścieniu, pogrupowanych według kierunków żywiołów z Białego Berylu: po sześć na każdy kierunek główny i po jednej na każdy pośredni. Układ jest poglądowy i nie przedstawia położeń astronomicznych.",
   "Four forms follow a secondary source because their opening lines are lost in the supplied text. They are marked “Secondary source” here and drawn inside a dashed ring in the world.": "Cztery kształty opierają się na źródle wtórnym, ponieważ ich początkowe wersy zaginęły w dostarczonym tekście. Oznaczono je tutaj jako „Źródło wtórne”, a w świecie narysowano w przerywanym pierścieniu.",
   "About the count and the sources": "O liczbie i źródłach",
-  "White Beryl gives the lunar mansions as twenty-eight. Because gro bzhin and byi bzhin share one allotment, the count is twenty-seven when the two are combined (U p. 18, lines 607–608).": "Biały beryl podaje dwadzieścia osiem domów księżycowych. Ponieważ gro bzhin i byi bzhin dzielą jeden przydział, po ich połączeniu liczba wynosi dwadzieścia siedem (U s. 18, wiersze 607–608).",
-  "Forms, star counts and deities are read from each mansion’s passage in chapter 33 of the lower volume (printed pp. 313–328). The two element lists are L p. 334, lines 10799–10812 (four- and five-element lists); the directions U pp. 257–258, lines 9430–9443 (elemental directions); the rulers L p. 376, lines 12168–12173 (seven planetary rulers, four mansions each). English renderings are working translations.": "Kształty, liczby gwiazd i bóstwa odczytano z ustępu poświęconego każdemu domowi w rozdziale 33 tomu dolnego (drukowane s. 313–328). Dwie listy żywiołów to L s. 334, wiersze 10799–10812 (listy czterech i pięciu żywiołów); kierunki — U s. 257–258, wiersze 9430–9443 (kierunki żywiołów); władcy — L s. 376, wiersze 12168–12173 (siedmiu władców planetarnych, po cztery domy). Przekłady są robocze.",
-  "Mipham’s <i>Notes on Elemental Astrology, Clarifying the Essence</i> (nag rtsis brjed byang snying po gsal ba), appended to the lower volume, clarifies difficult points in the Phug-tradition White Beryl and also enumerates twenty-eight. It supplies no alternative set of forms, and is cited as his own work.": "<i>Notatki o astrologii żywiołów, wyjaśniające istotę</i> Mipama (nag rtsis brjed byang snying po gsal ba), dołączone do tomu dolnego, objaśniają trudne miejsca Białego berylu tradycji Phug i również wyliczają dwadzieścia osiem. Nie podają innego zestawu kształtów i są cytowane jako jego własne dzieło.",
+  "White Beryl gives the lunar mansions as twenty-eight. Because gro bzhin and byi bzhin share one allotment, the count is twenty-seven when the two are combined (U p. 18, lines 607–608).": "Biały Beryl podaje dwadzieścia osiem rezydencji księżycowych. Ponieważ gro bzhin i byi bzhin dzielą jeden przydział, po ich połączeniu liczba wynosi dwadzieścia siedem (U s. 18, wiersze 607–608).",
+  "Forms, star counts and deities are read from each mansion’s passage in chapter 33 of the lower volume (printed pp. 313–328). The two element lists are L p. 334, lines 10799–10812 (four- and five-element lists); the directions U pp. 257–258, lines 9430–9443 (elemental directions); the rulers L p. 376, lines 12168–12173 (seven planetary rulers, four mansions each). English renderings are working translations.": "Kształty, liczby gwiazd i bóstwa odczytano z ustępu poświęconego każdej rezydencji w rozdziale 33 tomu dolnego (drukowane s. 313–328). Dwie listy żywiołów to L s. 334, wiersze 10799–10812 (listy czterech i pięciu żywiołów); kierunki — U s. 257–258, wiersze 9430–9443 (kierunki żywiołów); władcy — L s. 376, wiersze 12168–12173 (siedmiu władców planetarnych, po cztery rezydencje). Przekłady są robocze.",
+  "Mipham’s <i>Notes on Elemental Astrology, Clarifying the Essence</i> (nag rtsis brjed byang snying po gsal ba), appended to the lower volume, clarifies difficult points in the Phug-tradition White Beryl and also enumerates twenty-eight. It supplies no alternative set of forms, and is cited as his own work.": "<i>Notatki o astrologii żywiołów, wyjaśniające istotę</i> Mipama (nag rtsis brjed byang snying po gsal ba), dołączone do tomu dolnego, objaśniają trudne miejsca Białego Berylu tradycji Phug i również wyliczają dwadzieścia osiem. Nie podają innego zestawu kształtów i są cytowane jako jego własne dzieło.",
   "Readings still awaiting the page images: the lost openings of snar ma, skag, nag pa and khrums smad. The readings of sa ga (ra mgo, goat head) and rgyal (three stars, a rounded form) are the project owner’s corrections of the OCR. The drawings are modern interpretations of the textual forms; the star nodes give counts, not positions, and no deity is portrayed.": "Odczyty czekające na obrazy stron: zaginione początki snar ma, skag, nag pa i khrums smad. Odczyty sa ga (ra mgo, głowa kozy) i rgyal (trzy gwiazdy, kształt zaokrąglony) to poprawki OCR wniesione przez autora projektu. Rysunki są współczesnymi interpretacjami kształtów z tekstu; punkty gwiazd podają liczby, nie położenia, i żadne bóstwo nie jest przedstawione.",
   "The twenty-eight, in the Tibetan order": "Dwadzieścia osiem w porządku tybetańskim",
   "A separate system:": "Osobny system:",
@@ -2550,16 +2546,16 @@ Object.assign(T, {
   "Element, four-element list": "Żywioł, lista czterech żywiołów",
   "Element, five-element list": "Żywioł, lista pięciu żywiołów",
   "Elemental direction": "Kierunek żywiołu",
-  "Planetary ruler (White Beryl)": "Władca planetarny (Biały beryl)",
+  "Planetary ruler (White Beryl)": "Władca planetarny (Biały Beryl)",
   "Deity named in the passage": "Bóstwo wymienione w ustępie",
   "Not preserved: the opening is lost in the OCR": "Niezachowane: początek zaginął w OCR",
   "damaged reading": "odczyt uszkodzony",
   "uncertain reading": "odczyt niepewny",
   "Evidence": "Świadectwo",
-  "White Beryl, lower volume": "Biały beryl, tom dolny",
+  "White Beryl, lower volume": "Biały Beryl, tom dolny",
   "Source status": "Status źródła",
   "Secondary source: the form follows the secondary Tibetan table": "Źródło wtórne: kształt według wtórnej tabeli tybetańskiej",
-  "Read in the White Beryl OCR": "Odczytane w OCR Białego berylu",
+  "Read in the White Beryl OCR": "Odczytane w OCR Białego Berylu",
   "Order": "Kolejność",
   "Wind": "Wiatr", "Fire": "Ogień", "Water": "Woda", "Earth": "Ziemia", "Wood": "Drewno", "Iron": "Żelazo",
   "Northeast": "Północny wschód", "Southeast": "Południowy wschód", "Southwest": "Południowy zachód", "Northwest": "Północny zachód",
@@ -2591,7 +2587,6 @@ Object.assign(T, {
   "Heap, or bunch, of flowers": "Stos lub pęk kwiatów",
   "Ear": "Ucho",
   "Boat": "Łódź",
-  "Yama": "Jama",
   "Agni, the fire god": "Agni, bóg ognia",
   "the Moon": "Księżyc",
   "the Fierce One": "Srogi",
@@ -2637,23 +2632,23 @@ Object.assign(T, {
   "The drawing is a modern interpretation of the textual form.": "Rysunek jest współczesną interpretacją kształtu z tekstu.",
   "Modern drawing of the textual form": "Współczesny rysunek kształtu z tekstu",
   "Modern drawing after a secondary source": "Współczesny rysunek według źródła wtórnego",
-  "Lunar mansion": "Dom księżycowy",
-  "White Beryl": "Biały beryl",
+  "Lunar mansion": "Rezydencja księżycowa",
+  "White Beryl": "Biały Beryl",
   "an optional layer": "warstwa opcjonalna",
   "Source": "Źródło",
-  "White Beryl, Desi Sangye Gyatso": "Biały beryl, Desi Sangje Gjaco",
+  "White Beryl, Desi Sangye Gyatso": "Biały Beryl, Desi Sangje Gjaco",
   "Clarified by": "Objaśnienia",
   "Mipham, appended notes": "Mipam, dołączone notatki",
   "In the world": "W świecie",
   "An illustrative ring, off until shown": "Poglądowy pierścień, ukryty do czasu włączenia",
-  "White Beryl names twenty-eight lunar mansions and treats each in turn: its form, its stars, its element and the deity its passage names. This model follows its Tibetan sequence, beginning with tha skar (dbyu gu). Because gro bzhin and byi bzhin share one allotment, the count becomes twenty-seven when the two are combined.": "Biały beryl wymienia dwadzieścia osiem domów księżycowych i omawia każdy po kolei: jego kształt, gwiazdy, żywioł i bóstwo wymienione w ustępie. Model idzie za tybetańską kolejnością, zaczynając od tha skar (dbyu gu). Ponieważ gro bzhin i byi bzhin dzielą jeden przydział, po ich połączeniu liczba wynosi dwadzieścia siedem.",
-  "Shown in the world, the twenty-eight stand in equal places on a ring outside the circuit of the sun and moon, grouped by White Beryl’s elemental directions: six to each cardinal direction and one to each intermediate one. The arrangement is illustrative and gives no astronomical positions.": "Pokazane w świecie, dwadzieścia osiem stoi w równych odstępach na pierścieniu poza obiegiem słońca i księżyca, pogrupowane według kierunków żywiołów z Białego berylu: po sześć na każdy kierunek główny i po jednym na każdy pośredni. Układ jest poglądowy i nie podaje położeń astronomicznych.",
+  "White Beryl names twenty-eight lunar mansions and treats each in turn: its form, its stars, its element and the deity its passage names. This model follows its Tibetan sequence, beginning with tha skar (dbyu gu). Because gro bzhin and byi bzhin share one allotment, the count becomes twenty-seven when the two are combined.": "Biały Beryl wymienia dwadzieścia osiem rezydencji księżycowych i omawia każdą po kolei: jej kształt, gwiazdy, żywioł i bóstwo wymienione w ustępie. Model idzie za tybetańską kolejnością, zaczynając od tha skar (dbyu gu). Ponieważ gro bzhin i byi bzhin dzielą jeden przydział, po ich połączeniu liczba wynosi dwadzieścia siedem.",
+  "Shown in the world, the twenty-eight stand in equal places on a ring outside the circuit of the sun and moon, grouped by White Beryl’s elemental directions: six to each cardinal direction and one to each intermediate one. The arrangement is illustrative and gives no astronomical positions.": "Pokazane w świecie, dwadzieścia osiem rezydencji stoi w równych odstępach na pierścieniu poza obiegiem słońca i księżyca, pogrupowanych według kierunków żywiołów z Białego Berylu: po sześć na każdy kierunek główny i po jednej na każdy pośredni. Układ jest poglądowy i nie podaje położeń astronomicznych.",
   "The drawings are modern interpretations of the textual forms. The four whose opening lines are lost in the supplied text follow a secondary table and are marked as such. Every entry keeps the four-element and five-element assignments, the direction, the planetary ruler and the deity named in the passage as separate facts.": "Rysunki są współczesnymi interpretacjami kształtów z tekstu. Cztery, których początkowe wersy zaginęły w dostarczonym tekście, opierają się na tabeli wtórnej i są tak oznaczone. Każde hasło zachowuje przyporządkowanie do czterech i do pięciu żywiołów, kierunek, władcę planetarnego i bóstwo wymienione w ustępie jako osobne fakty.",
-  "Mipham’s notes on elemental astrology, appended to the same volume, clarify difficult points in White Beryl and are cited as his own work. The Indian Jyotiṣa calculator, with the Lahiri ayanamsa, is a separate system.": "Notatki Mipama o astrologii żywiołów, dołączone do tego samego tomu, objaśniają trudne miejsca Białego berylu i są cytowane jako jego własne dzieło. Indyjski kalkulator dźjotiszy z ajanamsą Lahiriego to osobny system.",
-  "White Beryl (Vaiḍūrya dkar po), Phug tradition, Desi Sangye Gyatso; count U p. 18, lines 607–608; elements L p. 334, lines 10799–10812 (four- and five-element lists); directions U pp. 257–258, lines 9430–9443 (elemental directions); rulers L p. 376, lines 12168–12173 (seven planetary rulers, four mansions each). Mipham, <i>nag rtsis brjed byang snying po gsal ba</i>, L p. 474 ff. Working translations after the audit of the supplied OCR.": "Biały beryl (Vaiḍūrya dkar po), tradycja Phug, Desi Sangje Gjaco; liczba U s. 18, wiersze 607–608; żywioły L s. 334, wiersze 10799–10812 (listy czterech i pięciu żywiołów); kierunki U s. 257–258, wiersze 9430–9443 (kierunki żywiołów); władcy L s. 376, wiersze 12168–12173 (siedmiu władców planetarnych, po cztery domy). Mipam, <i>nag rtsis brjed byang snying po gsal ba</i>, L s. 474 i nast. Przekłady robocze na podstawie analizy dostarczonego OCR.",
+  "Mipham’s notes on elemental astrology, appended to the same volume, clarify difficult points in White Beryl and are cited as his own work. The Indian Jyotiṣa calculator, with the Lahiri ayanamsa, is a separate system.": "Notatki Mipama o astrologii żywiołów, dołączone do tego samego tomu, objaśniają trudne miejsca Białego Berylu i są cytowane jako jego własne dzieło. Indyjski kalkulator Jyotiṣa z ajanamsą Lahiri to osobny system.",
+  "White Beryl (Vaiḍūrya dkar po), Phug tradition, Desi Sangye Gyatso; count U p. 18, lines 607–608; elements L p. 334, lines 10799–10812 (four- and five-element lists); directions U pp. 257–258, lines 9430–9443 (elemental directions); rulers L p. 376, lines 12168–12173 (seven planetary rulers, four mansions each). Mipham, <i>nag rtsis brjed byang snying po gsal ba</i>, L p. 474 ff. Working translations after the audit of the supplied OCR.": "Biały Beryl (Vaiḍūrya dkar po), tradycja Phug, Desi Sangje Gjaco; liczba U s. 18, wiersze 607–608; żywioły L s. 334, wiersze 10799–10812 (listy czterech i pięciu żywiołów); kierunki U s. 257–258, wiersze 9430–9443 (kierunki żywiołów); władcy L s. 376, wiersze 12168–12173 (siedmiu władców planetarnych, po cztery rezydencje). Mipam, <i>nag rtsis brjed byang snying po gsal ba</i>, L s. 474 i nast. Przekłady robocze na podstawie analizy dostarczonego OCR.",
   "About this calculation": "O tym obliczeniu",
-  "The Moon’s nakṣatra in the Indian system: twenty-seven equal sectors of the sidereal zodiac, measured with the Lahiri ayanamsa from a geocentric lunar position, with its pada and Vimshottari lord.": "Nakszatra Księżyca w systemie indyjskim: dwadzieścia siedem równych sektorów zodiaku gwiazdowego, mierzonych z ajanamsą Lahiriego od geocentrycznego położenia Księżyca, wraz z padą i władcą Vimshottari.",
-  "The 28 Lunar Mansions catalogue follows Tibetan sources, chiefly White Beryl, and is a separate system. A result names the corresponding catalogue entry as a cross-reference only. The Vimshottari lord is not White Beryl’s planetary ruler, and the ring in the world is not used for the calculation.": "Katalog 28 domów księżycowych opiera się na źródłach tybetańskich, głównie na Białym berylu, i jest osobnym systemem. Wynik wskazuje odpowiadające hasło katalogu wyłącznie jako odsyłacz. Władca Vimshottari nie jest władcą planetarnym Białego berylu, a pierścień w świecie nie służy do obliczeń.",
+  "The Moon’s nakṣatra in the Indian system: twenty-seven equal sectors of the sidereal zodiac, measured with the Lahiri ayanamsa from a geocentric lunar position, with its pada and Vimshottari lord.": "Nakszatra Księżyca w systemie indyjskim: dwadzieścia siedem równych sektorów zodiaku gwiazdowego, mierzonych z ajanamsą Lahiri od geocentrycznego położenia Księżyca, wraz z padą i władcą Vimshottari.",
+  "The 28 Lunar Mansions catalogue follows Tibetan sources, chiefly White Beryl, and is a separate system. A result names the corresponding catalogue entry as a cross-reference only. The Vimshottari lord is not White Beryl’s planetary ruler, and the ring in the world is not used for the calculation.": "Katalog 28 rezydencji księżycowych opiera się na źródłach tybetańskich, głównie na Białym Berylu, i jest osobnym systemem. Wynik wskazuje odpowiadające hasło katalogu wyłącznie jako odsyłacz. Władca Vimshottari nie jest władcą planetarnym Białego Berylu, a pierścień w świecie nie służy do obliczeń.",
   "Date and time": "Data i godzina",
   "Date": "Data",
   "Gregorian calendar, 1583–2999": "kalendarz gregoriański, 1583–2999",
@@ -2667,7 +2662,6 @@ Object.assign(T, {
   "for example Europe/Warsaw, Asia/Kolkata": "na przykład Europe/Warsaw, Asia/Kolkata",
   "Offset from UTC": "Przesunięcie względem UTC",
   "for example +05:30 or −03:00": "na przykład +05:30 lub −03:00",
-  "Place": "Miejsce",
   "Decimal degrees. North and east are positive, south and west negative.": "Stopnie dziesiętne. Północ i wschód są dodatnie, południe i zachód ujemne.",
   "Latitude": "Szerokość geograficzna",
   "Longitude": "Długość geograficzna",
@@ -2678,7 +2672,7 @@ Object.assign(T, {
   "Pada": "Pada",
   "Vimshottari lord": "Władca Vimshottari",
   "Moon, sidereal longitude": "Księżyc, długość gwiazdowa",
-  "The Lahiri ayanamsa is taken from its definition: 23°15′00.658″ on 21 March 1956, as adopted by the Calendar Reform Committee, carried forward by the precession of the equinoxes. Nirayana longitudes are the longitude on the true ecliptic of date less the true Lahiri ayanamsa. The tithi, yoga and karaṇa are those at local sunrise (udaya) on the date entered; the vāra runs from sunrise to sunrise. Times are the place’s local clock, to the minute.": "Ajanamsa Lahiriego wynika z jej definicji: 23°15′00,658″ w dniu 21 marca 1956 roku, przyjętej przez Komisję Reformy Kalendarza i przenoszonej dalej przez precesję punktów równonocy. Długości nirajana to długość na prawdziwej ekliptyce daty pomniejszona o prawdziwą ajanamsę Lahiriego. Tithi, joga i karana to te obowiązujące o lokalnym wschodzie słońca (udaja) w podanym dniu; wara trwa od wschodu do wschodu. Godziny według lokalnego zegara danego miejsca, z dokładnością do minuty.",
+  "The Lahiri ayanamsa is taken from its definition: 23°15′00.658″ on 21 March 1956, as adopted by the Calendar Reform Committee, carried forward by the precession of the equinoxes. Nirayana longitudes are the longitude on the true ecliptic of date less the true Lahiri ayanamsa. The tithi, yoga and karaṇa are those at local sunrise (udaya) on the date entered; the vāra runs from sunrise to sunrise. Times are the place’s local clock, to the minute.": "Ajanamsa Lahiri wynika z jej definicji: 23°15′00,658″ w dniu 21 marca 1956 roku, przyjętej przez Komisję Reformy Kalendarza i przenoszonej dalej przez precesję punktów równonocy. Długości nirajana to długość na prawdziwej ekliptyce daty pomniejszona o prawdziwą ajanamsę Lahiri. Tithi, joga i karana to te obowiązujące o lokalnym wschodzie słońca (udaja) w podanym dniu; wara trwa od wschodu do wschodu. Godziny według lokalnego zegara danego miejsca, z dokładnością do minuty.",
   "Calculated in this browser with astronomy-engine 2.1.19 (MIT licence); nothing entered is sent anywhere or kept.": "Obliczane w tej przeglądarce za pomocą astronomy-engine 2.1.19 (licencja MIT); nic z wprowadzonych danych nie jest nigdzie wysyłane ani przechowywane.",
   "Nakṣatra from": "Nakszatra od",
   "Nakṣatra until": "Nakszatra do",
@@ -2713,11 +2707,11 @@ Object.assign(T, {
 const interpretationElement = value => tr(value.charAt(0).toUpperCase() + value.slice(1)).toLowerCase();
 const INTERPRETATION_PATTERNS = [
   [/^For (\d{4}-\d{2}-\d{2}) at (\d{2}:\d{2}(?::\d{2})?)$/, 'Na $1 o $2'],
-  [/^Calculated mansion interval: (.+) → (.+)\.$/, 'Obliczony okres domu księżycowego: $1 → $2.'],
+  [/^Calculated mansion interval: (.+) → (.+)\.$/, 'Obliczony okres rezydencji księżycowej: $1 → $2.'],
   [/^Mansion element: (earth|water|fire|wind) \(four-element system\)\.$/,
-    (all, element) => 'Żywioł domu księżycowego: ' + interpretationElement(element) + ' (system czterech żywiołów).'],
+    (all, element) => 'Żywioł rezydencji księżycowej: ' + interpretationElement(element) + ' (system czterech żywiołów).'],
   [/^(.+) · (\d{4}-\d{2}-\d{2}) at (\d{2}:\d{2}(?::\d{2})?)\. The weekday runs from local sunrise to the next sunrise; before dawn, the previous weekday still applies\. Recalculate for another time, since either the mansion or weekday can change\.$/,
-    '$1 · $2 o $3. Dzień tygodnia trwa od lokalnego wschodu słońca do następnego wschodu; przed świtem nadal obowiązuje poprzedni dzień tygodnia. Dla innej godziny wykonaj obliczenie ponownie, ponieważ dom księżycowy lub dzień tygodnia mogą się zmienić.'],
+    '$1 · $2 o $3. Dzień tygodnia trwa od lokalnego wschodu słońca do następnego wschodu; przed świtem nadal obowiązuje poprzedni dzień tygodnia. Dla innej godziny wykonaj obliczenie ponownie, ponieważ rezydencja księżycowa lub dzień tygodnia mogą się zmienić.'],
   [/^(earth|water|fire|wind) weekday \+ (earth|water|fire|wind) mansion · rgya gar four-element system$/,
     (all, day, star) => 'Żywioł dnia tygodnia: ' + interpretationElement(day) + ' + żywioł rezydencji: ' + interpretationElement(star) + ' · system czterech żywiołów rgya gar'],
   [/^For (wood|fire|earth|iron|water): mother (\w+); friend (\w+); child (\w+); enemy (\w+)\.$/,
@@ -2730,7 +2724,7 @@ const LUNAR_PATTERNS = [
   [/^also (.+)$/, 'także $1'],
   [/^p\. (\d+), line (\d+)$/, 's. $1, wiersz $2'],
   [/^White Beryl, lower volume, printed p\. (\d+), line (\d+)\. White Beryl \(Vaiḍūrya dkar po\), Phug tradition, Desi Sangye Gyatso\. Working translation\.$/,
-    'Biały beryl, tom dolny, drukowana s. $1, wiersz $2. Biały beryl (Vaiḍūrya dkar po), tradycja Phug, Desi Sangje Gjaco. Przekład roboczy.'],
+    'Biały Beryl, tom dolny, drukowana s. $1, wiersz $2. Biały Beryl (Vaiḍūrya dkar po), tradycja Phug, Desi Sangje Gjaco. Przekład roboczy.'],
   [/^(\d+) of the 28 drawings did not load\. They are asked for again the next time the layer is shown\.$/,
     '$1 z 28 rysunków nie wczytało się. Zostaną pobrane ponownie przy następnym pokazaniu warstwy.'],
   [/^Use this device’s zone: (.+)$/, 'Użyj strefy tego urządzenia: $1'],
@@ -2742,7 +2736,7 @@ const LUNAR_PATTERNS = [
     'Ta godzina występuje tego dnia dwukrotnie w strefie $1. Wybierz, o którą chodzi.'],
   [/^(Earlier|Later): (.+) at (.+) = (.+)$/, (all, which, local, off, utc) => (which === 'Earlier' ? 'Wcześniejsza: ' : 'Późniejsza: ') + local + ' przy ' + off + ' = ' + utc],
   [/^Resolved to (.+) \(local offset (.+)\)\.( .+)?$/, (all, utc, off, rest) => 'Ustalono na ' + utc + ' (przesunięcie lokalne ' + off + ').' + (rest ? ' ' + tr(rest.trim()) : '')],
-  [/^(.+) \((.+)\), no\. (\d+) in the White Beryl catalogue$/, '$1 ($2), nr $3 w katalogu Białego berylu']
+  [/^(.+) \((.+)\), no\. (\d+) in the White Beryl catalogue$/, '$1 ($2), nr $3 w katalogu Białego Berylu']
 ];
 
 const PATTERNS=[
@@ -2916,6 +2910,7 @@ function registerFragments() {
   }
 }
 
+let indexed = false, observing = false;
 function reindex() {
   registerFragments();
   MARKUP = new Set(Object.keys(T).filter(k => k.includes('<')));
@@ -2929,8 +2924,16 @@ function reindex() {
     return map;
   };
   LOOSE = loose(Object.keys(T)); LOOSE_MARKUP = loose(MARKUP);
+  indexed = true;
 }
-reindex();
+function ensurePolishReady() {
+  if (!indexed) reindex();
+  if (!observing && document.body) {
+    observing = true;
+    observer.observe(document.body,
+      { subtree: true, childList: true, characterData: true, attributes: true, attributeFilter: ATTRS });
+  }
+}
 const INLINE = new Set(['A', 'B', 'I', 'EM', 'STRONG', 'SPAN', 'SUB', 'SUP', 'SMALL', 'CODE', 'CITE', 'BR', 'U']);
 const OPAQUE = new Set(['SCRIPT', 'STYLE', 'NOSCRIPT', 'TEXTAREA', 'CANVAS']);
 const ATTRS = ['title', 'aria-label', 'placeholder'];
@@ -3005,6 +3008,7 @@ function translateNode(root) {
 }
 
 function apply() {
+  if (lang === 'pl') ensurePolishReady();
   translateNode(document.body);
   document.documentElement.lang = lang;
   document.body.classList.toggle('polish', lang === 'pl');
@@ -3048,8 +3052,8 @@ function add(more) {
   let added = 0;
   for (const key of Object.keys(more || {})) if (!has(T, key)) { T[key] = more[key]; added++; }
   if (!added) return added;
-  reindex();
-  if (lang === 'pl') apply();
+  indexed = false;
+  if (lang === 'pl') { reindex(); apply(); }
   return added;
 }
 function loadTexts() {
@@ -3063,11 +3067,15 @@ function loadTexts() {
 }
 
 function boot() {
+  if (Array.isArray(window.__wsLocaleQueue)) {
+    for (const more of window.__wsLocaleQueue) {
+      for (const key of Object.keys(more || {})) if (!has(T, key)) T[key] = more[key];
+    }
+    delete window.__wsLocaleQueue;
+  }
   try { lang = localStorage.getItem('ws-language') === 'pl' ? 'pl' : 'en'; } catch {}
   apply();
   loadTexts();
-  observer.observe(document.body,
-    { subtree: true, childList: true, characterData: true, attributes: true, attributeFilter: ATTRS });
 }
 
 window.WorldSystemLocale = { translations: T, translate: tr, apply, setLanguage, add,

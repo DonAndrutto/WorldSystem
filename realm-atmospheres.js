@@ -11,9 +11,9 @@ export function createHellRealm(THREE, {side, hot, depth = 0, vajra = false}) {
   const slab = new THREE.Mesh(new THREE.BoxGeometry(side, hot ? .011 : .008, side), floor);
   root.add(slab);
   const surface = new THREE.ShaderMaterial({
-    uniforms: { hot: {value: hot && !vajra ? 1 : 0}, intensity: {value: vajra ? .55 : .65 + depth * .045} },
+    uniforms: { hot: {value: hot && !vajra ? 1 : 0}, intensity: {value: vajra ? .55 : .65 + depth * .045}, uFade: {value: 1} },
     vertexShader: 'varying vec2 uvRealm; void main(){ uvRealm=uv; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0); }',
-    fragmentShader: `varying vec2 uvRealm; uniform float hot; uniform float intensity;
+    fragmentShader: `varying vec2 uvRealm; uniform float hot; uniform float intensity; uniform float uFade;
       void main(){
         vec2 p=uvRealm*9.0;
         float seam=abs(sin(p.x*1.8+sin(p.y*2.1)) * sin(p.y*1.7+cos(p.x*1.3)));
@@ -22,7 +22,7 @@ export function createHellRealm(THREE, {side, hot, depth = 0, vajra = false}) {
         vec3 glow=mix(vec3(.35,.78,1.),vec3(1.,.24,.008),hot);
         vec3 colour=mix(dark,glow,crack);
         colour=mix(colour,vec3(1.,.84,.28),hot*(1.-smoothstep(.0,.028,seam))*.85);
-        gl_FragColor=vec4(colour*intensity,1.);
+        gl_FragColor=vec4(colour*intensity,uFade);
       }`, side: THREE.DoubleSide, toneMapped: false
   });
   const crust = new THREE.Mesh(new THREE.PlaneGeometry(side*.98,side*.98),surface);
@@ -86,9 +86,9 @@ export function createPretaRealm(THREE, {side}) {
     new THREE.MeshStandardMaterial({color: 0x5a4634, roughness: .95, metalness: 0}));
   root.add(slab);
   const surface = new THREE.ShaderMaterial({
-    uniforms: {intensity: {value: .92}},
+    uniforms: {intensity: {value: .92}, uFade: {value: 1}},
     vertexShader: 'varying vec2 uvRealm; void main(){ uvRealm=uv; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0); }',
-    fragmentShader: `varying vec2 uvRealm; uniform float intensity;
+    fragmentShader: `varying vec2 uvRealm; uniform float intensity; uniform float uFade;
       vec2 hash2(vec2 p){ p=vec2(dot(p,vec2(127.1,311.7)),dot(p,vec2(269.5,183.3))); return fract(sin(p)*43758.5453); }
       void main(){
         vec2 p=uvRealm*13.0, i=floor(p), f=fract(p), cell=i;
@@ -104,7 +104,7 @@ export function createPretaRealm(THREE, {side}) {
         colour=mix(colour,mix(vec3(.09,.065,.05),vec3(.95,.34,.06),hot),crack);
         vec2 c=uvRealm-.5;
         colour*=1.0-.3*smoothstep(.32,.5,max(abs(c.x),abs(c.y)));
-        gl_FragColor=vec4(colour*intensity,1.);
+        gl_FragColor=vec4(colour*intensity,uFade);
       }`, side: THREE.DoubleSide, toneMapped: false
   });
   const crust = new THREE.Mesh(new THREE.PlaneGeometry(side * .98, side * .98), surface);
@@ -144,12 +144,12 @@ export function createPretaRealm(THREE, {side}) {
 export function createFormlessVeil(THREE, radius) {
   const veil=new THREE.Mesh(new THREE.SphereGeometry(radius*1.04,32,20),new THREE.ShaderMaterial({
     transparent:true,depthWrite:false,side:THREE.FrontSide,
-    uniforms:{tint:{value:new THREE.Color(0xabbada)}},
+    uniforms:{tint:{value:new THREE.Color(0xabbada)},uFade:{value:1}},
     vertexShader:`varying vec3 n; varying vec3 eye;
       void main(){vec4 p=modelViewMatrix*vec4(position,1.);n=normalize(normalMatrix*normal);eye=normalize(-p.xyz);gl_Position=projectionMatrix*p;}`,
-    fragmentShader:`varying vec3 n; varying vec3 eye; uniform vec3 tint;
+    fragmentShader:`varying vec3 n; varying vec3 eye; uniform vec3 tint; uniform float uFade;
       void main(){float rim=pow(1.-abs(dot(normalize(n),normalize(eye))),2.5);
-      gl_FragColor=vec4(tint,.012+rim*.14);}`
+      gl_FragColor=vec4(tint,(.012+rim*.14)*uFade);}`
   }));
   veil.userData.realmAtmosphere=true;veil.raycast=()=>{};
   return veil;

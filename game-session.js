@@ -32,7 +32,7 @@ export function possibleThrows(game) {
   return FACES.map((face, i) => {
     const copy = { ...game, players: game.players.map(p => ({ ...p, history: [], trap: p.trap ? { ...p.trap } : null })) };
     const event = throwDie(copy, i + 1);
-    return { face: i + 1, ...event, target: event.to ?? event.square ?? null,
+    return { ...event, target: event.to ?? event.square ?? null,
       label: event.kind === 'stupa' ? (event.placed ? 'Place relics' : 'Victory stands')
         : event.kind === 'trap-progress' ? 'Count needed · throw again'
         : event.kind === 'trap-blocked' ? 'Already counted · pass'

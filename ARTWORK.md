@@ -210,12 +210,14 @@ WebP images in `assets/sky/` are review previews of those canvas textures.
 
 ## Selectable travelers
 
-`assets/rebirth/travelers.png` is a generated transparent 6 × 2 atlas for twelve
-selectable player characters: male and female Bhutanese, Tibetan, Indian,
-Chinese, Thai and Western travelers. The CSS and Three.js billboards use the same
-figures. These contemporary game illustrations are separate from the historical
-board fields. See [GAME-UI.md](GAME-UI.md#character-artwork) for provenance and
-the full generation prompt.
+`assets/rebirth/travelers.webp` is a generated transparent 6 × 2 atlas for twelve
+selectable player characters (male and female Bhutanese, Tibetan, Indian,
+Chinese, Thai and Western travelers), joined by two Monastic figures (Monk and
+Nun) in `assets/rebirth/monastics.webp` for fourteen characters across seven
+backgrounds. The CSS and Three.js billboards use the same figures. These
+contemporary game illustrations are separate from the historical board fields.
+See [GAME-UI.md](GAME-UI.md#character-artwork) for provenance and the full
+generation prompt.
 
 ## The wheel of life
 
@@ -269,7 +271,7 @@ identified.
 
 ## Monastic travelers
 
-`assets/rebirth/monastics.png` adds two transparent, full-body figures in Tibetan
+`assets/rebirth/monastics.webp` adds two transparent, full-body figures in Tibetan
 Vajrayana monastic robes. It was generated with the built-in image tool using
 the existing traveler atlas as a style reference. The monk occupies the left
 cell and the nun the right cell. The final prompt is in `MONASTIC-ART-PROMPT.md`.

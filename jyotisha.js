@@ -62,7 +62,7 @@ export function sectorOf(siderealLongitude) {
 /* shown to the whole arcsecond, truncated: rounding would carry 359°59′59.6″
    round to a 360° that is not on the circle */
 export function formatLongitude(deg) {
-  const total = Math.floor(deg * 3600 + 1e-6) % 1296000;
+  const total = ((Math.floor(deg * 3600 + 1e-6) % 1296000) + 1296000) % 1296000;
   const d = Math.floor(total / 3600), m = Math.floor((total % 3600) / 60), s = total % 60;
   return d + '° ' + String(m).padStart(2, '0') + '′ ' + String(s).padStart(2, '0') + '″';
 }
@@ -255,8 +255,9 @@ export function localClock(utcMs, basis) {
   const off = basis.zone ? offsetAt(basis.zone, utcMs) : basis.offsetSeconds;
   const t = new Date(utcMs + off * 1000);
   const two = (n) => String(n).padStart(2, '0');
+  const hm = two(t.getUTCHours()) + ':' + two(t.getUTCMinutes());
   return { date: t.getUTCFullYear() + '-' + two(t.getUTCMonth() + 1) + '-' + two(t.getUTCDate()),
-    time: two(t.getUTCHours()) + ':' + two(t.getUTCMinutes()), offset: off };
+    time: hm, timeWithSeconds: hm + ':' + two(t.getUTCSeconds()), offset: off };
 }
 
 /* ── 4. a result ───────────────────────────────────────────────────────────

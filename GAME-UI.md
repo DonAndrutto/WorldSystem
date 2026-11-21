@@ -4,7 +4,7 @@ Built on main after the stage 1 camera and popup-navigation change (#26).
 
 ## Playing
 
-- The first visit to Game opens a nine-step guided practice game with chosen legal throws. Dismiss it at any time; Game → Replay guided game starts it again. It never saves over the real game. Finishing the first practice opens traveler setup. Choose 1–4 players, names, one of twelve characters (male and female Bhutanese, Tibetan, Indian, Chinese, Thai and Western travelers), and independent player colours. Duplicate characters are allowed. Appearance does not change the rules.
+- The first visit to Game opens a nine-step guided practice game with chosen legal throws. Dismiss it at any time; Game → Replay guided game starts it again. It never saves over the real game. Finishing the first practice opens traveler setup. Choose 1–4 players, names, one of fourteen characters (male and female Bhutanese, Tibetan, Indian, Chinese, Thai, Western and Monastic travelers), and independent player colours. Duplicate characters are allowed. Appearance does not change the rules.
 - The selected artwork appears in setup, player tabs, board tokens and camera-facing 3D figures. If the world texture fails, coloured markers remain; entering Game again retries it.
 - Board is the default for new visitors. Existing view and language preferences still apply. Board and World have visible labels.
 - Destinations previews all six outcomes for the player holding the die, including dead faces and trap counts. Its entries open the corresponding descriptions.
@@ -238,7 +238,7 @@ triangle and draw-call budgets, and the facing   and fading.
 
 ## Character artwork
 
-`assets/rebirth/travelers.png` is one transparent 6-column × 2-row sprite atlas generated with the built-in image-generation tool. It is contemporary game illustration, not an image from the historical board. The same atlas is cropped by CSS and Three.js texture coordinates; the final generated image was copied with its alpha channel intact. An image-tool background-extraction pass followed the initial generation.
+`assets/rebirth/travelers.webp` is one transparent 6-column × 2-row sprite atlas generated with the built-in image-generation tool, paired with `assets/rebirth/monastics.webp` (2-column × 1-row Monk and Nun) for fourteen selectable travelers across seven backgrounds. It is contemporary game illustration, not an image from the historical board. The same atlases are cropped by CSS and Three.js texture coordinates; the final generated images were copied with their alpha channels intact and cleaned of near-transparent halo pixels. An image-tool background-extraction pass followed the initial generation.
 
 The 3D figures are 0.15 × SUMMIT tall (previously 0.30, and before that 0.63): about the height of a destination's model, so a traveller stands beside the place they have come to rather than in front of it. Each figure steps aside of its square's model, to the viewer's right, every frame; the name chip follows the figure. Existing saved character IDs migrate to the new roster while preserving gender, colours and the dice journal.
 

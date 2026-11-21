@@ -35,9 +35,9 @@ for (const [url, declared] of Object.entries(map.integrity)) {
   assert.equal(sha384(file), declared,
     url + ' no longer matches the hash pinned beside it — re-run node scripts/vendor-three.cjs');
 }
-// three.module.js reaches for its own core file; that one has to be here too.
-assert.ok(fs.existsSync(at('vendor/three@0.184.0/build/three.core.js')),
-  'three.module.js imports ./three.core.js, which is not vendored');
+// three.module.min.js reaches for its own core file; that one has to be here too.
+assert.ok(fs.existsSync(at('vendor/three@0.184.0/build/three.core.min.js')),
+  'three.module.min.js imports ./three.core.min.js, which is not vendored');
 assert.ok(fs.existsSync(at('vendor/three@0.184.0/LICENSE')), 'three.js is vendored without its licence');
 ok('three.js vendored, every pinned hash still true');
 

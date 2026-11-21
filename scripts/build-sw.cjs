@@ -27,7 +27,6 @@ const STUDY = ['sculpture-robe-detail.js', 'sculpture-anatomy-detail.js'];
 // them, and an installed app has no use for the 28 MB.
 const SHELL = [
   'index.html',
-  'data/nakshatra_interpretation.json',
   'docs/NAKSHATRA-ENGINE.md',
   ['.', /\.css$/],                           // all shared and mode styles
   'manifest.webmanifest',
@@ -36,11 +35,10 @@ const SHELL = [
   ['vendor', /\.js$/, { deep: true }],        // three.js, vendored beside them
   ['assets/fonts', /\.(css|woff2)$/],
   ['assets/offerings', /\.webp$/],            // the three offering sheets
-  ['assets/rebirth', /\.(webp|png)$/],              // the board's four field sheets
+  ['assets/rebirth', /\.webp$/],              // the board's field and traveler sheets
   ['assets/modes', /\.webp$/],
   ['assets/wheel', /\.webp$/],                // the wheel of life, in its layers
   ['assets/mansions', /\.webp$/],             // the 28 lunar mansion glyphs (not their SVG sources)
-  ['assets/audio', /\.mp3$/],                 // the original looping scores, one per mode
   'apple-touch-icon.png', 'favicon.ico', 'favicon-32.png',
   'icon-192.png', 'icon-512.png', 'icon-maskable-512.png'
 ];

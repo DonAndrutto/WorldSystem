@@ -135,7 +135,6 @@ export function createWheelView({ host, art, freeRect, reducedMotion = () => fal
     const s = shown.s;
     const box = [shown.x - f.x / s, shown.y - f.y / s, w / s, h / s].map((n) => Math.round(n * 100) / 100);
     const vb = box.join(' ');
-    seen = box;
     const m = Math.max(w, h) * MARGIN / s;
     pane = [box[0] - m, box[1] - m, box[2] + 2 * m, box[3] + 2 * m].map((n) => Math.round(n * 100) / 100);
     const [px, py, pw, ph] = pane.map(String);
@@ -419,23 +418,24 @@ export function createWheelView({ host, art, freeRect, reducedMotion = () => fal
   });
 
   /* ── naming and marking ────────────────────────────────────────────── */
+  const escSel = (v) => (win.CSS?.escape ? win.CSS.escape(v) : String(v).replace(/["\\]/g, '\\$&'));
   let hovered = null;
   function hover(id, p) {
     if (id !== hovered) {
       host.querySelectorAll('.wl-hover').forEach((el) => el.classList.remove('wl-hover'));
-      if (id) host.querySelectorAll(`[data-wl="${id}"]`).forEach((el) => el.classList.add('wl-hover'));
+      if (id) host.querySelectorAll(`[data-wl="${escSel(id)}"]`).forEach((el) => el.classList.add('wl-hover'));
       hovered = id;
     }
     emit('hover', id, p);
   }
   let selected = null;
-  const mark = (cls, id) => host.querySelectorAll(`[data-wl="${id}"]`).forEach((el) => el.classList.add(cls));
+  const mark = (cls, id) => host.querySelectorAll(`[data-wl="${escSel(id)}"]`).forEach((el) => el.classList.add(cls));
   /* A picked part is outlined, and everything else on the wall is dimmed
      round it, so that one figure in a crowded relief can be found. */
   /* The veil covers what is on the screen and a margin round it, not the
      whole of the wall's run: a transformed layer as large as that is more
      than the browser will composite, and it drops it without a word. */
-  let seen = [0, 0, 1320, 1740], pane = [-400, -400, 2120, 2540];
+  let pane = [-400, -400, 2120, 2540];
   function veil() {
     const shade = host.querySelector('.wl-veil');
     if (!shade) return;
@@ -462,9 +462,24 @@ export function createWheelView({ host, art, freeRect, reducedMotion = () => fal
     if (atHome) Object.assign(view, homeView);
     commit();
   }
+  function stop() {
+    cancelFlight();
+    win.clearTimeout(idle);
+    idle = null;
+  }
+  function teardown() {
+    stop();
+    if (!built) return;
+    built = false;
+    hovered = null;
+    layers.length = 0;
+    tilt.replaceChildren();
+    defs.replaceChildren();
+    host.classList.remove('wl-moving', 'wl-turned', 'wl-veiled');
+  }
 
   return {
-    build, home, focus, select, resize, commit,
+    build, home, focus, select, resize, commit, stop, teardown,
     // A slow, bounded sway reveals relief depth without orbiting behind the
     // painting. The app owns playback, reduced-motion and visibility policy.
     advanceMotion(dt) {

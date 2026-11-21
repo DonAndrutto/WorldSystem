@@ -55,20 +55,24 @@ export function offeringBackground(art) {
 
 export function createOfferingModels(THREE, onStatus = () => {}) {
   const models = new Map(), sheets = new Map();
-  for (const url of [royals, goddesses, treasures]) sheets.set(url, {state: 'idle', materials: []});
+  for (const url of [royals, goddesses, treasures]) sheets.set(url, {state: 'idle', materials: [], texture: null});
   const report = () => onStatus([...sheets.values()].map(s => s.state));
+  let loader = null;
   // Defer loading until the first offering view. Retry only failed sheets.
   models.load = () => {
+    loader ||= new THREE.TextureLoader();
     sheets.forEach((sheet, url) => {
       if (sheet.state === 'loading' || sheet.state === 'ready') return;
       sheet.state = 'loading';
-      new THREE.TextureLoader().load(url, texture => {
+      loader.load(url, texture => {
+        if (sheet.state !== 'loading') { texture.dispose(); return; }
         texture.colorSpace = THREE.SRGBColorSpace;
         texture.anisotropy = 4;
         // Whole-sheet mipmaps blend adjacent subjects at small on-screen sizes.
         // Linear sampling stays within each gutter even on the phone overview.
         texture.generateMipmaps = false;
         texture.minFilter = THREE.LinearFilter;
+        sheet.texture = texture;
         sheet.materials.forEach(material => {
           material.map = texture;
           material.opacity = 1;
@@ -78,6 +82,17 @@ export function createOfferingModels(THREE, onStatus = () => {}) {
       }, undefined, () => { sheet.state = 'failed'; report(); });
     });
     report();
+  };
+  models.dispose = () => {
+    sheets.forEach(sheet => {
+      sheet.materials.forEach(material => {
+        material.map = null;
+        material.opacity = 0;
+        material.needsUpdate = true;
+      });
+      if (sheet.texture) { sheet.texture.dispose(); sheet.texture = null; }
+      sheet.state = 'idle';
+    });
   };
   OFFERING_ART.forEach((art, id) => {
     const group = new THREE.Group();

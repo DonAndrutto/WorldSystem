@@ -1,14 +1,19 @@
 // Handles belong to the panel, so resizing never replaces its controls or text.
 export function installPanelLayout() {
   const mobile = () => matchMedia('(max-width: 700px)').matches;
-  // how far the screen's own notch and corners reach in from the side (a phone on its side)
-  const inset = (side) => {
-    const probe = document.createElement('div');
-    probe.style.cssText = 'position:fixed;visibility:hidden;pointer-events:none;padding-' + side + ':env(safe-area-inset-' + side + ',0px)';
-    document.body.append(probe);
-    const px = parseFloat(getComputedStyle(probe)['padding' + side[0].toUpperCase() + side.slice(1)]) || 0;
-    probe.remove();
-    return px;
+  // Reuse one hidden probe rather than mutating document.body on every layout pass.
+  const probe = document.createElement('div');
+  probe.dataset.noLocalize = '';
+  probe.setAttribute('aria-hidden', 'true');
+  probe.style.cssText = 'position:fixed;visibility:hidden;pointer-events:none;padding:env(safe-area-inset-top,0px) env(safe-area-inset-right,0px) env(safe-area-inset-bottom,0px) env(safe-area-inset-left,0px)';
+  document.body.append(probe);
+  const insets = () => {
+    const s = getComputedStyle(probe);
+    return {
+      left: parseFloat(s.paddingLeft) || 0,
+      right: parseFloat(s.paddingRight) || 0,
+      bottom: parseFloat(s.paddingBottom) || 0
+    };
   };
   const entries = new Map();
   const emit = () => window.dispatchEvent(new CustomEvent('ws-layout-change'));
@@ -20,13 +25,13 @@ export function installPanelLayout() {
     const anchor = menu.querySelector('summary').getBoundingClientRect();
     const game = menu.matches('.bv-tools,.bv-options,.bv-guide');
     const worldSide = game && !mobile() && document.body.classList.contains('world-only');
-    const sal = inset('left'), sar = inset('right');
+    const { left: sal, right: sar, bottom: sab } = insets();
     const width = Math.min(innerWidth - 18 - sal - sar, worldSide ? Math.min(390, innerWidth * .36) : menu.matches('.bv-guide') ? 580 : menu.matches('.bv-tools,.bv-options') ? 340 : menu.matches('.app-language') ? 180 : menu.dataset.menu === 'mode' ? 304 : 340);
     const left = worldSide ? innerWidth - width - 22 - sar : Math.max(9 + sal, Math.min(innerWidth - width - 9 - sar, anchor.right - width));
     // Game controls live in the upper rail and always open downwards.
     const below = game || innerHeight - anchor.bottom > 150;
     const top = below ? anchor.bottom + 8 : Math.max(8, anchor.top - Math.min(body.scrollHeight, innerHeight * .65) - 8);
-    let lowerEdge = innerHeight - (mobile() ? 76 : 12) - inset('bottom');
+    let lowerEdge = innerHeight - (mobile() ? 76 : 12) - sab;
     const action = document.querySelector('.bv-advance');
     if (game && action && !action.hidden) {
       const box = action.getBoundingClientRect();
@@ -52,15 +57,16 @@ export function installPanelLayout() {
     handle.title = 'Drag to resize · double-click to collapse or expand · arrow keys to resize';
     panel.classList.add('resizable-panel');
     panel.append(handle);
-    const state = { expanded: 320, moved: false };
+    const state = { expanded: 320 };
     entries.set(panel, state);
     const bottomAnchored = () => !menu && (mobile() || panel.classList.contains('world-ending'));
     const minimum = () => panel.matches('.world-ending') ? 184 : panel.matches('.sheet,.tour-panel,.mandala-note') ? 148 : panel.matches('.index') ? 166 : menu ? 96 : 130;
     const setHeight = (height) => {
       const rect = panel.getBoundingClientRect();
-      const room = menu ? parseFloat(panel.style.getPropertyValue('--drop-room')) : bottomAnchored() ? rect.bottom - 76 : innerHeight - rect.top - 24;
-      const n = Math.round(Math.max(minimum(), Math.min(height, room || innerHeight * .75)));
-      panel.style.setProperty('--panel-room', Math.max(minimum(), room) + 'px');
+      const rawRoom = menu ? parseFloat(panel.style.getPropertyValue('--drop-room')) : bottomAnchored() ? rect.bottom - 76 : innerHeight - rect.top - 24;
+      const safeRoom = Number.isFinite(rawRoom) && rawRoom > 0 ? rawRoom : innerHeight * .75;
+      const n = Math.round(Math.max(minimum(), Math.min(height, safeRoom)));
+      panel.style.setProperty('--panel-room', Math.max(minimum(), safeRoom) + 'px');
       panel.style.setProperty('--panel-height', n + 'px');
       panel.dataset.panelHeight = String(n);
       panel.classList.toggle('panel-minimized', n <= minimum() + 8);
@@ -105,11 +111,16 @@ export function installPanelLayout() {
     for (const [panel] of entries) {
       if (panel.closest('[hidden]') || panel.offsetHeight === 0) continue;
       const handle = panel.querySelector(':scope > .panel-resize-handle');
-      if (!panel.closest('details') && mobile()) panel.prepend(handle); else panel.append(handle);
+      if (handle) {
+        const atTop = !panel.closest('details') && mobile();
+        if (atTop && panel.firstElementChild !== handle) panel.prepend(handle);
+        else if (!atTop && panel.lastElementChild !== handle) panel.append(handle);
+      }
       if (panel.dataset.panelHeight) {
         const rect = panel.getBoundingClientRect();
-        const room = panel.closest('details') ? parseFloat(panel.style.getPropertyValue('--drop-room')) : bottomAnchoredPanel(panel) ? rect.bottom - 76 : innerHeight - rect.top - 24;
-        panel.style.setProperty('--panel-room', Math.max(130, room) + 'px');
+        const rawRoom = panel.closest('details') ? parseFloat(panel.style.getPropertyValue('--drop-room')) : bottomAnchoredPanel(panel) ? rect.bottom - 76 : innerHeight - rect.top - 24;
+        const safeRoom = Number.isFinite(rawRoom) && rawRoom > 0 ? rawRoom : innerHeight * .75;
+        panel.style.setProperty('--panel-room', Math.max(130, safeRoom) + 'px');
       }
     }
   };
@@ -126,6 +137,7 @@ export function installPanelLayout() {
       node.querySelectorAll('.lm-panel,.jy-panel').forEach(install);
     }
   });
-  observer.observe(document.querySelector('.panel-dock'), { childList: true, subtree: true });
+  const dock = document.querySelector('.panel-dock');
+  if (dock) observer.observe(dock, { childList: true, subtree: true });
   refresh();
 }

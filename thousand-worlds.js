@@ -152,9 +152,11 @@ export function createThousandWorlds(THREE, {
   /* the cube's outline and the canopy over it, at any order */
   function frame(L, canopyOpacity) {
     const g = new THREE.Group(), mats = [];
+    const rawBox = new THREE.BoxGeometry(L.edge, L.edge, L.edge);
     const box = new THREE.LineSegments(
-      new THREE.EdgesGeometry(new THREE.BoxGeometry(L.edge, L.edge, L.edge)),
+      new THREE.EdgesGeometry(rawBox),
       new THREE.LineBasicMaterial({ color: 0x9db1cc, transparent: true, opacity: 0.2 }));
+    rawBox.dispose();
     box.position.set(...L.centre);
     mats.push([box.material, 0.2]);
     const canopy = new THREE.Mesh(new THREE.PlaneGeometry(L.edge * 0.92, L.edge * 0.92), plain(0xd6e3f5, canopyOpacity));
@@ -349,7 +351,7 @@ export function createThousandWorlds(THREE, {
     for (let i = fading.length - 1; i >= 0; i--) {
       const f = fading[i];
       if (f.t0 === null) f.t0 = now;
-      const k = Math.min(1, (now - f.t0) / f.dur);
+      const k = Math.max(0, Math.min(1, (now - f.t0) / f.dur));
       place(f.made, f.from + (f.to - f.from) * ease(k));
       if (k >= 1) {
         fading.splice(i, 1);

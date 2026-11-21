@@ -1,6 +1,6 @@
 /* How a traveller looks, from where they stand.
  *
- * The travellers are painted (assets/rebirth/travelers.png, monastics.png),
+ * The travellers are painted (assets/rebirth/travelers.webp, monastics.webp),
  * every one of them with the same mild smile. Here that one face is given four
  * moods, by repainting the face itself from its own pixels — the brows, the
  * lids, the corners of the mouth, the cheeks pushed a little this way or that,

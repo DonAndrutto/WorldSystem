@@ -118,14 +118,17 @@ for (const [n, name, , , lord, , , range] of main) {
 }
 ok('the owner’s published table (List of Nakshatras): all 27 Vimshottari lords and all 27 sector starts agree with the calculator');
 
-/* ── the ayanamsa: Lahiri by definition, and Spica-anchored for comparison ─ */
+/* ── the ayanamsa: Lahiri by definition, and astrometric Spica for comparison ─ */
 const resid = [1900, 1956.22, 2000, 2025, 2050].map((y) => {
   const ms = Date.UTC(Math.floor(y), 2, 21);
   return [y, (engine.spicaAyanamsa(ms) - engine.lahiri(ms).true) * 3600];
 });
-for (const [y, r] of resid) assert.ok(r > -45 && r < -30, y + ': Spica-anchored − Lahiri = ' + r.toFixed(1) + '″, within the stated band −45″…−30″');
+for (const [y, r] of resid) assert.ok(r > -65 && r < -50, y + ': astrometric Spica − Lahiri = ' + r.toFixed(1) + '″, within −65″…−50″');
+const apr = (engine.spicaAyanamsa(Date.UTC(2025, 3, 21)) - engine.lahiri(Date.UTC(2025, 3, 21)).true) * 3600;
+const oct = (engine.spicaAyanamsa(Date.UTC(2025, 9, 21)) - engine.lahiri(Date.UTC(2025, 9, 21)).true) * 3600;
+assert.ok(Math.abs(apr - oct) < 1, 'astrometric Spica − Lahiri has no ±20″ seasonal aberration swing');
 assert.ok(Math.abs(resid[4][1] - resid[0][1]) < 10, 'the gap drifts by under 10″ in 150 years');
-ok('Spica-anchored (True Chitrapaksha by definition) − Lahiri: ' + resid.map(([y, r]) => Math.floor(y) + ' ' + r.toFixed(1) + '″').join(', ') + ' — a steady offset; Lahiri alone is used');
+ok('astrometric Spica-anchored − Lahiri: ' + resid.map(([y, r]) => Math.floor(y) + ' ' + r.toFixed(1) + '″').join(', ') + ' — steady across the year; Lahiri alone is used');
 
 /* ── boundaries, exact values and the wrap ──────────────────────────────── */
 // (sectorOf works to a thousandth of an arcsecond; 1e-6° is 3.6 of those below)

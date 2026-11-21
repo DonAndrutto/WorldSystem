@@ -62,49 +62,69 @@ async function main() {
   const wanted = faces(css).filter(face => SUBSETS.includes(face.subset));
   if (!wanted.length) throw new Error('no @font-face rules matched — the sheet\'s shape has changed');
 
-  await fs.rm(out, { recursive: true, force: true });
-  await fs.mkdir(out, { recursive: true });
+  const stage = out + '.staging-' + process.pid;
+  await fs.rm(stage, { recursive: true, force: true });
+  await fs.mkdir(stage, { recursive: true });
 
   // EB Garamond is drawn as one variable font, so its 400 and its 500 come
   // back as the same bytes. Written once, pointed at twice.
   const written = new Map();
   const rules = [];
   let bytes = 0;
-  for (const face of wanted) {
-    const data = await get(face.url, 'buffer');
-    const digest = crypto.createHash('sha256').update(data).digest('hex');
-    let file = written.get(digest);
-    if (!file) {
-      file = [slug(face.family), face.weight, face.style, face.subset].join('-') + '.woff2';
-      await fs.writeFile(path.join(out, file), data);
-      written.set(digest, file);
-      bytes += data.length;
+  try {
+    for (const face of wanted) {
+      let parsedUrl;
+      try { parsedUrl = new URL(face.url); } catch { throw new Error('invalid font url: ' + face.url); }
+      if (parsedUrl.protocol !== 'https:' || parsedUrl.hostname !== 'fonts.gstatic.com') {
+        throw new Error('refusing untrusted font host: ' + parsedUrl.href);
+      }
+      if (!/^[A-Za-z0-9 ]+$/.test(face.family)) throw new Error('invalid font-family: ' + face.family);
+      if (!/^\d{3}$/.test(face.weight)) throw new Error('invalid font-weight: ' + face.weight);
+      if (!/^(normal|italic)$/.test(face.style)) throw new Error('invalid font-style: ' + face.style);
+      if (!/^[U+0-9A-Fa-f,\s-]+$/.test(face.range)) throw new Error('invalid unicode-range: ' + face.range);
+
+      const data = await get(parsedUrl.href, 'buffer');
+      const digest = crypto.createHash('sha256').update(data).digest('hex');
+      let file = written.get(digest);
+      if (!file) {
+        file = [slug(face.family), face.weight, face.style, face.subset].join('-') + '.woff2';
+        const dest = path.resolve(stage, file);
+        if (!dest.startsWith(path.resolve(stage) + path.sep)) throw new Error('unsafe output path: ' + file);
+        await fs.writeFile(dest, data);
+        written.set(digest, file);
+        bytes += data.length;
+      }
+      rules.push([
+        '/* ' + face.family + ' ' + face.weight + ' ' + face.style + ' — ' + face.subset + ' */',
+        '@font-face {',
+        '  font-family: \'' + face.family + '\';',
+        '  font-style: ' + face.style + ';',
+        '  font-weight: ' + face.weight + ';',
+        '  font-display: swap;',
+        '  src: url(' + file + ') format(\'woff2\');',
+        '  unicode-range: ' + face.range + ';',
+        '}'
+      ].join('\n'));
     }
-    rules.push([
-      '/* ' + face.family + ' ' + face.weight + ' ' + face.style + ' — ' + face.subset + ' */',
-      '@font-face {',
-      '  font-family: \'' + face.family + '\';',
-      '  font-style: ' + face.style + ';',
-      '  font-weight: ' + face.weight + ';',
-      '  font-display: swap;',
-      '  src: url(' + file + ') format(\'woff2\');',
-      '  unicode-range: ' + face.range + ';',
-      '}'
-    ].join('\n'));
+
+    for (const [file, url] of LICENCES) await fs.writeFile(path.join(stage, file), await get(url));
+
+    const sheet = [
+      '/* Built by `node scripts/build-fonts.cjs` — do not edit by hand.',
+      '   EB Garamond and IBM Plex Mono, both under the SIL Open Font License 1.1,',
+      '   in the latin and latin-ext cuts this page sets. The two notices are kept',
+      '   beside the files, in OFL-EB-Garamond.txt and OFL-IBM-Plex-Mono.txt. */',
+      '',
+      ...rules,
+      ''
+    ].join('\n');
+    await fs.writeFile(path.join(stage, 'fonts.css'), sheet);
+    await fs.rm(out, { recursive: true, force: true });
+    await fs.rename(stage, out);
+  } catch (err) {
+    await fs.rm(stage, { recursive: true, force: true });
+    throw err;
   }
-
-  for (const [file, url] of LICENCES) await fs.writeFile(path.join(out, file), await get(url));
-
-  const sheet = [
-    '/* Built by `node scripts/build-fonts.cjs` — do not edit by hand.',
-    '   EB Garamond and IBM Plex Mono, both under the SIL Open Font License 1.1,',
-    '   in the latin and latin-ext cuts this page sets. The two notices are kept',
-    '   beside the files, in OFL-EB-Garamond.txt and OFL-IBM-Plex-Mono.txt. */',
-    '',
-    ...rules,
-    ''
-  ].join('\n');
-  await fs.writeFile(path.join(out, 'fonts.css'), sheet);
 
   console.log('Wrote ' + written.size + ' woff2 files (' + Math.round(bytes / 1024) + ' KB)'
     + ' for ' + rules.length + ' rules, two licences and fonts.css to assets/fonts/.');

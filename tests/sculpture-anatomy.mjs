@@ -5,8 +5,18 @@ import { ANATOMY as GAME } from '../sculpture-anatomy-data.js';
 import { ANATOMY_DETAIL } from '../sculpture-anatomy-detail.js';
 const ANATOMY={...ANATOMY_DETAIL,...GAME};
 const unpack=(s,Type)=>new Type(Uint8Array.from(Buffer.from(s,'base64')).buffer);
+const unpackNormals=data=>{
+ if(!data.n2)return Array.from(unpack(data.n,Int16Array),v=>v/32767);
+ const raw=unpack(data.n2,Int8Array),out=[];
+ for(let i=0;i<raw.length;i+=2){
+  let x=raw[i]/127,y=raw[i+1]/127,z=1-Math.abs(x)-Math.abs(y);
+  if(z<0){const px=(1-Math.abs(y))*(x>=0?1:-1),py=(1-Math.abs(x))*(y>=0?1:-1);x=px;y=py;}
+  const l=Math.hypot(x,y,z)||1;out.push(x/l,y/l,z/l);
+ }
+ return out;
+};
 for(const [name,data] of Object.entries(ANATOMY)){
- const p=unpack(data.p,Int16Array),n=unpack(data.n,Int16Array),ix=unpack(data.i,Uint16Array);
+ const p=unpack(data.p,Int16Array),n=unpackNormals(data),ix=unpack(data.i,Uint16Array);
  assert.equal(p.length,n.length,name+' normal count');assert.equal(ix.length%3,0);
  const edges=new Map(),adjacency=new Map();let volume=0;
  for(let i=0;i<ix.length;i+=3){
@@ -26,11 +36,13 @@ for(const [name,data] of Object.entries(ANATOMY)){
  while(pending.length){const v=pending.pop();if(seen.has(v))continue;seen.add(v);for(const next of adjacency.get(v))if(!seen.has(next))pending.push(next);}
  assert.equal(seen.size,adjacency.size,name+' fingers/toes must stay connected to the palm/foot');
  assert.ok(volume>0,name+' outward winding');
- for(let i=0;i<n.length;i+=3)assert.ok(Math.abs(Math.hypot(n[i],n[i+1],n[i+2])/32767-1)<.001,name+' unit normals');
- assert.equal(data.nails.length,5,name+' has five nail placements');
- for(const nail of data.nails){assert.ok([...nail.center,...nail.normal,...nail.tangent,nail.width,nail.length].every(Number.isFinite));assert.ok(nail.width>0&&nail.length>0);}
+ for(let i=0;i<n.length;i+=3)assert.ok(Math.abs(Math.hypot(n[i],n[i+1],n[i+2])-1)<.001,name+' unit normals');
+ if(!name.endsWith('-game')){
+  assert.equal(data.nails.length,5,name+' has five nail placements');
+  for(const nail of data.nails){assert.ok([...nail.center,...nail.normal,...nail.tangent,nail.width,nail.length].every(Number.isFinite));assert.ok(nail.width>0&&nail.length>0);}
+ }
  assert.ok(ix.length/3<(name.endsWith('-game')?6500:20000),name+' anatomy mesh budget');
- console.log('  ok ',name,'closed, connected, outward, five nail placements;',ix.length/3,'triangles');
+ console.log('  ok ',name,'closed, connected, outward;',ix.length/3,'triangles');
 }
 // The page carries the game's meshes only; the study stays with the preview and export.
 assert.ok(Object.keys(GAME).every(name=>name.endsWith('-game')),'the page data holds the game meshes alone');

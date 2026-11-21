@@ -80,26 +80,34 @@ function foot(){
   return d;
  };
 }
-function bake(field,size,center,res){
+function bake(field,size,center,res,detailed=true){
  const mc=new MarchingCubes(res,new MeshBasicMaterial(),false,false,200000);mc.isolation=0;
  for(let z=0;z<res;z++)for(let y=0;y<res;y++)for(let x=0;x<res;x++)mc.field[z*res*res+y*res+x]=-field([x,y,z].map((v,i)=>(v/res-.5)*size+center[i]));
- mc.update();const p=[],n=[],indices=[],seen=new Map(),pos=mc.geometry.attributes.position,norm=mc.geometry.attributes.normal;
+ mc.update();const p=[],n=[],n2=[],indices=[],seen=new Map(),pos=mc.geometry.attributes.position,norm=mc.geometry.attributes.normal;
  for(let i=0;i<mc.count;i++){
   const point=[pos.getX(i),pos.getY(i),pos.getZ(i)].map((v,j)=>Math.round((v*size*.5+center[j])*32767));
   const key=point.join(',');let index=seen.get(key);
-  if(index===undefined){index=p.length/3;seen.set(key,index);p.push(...point);const normal=[norm.getX(i),norm.getY(i),norm.getZ(i)],length=Math.hypot(...normal)||1;n.push(...normal.map(v=>Math.round(v/length*32767)));}indices.push(index);
+  if(index===undefined){
+   index=p.length/3;seen.set(key,index);p.push(...point);
+   const normal=[norm.getX(i),norm.getY(i),norm.getZ(i)],length=Math.hypot(...normal)||1;
+   const nx=normal[0]/length,ny=normal[1]/length,nz=normal[2]/length;
+   if(detailed)n.push(Math.round(nx*32767),Math.round(ny*32767),Math.round(nz*32767));
+   else{const s=Math.abs(nx)+Math.abs(ny)+Math.abs(nz)||1;let ox=nx/s,oy=ny/s;if(nz<0){const px=(1-Math.abs(oy))*(ox>=0?1:-1),py=(1-Math.abs(ox))*(oy>=0?1:-1);ox=px;oy=py;}n2.push(Math.max(-127,Math.min(127,Math.round(ox*127))),Math.max(-127,Math.min(127,Math.round(oy*127))));}
+  }
+  indices.push(index);
  }
  if(p.length/3>65535)throw Error('Anatomy exceeds 16-bit index budget');
  const clean=[];for(let i=0;i<indices.length;i+=3)if(indices[i]!==indices[i+1]&&indices[i+1]!==indices[i+2]&&indices[i]!==indices[i+2])clean.push(...indices.slice(i,i+3));
  mc.geometry.dispose();mc.material.dispose();
- return {p:Buffer.from(new Int16Array(p).buffer).toString('base64'),n:Buffer.from(new Int16Array(n).buffer).toString('base64'),i:Buffer.from(new Uint16Array(clean).buffer).toString('base64'),triangles:clean.length/3};
+ const norms=detailed?{n:Buffer.from(new Int16Array(n).buffer).toString('base64')}:{n2:Buffer.from(new Int8Array(n2).buffer).toString('base64')};
+ return {p:Buffer.from(new Int16Array(p).buffer).toString('base64'),...norms,i:Buffer.from(new Uint16Array(clean).buffer).toString('base64'),triangles:clean.length/3};
 }
 const anatomy={};
 for(const pose of ['teach','lap','lap-top','earth','foot'])for(const detailed of [true,false]){
  const isFoot=pose==='foot',key=pose+(detailed?'':'-game');
  activeNails=[];
- anatomy[key]=bake(isFoot?foot():hand(pose),isFoot?.32:.24,isFoot?[.10,0,0]:[0,.019,0],detailed?116:isFoot?46:68);
- anatomy[key].nails=activeNails;
+ anatomy[key]=bake(isFoot?foot():hand(pose),isFoot?.32:.24,isFoot?[.10,0,0]:[0,.019,0],detailed?116:isFoot?46:68,detailed);
+ if(detailed)anatomy[key].nails=activeNails;
  console.log(key,anatomy[key].triangles,'triangles');
 }
 // The page loads only the game's meshes; the study is written apart (see build-sculpture-robe.mjs).
