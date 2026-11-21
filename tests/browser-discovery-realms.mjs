@@ -54,7 +54,7 @@ try {
   await page.locator('[data-game=start-new]').click();
   await page.waitForTimeout(300);
   const pieces=await page.locator('.bv-tok.player-art').evaluateAll(es=>es.map(e=>e.style.getPropertyValue('--skin-image')));
-  assert.ok(pieces.some(s=>s.includes('monastics.png')));
+  assert.ok(pieces.some(s=>s.includes('monastics.webp')));
   await mode('worlds');await page.locator('#tour-jump').selectOption('3');await page.waitForTimeout(300);
   await page.screenshot({path:join(tmpdir(),`main-scale-${width}.png`)});
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true,'no horizontal overflow');

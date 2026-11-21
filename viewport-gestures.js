@@ -37,9 +37,10 @@ export function installViewportGestures({canvas, marks, camera, controls, invali
   // Markers sit above the canvas. Forward their gesture start to the same
   // controls; subsequent movement/up already reaches the owner document.
   marks.addEventListener('pointerdown', event => {
+    if (event.pointerType === 'mouse' && event.button !== 0) return;
     const button = event.target.closest('.mk');
     if (!button) return;
-    markerStarts.set(event.pointerId, {button, x: event.clientX, y: event.clientY, time: Date.now(), moved: false});
+    markerStarts.set(event.pointerId, {button, x: event.clientX, y: event.clientY, moved: false});
     canvas.dispatchEvent(new win.PointerEvent('pointerdown', {
       bubbles: true, composed: true, cancelable: true,
       pointerId: event.pointerId, pointerType: event.pointerType, isPrimary: event.isPrimary,
@@ -54,7 +55,7 @@ export function installViewportGestures({canvas, marks, camera, controls, invali
   const finish = event => {
     const start = markerStarts.get(event.pointerId);
     if (start || multiple || event.type === 'pointercancel') skipPick.add(event);
-    if (start && !start.moved && !multiple && event.type === 'pointerup' && Date.now() - start.time < 500) {
+    if (start && !start.moved && !multiple && event.type === 'pointerup') {
       // Capture may retarget pointerup to the canvas, so restore the marker tap.
       win.queueMicrotask(() => start.button.click());
     }
@@ -62,6 +63,9 @@ export function installViewportGestures({canvas, marks, camera, controls, invali
     touches.delete(event.pointerId);
     if (!touches.size) multiple = false;
   };
+  const resetTouches = () => { touches.clear(); markerStarts.clear(); multiple = false; gesture = null; };
+  win.addEventListener('blur', resetTouches);
+  doc.addEventListener('visibilitychange', () => { if (doc.hidden) resetTouches(); });
   doc.addEventListener('pointerup', finish, true);
   doc.addEventListener('pointercancel', finish, true);
   // A forwarded marker tap is activated above, rather than a second native click.

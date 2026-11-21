@@ -45,9 +45,8 @@ magnifiers in the header make the writing in every window larger or smaller.
 | `rebirth-sound.js` | The voice every square answers in. |
 | `ui-sound.js` | The sound of the interface: a cue read off each control (press, switch, menu, tab, slider, close) and a chime for each of the six modes. |
 | `ending-sound.js` | The sound of the three world endings — fire, water and wind — as a pure function of progress, and the engine that plays it. |
-| `mode-soundtrack.js`, `game-soundtrack.js`, `assets/audio/*.mp3` | The six original looping scores, one per mode: a lazy player for each, crossfading on a change of mode, with remembered mute control. |
-| `scripts/build-soundtrack.py` | Recreates Game's 128-second *Still Waters* using NumPy and ffmpeg, without samples. |
-| `scripts/build-mode-music.py` | Recreates the other five scores the same way. |
+| `mode-soundtrack.js`, `game-soundtrack.js`, `mode-scores.js` | The six original looping scores, one per mode, synthesised live with Web Audio: lazy per-mode voices, crossfading on a change of mode, with remembered mute control. |
+| `scripts/build-soundtrack.py`, `scripts/build-mode-music.py` | Reference offline renderers for the six algorithmic scores (NumPy + ffmpeg); runtime audio is synthesised live in `mode-scores.js`. |
 | `tests/rebirth-regression.mjs` | Board and rules checks, including the routes the Rules of Play claim. |
 | `three-d-stage.js` | The `<three-d-stage>` custom element it imports: WebGL renderer, studio lighting with a soft ground shadow, orbit controls, an auto-framed camera, and OBJ + MTL / GLB export. |
 | `assets/app-icon/world-system-master.webp` | Gold-and-lapis Meru app-icon artwork; a symbolic emblem. See its source brief in `assets/app-icon/README.md`. |
@@ -277,7 +276,7 @@ Replay guided game**. Practice preserves the real saved game; finishing a first
 practice opens traveler selection. The dismissal is remembered on this device.
 Quick and Instant play keep one throw button fixed above the bottom navigation,
 so the same screen position advances each turn even when result cards change.
-Twelve male/female characters from six backgrounds, destination previews, direct token movement,
+Fourteen male/female characters from seven backgrounds, destination previews, direct token movement,
 board assembly transitions, pace controls and automatic local resume are
 described in [GAME-UI.md](GAME-UI.md). The Game menu also offers larger,
 scrollable squares and the move log.
@@ -358,19 +357,22 @@ apart. Reading another player's trail never hands them the die.
 Read as a section, the board is already a cosmology, and that is what makes it
 sit on this model at all. Its row is height above or below the golden ground;
 its two columns of paths separate the tantric route from the route of the
-sūtras. Twenty-two squares name something this drawing already builds — the
+sūtras. Twenty-one squares name something this drawing already builds — the
 hot and cold hells, the Vajra Hell, the pretas, the four continents, the six
-heavens of sense desire, the Formless Realm, Akaniṣṭha — and their markers
-align with the existing geometry. Where the world builds the thing itself, the
-game adds no second model of it: the continents (Aparagodānīya with its cow),
-the heavens, the formless spheres, and the hells and the pretas' ground are
-the world's own models, the same in Explorer and in Game. The game’s Akaniṣṭha Buddha field shares the heaven’s horizontal
-axis but rises above the tenth stages; the samsaric heaven stays in place.
+heavens of sense desire, the Formless Realm — and their markers align directly
+with the existing geometry, while Akaniṣṭha (square 84) shares the highest
+Form-realm heaven's horizontal axis but rises above the tenth stages as a Buddha
+field, keeping the samsaric heaven in place. Where the world builds the thing
+itself, the game adds no second model of it: the continents (Aparagodānīya with
+its cow), the heavens, the formless spheres, and the hells and the pretas'
+ground are the world's own models, the same in Explorer and in Game.
 
-The other eighty-three have no coordinate here, and could not have one. They are
-paths, stages of training, wisdom-holder attainments, sacred lands and Buddha
-fields, and the sources are explicit that Buddha fields lie outside the Meru
-world system. **These are the destinations that exist only in game mode.**
+The other eighty-two have no coordinate here, and could not have one (making,
+with the twenty-one anchored squares and Akaniṣṭha's elevated marker, all 104
+squares of the board). They are paths, stages of training, wisdom-holder
+attainments, sacred lands and Buddha fields, and the sources are explicit that
+Buddha fields lie outside the Meru world system. **These are the destinations
+that exist only in game mode.**
 
 They stand in one symmetrical figure about the world's axis. The beings beneath
 the ground — the temporary hells, Yama, the animals, the nāgas, the asuras — lie
@@ -566,7 +568,7 @@ the entries the legend sat beside.
 | | |
 | --- | --- |
 | **Index** `i` | The drawer of explanatory entries, with a filter, headed by the title and the way into *About this model*. Closed until it is asked for, at every width, so the world and not a panel is the first thing on the screen; once asked for, whether it stands open is kept between visits. |
-| **View** `e` `m` `g` `l` | Explorer, Maṇḍala, Game, Wheel. Explorer is the model and its index; Maṇḍala is the thirty-seven heaps, in the order the offering names them; Game is the board of rebirth, and the world it is a section through; Wheel is the wheel of life, a relief on a wall. |
+| **View** `e` `m` `g` `l` `b` | Explorer, Maṇḍala, Game, Wheel, Billion worlds and Astrology. Explorer is the model and its index; Maṇḍala is the thirty-seven heaps, in the order the offering names them; Game is the board of rebirth, and the world it is a section through; Wheel is the wheel of life, a relief on a wall; Billion worlds zooms out to the great trichiliocosm; Astrology opens the 28 lunar mansions of White Beryl and the Indian Jyotiṣa calculator. |
 | **Board or world** `b` `w` | In game mode, which of the two has the screen: the board alone, or the world alone. Kept between visits, and only while the game is on the screen — the arrangement is the game's dress and comes off with it. A preference remembered from the Both that used to stand between them opens on the board. The board takes the whole page as a printed board rather than a panel: a painted sky of the model's own clouds, the wordmark over it, the throw, the players, the square in hand and the karmic trail on one card, the hundred and four named fields under that, and the three controls docked along the foot. It has a night palette of its own, gold on ink. |
 | **Names** `t` | Which language the squares are named in, in passing, wherever they are named — Tibetan, or whatever the interface is in. Under Options, as a selector of two with the one in force held down; the side that is not Tibetan says Eng while the interface is English and PL while it is Polish, because that is what the names are then. The entry always gives both. |
 | **Game display** | Under Options, five switches for what the game draws over its squares, each its own — see *Reading the board and the world* below. |
@@ -771,7 +773,7 @@ Wheel and pinch gestures over the scene, including its number markers, control
 the camera. Pinch gestures over reading panels retain native browser zoom.
 Single-finger and wheel scrolling inside the menus remain available.
 
-Each mode offers **Start a guided tour** in the View menu and Help: 104 Explorer
+Each mode offers **Start a guided tour** in the Options menu and Help: 104 Explorer
 entries, all 37 Mandala heaps, a Game introduction plus all 104 squares, and
 all 92 Wheel entries. Play advances every 1.5, 3, 5 or 8 seconds. The last slide
 receives the full interval. Previous/Next, the jump selector, Restart and End
@@ -781,7 +783,7 @@ the reader interacts with the scene or opens Help/Index, and restore the earlier
 motion settings on exit. Game tours preserve the saved game, selection and layout.
 Phone landscape uses a side reading panel; camera framing reserves its space.
 
-**A billion worlds** is a fifth presentation, reached from the View menu, from
+**A billion worlds** is reached from the View menu, from
 the `b` key, or from **Zoom out** on the entry *A thousand worlds* and on the
 four entries under it. It has four stops. The first is this world alone; each
 of the next three zooms out by a factor of a thousand: to the small chiliocosm,
@@ -802,8 +804,8 @@ panel's three steps, and Reset view from anywhere in it is the one world.
 
 The shared header provides Donate, English/Polish selection and contextual Help.
 Donate uses the same Dharma translation PayPal destination as Yontendzo and
-Ngondro. A loading introduction previews all four modes and can be replayed
-from Help. The smaller heap numbers remain switchable during recitation.
+Ngondro. A loading introduction previews all six modes on a first visit and can
+be replayed from Help. The smaller heap numbers remain switchable during recitation.
 
 The artwork is contemporary and AI-assisted, informed by traditional descriptions
 and Himalayan painting. Its costume, palette and individual poses remain
@@ -844,9 +846,11 @@ Chim Jampaiyang, *Ornament of Abhidharma*; Jamgön Kongtrul, *Myriad Worlds*
 The board, its names and its move graph come from Michael Tatz and Judy Kent,
 *Rebirth: The Tibetan Game of Liberation* (1977), reconstructed from the printed
 chart, the square entries and the reverse index and cross-checked cell by cell.
-The commentary of that edition is not reproduced; the entries here are written
-for this model. That note is given once in the app, at the end of *About this
-model*, rather than under each of the hundred and four squares.
+The commentary of the 1977 edition is not reproduced; the square write-ups here
+are a revised English edition prepared for this model by Andrzej R. Rybszleger
+(authored in `content/squares-1-104-blurbs.md` and `content/squares-1-104-full.md`).
+That note is given once in the app, at the end of *About this model*, rather than
+under each of the hundred and four squares.
 
 Visual references and image provenance are recorded in [ARTWORK.md](ARTWORK.md).
 
@@ -998,8 +1002,9 @@ the maṇḍala suite, which builds the real scene.
 ## Rebuilding what is served
 
 Everything the installed app holds is committed, so a GitHub Pages deploy is
-still the files in this tree and nothing else. Three scripts put them there, and
-none of them needs a development dependency:
+still the files in this tree and nothing else. Seven scripts maintain those
+generated assets (most run on Node alone, with `sharp` or Python needed only
+when rebuilding raster artwork or the wheel relief):
 
 | run | after |
 | --- | --- |

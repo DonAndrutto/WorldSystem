@@ -25,8 +25,24 @@ const root = path.resolve(__dirname, '..');
 const MARK_OPEN = '/* ── written by scripts/build-locale.cjs — do not edit below ───────── */';
 const MARK_CLOSE = '/* ── end of the generated table ─────────────────────────────────────── */';
 
-const tags = html => (String(html).match(/<\/?[a-z][a-z0-9]*/gi) || [])
-  .map(t => t.toLowerCase()).sort().join(',');
+const SAFE_ATTRS = new Set(['href', 'target', 'rel', 'lang', 'class', 'dir', 'data-no-localize']);
+const SAFE_HREF = /^(?:https?:\/\/|mailto:|[a-z0-9._/-]+(?:#[a-z0-9_-]*)?$)/i;
+function tags(html) {
+  const sig = [];
+  for (const m of String(html).matchAll(/<(\/?)([a-z][a-z0-9]*)([^>]*)>/gi)) {
+    const close = m[1], name = m[2].toLowerCase(), rawAttrs = m[3] || '';
+    if (close) { sig.push('/' + name); continue; }
+    const attrs = [];
+    for (const a of rawAttrs.matchAll(/\s+([a-z][a-z0-9:-]*)(?:\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'=<>`]+)))?/gi)) {
+      const k = a[1].toLowerCase(), v = a[2] ?? a[3] ?? a[4] ?? '';
+      if (k.startsWith('on') || !SAFE_ATTRS.has(k)) return 'UNSAFE:' + k;
+      if (k === 'href' && !SAFE_HREF.test(v.trim())) return 'UNSAFE:href';
+      attrs.push(k + '=' + v);
+    }
+    sig.push(name + (attrs.length ? '[' + attrs.sort().join(';') + ']' : ''));
+  }
+  return sig.sort().join(',');
+}
 
 function readTsv(file, warn) {
   if (!fs.existsSync(file)) { warn.push('missing: ' + path.basename(file)); return []; }

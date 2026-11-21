@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="referrer" content="no-referrer">
 <title>The World System — Abhidharma Cosmology</title>
 
 <!-- Added to the home screen: iOS reads the apple-* tags, everything else the
@@ -32,12 +33,12 @@
 <script type="importmap">
 {
   "imports": {
-    "three": "./vendor/three@0.184.0/build/three.module.js",
+    "three": "./vendor/three@0.184.0/build/three.module.min.js",
     "three/addons/controls/OrbitControls.js": "./vendor/three@0.184.0/examples/jsm/controls/OrbitControls.js"
   },
   "integrity": {
-    "./vendor/three@0.184.0/build/three.module.js": "sha384-8FCZ1eVO6it4+pbec2aDtnTrwjWXZLJRC+MAGCIPDgsYnUrl/E0A2YlF8ioMKI/J",
-    "./vendor/three@0.184.0/build/three.core.js": "sha384-dw2ooPewaEIrAgl6oFDBmmBWCE9oW9LxRGcfwZ0hLvEprzo202wXl7vCYHRlSnOT",
+    "./vendor/three@0.184.0/build/three.module.min.js": "sha384-35WaVqXNGvw49+RCXk67Ci9ebo55/5+CfirDbAVSG21KV8/7gO4xwIkhA5ZRcUHc",
+    "./vendor/three@0.184.0/build/three.core.min.js": "sha384-/2vXInuUL2LKgd3n86c5RIzG+YC7vk3zYPTknaEkF2H2sauHtaOrS8swZ+MURxU6",
     "./vendor/three@0.184.0/examples/jsm/controls/OrbitControls.js": "sha384-4rziNxOBZKQ69i+w+f89KJ55TCYquwchVbByQwmaOeIOXdOU2PLDn3kOfXHwIJC9",
     "./vendor/astronomy-engine@2.1.19/astronomy.js": "sha384-nPZ/jITCxAeJbBIPmbSJIl4kt4aiPdMpN3N+igiXprv1Lds/PBg5qbX2vIKhrSJW"
   }
@@ -715,7 +716,7 @@
   /* ── night: what the variables alone cannot carry ───────────────────
      A translucent card over paper is a card; over a lit model at night it
      is a window. These few panels stand off the scene instead. */
-  body.night .card, body.night .compass { -webkit-backdrop-filter: blur(16px) saturate(112%); backdrop-filter: blur(16px) saturate(112%); }
+  body.night .card { -webkit-backdrop-filter: blur(16px) saturate(112%); backdrop-filter: blur(16px) saturate(112%); }
   body.night .compass { opacity: 1; box-shadow: var(--shadow); }
   body.night .index { box-shadow: var(--shadow); }
   body.night .controls > .btn, body.night .controls .menu > .btn { border-left-color: var(--rule-2); }
@@ -2114,7 +2115,7 @@
     </div>
     <h3>The thirty-seven-point offering</h3>
     <p class="off-tib">༄༅། །མཎྜལ་སོ་བདུན་མ་བཞུགས་སོ། །</p>
-    <p class="off-intro">Placement follows <a href="https://dudjomtersarngondro.com/wp-content/uploads/2017/12/37-pt-mandala-lsr.png" target="_blank" rel="noopener">Lama Sonam Rinpoche’s 2017 diagram</a> from Pema Ösel Ling. In the reference view, north is at the top and south at the bottom. The compass follows the view as it turns. For a physical offering, orient the plate according to your practice instructions. The outer numbered rings show offering positions.</p>
+    <p class="off-intro">Placement follows <a href="https://dudjomtersarngondro.com/wp-content/uploads/2017/12/37-pt-mandala-lsr.png" target="_blank" rel="noopener noreferrer">Lama Sonam Rinpoche’s 2017 diagram</a> from Pema Ösel Ling. In the reference view, north is at the top and south at the bottom. The compass follows the view as it turns. For a physical offering, orient the plate according to your practice instructions. The outer numbered rings show offering positions.</p>
     <div class="off-player">
       <button class="pb wide" data-p="play" type="button" aria-pressed="false" title="Play — p"><span class="gl">▶</span>Play</button>
       <button class="pb" data-p="prev" type="button" title="Back one — ," aria-label="Back one">‹</button>
@@ -2228,7 +2229,42 @@
   </div>
 </div>
 
-<script src="locales/pl.js"></script>
+<script>
+(() => {
+  const queue = (window.__wsLocaleQueue = window.__wsLocaleQueue || []);
+  let lang = 'en', loading = false;
+  try { if (localStorage.getItem('ws-language') === 'pl') lang = 'pl'; } catch {}
+  const syncButtons = () => {
+    document.documentElement.lang = lang;
+    document.querySelectorAll('[data-ui-lang]').forEach(b =>
+      b.setAttribute('aria-pressed', String(b.dataset.uiLang === lang)));
+  };
+  const loadPack = () => {
+    if (loading) return;
+    loading = true;
+    const s = document.createElement('script');
+    s.src = 'locales/pl.js';
+    s.onerror = () => { loading = false; };
+    document.head.appendChild(s);
+  };
+  window.WorldSystemLocale = {
+    translations: {},
+    translate: s => s,
+    apply() {},
+    add(entries) { if (entries) queue.push(entries); return 0; },
+    setLanguage(next) {
+      lang = next === 'pl' ? 'pl' : 'en';
+      try { localStorage.setItem('ws-language', lang); } catch {}
+      syncButtons();
+      window.dispatchEvent(new CustomEvent('ws-language-change', { detail: { language: lang } }));
+      if (lang === 'pl') loadPack();
+    },
+    get language() { return lang; }
+  };
+  syncButtons();
+  if (lang === 'pl') loadPack();
+})();
+</script>
 <script src="presentation-locales.js"></script>
 <script src="app-chrome.js"></script>
 <script type="module" src="lunar-panels.js"></script>
@@ -2340,7 +2376,7 @@ const canvasTex = (w, h, draw) => {
 const seeded = (n) => () => (n = (n * 1103515245 + 12345) % 2147483648) / 2147483648;
 
 /* the face of a disc: a ground, then soft blotches of two tones over it */
-const discTex = (ground, high, low, seed) => canvasTex(512, 512, (x, w) => {
+const discTex = (ground, high, low, seed) => canvasTex(256, 256, (x, w) => {
   const rnd = seeded(seed);
   x.fillStyle = ground;
   x.fillRect(0, 0, w, w);
@@ -2362,7 +2398,7 @@ const discTex = (ground, high, low, seed) => canvasTex(512, 512, (x, w) => {
 });
 
 /* the rim and the corona, painted into the glow that stands in front */
-const glowTex = (o) => canvasTex(768, 768, (x, w) => {
+const glowTex = (o) => canvasTex(384, 384, (x, w) => {
   const c = w / 2, disc = c * o.disc;
   const halo = x.createRadialGradient(c, c, 0, c, c, c);
   halo.addColorStop(0, `rgba(${o.glow},${o.core})`);
@@ -2401,7 +2437,7 @@ const glowTex = (o) => canvasTex(768, 768, (x, w) => {
    own. Added light over a lit sky is white whatever colour it was, and a
    rim that goes white is not a rim — so this one is laid over the sky
    rather than added to it, and keeps its gold at noon.                  */
-const rimTex = (rim, at) => canvasTex(1024, 1024, (x, w) => {
+const rimTex = (rim, at) => canvasTex(256, 256, (x, w) => {
   const c = w / 2, r = c * at;
   x.translate(c, c);
   x.lineWidth = w * 0.017;
@@ -3729,7 +3765,7 @@ def('about_time', {
       ['Great kalpa', '80 intermediate kalpas'],
       ['Its four phases', 'creation, duration, destruction, void — 20 each']],
   b: ['Lifespans above the desire realm are given in kalpas, and the word carries two magnitudes. An intermediate kalpa is one cycle in which human life falls from countless years to ten and rises again. Eighty of them make a great kalpa, which is the full life of a world system: twenty intermediate kalpas of forming, twenty of standing, twenty of destruction, twenty of emptiness.',
-      'The Kośa notes that from Parīttābha upward the kalpas counted are great kalpas; in the first dhyāna below it, halves. A world system is destroyed seven times by fire for once by water, and seven such water-destructions for one by wind.'],
+      'The Kośa notes that from Parīttābha upward the kalpas counted are great kalpas; in the first dhyāna below it, halves. Across a cycle of sixty-four great kalpas, a world system is destroyed fifty-six times by fire, seven times by water, and once by wind.'],
   src: 'Abhidharmakośa III.89–102'
 });
 
@@ -3920,19 +3956,19 @@ RANGE_DATA.forEach(([id, t, tib, en, ord, hh, w, sea, seaOut, b]) => {
         ['Sea within', `${sea.toLocaleString()} yojanas wide`],
         ['Sea without', seaOut ? `${seaOut.toLocaleString()} yojanas wide` : 'the salt ocean, 322,000 wide'],
         ['Substance', 'gold']],
-    b: [b, 'Seven ranges of gold enclose Meru in concentric squares — drawn here as circles, as the Tibetan tradition draws them — each half the height and half the width of the one within, and each separated from it by a sea of the same width as itself. All seven stand 80,000 yojanas deep in the water, as Meru does. The outer four are drawn wider and higher than the figures allow, so that all seven can be seen and picked.'],
+    b: [b, 'Seven ranges of gold enclose Meru in concentric squares — drawn here as circles, as the Tibetan tradition draws them — each half the height and half the width of the one within, and each separated from it by a sea twice as wide as itself (equal to the width of Meru or the range within). All seven stand 80,000 yojanas deep in the water, as Meru does. The outer four are drawn wider and higher than the figures allow, so that all seven can be seen and picked.'],
     src: AK
   });
 });
 
 /* — waters and rim ———————————————————————————————————————————— */
 def('seven_inner_seas', {
-  t: 'The seven inner seas', tib: 'ro bcu gnyis', en: 'the fresh waters', k: 'fresh water',
+  t: 'The seven inner seas', tib: 'rol pa\'i mtsho bdun', en: 'the fresh waters', k: 'fresh water',
   meta: 'Between the ranges',
   f: [['Widths', '80,000 · 40,000 · 20,000 · 10,000 · 5,000 · 2,500 · 1,250 yojanas'],
       ['Depth', '80,000 yojanas throughout'],
       ['Eight qualities', 'cool, sweet, light, soft, clear, odourless, kind to the throat, kind to the stomach']],
-  b: ['Fresh water fills the seven gaps between Meru and the ranges, each sea as wide as the range outside it and each half the width of the one within. The innermost, between Meru and Yugandhara, is the widest at 80,000 yojanas.',
+  b: ['Fresh water fills the seven gaps between Meru and the ranges, each sea twice as wide as the range outside it and each half the width of the one within. The innermost, between Meru and Yugandhara, is the widest at 80,000 yojanas.',
       'All the waters of the system are held in place by the wind and stand 80,000 yojanas deep on the golden floor. The nāgas live in them.'],
   src: AK
 });
@@ -4136,22 +4172,22 @@ const FORM = [
    'The second dhyāna heavens are distinguished by radiance; this is the least of the three. From this level upward the kalpas counted are great kalpas.'],
   ['apramanabha', 'Apramāṇābha', 'tshad med \'od', 'measureless light', '2nd', '4 yojanas', '4 great kalpas', ''],
   ['abhasvara', 'Ābhāsvara', '\'od gsal', 'streaming radiance', '2nd', '8 yojanas', '8 great kalpas',
-   'The ceiling of destruction by fire: when a world system burns, everything below this level is consumed and its gods are reborn here.'],
+   'The highest heaven of the second dhyāna: when a world system burns, everything below the second dhyāna is consumed, while the second dhyāna remains untouched.'],
   ['parittashubha', 'Parīttaśubha', 'dge chung', 'limited virtue', '3rd', '16 yojanas', '16 great kalpas',
    'The third dhyāna heavens are distinguished by virtue, or by the bliss of their absorption.'],
   ['apramanashubha', 'Apramāṇaśubha', 'tshad med dge', 'measureless virtue', '3rd', '32 yojanas', '32 great kalpas', ''],
   ['shubhakritsna', 'Śubhakṛtsna', 'dge rgyas', 'perfect virtue', '3rd', '64 yojanas', '64 great kalpas',
-   'The ceiling of destruction by water.'],
+   'The highest heaven of the third dhyāna: when a world system dissolves in water, everything below the third dhyāna is undone, while the third dhyāna remains untouched.'],
   ['anabhraka', 'Anabhraka', 'sprin med', 'cloudless', '4th', '125 yojanas', '125 great kalpas',
    'The fourth dhyāna holds eight levels, more than any other group. Below it the heavens are said to rest on cloud; from here up, on nothing.'],
   ['punyaprasava', 'Puṇyaprasava', 'bsod nams skyes', 'born of merit', '4th', '250 yojanas', '250 great kalpas', ''],
   ['brihatphala', 'Bṛhatphala', '\'bras bu che', 'vast fruit', '4th', '500 yojanas', '500 great kalpas',
-   'The ceiling of destruction by wind. Above this level a world system is never undone.'],
+   'In the fourth dhyāna, above the reach of cosmic wind: none of the fourth-dhyāna heavens is undone when a world system ends.'],
   ['avriha', 'Avṛha', 'mi che ba', 'not falling away', '4th · pure', '1,000 yojanas', '1,000 great kalpas',
    'First of the five pure abodes, the Śuddhāvāsa, held only by those who will not be born in a lower realm again.'],
   ['atapa', 'Atapa', 'mi gdung ba', 'without torment', '4th · pure', '2,000 yojanas', '2,000 great kalpas', ''],
-  ['sudrisha', 'Sudṛśa', 'shin tu mthong', 'clear-sighted', '4th · pure', '4,000 yojanas', '4,000 great kalpas', ''],
-  ['sudarshana', 'Sudarśana', 'mthong ba', 'well-seeing', '4th · pure', '8,000 yojanas', '8,000 great kalpas', ''],
+  ['sudrisha', 'Sudṛśa', 'gya nom snang', 'clear-sighted', '4th · pure', '4,000 yojanas', '4,000 great kalpas', ''],
+  ['sudarshana', 'Sudarśana', 'shin tu mthong', 'well-seeing', '4th · pure', '8,000 yojanas', '8,000 great kalpas', ''],
   ['akanishtha', 'Akaniṣṭha', '\'og min', 'none higher', '4th · pure', '16,000 yojanas', '16,000 great kalpas',
    'The summit of form. Nothing above it has shape, extent or place. In the tantras it is named as the abode of Vajradhara, and the seat from which a buddha\'s form body appears.']
 ];
@@ -4282,7 +4318,7 @@ COLD_DATA.forEach(([id, t, tib, en, b], i) => {
   });
 });
 def('preta_realm', {
-  t: 'The pretas', tib: 'yi dags', en: 'the hungry ghosts', k: '15,000 years',
+  t: 'The pretas', tib: 'yi dwags', en: 'the hungry ghosts', k: '15,000 years',
   meta: '500 yojanas below Jambudvīpa',
   f: [['Place', '500 yojanas below our continent — the city of Yama'],
       ['Day and night', 'one human month to one day'],
@@ -4321,12 +4357,12 @@ def('about_destruction', {
   t: 'How a world ends', meta: 'The four phases of a great kalpa', k: '80 kalpas',
   f: [['Order of ruin', 'the hells empty first, then the animals and pretas, then the continents'],
       ['By fire', 'seven suns appear; everything up to the first dhyāna burns'],
-      ['By water', 'after seven destructions by fire, one by water, to Śubhakṛtsna'],
-      ['By wind', 'after seven by water, one by wind, to Bṛhatphala'],
-      ['Untouched', 'the pure abodes and the formless absorptions'],
+      ['By water', 'after seven destructions by fire, one by water, up through the second dhyāna'],
+      ['By wind', 'after seven by water and seven more by fire, one by wind, up through the third dhyāna'],
+      ['Untouched', 'the entire fourth dhyāna (including the pure abodes) and the formless absorptions'],
       ['Then', 'twenty intermediate kalpas of emptiness, and a new world forms']],
   b: ['A world system lasts one great kalpa and is undone in the same order in which it was made, from the bottom up. No new being is born in hell; those already there finish their term and the hells stand empty. Then the animals and pretas, then the human beings of the continents, then the gods of the mountain and the heavens above it.',
-      'Seven suns rise in turn, drying the rivers, then Anavatapta, then the great ocean, and at last Meru itself burns to nothing. Everything below the second dhyāna is consumed. The Kośa gives the ratio exactly: seven destructions by fire for one by water, and seven by water for one by wind — and above Bṛhatphala nothing is destroyed at all.'],
+      'Seven suns rise in turn, drying the rivers, then Anavatapta, then the great ocean, and at last Meru itself burns to nothing. Everything below the second dhyāna is consumed. The Kośa gives the cycle of sixty-four destructions exactly: seven by fire followed by one by water, repeated seven times, then seven more by fire and a final sixty-fourth by wind — and the entire fourth dhyāna above is never destroyed at all.'],
   rel: ['about_time', 'heaven_abhasvara', 'heaven_shubhakritsna', 'heaven_brihatphala'],
   src: 'Abhidharmakośa III.90–102'
 });
@@ -4402,7 +4438,7 @@ def('gods_ways', {
   f: [['Birth', 'apparitional — a god appears on the lap of another, a child of five years in the lowest heaven and ten in the highest'],
       ['Growth', 'immediate; there is no infancy'],
       ['Union', 'as human beings do in the two lowest heavens; above, by embrace, by taking hands, by a smile, by a look'],
-      ['Bodies', 'a quarter krośa in the lowest heaven, doubling upward'],
+      ['Bodies', 'a quarter krośa in the lowest heaven, adding a quarter krośa at each level up to one and a half'],
       ['Clothing', 'appears with the body and is never soiled — until the end'],
       ['The five signs of death', 'the flower garlands wither; the clothes take dust; sweat comes from the armpits; the body loses its lustre; the seat gives no more pleasure']],
   b: ['The Kośa is precise about the gods and unsentimental. They are born fully formed, they need no rearing, their pleasures are graded downward from the human act of union to a single glance, and their lives are long past reckoning — and every one of them ends.',
@@ -4419,7 +4455,7 @@ def('anavatapta', {
       ['Their mouths', 'a lion, an elephant, a horse and an ox — the assignments differ between accounts'],
       ['Its nāga', 'Anavatapta, held to be a bodhisattva in nāga form'],
       ['On its bank', 'the rose-apple tree that names the continent']],
-  b: ['The lake at the head of the world\'s rivers, north of the inhabited part of Jambudvīpa and south of the snows. Its name means that its water is never heated: the sun cannot trouble it, and the nāga who lives in it is beyond the reach of the garuḍas that torment other nāgas.',
+  b: ['The lake at the head of the world\'s rivers, north of the inhabited part of Jambudvīpa and north of the snows (Himavat). Its name means that its water is never heated: the sun cannot trouble it, and the nāga who lives in it is beyond the reach of the garuḍas that torment other nāgas.',
       'Four rivers leave it, one to each direction, each circling the lake once before turning outward. The Kośa uses it as the standard of unfailing water, and Kongtrul places the geography of the known world — India, Tibet and the rest — south of it.'],
   rel: ['continent_jambudvipa', 'jambu', 'vajrasana'],
   src: 'Abhidharmakośa III.57; Kongtrul, Myriad Worlds'
@@ -4458,11 +4494,11 @@ def('vajrasana', {
    given away piece by piece, in a fixed order, from Meru outward.
    ════════════════════════════════════════════════════════════════════════ */
 const OFFERING_CREDIT = 'The thirty-seven-point offering text is attributed to Chögyal Pakpa Lodrö Gyaltsen. ' +
-  'English translation by Rigpa Translations, published by <a href="https://www.lotsawahouse.org/tibetan-masters/chogyal-pakpa-lodro-gyaltsen/thirty-seven-point-mandala-offering" target="_blank" rel="noopener">Lotsawa House</a>, ' +
-  '<a href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank" rel="noopener">CC BY-NC 4.0</a>.';
+  'English translation by Rigpa Translations, published by <a href="https://www.lotsawahouse.org/tibetan-masters/chogyal-pakpa-lodro-gyaltsen/thirty-seven-point-mandala-offering" target="_blank" rel="noopener noreferrer">Lotsawa House</a>, ' +
+  '<a href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank" rel="noopener noreferrer">CC BY-NC 4.0</a>.';
 const MO = OFFERING_CREDIT + ' Background: Patrul Rinpoche, Words of My Perfect Teacher V; Kongtrul, Myriad Worlds.';
-const MANDALA_DIAGRAM = 'Placement: <a href="https://dudjomtersarngondro.com/wp-content/uploads/2017/12/37-pt-mandala-lsr.png" target="_blank" rel="noopener">Lama Sonam Rinpoche, diagram of the mandala with thirty-seven features</a>, 2017 Ngöndro retreat, Pema Ösel Ling; ' +
-  '<a href="https://dudjomtersarngondro.com/download/texts/free-text-downloads/37-point-diagram-and-key" target="_blank" rel="noopener">diagram and key</a>.';
+const MANDALA_DIAGRAM = 'Placement: <a href="https://dudjomtersarngondro.com/wp-content/uploads/2017/12/37-pt-mandala-lsr.png" target="_blank" rel="noopener noreferrer">Lama Sonam Rinpoche, diagram of the mandala with thirty-seven features</a>, 2017 Ngöndro retreat, Pema Ösel Ling; ' +
+  '<a href="https://dudjomtersarngondro.com/download/texts/free-text-downloads/37-point-diagram-and-key" target="_blank" rel="noopener noreferrer">diagram and key</a>.';
 
 def('about_mandala', {
   t: 'The mandala of thirty-seven', tib: 'maṇḍala so bdun ma', k: '37 heaps',
@@ -4484,7 +4520,7 @@ def('about_mandala', {
       'This thirty-seven-point offering text is attributed to Chögyal Pakpa Lodrö Gyaltsen. Mandala offerings also have other forms. The form used and the method of counting follow the instructions of the practitioner\'s tradition.',
       'All thirty-seven offerings have visual forms. Meru, the continents and subcontinents use the world model. Detailed painted cutouts depict the four treasures, royal emblems, treasure vase, eight offering goddesses, sun, moon, parasol and banner. They face you as you turn the camera, floating clear of the plate and continents, and lie flat when viewed directly from above. In <b>Recitation</b>, the view is from above and the offerings appear in the order the verse names them.',
       'Choose <b>Tour the 37 heaps</b> for a separate, untimed study route. Each offering is shown on its own with space around it, a short explanation and access to its full entry and sources. Surrounding geometry is restored when you leave the tour. Use Previous and Next, the arrow keys or the offering selector. Return to the whole mandala whenever you wish. The index, entries and offering controls share one panel area.',
-      'The offering cutouts are contemporary illustrations made with AI assistance for this app, informed by traditional descriptions and Himalayan painting. They remain painted images when the camera turns. Body colours, costume, ornaments and individual poses are pictorial choices, and have not been certified as the prescribed forms of a particular lineage. The royal wheel abbreviates the thousand spokes described in the texts. See the <a href="https://github.com/DonAndrutto/WorldSystem/blob/main/ARTWORK.md" target="_blank" rel="noopener">artwork notes and references</a> for the sources and remaining questions.',
+      'The offering cutouts are contemporary illustrations made with AI assistance for this app, informed by traditional descriptions and Himalayan painting. They remain painted images when the camera turns. Body colours, costume, ornaments and individual poses are pictorial choices, and have not been certified as the prescribed forms of a particular lineage. The royal wheel abbreviates the thousand spokes described in the texts. See the <a href="https://github.com/DonAndrutto/WorldSystem/blob/main/ARTWORK.md" target="_blank" rel="noopener noreferrer">artwork notes and references</a> for the sources and remaining questions.',
       'The placement follows Lama Sonam Rinpoche\'s 2017 diagram from Pema Ösel Ling. Heaps 18–25 start at the cardinal directions; the goddesses, heaps 26–33, start at the intermediate directions. The outer four points place the sun east, the moon west, the parasol south and the banner north.',
       'The diagram is seen from above, with north at the top, east at the right, south at the bottom and west at the left. It does not specify the practitioner\'s position. For a physical offering, orient the plate according to your practice instructions. The outer numbered rings are a schematic guide to offering positions.'],
   rel: ['meru_core', 'treasure_mountain', 'emblem_wheel', 'goddess_lasya'],
@@ -4719,7 +4755,7 @@ def('rebirth_game', {
       ['Traps', '1 and 48'], ['Already in the model', '22 squares'], ['Given a place by the board', '82 squares']],
   b: ['A game attributed to Sakya Pandita, in which a die names the square you go to rather than a number of steps to travel. A face with no listed move is dead: you stay where you are and pass.',
       'Read as a section, the board is already a cosmology. Its rows suggest an ascent above the golden ground, and its two columns of paths separate the tantric route from the route of the sutras. Where a square names a region — a hell, a continent, a heaven — the world system has already built it, and the marker simply floats above it.',
-      'Where a square names a path, an attainment or a Buddha field, there is nothing in the world system to stand on. The sources say as much: Buddha fields lie outside the Meru arrangement. Those eighty-three squares are given a place here, on a symbolic ascent. Realization rises above the complete samsaric heaven stack; the sutra stages ascend in attainment order even where their printed numbers run backwards. The game’s Akaniṣṭha Buddha field also rises above the tenth stages, while the samsaric heaven remains in place.'],
+      'Where a square names a path, an attainment or a Buddha field, there is nothing in the world system to stand on. The sources say as much: Buddha fields lie outside the Meru arrangement. Those eighty-two board-only squares — together with Akaniṣṭha’s elevated Buddha-field marker — are given a place here, on a symbolic ascent. Realization rises above the complete samsaric heaven stack; the sutra stages ascend in attainment order even where their printed numbers run backwards. The game’s Akaniṣṭha Buddha field also rises above the tenth stages, while the samsaric heaven remains in place.'],
   rel: ['rebirth_sq_24', 'rebirth_sq_1', 'rebirth_sq_48', 'rebirth_sq_104']
 });
 
@@ -4962,7 +4998,7 @@ function placeFocusRing(box, radius = null) {
    kept apart from the game, and read here so that what picks a square can ask it. */
 const rbDisplay = { ...DISPLAY_DEFAULTS };
 const rbGameSquare = (id) => /^rebirth_sq_\d+$/.test(id || '');
-let picked = [], pickedMats = [], current = null;
+let picked = [], current = null;
 /* What is picked is lit from within with the gold of the board's frames:
    enough to find it at once among everything round it, not so much that its
    own colours are lost. */
@@ -4971,13 +5007,18 @@ const tint = (m) => Object.assign(m.clone(),
              : { color: new THREE.Color(0x76521a) });
 const tintable = (m) => m.material && !Array.isArray(m.material)
   && m.material !== M.formless && !m.userData.realmAtmosphere && !m.userData.pickOnly && !m.userData.artwork;
+function pickMesh(m) {
+  const original = m.material;
+  const clone = tint(original);
+  picked.push({ mesh: m, original, clone });
+  m.material = clone;
+}
 function clearPick() {
-  picked.forEach((m, i) => {
-    const highlight = m.material;
-    m.material = pickedMats[i];
-    if (highlight !== pickedMats[i]) highlight.dispose();
+  picked.forEach(({ mesh, original, clone }) => {
+    if (mesh.material === clone) mesh.material = original;
+    clone.dispose();
   });
-  picked = []; pickedMats = [];
+  picked = [];
 }
 
 /* ── the item sheet ──────────────────────────────────────────────────── */
@@ -5041,7 +5082,7 @@ function show(id, reveal) {
   pausePlay();
   // These figures belong to the offering diagram. Entries remain reachable
   // from the ordinary index, including before mandala mode has been opened.
-  if (/^(emblem_|goddess_|mandala_)/.test(id) && !mandala) setMandala(true);
+  if (/^(emblem_|goddess_|mandala_)/.test(id) && !mandala) setMode('mandala');
   // A square of the board stands nowhere unless the board is laid out.
   // The wheel's parts are on the wheel. A square of the game opened from the
   // wheel is read there, not carried off to the board.
@@ -5061,8 +5102,7 @@ function show(id, reveal) {
   const ms = meshesFor(id);
   ms.forEach((m) => {
     if (!tintable(m) || (rbGameSquare(id) && !rbDisplay.highlights)) return;
-    picked.push(m); pickedMats.push(m.material);
-    m.material = tint(m.material);
+    pickMesh(m);
   });
   sEyebrow.textContent = e.meta || '';
   sTitle.textContent = e.t;
@@ -5269,13 +5309,18 @@ function fitDepth() {
   const clear = Math.max(toCentre - VIEW_BOUNDS.radius, 0);
   const orbit = cam.position.distanceTo(ctr.target);
   const near = Math.max(NEAR_FLOOR, Math.min(orbit, clear + VIEW_BOUNDS.radius * 0.02) * 0.02);
+  let reachRadius = VIEW_BOUNDS.radius;
+  if (cosmos !== null && cosmos.level > 0) {
+    const L = cosmos.levels[cosmos.level - 1];
+    if (L) reachRadius = Math.max(reachRadius, Math.hypot(L.centre[0], L.centre[1], L.centre[2]) + L.edge * 0.9);
+  }
   // The complete realization spire can put the overview camera beyond the
   // original sky radius. Keep the world-centred backdrop around the eye,
   // with its far side inside the clip plane, even in a narrow viewport.
-  const skyRadius = Math.max(SKY_R, cam.position.length() + VIEW_BOUNDS.radius * 2);
+  const skyRadius = Math.max(SKY_R, cam.position.length() + reachRadius * 2);
   skyMesh.scale.setScalar(skyRadius / SKY_R);
   const far = Math.max(cam.position.length() + skyRadius * 1.04,
-                       toCentre + VIEW_BOUNDS.radius * 1.04);
+                       toCentre + reachRadius * 1.04);
   if (near === cam.near && far === cam.far) return;
   cam.near = near;
   cam.far = far;
@@ -5350,6 +5395,7 @@ ctr.addEventListener('start', () => {
   // a hand taking over mid-flight keeps the distance it found the eye at
   if (anim) { cancelAnimationFrame(anim); anim = null; framedDist = cam.position.distanceTo(ctr.target); }
   applyZoomLimits();
+  invalidate(2);
 });
 ctr.addEventListener('end', () => {
   orbitInteracting = false;
@@ -5369,8 +5415,9 @@ function placeLuminaries() {
 }
 function stepMotion() {
   const now = performance.now();
-  const dt = Math.min((now - lastFrame) / 1000, 0.1);   // a backgrounded tab must not lurch
+  const dt = Math.max(0, Math.min((now - lastFrame) / 1000, 0.1));   // a backgrounded tab must not lurch
   lastFrame = now;
+  if (mode === 'wheel') return dt;
   lumSpin += dt * lumSpeed();
   placeLuminaries();
   lightFromSky();
@@ -5493,7 +5540,21 @@ gl.setPixelRatio(Math.min(window.devicePixelRatio || 1, coarse ? 1.5 : 1.75));
 gl.shadowMap.autoUpdate = false;       // static geometry, fixed shadowing sun
 gl.shadowMap.needsUpdate = true;
 let frames = 4;
-function invalidate(n = 3) { frames = Math.max(frames, n); }
+let loopRunning = false;
+function ensureLoop() {
+  if (loopRunning || glLost || document.hidden) return;
+  loopRunning = true;
+  gl.setAnimationLoop(drawLoop);
+}
+function stopLoop() {
+  if (!loopRunning) return;
+  loopRunning = false;
+  gl.setAnimationLoop(null);
+}
+function invalidate(n = 3) {
+  frames = Math.max(frames, n);
+  ensureLoop();
+}
 function reshadow() { gl.shadowMap.needsUpdate = true; invalidate(); }
 
 /* ── The sun lights the world ───────────────────────────────────────────
@@ -5509,20 +5570,36 @@ const key = stage._key;
    phone has other things to spend that on — the four painted sheets of the
    board among them. At this size, on this screen, a quarter of it is the same
    picture. */
-if (coarse) key.shadow.mapSize.set(1024, 1024);
+if (coarse) {
+  key.shadow.mapSize.set(1024, 1024);
+  if (key.shadow.map) { key.shadow.map.dispose(); key.shadow.map = null; }
+}
 const LIGHT_TAN = 0.9;                  // the light's elevation: about 42°
 const _lightDir = new THREE.Vector3();
-function lightFromSky() {
+let lastShadowSpin = -Infinity, lastShadowNight = null;
+function lightFromSky(forceShadow = false) {
   const o = LUMINARIES[night ? 1 : 0].objs[0].position;
   _lightDir.set(o.x, 0, o.z).normalize();
   key.position.set(_lightDir.x * 10, LIGHT_TAN * 10, _lightDir.z * 10);
   key.color.setHex(night ? 0xc4d4ee : 0xfff5e4);
   key.intensity = night ? 0.9 : 2.3;
-  gl.shadowMap.needsUpdate = true;
+  if (forceShadow || night !== lastShadowNight || Math.abs(lumSpin - lastShadowSpin) >= 0.008) {
+    lastShadowSpin = lumSpin;
+    lastShadowNight = night;
+    gl.shadowMap.needsUpdate = true;
+  }
 }
 ctr.addEventListener('change', () => invalidate(2));
-window.addEventListener('resize', () => { paintBoardSky(); invalidate(); });
-document.addEventListener('visibilitychange', () => { if (!document.hidden) invalidate(); });
+let boardSkyResizeTimer = null;
+window.addEventListener('resize', () => {
+  clearTimeout(boardSkyResizeTimer);
+  boardSkyResizeTimer = setTimeout(paintBoardSky, 120);
+  invalidate();
+});
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) stopLoop();
+  else { lastFrame = performance.now(); invalidate(2); }
+});
 
 /* ── when the context is taken away ─────────────────────────────────
    A phone sent to the background, or one under memory pressure, can have its
@@ -5538,6 +5615,7 @@ let glLost = false;
 glCanvas.addEventListener('webglcontextlost', (ev) => {
   ev.preventDefault();
   glLost = true;
+  stopLoop();
   glNote.hidden = false;
 });
 glCanvas.addEventListener('webglcontextrestored', () => {
@@ -5553,27 +5631,38 @@ glCanvas.addEventListener('webglcontextrestored', () => {
    be asked to do for no reason, so it is not asked. */
 const worldHidden = () => document.body.classList.contains('board-only') || mode === 'wheel';
 const drawLoop = () => {
-  if (glLost || document.hidden) return;
+  if (glLost || document.hidden) { stopLoop(); return; }
   if (motion) {
     const dt = stepMotion();
     if (mode === 'wheel') wheelView?.advanceMotion(dt);
   }
-  if (cosmos !== null && cosmos.tick(performance.now())) invalidate(2);   // an order fading in or out
+  const cosmosFading = cosmos !== null && cosmos.tick(performance.now());
+  if (cosmosFading) invalidate(2);   // an order fading in or out
   ctr.update();                        // fires 'change' → invalidate, when moving
-  if (mode === 'game' && rbFinale.tick()) invalidate(2);
-  if (frames <= 0) return;
-  if (worldHidden()) { frames = 0; return; }
+  const hidden = worldHidden();
+  const finaleActive = !hidden && mode === 'game' && rbFinale.tick();
+  if (finaleActive) invalidate(2);
+  if (frames <= 0) {
+    if (!motion && !orbitInteracting && !anim && !cosmosFading && !finaleActive) stopLoop();
+    return;
+  }
+  if (hidden) {
+    frames = 0;
+    if (!motion && !orbitInteracting && !anim && !cosmosFading) stopLoop();
+    return;
+  }
   frames--;
   orientOfferingCards();
+  if (mode === 'game') { rbModels.face(cam); rbPlayerArt.stand(cam, rbAside); }
   fitDepth();
   setUnderwater(underwater());
   gl.render(stage._scene, cam);
   if (mandala) placeMarks();
-  if (mode === 'game') { rbModels.face(cam); rbPlayerArt.stand(cam, rbAside); rbPlaceLabel(); rbPlaceChips(); rbPlaceFocusPin(); }
+  if (mode === 'game') { rbPlaceLabel(); rbPlaceChips(); rbPlaceFocusPin(); }
   if (!mandala || touring) placeCompass();
 };
 stage._loop = drawLoop;
-gl.setAnimationLoop(drawLoop);
+ensureLoop();
 
 function focus(id, direction = null, padding = 1.3) {
   const ms = meshesFor(id);
@@ -5799,7 +5888,7 @@ OFFERING_MODELS.forEach((model, id) => {
     byName.get(id).push(mesh);
   });
   E[id].f = [...(E[id].f || []), ['In this illustration', model.userData.attribute]];
-  E[id].src = (E[id].src || '') + ' Artwork: contemporary AI-assisted illustration; <a href="https://github.com/DonAndrutto/WorldSystem/blob/main/ARTWORK.md" target="_blank" rel="noopener">visual sources and adaptations</a>.';
+  E[id].src = (E[id].src || '') + ' Artwork: contemporary AI-assisted illustration; <a href="https://github.com/DonAndrutto/WorldSystem/blob/main/ARTWORK.md" target="_blank" rel="noopener noreferrer">visual sources and adaptations</a>.';
 });
 world.add(offeringLayer);
 world.updateMatrixWorld(true);
@@ -6160,21 +6249,25 @@ function placeCompass() {
 }
 const OVERHEAD = ['heaven_', 'formless_'];
 function setMandala(on) {
+  if (on && worldEnding?.active) worldEnding.close();
   if (presentationActive()) endPresentation(false);
   restoreTourVisibility();
   touring = false;
   sheet.hidden = true;
   current = null;
+  if (on) closeLunarPanels();
   mandala = on;
   // show() and the offering controls force mandala mode without going through
   // setMode, so the board has to be put away here as well.
   const leavingGame = on && mode === 'game', leavingWheel = on && mode === 'wheel';
   if (leavingWheel) wheelMode.leave();
+  if (leavingGame) leaveGame();
   const previousMode = mode;
   mode = on ? 'mandala' : (mode === 'mandala' ? 'explore' : mode);
-  if (mode !== previousMode) document.dispatchEvent(new CustomEvent('ws-mode-change', { detail: { mode } }));
-  if (leavingGame) leaveGame();
   document.querySelectorAll('[data-mode]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.mode === mode)));
+  if (typeof syncModeButtons === 'function') syncModeButtons();
+  if (typeof syncMansionLayer === 'function') syncMansionLayer();
+  if (mode !== previousMode) document.dispatchEvent(new CustomEvent('ws-mode-change', { detail: { mode } }));
   document.body.classList.toggle('mandala-view', on);
   world.traverse((o) => {
     if (o.isMesh && OVERHEAD.some((p) => o.name.startsWith(p))) o.visible = !on;
@@ -6297,8 +6390,7 @@ function tintOnly(id) {
   if (!id) return;
   meshesFor(id).forEach((m) => {
     if (!tintable(m)) return;
-    picked.push(m); pickedMats.push(m.material);
-    m.material = tint(m.material);
+    pickMesh(m);
   });
 }
 function applyStep(i) {
@@ -6370,17 +6462,17 @@ function resetPlay() {
 }
 function playToggle() {
   if (touring) endTour();
-  if (!mandala) setMandala(true);
+  if (!mandala) setMode('mandala');
   if (playing) { setPlaying(false); return; }
   close();
   setOpen(false);
-  arm();
   if (pStep >= STEPS.length - 1) applyStep(-1);
+  arm();
   setPlaying(true);
 }
 function stepBy(d) {
   if (touring) { visitHeap(tourIndex + d); return; }
-  if (!mandala) setMandala(true);
+  if (!mandala) setMode('mandala');
   if (playing) setPlaying(false);
   arm();
   applyStep(Math.min(STEPS.length - 1, Math.max(0, pStep + d)));
@@ -6430,12 +6522,6 @@ const PRESENTATION_TOURS = createPresentationTours({
   mansions: MANSIONS.map((m) => m.id)
 });
 let tourPreviousLayer = null;
-HEAPS.forEach(([number, id]) => {
-  const option = document.createElement('option');
-  option.value = String(number - 1);
-  option.textContent = number + '. ' + (id.startsWith('goddess_') ? E[id].en : E[id].t);
-  tourSelect.appendChild(option);
-});
 function orientOfferingCards() {
   if (!mandala) return;
   OFFERING_MODELS.forEach(model => {
@@ -6525,7 +6611,7 @@ function restorePresentationMotion() {
 }
 function startTour(index = 0) {
   if (presentationActive()) endPresentation(false);
-  setMandala(true);
+  setMode('mandala');
   rememberTourMotion();
   touring = true;
   resetPlay();
@@ -6548,6 +6634,7 @@ function endTour(overview = true) {
 function startPresentation(next = mode, at = 0) {
   if (next === 'astrology') next = 'mansions';
   if (!['explore', 'mandala', 'game', 'wheel', 'worlds', 'mansions'].includes(next)) return;
+  if (worldEnding?.active) worldEnding.close();
   if (next === 'mandala') { startTour(); return; }
   if (presentationActive()) endPresentation(false);
   // The tour uses its mode without reopening that mode’s default workspace.
@@ -6572,7 +6659,7 @@ function startPresentation(next = mode, at = 0) {
   prepareTourPanel(next);
   tourPlayer.start(next, PRESENTATION_TOURS[next].length, at);
   setMotion(!reducedMotion(), false);
-  reframeAfterPanels();
+  if (next !== 'worlds') reframeAfterPanels();
 }
 function renderGuidedStop(state, move = true) {
   if (!guidedMode) return;
@@ -7005,7 +7092,7 @@ rbSoundBox.addEventListener('change', () => {
   try { localStorage.setItem('ws-sound', rbSoundBox.checked ? '1' : '0'); } catch (err) {}
 });
 installUiSound({ sound: createUiSound(synth), isOn: rbSoundOn });
-const rbMusic = createModeSoundtrack({AudioClass:window.Audio});
+const rbMusic = createModeSoundtrack({ AudioContextClass: audioContext });
 const rbMusicBox = document.querySelector('#g-music');
 let savedMusic = null;
 try { savedMusic = localStorage.getItem('ws-music'); } catch {}
@@ -7116,6 +7203,7 @@ function rbSelect(n, moveCamera) {
   if (moveCamera && mode === 'game') reframeGame(700, rbBoard.positionOf(n));
   invalidate(2);
 }
+const rbLabelPos = { x: 0, y: 0, w: 0, h: 0 };
 function rbNameLabel(n) {
   rbLabel.querySelector('.n').textContent = String(n);
   rbLabel.querySelector('.t').textContent = rbCalled(n);
@@ -7124,6 +7212,7 @@ function rbNameLabel(n) {
   const info = rbRealmOf(RB_BY_N.get(n));
   realm.textContent = info.detail; rbLabel.dataset.realm = info.key;
   rbLabel.querySelector('.t').lang = rbTib && rbTibetan(n) ? 'bo' : 'en';
+  rbLabelPos.w = 0; rbLabelPos.h = 0;
 }
 /* The label rides the selected square, projected each frame like the maṇḍala's
    own marks. Hidden when the square is behind the camera or off the mode. */
@@ -7141,10 +7230,16 @@ function rbPlaceLabel() {
     return;
   }
   rbLabel.hidden = false;
-  const half = rbLabel.offsetWidth / 2 + 6;
+  if (!rbLabelPos.w) { rbLabelPos.w = rbLabel.offsetWidth || 120; rbLabelPos.h = rbLabel.offsetHeight || 26; }
+  const half = rbLabelPos.w / 2 + 6;
   const right = Math.min(w, rbLabelEdge) - half;
-  rbLabel.style.left = Math.round(Math.min(Math.max(x, half), Math.max(half, right))) + 'px';
-  rbLabel.style.top = Math.round(Math.min(Math.max(y, 22), h - 22)) + 'px';
+  const px = Math.round(Math.min(Math.max(x, half), Math.max(half, right)));
+  const py = Math.round(Math.min(Math.max(y, 22), h - 22));
+  if (px !== rbLabelPos.x || py !== rbLabelPos.y) {
+    rbLabel.style.left = px + 'px';
+    rbLabel.style.top = py + 'px';
+    rbLabelPos.x = px; rbLabelPos.y = py;
+  }
 }
 /* ── where everyone stands ──────────────────────────────────────────────
    One chip per player, riding their marker in the world the way the square's
@@ -7158,7 +7253,7 @@ const RB_CHIPS = RB_COLOURS.map((hex) => {
   el.innerHTML = '<b></b><span class="who"></span><span class="sq"></span>';
   el.hidden = true;
   rbPlayersEl.appendChild(el);
-  return { el, x: 0, y: 0, was: '' };
+  return { el, x: 0, y: 0, w: 0, was: '' };
 });
 function rbSyncChips() {
   RB_CHIPS.forEach((chip, i) => {
@@ -7172,6 +7267,7 @@ function rbSyncChips() {
       chip.el.querySelector('.who').textContent = player.name;
       chip.el.querySelector('.sq').textContent = String(player.pos);
       chip.was = line;
+      chip.w = 0;
     }
     chip.el.classList.toggle('turn', player.i === rbGame.turn && !rbGame.over);
   });
@@ -7189,7 +7285,7 @@ function rbPlaceChips() {
   const placed = [];
   if (!rbLabel.hidden) {
     // the label is placed by its middle and a chip by its foot: meet halfway
-    placed.push({ x: rbLabel.offsetLeft, y: rbLabel.offsetTop + rbLabel.offsetHeight / 2 });
+    placed.push({ x: rbLabelPos.x, y: rbLabelPos.y + rbLabelPos.h / 2 });
   }
   RB_CHIPS.forEach((chip, i) => {
     const player = rbGame.players[i];
@@ -7214,7 +7310,8 @@ function rbPlaceChips() {
     while (placed.some((p) => Math.abs(p.x - x) < 96 && Math.abs(p.y - y) < 22)) y -= 23;
     placed.push({ x, y });
     chip.el.style.visibility = '';
-    const half = chip.el.offsetWidth / 2 + 6;
+    if (!chip.w) chip.w = chip.el.offsetWidth || 84;
+    const half = chip.w / 2 + 6;
     x = Math.min(Math.max(x, half), Math.max(half, Math.min(w, rbLabelEdge) - half));
     y = Math.min(Math.max(y, 26), h - 8);
     if (x !== chip.x || y !== chip.y) {
@@ -7253,6 +7350,10 @@ function rbSyncTokens() {
       dot.dataset.p = String(p.i);
       paintPlayer(dot, p);
       dot.title = p.name;
+      if (rbMovement && rbMovement.playerIndex === p.i) {
+        dot.style.visibility = 'hidden';
+        rbMovement.destinationToken = dot;
+      }
       box.appendChild(dot);
     });
   });
@@ -7306,7 +7407,7 @@ rbTrail.addEventListener('click', (ev) => {
 });
 function rbSync() {
   // a game that is over keeps the stupa's light; any other has none
-  if (!rbGame.over && rbFinale.active()) { rbFinale.reset(); clearTimeout(rbCelebration); }
+  if (!rbGame.over && (rbFinale.active() || rbCelebration)) { rbFinale.reset(); clearTimeout(rbCelebration); rbCelebration = null; }
   else if (rbGame.over && !rbFinale.active() && !rbCelebration) rbFinale.play({ quiet: true });
   boardEl.querySelector('.bv-sq[data-victory]')?.classList.toggle('attained', rbGame.over);
   const player = rbGame.players[rbGame.turn];
@@ -7642,13 +7743,13 @@ function rbNameFields(prefill) {
     const row = document.createElement('fieldset');
     row.className = 'bv-person';
     row.innerHTML = '<legend>Player ' + (i + 1) + '</legend><label>Name <input type="text" maxlength="24" data-player="' + i + '" placeholder="Player ' + (i + 1) + '"></label>'
-      + '<label>Colour <select class="player-colour">' + ['Rust', 'Teal', 'Gold', 'Plum'].map((c, n) => '<option value="' + n + '">' + c + '</option>').join('') + '</select></label><label class="player-origin">Background <select class="player-culture">' + PLAYER_CULTURES.map(c => '<option>' + c + '</option>').join('') + '</select></label><div class="player-choices" role="group" aria-label="Character for player ' + (i + 1) + '"></div>';
+      + '<label>Colour <select class="player-colour">' + ['Rust', 'Teal', 'Gold', 'Plum'].map((c, n) => '<option value="' + n + '">' + c + '</option>').join('') + '</select></label><label class="player-origin">Background <select class="player-culture">' + PLAYER_CULTURES.map(c => '<option value="' + c + '">' + c + '</option>').join('') + '</select></label><div class="player-choices" role="group" aria-label="Character for player ' + (i + 1) + '"></div>';
     row.querySelector('input').value = prefill[i] || '';
     const colour = row.querySelector('select');
     colour.value = String(rbDraft[i].colour);
     colour.addEventListener('change', () => { rbDraft[i].colour = Number(colour.value); });
     const culture = row.querySelector('.player-culture');
-    culture.value = PLAYER_SKINS.find(s => s.id === rbDraft[i].skin).culture;
+    culture.value = (PLAYER_SKINS.find(s => s.id === rbDraft[i].skin) || PLAYER_SKINS[0]).culture;
     const choices = row.querySelector('.player-choices');
     const renderChoices = () => {
       choices.textContent = '';
@@ -7669,7 +7770,7 @@ function rbNameFields(prefill) {
       });
     };
     culture.addEventListener('change', () => {
-      const gender = PLAYER_SKINS.find(s => s.id === rbDraft[i].skin).gender;
+      const gender = PLAYER_SKINS.find(s => s.id === rbDraft[i].skin)?.gender || 'male';
       rbDraft[i].skin = culture.value.toLowerCase() + '-' + gender;
       renderChoices();
     });
@@ -7713,6 +7814,7 @@ function rbReset() {
   rbPending = null;
   rbClearFocus();
   clearTimeout(rbTumbleTimer);
+  clearTimeout(rbCelebration); rbCelebration = null;
   rbDie.classList.remove('tumbling');
   rbRolling = false;
   rbHideCard();
@@ -7900,8 +8002,15 @@ function rbRestore() {
 }
 function rbSyncOptions() {
   const box = boardEl.querySelector('.bv-options-body');
+  const handle = box.querySelector(':scope > .panel-resize-handle');
   box.textContent = '';
-  if (rbGame.over && rbGame.stupa !== null) { box.textContent = 'The game is complete. Start a new game to play again.'; return; }
+  if (rbGame.over && rbGame.stupa !== null) {
+    const done = document.createElement('p');
+    done.textContent = 'The game is complete. Start a new game to play again.';
+    box.appendChild(done);
+    if (handle) box.appendChild(handle);
+    return;
+  }
   possibleThrows(rbGame).forEach(option => {
     const button = document.createElement('button');
     button.type = 'button'; button.className = 'bv-option';
@@ -7917,6 +8026,7 @@ function rbSyncOptions() {
     } else button.disabled = true;
     box.appendChild(button);
   });
+  if (handle) box.appendChild(handle);
 }
 function rbClearPreview() {
   rbCells.forEach(cell => cell.classList.remove('roll-option'));
@@ -7943,12 +8053,8 @@ function rbAnimateMove(player, oldRect, oldWorld) {
   const ghost = document.createElement('span'); ghost.className = 'bv-traveling';
   paintPlayer(ghost, player); ghost.setAttribute('aria-hidden', 'true');
   if (oldRect.width && rect.width && rbView3D !== 'world') document.body.appendChild(ghost);
-  const destinationToken = rbCells.get(player.pos).querySelector('[data-p="' + player.i + '"]');
-
-  rbMovement = { token, end, ghost, destinationToken, raf: null };
+  rbMovement = { playerIndex: player.i, token, end, ghost, destinationToken: null, raf: null };
   rbCard.hidden = true; rbRolling = true; rbSync();
-  rbMovement.destinationToken = rbCells.get(player.pos).querySelector('[data-p="' + player.i + '"]');
-  if (rbMovement.destinationToken) rbMovement.destinationToken.style.visibility = 'hidden';
   const start = performance.now(), duration = rbPace.value === 'quick' ? 220 : 650;
   const step = now => {
     if (!rbMovement) return;
@@ -7968,7 +8074,8 @@ function rbFinishMovement() {
   const move = rbMovement; rbMovement = null;
   cancelAnimationFrame(move.raf); move.token.position.copy(move.end);
   move.ghost.remove(); if (move.destinationToken) move.destinationToken.style.visibility = '';
-  rbRolling = false; rbSync(); rbCard.hidden = mode !== 'game';
+  rbRolling = false; rbSync();
+  rbCard.hidden = mode !== 'game' || !sheet.hidden || document.body.classList.contains('index-open') || !rbAsk.hidden || !!rbWalkthrough;
   invalidate(2);
 }
 function rbCancelTransition() {
@@ -8035,7 +8142,6 @@ function rbLayout(next, remember = true, reframeView = true) {
   if (remember) { try { localStorage.setItem('ws-game-view', to); } catch (err) {} }
   paintBoardSky();
   syncChrome();
-  framePut = null;
   invalidate(4);
   clearTimeout(rbLayoutTimer);
   if (reframeView) rbLayoutTimer = setTimeout(() => { if (mode === 'game') reframeCurrent(); }, rbInstant() ? 0 : 650);
@@ -8060,6 +8166,8 @@ function rbSyncNameLang() {
   const polish = window.WorldSystemLocale && window.WorldSystemLocale.language === 'pl';
   rbNameLangBtn.textContent = polish ? 'PL' : 'Eng';
   rbNameLangBtn.title = (polish ? 'Polish names' : 'English names') + ' \u2014 t';
+  rbLabelPos.w = 0; rbLabelPos.h = 0;
+  RB_CHIPS.forEach((chip) => { chip.w = 0; });
 }
 window.addEventListener('ws-language-change', rbSyncNameLang);
 rbSyncNameLang();
@@ -8092,6 +8200,7 @@ function rbApplyDisplay() {
   rbDisplayButtons.forEach((b) => b.setAttribute('aria-pressed', String(!!rbDisplay[b.dataset.display])));
   rbBoard.setGuides(rbDisplay.guides);
   rbBoard.setLinks(rbDisplay.links);
+  if (rbGameSquare(current)) clearPick();
   rbLight();
   // a visit to a square: the gold of its model and the ring on its floor
   if (gameFocus && mode === 'game') {
@@ -8100,12 +8209,10 @@ function rbApplyDisplay() {
     placeFocusRing(rbDisplay.highlights && place ? place.box : null, place?.ring ?? null);
   }
   // the entry open on a square of the game wears the same gold as its marker
-  if (rbGameSquare(current)) {
-    clearPick();
-    if (rbDisplay.highlights) meshesFor(current).forEach((m) => {
+  if (rbGameSquare(current) && rbDisplay.highlights) {
+    meshesFor(current).forEach((m) => {
       if (!tintable(m)) return;
-      picked.push(m); pickedMats.push(m.material);
-      m.material = tint(m.material);
+      pickMesh(m);
     });
   }
   invalidate(3);
@@ -8282,11 +8389,11 @@ function rbFrameFollow(dur = 650) {
 }
 function rbPlaceFocusPin() {
   if (!gameFocus || gameFocusEl.hidden || !rbDisplay.highlights) { gameFocusPin.hidden = true; return; }
-  const point = gameFocus.anchor.clone().project(cam);
-  gameFocusPin.hidden = point.z < -1 || point.z > 1 || Math.abs(point.x) > 1 || Math.abs(point.y) > 1;
+  NDC.copy(gameFocus.anchor).project(cam);
+  gameFocusPin.hidden = NDC.z < -1 || NDC.z > 1 || Math.abs(NDC.x) > 1 || Math.abs(NDC.y) > 1;
   if (gameFocusPin.hidden) return;
-  gameFocusPin.style.left = ((point.x + 1) * stage.clientWidth / 2) + 'px';
-  gameFocusPin.style.top = ((1 - point.y) * stage.clientHeight / 2) + 'px';
+  gameFocusPin.style.left = ((NDC.x + 1) * stage.clientWidth / 2) + 'px';
+  gameFocusPin.style.top = ((1 - NDC.y) * stage.clientHeight / 2) + 'px';
 }
 /* A visit offers three things: the close view again after looking round,
    the way back to the world the traveller is moving through (the board has
@@ -8388,8 +8495,12 @@ function syncModeButtons() {
   // the closed menu shows the view you are in, not the word "Mode"
   const face = controlsEl.querySelector('[data-menu="mode"] > .btn');
   face.dataset.currentMode = mode;
-  const [glyph, label] = MODE_FACE[mode] || MODE_FACE.explore;
-  face.querySelector('.g').innerHTML = '<img src="assets/modes/' + mode + '.webp" alt="">';
+  const [, label] = MODE_FACE[mode] || MODE_FACE.explore;
+  const src = 'assets/modes/' + mode + '.webp';
+  const glyphBox = face.querySelector('.g');
+  let img = glyphBox.querySelector('img');
+  if (!img) { img = document.createElement('img'); img.alt = ''; glyphBox.replaceChildren(img); }
+  if (img.getAttribute('src') !== src) img.src = src;
   face.querySelector('.t').textContent = label;
 }
 function setMode(next, { workspace = true } = {}) {
@@ -8451,7 +8562,8 @@ controlsEl.addEventListener('click', (ev) => {
   if (act.dataset.act === 'night') applyTheme(!night);
   if (act.dataset.act === 'worlds') setMode('worlds');
   if (act.dataset.act === 'home') {
-    if (guidedMode === 'worlds') endPresentation();   // the reset from a thousand worlds is the one world
+    if (worldEnding?.active) worldEnding.close();
+    if (presentationActive()) endPresentation();
     else { close(); if (mode === 'wheel') wheelView.home(); else if (mode !== 'explore') setMode('explore'); else home(); }
   }
   if (act.dataset.act === 'full') toggleFullScreen();
@@ -8471,7 +8583,7 @@ function setMotion(on, remember = true) {
   lastFrame = performance.now();
   ctr.autoRotate = on && !anim && !orbitInteracting && !gameFocus;
   ctr.autoRotateSpeed = MOTION_PACE[motionPace].turn;
-  if (!on) { lumSpin = 0; placeLuminaries(); lightFromSky(); }   // back where the text has them
+  if (!on) { lumSpin = 0; placeLuminaries(); lightFromSky(true); }   // back where the text has them
   motionBtn.setAttribute('aria-pressed', String(on));
   motionBtn.querySelector('.g').textContent = on ? '❙❙' : '▶';
   motionBtn.querySelector('.t').textContent = on ? 'Hold still' : 'Motion';
@@ -8484,7 +8596,7 @@ function setMotion(on, remember = true) {
    reached: a pace is a change of speed, not a return to the east. */
 const paceButtons = [...document.querySelectorAll('[data-speed]')];
 function setMotionPace(next, remember = true) {
-  motionPace = MOTION_PACE[next] ? next : 'slow';
+  motionPace = Object.hasOwn(MOTION_PACE, next) ? next : 'slow';
   ctr.autoRotateSpeed = MOTION_PACE[motionPace].turn;
   paceButtons.forEach((b) =>
     b.setAttribute('aria-pressed', String(b.dataset.speed === motionPace)));
@@ -8496,9 +8608,13 @@ function setMotionPace(next, remember = true) {
 /* ── reset: enabled only when there is something to undo ─────────────── */
 const homeBtn = document.querySelector('[data-act="home"]');
 function syncHome() {
+  if (mode === 'wheel') {
+    homeBtn.disabled = !(wheelView && !wheelView.isHome() || !sheet.hidden || presentationActive());
+    return;
+  }
   const moved = cam.position.distanceToSquared(HOME.p) > 1e-7
              || ctr.target.distanceToSquared(HOME.t) > 1e-7;
-  homeBtn.disabled = !(moved || !sheet.hidden || mandala || mode === 'game' || mode === 'wheel');
+  homeBtn.disabled = !(moved || !sheet.hidden || mode !== 'explore' || presentationActive() || worldEnding?.active);
 }
 ctr.addEventListener('change', syncHome);
 window.addEventListener('resize', () => {
@@ -8591,6 +8707,8 @@ let reframe = null;
 window.addEventListener('resize', () => {
   syncChrome();
   remeasureMarks();
+  rbLabelPos.w = 0; rbLabelPos.h = 0;
+  RB_CHIPS.forEach((chip) => { chip.w = 0; });
   clearTimeout(reframe);
   reframe = setTimeout(reframeCurrent, 180);
 });
@@ -8615,7 +8733,7 @@ document.querySelector('[data-act="close-index"]').addEventListener('click', () 
    index open finds it open again. */
 let saved = null;
 try { saved = localStorage.getItem('ws-index'); } catch (err) {}
-setOpen(saved === '1');
+setOpen(saved === '1', false);
 let savedNight = null;
 try { savedNight = localStorage.getItem('ws-night'); } catch (err) {}
 applyTheme(savedNight === '1');
@@ -8702,6 +8820,7 @@ mansionUI.on('select', (id, source) => {
   if (!id) { mansionFramed = null; syncMansionSheet(); return; }
   if (source === 'entry') { if (mansionLayer.group.visible) frameSoon(id); return; }
   if (source === 'show') {
+    if (worldEnding?.active) worldEnding.close();
     if (presentationActive()) endPresentation(false);
     if (!['explore', 'astrology'].includes(mode)) { setMode('explore'); mansionReturn = { p: HOME.p.clone(), t: HOME.t.clone() }; }
     if (!mansionUI.layer) mansionUI.setLayer(true);
@@ -8750,6 +8869,7 @@ canvas.style.cursor = 'crosshair';
 const ray = new THREE.Raycaster();
 let down = null;
 canvas.addEventListener('pointerdown', (e) => {
+  if (e.pointerType === 'mouse' && e.button !== 0) return;
   down = { x: e.clientX, y: e.clientY, t: Date.now() };
 });
 canvas.addEventListener('pointerup', (e) => {
@@ -8794,6 +8914,10 @@ canvas.addEventListener('pointerup', (e) => {
 });
 window.addEventListener('keydown', (e) => {
   if (e.defaultPrevented || e.ctrlKey || e.metaKey || e.altKey) return;
+  if (mode === 'game' && !rbAsk.hidden) {
+    if (e.key === 'Escape') { rbCloseAsk(); e.preventDefault(); }
+    return;
+  }
   if (e.key === 'Escape' && rbWalkthrough) { rbEndWalkthrough(); e.preventDefault(); return; }
   if (e.key === 'Escape' && rbMenus.some(m => m.open)) {
     rbMenus.forEach(m => { m.open = false; }); e.target.blur?.(); e.preventDefault(); return;
@@ -8812,13 +8936,11 @@ window.addEventListener('keydown', (e) => {
   }
   if (e.key === 'Escape') {
     if (MENUS.some((m) => m.open)) { closeMenus(); return; }
-    if (mode === 'game' && !rbAsk.hidden) rbCloseAsk();
-    else if (mode === 'game' && rbCardUp()) rbHideCard(true);
+    if (mode === 'game' && rbCardUp()) rbHideCard(true);
     else if (mode === 'game' && gameFocus) gameFocusEl.querySelector('[data-world="return"]').click();
     else if (document.body.classList.contains('index-open')) setOpen(false);
     else if (lunarPanelsOpen()) closeLunarPanels();
     else if (!sheet.hidden) close();
-    else if (touring) endTour();
     else if (mode === 'wheel' && !wheelView.isHome()) wheelView.home();
     else if (mode !== 'explore') setMode('explore');
     else if (isFull() || document.body.classList.contains('immersive')) toggleFullScreen();
@@ -8829,13 +8951,13 @@ window.addEventListener('keydown', (e) => {
   if (e.key === 'g' || e.key === 'G') { e.preventDefault(); setMode(mode === 'game' ? 'explore' : 'game'); }
   // two arrangements and two keys that were named for them; with Both gone
   // they hand the screen over in the same direction, so they do it together
-  if (/^[wbWB]$/.test(e.key) && mode === 'game') rbCycleLayout();
+  if (/^[wbWB]$/.test(e.key) && mode === 'game' && !rbWalkthrough && !presentationActive()) rbCycleLayout();
   if ((e.key === 't' || e.key === 'T') && mode === 'game') rbSetTibetan();
   if (e.key === 'e' || e.key === 'E') setMode('explore');
   if (e.key === 'l' || e.key === 'L') setMode(mode === 'wheel' ? 'explore' : 'wheel');
   if (e.key === 'j' || e.key === 'J') { e.preventDefault(); setMode('astrology'); }
   // b: out to the billion worlds, and back to the one (the game keeps b for its board)
-  if ((e.key === 'b' || e.key === 'B') && mode !== 'game') {
+  if ((e.key === 'b' || e.key === 'B') && mode !== 'game' && (!presentationActive() || mode === 'worlds')) {
     e.preventDefault();
     setMode(mode === 'worlds' ? 'explore' : 'worlds');
   }
@@ -8861,10 +8983,12 @@ window.addEventListener('keydown', (e) => {
   if (e.key === 'n' || e.key === 'N') applyTheme(!night);
   if (e.key === 'r' || e.key === 'R') setMotion(!motion);
   if (e.key === 'a' || e.key === 'A') show('about', true);
-  if (e.key === 'p' || e.key === 'P') { e.preventDefault(); playToggle(); }
-  if (e.key === 'v' || e.key === 'V') { if (mandala) toggleFull(); }
-  if (e.key === '.' || e.key === '>') stepBy(1);
-  if (e.key === ',' || e.key === '<') stepBy(-1);
+  if (!presentationActive() && !rbWalkthrough) {
+    if (e.key === 'p' || e.key === 'P') { e.preventDefault(); playToggle(); }
+    if (e.key === 'v' || e.key === 'V') { if (mandala) toggleFull(); }
+    if (e.key === '.' || e.key === '>') stepBy(1);
+    if (e.key === ',' || e.key === '<') stepBy(-1);
+  }
 });
 framedDist = cam.position.distanceTo(ctr.target);
 applyZoomLimits();
@@ -8901,7 +9025,6 @@ controlsEl.querySelector('[data-menu="options"] .menu-body').append(endingOption
 installPanelLayout();
 window.WorldSystemReady = true;
 buildRealmsWhenIdle();
-rbModels.prefetch();          // the seated Buddhas' sculpted meshes, now the page is up
 window.dispatchEvent(new CustomEvent('ws-app-ready'));
 </script>
 

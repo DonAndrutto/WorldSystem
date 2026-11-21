@@ -24,9 +24,10 @@
  *   - Nirayana longitude = true-ecliptic longitude − true Lahiri ayanamsa,
  *     subtracted once, here.
  * No True Chitrapaksha, Raman or KP ayanamsa is offered. A Spica-anchored
- * ayanamsa (Spica at 180°) — which is what True Chitrapaksha means — is
- * computed only as a check (spicaAyanamsa), and differs from Lahiri by 33–40″
- * over 1900–2050; docs/NAKSHATRA-ENGINE.md records the comparison.
+ * ayanamsa (astrometric Spica at 180°, without annual aberration) — which is
+ * what True Chitrapaksha means — is computed only as a check (spicaAyanamsa),
+ * and differs from Lahiri by 52–59″ over 1900–2050; docs/NAKSHATRA-ENGINE.md
+ * records the comparison.
  */
 import { sectorOf, resultFromMoon, tithiOf, karanaOf, yogaOf, VARA_NAMES, weekdayOf } from './jyotisha.js';
 
@@ -178,14 +179,14 @@ export function createEngine({ load = loadInBrowser } = {}) {
     return result;
   }
 
-  /* The Spica-anchored ayanamsa, for comparison: Spica's apparent true-ecliptic
-     longitude less 180°. Not used for any result. */
+  /* The Spica-anchored ayanamsa, for comparison: Spica's astrometric true-ecliptic
+     longitude (no annual aberration) less 180°. Not used for any result. */
   function spicaAyanamsa(ms) {
     const years = (ms - J2000_MS) / (365.25 * DAY);
     const dec = SPICA.dec + SPICA.pmDec * years / 3.6e6;
     const ra = SPICA.ra + SPICA.pmRa * years / 3.6e6 / Math.cos(SPICA.dec * Math.PI / 180);
     A.DefineStar(A.Body.Star1, ra / 15, dec, SPICA.ly);
-    return A.Ecliptic(A.GeoVector(A.Body.Star1, A.MakeTime(new Date(ms)), true)).elon - 180;
+    return A.Ecliptic(A.GeoVector(A.Body.Star1, A.MakeTime(new Date(ms)), false)).elon - 180;
   }
 
   return {

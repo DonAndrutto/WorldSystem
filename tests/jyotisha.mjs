@@ -150,7 +150,7 @@ assert.equal(J.weekdayOf({ y: 2025, mo: 7, d: 1 }), 2, '1 July 2025 was a Tuesda
 // a local day's bounds, with a spring-forward midnight in it
 const [ws, we] = J.localDayBounds({ y: 2025, mo: 3, d: 30 }, { zone: 'Europe/Warsaw' });
 assert.equal((we - ws) / 3600000, 23, 'the day the clocks go forward in Warsaw is 23 hours long');
-assert.deepEqual(J.localClock(Date.UTC(2025, 9, 26, 1, 30), { zone: 'Europe/Warsaw' }), { date: '2025-10-26', time: '02:30', offset: 3600 });
+assert.deepEqual(J.localClock(Date.UTC(2025, 9, 26, 1, 30), { zone: 'Europe/Warsaw' }), { date: '2025-10-26', time: '02:30', timeWithSeconds: '02:30:00', offset: 3600 });
 ok('a result keeps its longitude; tithi, karaṇa and yoga by their definitions, with paksha and the fixed karaṇas; local days and clocks across a DST change');
 
 for (const c of checks) console.log('  ok  ' + c);

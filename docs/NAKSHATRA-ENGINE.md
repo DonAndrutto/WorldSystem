@@ -26,10 +26,11 @@ Beryl catalogue and is not White Beryl–authoritative.
 | `astronomy-engine` | **2.1.19** (npm, `esm/astronomy.js`) | **MIT**, © 2019–2023 Don Cross; the licence text is at the head of the file | added: `vendor/astronomy-engine@2.1.19/`, pinned by sha384 in the import map, fetched on the first calculation, cached offline; no dependencies of its own |
 | `@fusionstrings/panchangam` | 0.2.1 (JSR browser build) | declared MIT; contained Swiss Ephemeris 2.10.03 via `swiss-eph` 0.2.1, **AGPL-3.0** | **removed**: vendor directory, vendoring script, import-map pins, offline-shelf entries, tests |
 
-The project has no `package.json` or lockfile; its libraries are vendored and
-pinned in the import map. `node scripts/vendor-astronomy-engine.cjs` re-fetches
-the pinned file from npm, checks that the package still declares MIT, and
-checks the file against the pinned hash.
+Runtime libraries are vendored and pinned in the import map (with `package.json`
+and `package-lock.json` pinning only development and test dependencies).
+`node scripts/vendor-astronomy-engine.cjs` re-fetches the pinned file from npm,
+checks that the package still declares MIT, and checks the file against the
+pinned hash.
 
 ## The adapter
 
@@ -80,21 +81,21 @@ The brief preferred defining the ayanamsa by putting Spica (Citrā) at exactly
 180°. That is the definition of **True Chitrapaksha**, which the brief also
 asks not to expose. It is not the Lahiri ayanamsa of the Indian Astronomical
 Ephemeris, and so not of Drik Panchang or AstroSage. The two differ by a steady
-**33–40″**:
+**52–59″**:
 
 | Epoch (21 Mar) | Spica-anchored − Lahiri |
 | --- | --- |
-| 1900 | −33.2″ |
-| 1956 | −35.8″ |
-| 2000 | −37.8″ |
-| 2025 | −39.0″ |
-| 2050 | −40.2″ |
+| 1900 | −52.0″ |
+| 1956 | −54.6″ |
+| 2000 | −56.6″ |
+| 2025 | −57.7″ |
+| 2050 | −58.9″ |
 
 Spica's position is ICRS J2000 (RA 13h25m11.579s, Dec −11°09′40.76″), with
-Hipparcos proper motion, through astronomy-engine's `DefineStar`, apparent, on
-the true ecliptic of date. The calculator uses Lahiri alone; the
-Spica-anchored value (`spicaAyanamsa`) exists only for this comparison. Stated
-tolerance: −45″ to −30″.
+Hipparcos proper motion, through astronomy-engine's `DefineStar`, astrometric
+(`aberration = false`, without annual aberration), on the true ecliptic of date.
+The calculator uses Lahiri alone; the Spica-anchored value (`spicaAyanamsa`)
+exists only for this comparison. Stated tolerance: −62″ to −50″.
 
 ## Verification — `tests/jyotisha-engine.mjs`
 

@@ -25,17 +25,11 @@
    current shelf or the runtime one, so old versions do not accumulate. */
 
 /* ── written by scripts/build-sw.cjs — do not edit below ─────────────── */
-const VERSION = '317564e5415eb72a';
+const VERSION = '0683727f8ae783ab';
 const SHELL = [
   "app-chrome.css",
   "app-chrome.js",
   "apple-touch-icon.png",
-  "assets/audio/far-horizons.mp3",
-  "assets/audio/still-waters.mp3",
-  "assets/audio/the-turning.mp3",
-  "assets/audio/thirty-seven-offerings.mp3",
-  "assets/audio/thousandfold.mp3",
-  "assets/audio/twenty-eight-mansions.mp3",
   "assets/fonts/eb-garamond-400-italic-latin-ext.woff2",
   "assets/fonts/eb-garamond-400-italic-latin.woff2",
   "assets/fonts/eb-garamond-400-normal-latin-ext.woff2",
@@ -83,12 +77,12 @@ const SHELL = [
   "assets/offerings/royal-atlas.webp",
   "assets/offerings/treasure-atlas.webp",
   "assets/rebirth/liberation.webp",
-  "assets/rebirth/monastics.png",
+  "assets/rebirth/monastics.webp",
   "assets/rebirth/squares-1.webp",
   "assets/rebirth/squares-2.webp",
   "assets/rebirth/squares-3.webp",
   "assets/rebirth/squares-4.webp",
-  "assets/rebirth/travelers.png",
+  "assets/rebirth/travelers.webp",
   "assets/wheel/beyond.webp",
   "assets/wheel/body.webp",
   "assets/wheel/foot-l.webp",
@@ -104,7 +98,6 @@ const SHELL = [
   "assets/wheel/wheel-yama-gods.webp",
   "assets/wheel/wheel.webp",
   "continent-models.js",
-  "data/nakshatra_interpretation.json",
   "docs/NAKSHATRA-ENGINE.md",
   "ending-sound.js",
   "favicon-32.png",
@@ -138,6 +131,7 @@ const SHELL = [
   "mansion-layer.js",
   "mansion-search.js",
   "mansion-ui.js",
+  "mode-scores.js",
   "mode-soundtrack.js",
   "nirvana-finale.js",
   "palace-architecture.js",
@@ -165,8 +159,8 @@ const SHELL = [
   "three-d-stage.js",
   "ui-sound.js",
   "vendor/astronomy-engine@2.1.19/astronomy.js",
-  "vendor/three@0.184.0/build/three.core.js",
-  "vendor/three@0.184.0/build/three.module.js",
+  "vendor/three@0.184.0/build/three.core.min.js",
+  "vendor/three@0.184.0/build/three.module.min.js",
   "vendor/three@0.184.0/examples/jsm/controls/OrbitControls.js",
   "viewport-gestures.js",
   "wheel-art.js",
@@ -184,17 +178,16 @@ const SHELL = [
 
 const CACHE = 'world-system-' + VERSION;
 const RUNTIME = 'world-system-runtime';
+const RUNTIME_MAX = 64;
 const INDEX = 'index.html';
 
 // Six at a time: enough to fill a connection, few enough that a phone on a
 // thin signal is not asked to hold forty sockets open at once.
-async function precache(cache, urls, width = 6) {
+async function precache(cache, urls, { width = 6, mode = 'reload' } = {}) {
   const queue = urls.slice();
   const take = async () => {
     for (let url = queue.shift(); url !== undefined; url = queue.shift()) {
-      // `reload` goes past the browser's own HTTP cache: a file we are about
-      // to promise is part of this version has to be fetched, not remembered.
-      const response = await fetch(url, { cache: 'reload', credentials: 'same-origin' });
+      const response = await fetch(url, { cache: mode, credentials: 'same-origin' });
       if (!response.ok) throw new Error(url + ' — ' + response.status + ' ' + response.statusText);
       await cache.put(url, response);
     }
@@ -204,10 +197,16 @@ async function precache(cache, urls, width = 6) {
 
 self.addEventListener('install', event => {
   event.waitUntil((async () => {
+    // On a first-ever install, reuse the browser HTTP cache for files just
+    // fetched to boot the page; on upgrades, force `reload` so nothing stale slips in.
+    const existing = (await caches.keys()).some(name => name.startsWith('world-system-') && name !== RUNTIME);
     const cache = await caches.open(CACHE);
-    // Any failure rejects the install, and the old version stays in charge:
-    // a shelf with a hole in it is worse than yesterday's complete one.
-    await precache(cache, SHELL);
+    try {
+      await precache(cache, SHELL, { mode: existing ? 'reload' : 'default' });
+    } catch (err) {
+      await caches.delete(CACHE);
+      throw err;
+    }
   })());
 });
 
@@ -224,12 +223,15 @@ self.addEventListener('activate', event => {
   })());
 });
 
-// Navigation is always answered from the shelf. There are no routes here —
-// every URL under the scope is this one page — and the freshness question is
-// answered on the side, by the browser checking this file on each navigation.
+// Root navigations are answered from the cached index.html; navigations to
+// other same-origin documents (such as docs/NAKSHATRA-ENGINE.md) serve that
+// document rather than hijacking it with index.html.
 async function page(request) {
   const cache = await caches.open(CACHE);
-  const held = await cache.match(INDEX);
+  const url = new URL(request.url);
+  const scopePath = new URL('./', self.registration.scope).pathname;
+  const isRoot = url.pathname === scopePath || url.pathname === scopePath + INDEX;
+  const held = await cache.match(isRoot ? INDEX : request, { ignoreSearch: true });
   if (held) return held;
   try {
     return await fetch(request);
@@ -248,7 +250,7 @@ async function page(request) {
 // off the shelf. `ignoreSearch` is what lets the page keep asking for
 // `icon-192.png?v=2` and the like and still be answered.
 // Media players may request just the next bytes, including when a track loops.
-// The shelf holds the complete MP3; return the requested slice while offline.
+// The shelf holds the complete file; return the requested slice while offline.
 async function ranged(response, request) {
   const range = request.headers.get('range');
   if (!range) return response;
@@ -268,22 +270,40 @@ async function ranged(response, request) {
   return new Response(data.slice(start,end+1),{status:206,headers});
 }
 
+async function storeRuntime(runtime, key, response) {
+  try {
+    await runtime.put(key, response);
+    const keys = await runtime.keys();
+    if (keys.length > RUNTIME_MAX) {
+      await Promise.all(keys.slice(0, keys.length - RUNTIME_MAX).map(k => runtime.delete(k)));
+    }
+  } catch {}
+}
+
 async function asset(event) {
   const cache = await caches.open(CACHE);
   const held = await cache.match(event.request, { ignoreSearch: true });
-  if (held) return ranged(held,event.request);
+  if (held) return ranged(held, event.request);
 
   // Anything else of ours — a file added after this version was built — is
-  // served from last time while a fresh copy is fetched behind the page.
+  // cached under its query-stripped URL and bounded to RUNTIME_MAX entries.
   const runtime = await caches.open(RUNTIME);
-  const stored = await runtime.match(event.request, { ignoreSearch: true });
-  const fresh = fetch(event.request).then(response => {
-    if (response.status === 200 && response.type === 'basic') runtime.put(event.request, response.clone());
+  const cleanUrl = new URL(event.request.url);
+  cleanUrl.search = '';
+  const key = cleanUrl.href;
+  const stored = await runtime.match(key);
+  const fresh = fetch(event.request).then(async response => {
+    if (response.status === 200 && response.type === 'basic') {
+      await storeRuntime(runtime, key, response.clone());
+    }
     return response;
   });
-  if (!stored) return fresh;
+  if (!stored) {
+    try { return await fresh; }
+    catch { return new Response('Offline', { status: 503, headers: { 'content-type': 'text/plain; charset=utf-8' } }); }
+  }
   event.waitUntil(fresh.catch(() => {}));
-  return ranged(stored,event.request);
+  return ranged(stored, event.request);
 }
 
 self.addEventListener('fetch', event => {
@@ -296,6 +316,7 @@ self.addEventListener('fetch', event => {
 });
 
 self.addEventListener('message', event => {
+  if (event.origin && event.origin !== self.location.origin) return;
   const data = event.data || {};
   if (data.type === 'SKIP_WAITING') self.skipWaiting();
   if (data.type === 'VERSION' && event.ports && event.ports[0]) {

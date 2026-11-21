@@ -201,7 +201,10 @@ function sweep(THREE, points, { steps = 16, radial = 12, ref, radius, colour }) 
     curve.getPointAt(t, P); curve.getTangentAt(t, T);
     R.set(...ref(t));
     N.copy(R).addScaledVector(T, -R.dot(T));
-    if (N.lengthSq() < 1e-8) N.set(T.y, -T.x, 0.3).addScaledVector(T, -T.y * 0);
+    if (N.lengthSq() < 1e-8) {
+      if (Math.abs(T.x) < 0.9) N.set(1, 0, 0); else N.set(0, 1, 0);
+      N.addScaledVector(T, -N.dot(T));
+    }
     N.normalize();
     B.crossVectors(T, N).normalize();
     frames.push([P.clone(), N.clone(), B.clone()]);
@@ -1083,9 +1086,9 @@ export function humanFigure(b, o) {
   /* Legs: hip to knee to ankle. Under a robe they are the robe, in folds;
      bare they are modelled, the calf full behind the shin. */
   const legsCovered = (dress === 'robe' || dress === 'coat' || dress === 'bare') && !glass;
-  if (o.noLegs) pose.legs = [];
+  const legs = o.noLegs ? [] : pose.legs;
   const standingGown = !seated && pose.kind === 'standing';
-  pose.legs.forEach((L, i) => {
+  legs.forEach((L, i) => {
     const side = i ? 1 : -1;
     const hip = F.apply(F.MP, [side * BODY.hipJoint[0] * S, BODY.hipJoint[1] * S, BODY.hipJoint[2] * S]);
     const hipIn = F.apply(F.MP, [side * 0.02 * S, 0.035 * S, -0.01 * S]);

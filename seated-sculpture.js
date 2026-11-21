@@ -241,19 +241,46 @@ function head(b,skin,hair,detailed) {
   }
 }
 
+function unpackBytes(s) {
+  const bin = atob(s), bytes = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  return bytes;
+}
+function unpackNormals(data) {
+  if (data.n2) {
+    const raw = new Int8Array(unpackBytes(data.n2).buffer), out = new Float32Array((raw.length / 2) * 3);
+    for (let i = 0, j = 0; i < raw.length; i += 2, j += 3) {
+      let x = raw[i] / 127, y = raw[i + 1] / 127, z = 1 - Math.abs(x) - Math.abs(y);
+      if (z < 0) {
+        const px = (1 - Math.abs(y)) * (x >= 0 ? 1 : -1);
+        const py = (1 - Math.abs(x)) * (y >= 0 ? 1 : -1);
+        x = px; y = py;
+      }
+      const l = Math.hypot(x, y, z) || 1;
+      out[j] = x / l; out[j + 1] = y / l; out[j + 2] = z / l;
+    }
+    return out;
+  }
+  const raw = new Int16Array(unpackBytes(data.n).buffer), out = new Float32Array(raw.length);
+  for (let i = 0; i < raw.length; i++) out[i] = raw[i] / 32767;
+  return out;
+}
+function unpackPositions(s) {
+  const raw = new Int16Array(unpackBytes(s).buffer), out = new Float32Array(raw.length);
+  for (let i = 0; i < raw.length; i++) out[i] = raw[i] / 32767;
+  return out;
+}
+
 function garment(b,key,mudra,detailed) {
   const pose=(['teach','earth'].includes(mudra)?mudra:'lap')+(detailed?'':'-game');
   const geometry=b.kit.once('sculpture-robe:'+pose,()=>{
-    const data=meshData('robes',pose),unpack=(s,Type)=>{const bytes=Uint8Array.from(atob(s),c=>c.charCodeAt(0));return new Type(bytes.buffer);};
-    const raw=unpack(data.p,Int16Array),positions=new Float32Array(raw.length);
-    for(let i=0;i<raw.length;i++)positions[i]=raw[i]/32767;
-    const g=new b.THREE.BufferGeometry();g.setAttribute('position',new b.THREE.BufferAttribute(positions,3));
-    g.setIndex(new b.THREE.BufferAttribute(unpack(data.i,Uint16Array),1));
-    const rawNormals=unpack(data.n,Int16Array),normals=new Float32Array(rawNormals.length);for(let i=0;i<normals.length;i++)normals[i]=rawNormals[i]/32767;
-    g.setAttribute('normal',new b.THREE.BufferAttribute(normals,3));return g;
+    const data=meshData('robes',pose),g=new b.THREE.BufferGeometry();
+    g.setAttribute('position',new b.THREE.BufferAttribute(unpackPositions(data.p),3));
+    g.setIndex(new b.THREE.BufferAttribute(new Uint16Array(unpackBytes(data.i).buffer),1));
+    g.setAttribute('normal',new b.THREE.BufferAttribute(unpackNormals(data),3));
+    return g;
   });
   b.put(geometry,key);
-
 }
 
 // Continuous anatomy meshes include the wrist, palm, thumb pad and fingers.
@@ -261,13 +288,11 @@ function garment(b,key,mudra,detailed) {
 function anatomyGeometry(b,name,detailed) {
   const key=name+(detailed?'':'-game');
   return b.kit.once('sculpture-anatomy:'+key,()=>{
-    const unpack=(s,Type)=>new Type(Uint8Array.from(atob(s),c=>c.charCodeAt(0)).buffer);
     const data=meshData('anatomy',key),g=new b.THREE.BufferGeometry();
-    for(const [field,attribute] of [['p','position'],['n','normal']]){
-      const raw=unpack(data[field],Int16Array),values=Float32Array.from(raw,v=>v/32767);
-      g.setAttribute(attribute,new b.THREE.BufferAttribute(values,3));
-    }
-    g.setIndex(new b.THREE.BufferAttribute(unpack(data.i,Uint16Array),1));return g;
+    g.setAttribute('position',new b.THREE.BufferAttribute(unpackPositions(data.p),3));
+    g.setAttribute('normal',new b.THREE.BufferAttribute(unpackNormals(data),3));
+    g.setIndex(new b.THREE.BufferAttribute(new Uint16Array(unpackBytes(data.i).buffer),1));
+    return g;
   });
 }
 function nailGeometry(b) {

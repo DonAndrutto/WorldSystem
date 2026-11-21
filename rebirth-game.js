@@ -70,7 +70,7 @@ export function throwDie(game, face) {
   const player = game.players[game.turn];
 
   if (game.over) {
-    game.stupa = key === 'one' || key === 'two';
+    if (game.stupa === null) game.stupa = key === 'one' || key === 'two';
     return { kind: 'stupa', player: player.i, face: key, placed: game.stupa };
   }
 

@@ -18,8 +18,8 @@ export function normalizeSkin(id, player = 0) {
     || PLAYER_SKINS[[0, 6, 1, 7][player % 4]].id;
 }
 export const PLAYER_PALETTE = ['#bb6249', '#428b90', '#bc9236', '#8870b0'];
-export const PLAYER_ATLAS = 'assets/rebirth/travelers.png';
-export const MONASTIC_ATLAS = 'assets/rebirth/monastics.png';
+export const PLAYER_ATLAS = 'assets/rebirth/travelers.webp';
+export const MONASTIC_ATLAS = 'assets/rebirth/monastics.webp';
 export const skinAtlas = n => n < 12
   ? { url: PLAYER_ATLAS, columns: 6, rows: 2, cell: n }
   : { url: MONASTIC_ATLAS, columns: 2, rows: 1, cell: n - 12 };
@@ -83,7 +83,7 @@ function auraTexture(THREE) {
    behind them while they are on it. `onFaces` is told when the faces have
    come, so that the portraits on the page can take them up too. */
 export function createPlayerArt(THREE, tokens, size, invalidate, onFaces = () => {}) {
-  let state = 'idle', currentPlayers = [], aura = null;
+  let state = 'idle', currentPlayers = [], aura = null, baseAtlases = [];
   const maps = [], sprites = [], auras = [], textures = new Map();
   // the face in its mood, or, where it cannot be painted, the atlas's own cell
   function texture(n, mood) {
@@ -100,7 +100,10 @@ export function createPlayerArt(THREE, tokens, size, invalidate, onFaces = () =>
     currentPlayers = players;
     players.forEach((p, i) => {
       const token = tokens[i], colour = PLAYER_PALETTE[p.colour] || PLAYER_PALETTE[i];
-      token.children.slice(0, 6).forEach(child => child.material?.color?.set(colour));
+      token.children.slice(0, 6).forEach(child => {
+        child.material?.color?.set(colour);
+        child.material?.emissive?.set(colour).multiplyScalar(0.45);
+      });
       if (!sprites[i]) return;
       const mood = playerMood(p) || 'neutral';
       const map = texture(skinIndex(p.skin), mood);
@@ -115,6 +118,8 @@ export function createPlayerArt(THREE, tokens, size, invalidate, onFaces = () =>
     state = 'loading';
     const loader = new THREE.TextureLoader();
     Promise.all([PLAYER_ATLAS, MONASTIC_ATLAS].map(url => loader.loadAsync(url))).then(atlases => {
+      if (state !== 'loading') { atlases.forEach(a => a.dispose()); return; }
+      baseAtlases = atlases;
       atlases.forEach((atlas, i) => {
         atlas.colorSpace = THREE.SRGBColorSpace;
         moodFaces.adopt([PLAYER_ATLAS, MONASTIC_ATLAS][i], atlas.image);
@@ -154,6 +159,26 @@ export function createPlayerArt(THREE, tokens, size, invalidate, onFaces = () =>
       state = 'ready'; sync(currentPlayers); invalidate(); onFaces();
     }).catch(() => { state = 'failed'; });
   }
+  function dispose() {
+    if (state === 'idle') return;
+    state = 'idle';
+    sprites.forEach((sprite, i) => {
+      if (sprite) { tokens[i].remove(sprite); sprite.material.dispose(); }
+    });
+    auras.forEach((glow, i) => {
+      if (glow) { tokens[i].remove(glow); glow.material.dispose(); }
+    });
+    tokens.forEach(token => {
+      token.children.slice(0, 4).forEach(child => { child.visible = true; });
+      if (token.children[4]) token.children[4].scale.setScalar(1);
+      if (token.userData.halo) token.userData.halo.scale.setScalar(1);
+    });
+    sprites.length = 0; auras.length = 0;
+    textures.forEach(t => t.dispose()); textures.clear();
+    maps.forEach(m => m.dispose()); maps.length = 0;
+    baseAtlases.forEach(a => a.dispose()); baseAtlases = [];
+    if (aura) { aura.dispose(); aura = null; }
+  }
   /* A traveller steps aside of the square's model, to the viewer's right,
      so that the figure and the place it has come to are seen together.
      `aside(square)` says how far, in the world's units: nothing where the
@@ -175,6 +200,6 @@ export function createPlayerArt(THREE, tokens, size, invalidate, onFaces = () =>
       auras[i].position.copy(sprite.position).y += size * .012;
     });
   }
-  return { load, sync, stand, figure: (i) => sprites[i] || null };
+  return { load, sync, stand, dispose, figure: (i) => sprites[i] || null };
 }
 const FIGURE_LIFT = .0725;

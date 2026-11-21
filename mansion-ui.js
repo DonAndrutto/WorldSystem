@@ -179,7 +179,8 @@ export function createMansionUI({ doc = document, panel, menu } = {}) {
     panel.hidden = !open;
     events.emit('panel', open);
     if (open) {
-      const row = selected && list.querySelector('[data-id="' + selected + '"]');
+      const escId = (v) => (typeof CSS !== 'undefined' && CSS.escape ? CSS.escape(v) : String(v).replace(/["\\]/g, '\\$&'));
+      const row = selected && list.querySelector('[data-id="' + escId(selected) + '"]');
       if (row?.hidden) { search.value = ''; filterMansions(); }
       if (row) row.scrollIntoView?.({ block: 'center' });
     }

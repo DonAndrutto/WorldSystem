@@ -7,9 +7,9 @@
     'Help, language and support': 'Pomoc, język i wsparcie',
     'Six ways to explore': 'Sześć sposobów poznawania', 'One world, six ways in.': 'Jeden świat, sześć ścieżek.',
     'Explore worlds, offer a mandala, play the game of rebirth, study the wheel of life, visit a billion worlds, or open Astrology.': 'Poznaj światy, ofiaruj mandalę, zagraj w grę odrodzeń, zgłębiaj koło życia, odwiedź miliard światów lub otwórz Astrologię.',
-    'Worlds & realms': 'Światy i sfery', 'The 37 offerings': '37 ofiar', 'Paths of rebirth': 'Drogi odrodzeń', 'The cycle of life': 'Cykl życia',
+    'Worlds & realms': 'Światy i sfery', 'The 37 offerings': '37 ofiarowań', 'Paths of rebirth': 'Drogi odrodzeń', 'The cycle of life': 'Cykl życia',
     'Preparing the world…': 'Przygotowywanie świata…', 'Choose a mode, or begin in Explorer.': 'Wybierz tryb lub rozpocznij od Eksploratora.',
-    'Continue': 'Kontynuuj', 'Loading is taking longer than usual. You can wait or reload.': 'Ładowanie trwa dłużej niż zwykle. Możesz poczekać lub odświeżyć stronę.',
+    'Loading is taking longer than usual. You can wait or reload.': 'Ładowanie trwa dłużej niż zwykle. Możesz poczekać lub odświeżyć stronę.',
     'The world could not open. Please reload to try again.': 'Nie udało się otworzyć świata. Odśwież stronę, aby spróbować ponownie.',
     'Start a guided tour': 'Rozpocznij zwiedzanie', 'Meet the six modes': 'Poznaj sześć trybów',
     'Your controls': 'Twoje przyciski', 'Explore at your own pace.': 'Poznawaj we własnym tempie.',
@@ -19,41 +19,36 @@
     'Switch the interface between English and Polish. Tibetan names have their own switch in Options.': 'Przełącz interfejs między angielskim i polskim. Nazwy tybetańskie mają osobny przełącznik w Opcjach.',
     'Support Dharma translation projects through PayPal. Opens a separate tab.': 'Wesprzyj tłumaczenia Dharmy przez PayPal. Otwiera osobną kartę.',
     'Look around': 'Rozejrzyj się', 'Drag with a mouse to orbit; scroll to zoom. On a phone, one finger pans and two fingers turn and zoom. Tap a place to read about it.': 'Przeciągnij myszą, aby obrócić widok; przewijaj, aby przybliżać. Na telefonie jeden palec przesuwa widok, a dwa obracają i przybliżają. Dotknij miejsca, aby o nim przeczytać.',
-    'Play & numbers': 'Odtwarzanie i numery', 'Play follows the recitation one offering at a time. Numbers hides or shows the heap labels, even while playing. The study tour has separate presentation playback.': 'Odtwarzanie prowadzi przez recytację, ofiara po ofierze. Numery włącza lub ukrywa oznaczenia kopców także podczas odtwarzania. Zwiedzanie ma osobny tryb prezentacji.',
+    'Play & numbers': 'Odtwarzanie i numery', 'Play follows the recitation one offering at a time. Numbers hides or shows the heap labels, even while playing. The study tour has separate presentation playback.': 'Odtwarzanie prowadzi przez recytację, ofiarowanie po ofiarowaniu. Numery włącza lub ukrywa oznaczenia kopczyków także podczas odtwarzania. Zwiedzanie ma osobny tryb prezentacji.',
     'Throw & explore': 'Rzucaj i poznawaj', 'Throw advances the current player. Select a square to read it; Show in world visits its location. The tour explains the board without taking a turn.': 'Rzut przesuwa bieżącego gracza. Wybierz pole, aby je poznać; Pokaż w świecie przenosi do jego miejsca. Zwiedzanie objaśnia planszę bez wykonywania ruchu.',
     'Zoom & discover': 'Przybliżaj i odkrywaj', 'Drag to tilt the wall; scroll to zoom, and once close, drag to move across it. On a phone, one finger tilts the wall and two fingers move and zoom it. Tap a part to read its meaning. The tour guides you through the wheel.': 'Przeciągnij, aby przechylić ścianę; przewijaj, aby ją przybliżyć, a z bliska przeciągaj, aby się po niej poruszać. Na telefonie jeden palec przechyla ścianę, a dwa przesuwają ją i przybliżają. Dotknij dowolnej części, aby poznać jej znaczenie. Zwiedzanie prowadzi przez koło.',
     'Keyboard: E Explorer · M Mandala · G Game · L Wheel · B Billion worlds (outside Game) · J Astrology · A About · I Index · ? Help. + and − zoom, the arrows turn the view. Escape closes the current panel.': 'Klawiatura: E Eksplorator · M Mandala · G Gra · L Koło · B Miliard światów (poza Grą) · J Astrologia · A O modelu · I Indeks · ? Pomoc. + i − przybliżają i oddalają, strzałki obracają widok. Escape zamyka bieżący panel.',
     'Pinch over a reading panel to enlarge text. Scene gestures control the drawing.': 'Uszczypnij nad panelem tekstowym, aby powiększyć tekst. Gesty nad sceną sterują rysunkiem.',
     'Text size': 'Rozmiar tekstu', 'Smaller text': 'Mniejszy tekst', 'Larger text': 'Większy tekst',
-    'Make the writing in every panel and window smaller or larger with the two magnifiers in the header. The choice is kept on this device.': 'Pomniejsz lub powiększ tekst we wszystkich panelach i oknach dwiema lupami w nagłówku. Wybór zostaje zapamiętany na tym urządzeniu.'
+    'Make the writing in every panel and window smaller or larger with the two magnifiers in the header. The choice is kept on this device.': 'Pomniejsz lub powiększ tekst we wszystkich panelach i oknach dwiema lupami w nagłówku. Wybór zostaje zapamiętany na tym urządzeniu.',
+    'Explorer e · Mandala m · Game g · Wheel l · Billion worlds b · Astrology j': 'Eksplorator e · Mandala m · Gra g · Koło l · Miliard światów b · Astrologia j',
+    'Enter a valid IANA time zone before using now.': 'Przed użyciem bieżącej chwili wpisz prawidłową strefę czasową IANA.',
+    'Sources: Vasubandhu, <i>Abhidharmakośa</i> &amp; <i>bhāṣya</i> III.45–102 (La Vallée Poussin / Pruden); Chim Jampaiyang, <i>Ornament of Abhidharma</i>; Jamgön Kongtrul, <i>Myriad Worlds</i> (<i>Treasury of Knowledge</i> I); Mipham, <i>Gateway to Knowledge</i> II.': 'Źródła: Vasubandhu, <i>Abhidharmakośa</i> i <i>bhāṣya</i> III.45–102 (La Vallée Poussin / Pruden); Chim Jampaiyang, <i>Ornament of Abhidharma</i>; Jamgön Kongtrul, <i>Myriad Worlds</i> (<i>Treasury of Knowledge</i> I); Mipham, <i>Gateway to Knowledge</i> II.'
   };
   Object.assign(translations, {
-  "Six modes share one model: Explorer visits worlds and realms; Mandala follows the 37 offerings; Game follows paths of rebirth; Wheel studies the cycle of life; Billion worlds moves through the thousandfold systems; Astrology opens the lunar-mansion layer and the Jyotiṣa calculator.": "Sześć trybów korzysta z jednego modelu: Eksplorator pokazuje światy i sfery; Mandala prowadzi przez 37 ofiar; Gra śledzi drogi odrodzeń; Koło przedstawia cykl życia; Miliard światów pokazuje kolejne tysiąckrotne systemy; Astrologia otwiera warstwę stacji księżycowych i kalkulator Jyotiṣa.",
+  "Six modes share one model: Explorer visits worlds and realms; Mandala follows the 37 offerings; Game follows paths of rebirth; Wheel studies the cycle of life; Billion worlds moves through the thousandfold systems; Astrology opens the lunar-mansion layer and the Jyotiṣa calculator.": "Sześć trybów korzysta z jednego modelu: Eksplorator pokazuje światy i sfery; Mandala prowadzi przez 37 ofiarowań; Gra śledzi drogi odrodzeń; Koło przedstawia cykl życia; Miliard światów pokazuje kolejne tysiąckrotne systemy; Astrologia otwiera warstwę rezydencji księżycowych i kalkulator Jyotiṣa.",
   "Choose Start a guided tour from About this model, Options or Help. Each mode has a tour; Astrology tours the 28 Tibetan catalogue entries. After the first complete download, the model, tours and calculator work offline. An update notice offers a reload when a new version is ready.": "Wybierz Rozpocznij zwiedzanie w sekcji O modelu, Opcjach lub Pomocy. Każdy tryb ma trasę; Astrologia prowadzi przez 28 haseł katalogu tybetańskiego. Po pierwszym pełnym pobraniu model, trasy i kalkulator działają bez internetu. Powiadomienie o aktualizacji pozwala odświeżyć aplikację.",
-  "<b>Astrology.</b> Open Astrology in the mode menu (J), or the calculator in Options. The White Beryl layer, index and tour contain 28 Tibetan lunar mansions, with one Abhijit entry. The Indian Jyotiṣa calculator uses 27 equal sidereal sectors and Lahiri ayanamsa. These are separate systems: Show in world passes only a catalogue ID. The sprites and their ring are illustrative, not astronomical positions.": "<b>Astrologia.</b> Otwórz Astrologię w menu trybu (J) lub kalkulator w Opcjach. Warstwa, indeks i trasa Białego Berylu obejmują 28 tybetańskich stacji księżycowych, w tym jedno hasło Abhijit. Indyjski kalkulator Jyotiṣa używa 27 równych sektorów zodiaku syderycznego i ajanamsy Lahiri. To odrębne systemy: Pokaż w świecie przekazuje tylko identyfikator katalogowy. Rysunki i pierścień są ilustracją, a nie pozycjami astronomicznymi.",
+  "<b>Astrology.</b> Open Astrology in the mode menu (J), or the calculator in Options. The White Beryl layer, index and tour contain 28 Tibetan lunar mansions, with one Abhijit entry. The Indian Jyotiṣa calculator uses 27 equal sidereal sectors and Lahiri ayanamsa. These are separate systems: Show in world passes only a catalogue ID. The sprites and their ring are illustrative, not astronomical positions.": "<b>Astrologia.</b> Otwórz Astrologię w menu trybu (J) lub kalkulator w Opcjach. Warstwa, indeks i trasa Białego Berylu obejmują 28 tybetańskich rezydencji księżycowych, w tym jedno hasło Abhijit. Indyjski kalkulator Jyotiṣa używa 27 równych sektorów zodiaku syderycznego i ajanamsy Lahiri. To odrębne systemy: Pokaż w świecie przekazuje tylko identyfikator katalogowy. Rysunki i pierścień są ilustracją, a nie pozycjami astronomicznymi.",
   "For a birth or another moment, enter the Gregorian date, local clock time, place coordinates and time zone or explicit UTC offset. Repeated local times require an earlier/later choice; nonexistent local times are refused. Inputs are processed in this browser and are not stored or sent anywhere.": "Dla narodzin lub innej chwili podaj datę gregoriańską, lokalny czas zegarowy, współrzędne miejsca oraz strefę czasową lub przesunięcie UTC. Przy powtórzonej godzinie trzeba wybrać wcześniejszą lub późniejszą chwilę; godziny nieistniejące są odrzucane. Dane są przetwarzane w przeglądarce, bez zapisywania i wysyłania.",
-  "The calculator uses astronomy-engine 2.1.19 (MIT). Lahiri follows the published definition of 23°15′00.658″ on 21 March 1956, carried forward by precession; Spica is not the primary definition. Frozen Swiss Ephemeris output fixtures are used only for regression tests. See <a href=\"docs/NAKSHATRA-ENGINE.md\" target=\"_blank\" rel=\"noopener\">the engine method and verification</a>.": "Kalkulator używa astronomy-engine 2.1.19 (MIT). Lahiri opiera się na opublikowanej wartości 23°15′00.658″ na 21 marca 1956, przenoszonej przez precesję; Spika nie jest podstawą definicji. Zapisane wyniki Swiss Ephemeris służą wyłącznie testom regresji. Zobacz <a href=\"docs/NAKSHATRA-ENGINE.md\" target=\"_blank\" rel=\"noopener\">metodę i weryfikację silnika</a>.",
-  "The White Beryl interpretation presents chapter 33 readings for all 28 mansions, with electional summaries, natal descriptions, traditional ritual context and Tibetan source passages. Weekday combinations use the four-element rules and selected named lists, with different traditions kept separate. The Indian calculation supplies a catalogue cross-reference, not a Tibetan calendar date. Source uncertainties are identified; these historical readings are study material. Interface labels and guidance follow the selected language; reading texts remain in English.": "Interpretacja Białego Berylu przedstawia odczytania rozdziału 33 dla wszystkich 28 stacji: podsumowania elekcyjne, opisy urodzeniowe, kontekst rytualny i fragmenty tybetańskiego źródła. Kombinacje dni tygodnia korzystają z czterech żywiołów oraz wybranych list, zachowując różnice tradycji. Indyjskie obliczenia wskazują hasło katalogowe, a nie datę kalendarza tybetańskiego. Niepewności źródła są oznaczone. Historyczne odczytania służą studiowaniu. Etykiety i objaśnienia interfejsu są w wybranym języku; teksty interpretacji pozostają po angielsku.",
+  "The calculator uses astronomy-engine 2.1.19 (MIT). Lahiri follows the published definition of 23°15′00.658″ on 21 March 1956, carried forward by precession; Spica is not the primary definition. Frozen Swiss Ephemeris output fixtures are used only for regression tests. See <a href=\"docs/NAKSHATRA-ENGINE.md\" target=\"_blank\" rel=\"noopener\">the engine method and verification</a>.": "Kalkulator używa astronomy-engine 2.1.19 (MIT). Lahiri opiera się na opublikowanej wartości 23°15′00,658″ na 21 marca 1956, przenoszonej przez precesję; Spika nie jest podstawą definicji. Zapisane wyniki Swiss Ephemeris służą wyłącznie testom regresji. Zobacz <a href=\"docs/NAKSHATRA-ENGINE.md\" target=\"_blank\" rel=\"noopener\">metodę i weryfikację silnika</a>.",
+  "The White Beryl interpretation presents chapter 33 readings for all 28 mansions, with electional summaries, natal descriptions, traditional ritual context and Tibetan source passages. Weekday combinations use the four-element rules and selected named lists, with different traditions kept separate. The Indian calculation supplies a catalogue cross-reference, not a Tibetan calendar date. Source uncertainties are identified; these historical readings are study material. Interface labels and guidance follow the selected language; reading texts remain in English.": "Interpretacja Białego Berylu przedstawia odczytania rozdziału 33 dla wszystkich 28 rezydencji: podsumowania elekcyjne, opisy urodzeniowe, kontekst rytualny i fragmenty tybetańskiego źródła. Połączenia dni tygodnia korzystają z czterech żywiołów oraz wybranych list, zachowując różnice tradycji. Indyjskie obliczenia wskazują hasło katalogowe, a nie datę kalendarza tybetańskiego. Niepewności źródła są oznaczone. Historyczne odczytania służą studiowaniu. Etykiety i objaśnienia interfejsu są w wybranym języku; teksty interpretacji pozostają po angielsku.",
   "Billion worlds": "Miliard światów",
   "Astrology": "Astrologia",
   "The thousandfold systems": "Systemy tysiąckrotne",
-  "Mansions & moments": "Stacje i chwile",
+  "Mansions & moments": "Rezydencje i chwile",
   "Zoom through the four orders with the tour controls. End the tour to return to one world.": "Przejdź przez cztery poziomy przyciskami trasy. Zakończ zwiedzanie, aby wrócić do jednego świata.",
-  "Calculate a moment, browse the 28 Lunar Mansions in Options, or start their guided tour.": "Oblicz wybraną chwilę, otwórz 28 stacji księżycowych w Opcjach lub rozpocznij ich zwiedzanie.",
+  "Calculate a moment, browse the 28 Lunar Mansions in Options, or start their guided tour.": "Oblicz wybraną chwilę, otwórz 28 rezydencji księżycowych w Opcjach lub rozpocznij ich zwiedzanie.",
   "Astrology — j": "Astrologia — j",
   "Billion worlds — b": "Miliard światów — b"
 });
   Object.assign(translations, {
     'When': 'Kiedy', 'Where': 'Gdzie', 'Zone': 'Strefa', 'Use now': 'Użyj bieżącej chwili',
     'Uses the chosen zone or offset; if the zone is blank, uses this device’s zone.': 'Używa wybranej strefy lub przesunięcia; gdy strefa jest pusta, używa strefy urządzenia.',
-    'Find a place': 'Znajdź miejsce', 'optional city preset': 'opcjonalne miasto z listy',
-    'Choose a listed city to fill coordinates and zone, or enter coordinates below. Presets use approximate city centres.': 'Wybierz miasto z listy, aby uzupełnić współrzędne i strefę, lub wpisz współrzędne poniżej. Lista wskazuje przybliżone centra miast.'
-  });
-  Object.assign(translations, {
-    'Interpretation': 'Interpretacja', 'Expand': 'Rozwiń', 'Collapse': 'Zwiń',
-    'Electional': 'Elekcyjna', 'Natal': 'Urodzeniowa', 'Combinations': 'Kombinacje', 'Remedies': 'Środki zaradcze',
-    'More…': 'Więcej…', 'Show remedies': 'Pokaż środki zaradcze',
-    '✅ Favorable': '✅ Pomyślne', '❌ Unfavorable': '❌ Niepomyślne',
     "City": "Miasto",
     "start typing to choose": "zacznij pisać, aby wybrać",
     "Cities": "Miasta",
@@ -62,14 +57,7 @@
     "Choose a city from the matches.": "Wybierz miasto spośród wyników.",
     "No matching city. You can enter coordinates manually.": "Brak pasującego miasta. Możesz wpisać współrzędne ręcznie.",
     "Choose a listed city, or search for your city to use manual coordinates if it is not listed.": "Wybierz miasto z listy lub wyszukaj swoje miasto, aby wpisać współrzędne ręcznie, jeśli go brakuje.",
-    "Tibetan source passage": "Tybetański fragment źródłowy",
-    "Traditional astrological descriptions from White Beryl, presented for study rather than as personal predictions.": "Tradycyjne opisy astrologiczne z Białego Berylu, przeznaczone do studiowania, a nie jako osobiste przepowiednie.",
-    "Calculate a moment to see weekday–mansion combinations.": "Oblicz chwilę, aby zobaczyć kombinacje dnia tygodnia i stacji.",
-    "Illness-onset ritual in the source": "Rytuał związany z początkiem choroby w źródle",
-    'Electional readings not loaded yet.': 'Interpretacje elekcyjne nie zostały jeszcze dodane.',
-    'Natal readings not loaded yet.': 'Interpretacje urodzeniowe nie zostały jeszcze dodane.',
-    'Enter a moment with date, time, resolved zone and vāra.': 'Podaj chwilę z datą, godziną, ustaloną strefą czasową i vāra.',
-    'Combinations partial — needs source check': 'Kombinacje częściowe — wymagają sprawdzenia źródła'
+    "Tibetan source passage": "Tybetański fragment źródłowy"
   });
   Object.assign(translations, {
     'How a world ends': 'Jak kończy się świat', 'World endings': 'Kres światów',
@@ -79,6 +67,33 @@
     'World ending timeline': 'Oś czasu kresu świata',
     'Choose a world ending': 'Wybierz kres świata',
     'World endings presentation': 'Prezentacja kresu światów',
+    'One sun · the long drought': 'Jedno słońce · długa susza',
+    'Rain ceases; vegetation withers. Before the world ends, its beings have departed to other realms.': 'Deszcze ustają, roślinność usycha. Zanim świat się skończy, jego istoty odeszły już do innych sfer.',
+    'Two suns · streams dry': 'Dwa słońca · wysychają strumienie',
+    'A second sun appears. Small rivers and streams evaporate.': 'Pojawia się drugie słońce. Małe rzeki i strumienie wyparowują.',
+    'Three suns · rivers vanish': 'Trzy słońca · znikają wielkie rzeki',
+    'A third sun appears. The great rivers dry away.': 'Pojawia się trzecie słońce. Wielkie rzeki wysychają.',
+    'Four suns · lakes empty': 'Cztery słońca · wysychają jeziora',
+    'A fourth sun appears. The great lakes lose their water.': 'Pojawia się czwarte słońce. Wielkie jeziora tracą wodę.',
+    'Five suns · the ocean recedes': 'Pięć słońc · ocean opada',
+    'A fifth sun appears. Even the great ocean dwindles until no water remains.': 'Pojawia się piąte słońce. Nawet wielki ocean wysycha, aż nie pozostaje ani kropla wody.',
+    'Six suns · Meru smolders': 'Sześć słońc · Meru dymi i tli się',
+    'A sixth sun appears. The earth and Mount Meru smoke and smolder.': 'Pojawia się szóste słońce. Ziemia i Góra Meru dymią i tlą się.',
+    'Seven suns · the world burns': 'Siedem słońc · świat płonie',
+    'A seventh sun appears. Meru, the continents and the lower heavens burn away.': 'Pojawia się siódme słońce. Meru, kontynenty i niższe nieba ulegają spaleniu.',
+    'Emptiness · the world is gone': 'Pustka · świat przeminął',
+    'The second dhyāna and the realms above it remain. The emptied world system awaits a later period of formation.': 'Druga dhjana i wyższe sfery pozostają nietknięte. Opróżniony system świata oczekuje na przyszły okres powstawania.',
+    'The third dhyāna and the realms above it remain. The emptied world system awaits a later period of formation.': 'Trzecia dhjana i wyższe sfery pozostają nietknięte. Opróżniony system świata oczekuje na przyszły okres powstawania.',
+    'The fourth dhyāna and the realms above it remain. The emptied world system awaits a later period of formation.': 'Czwarta dhjana i wyższe sfery pozostają nietknięte. Opróżniony system świata oczekuje na przyszły okres powstawania.',
+    'Another cycle · clouds gather': 'Inny cykl · gromadzą się chmury',
+    'The deluge rises': 'Potop wzbiera',
+    'The lower worlds dissolve': 'Niższe światy rozpuszczają się',
+    'After seven fire destructions, a separate world cycle ends in water. The flood dissolves everything below the third dhyāna.': 'Po siedmiu zniszczeniach przez ogień osobny cykl świata kończy się w wodzie. Potop rozpuszcza wszystko poniżej trzeciej dhjany.',
+    'The final cycle · winds gather': 'Ostatni cykl · zrywają się wichry',
+    'The cosmic winds tear the world apart': 'Kosmiczne wichry rozrywają świat',
+    'The last fragments disperse': 'Ostatnie szczątki się rozpraszają',
+    'In the sixty-four-cycle pattern, 56 fire destructions and seven water destructions precede one by wind. Everything below the fourth dhyāna disperses.': 'W cyklu sześćdziesięciu czterech zniszczeń pięćdziesiąt sześć zniszczeń przez ogień i siedem przez wodę poprzedza jedno przez wiatr. Wszystko poniżej czwartej dhjany ulega rozproszeniu.',
+    'Separate world cycles · <a href="https://suttacentral.net/an7.66/en/sujato" target="_blank" rel="noopener noreferrer">Seven Suns, AN 7.66</a> · Abhidharmakośa III.100–102. Illustrative timing and effects.': 'Osobne cykle świata · <a href="https://suttacentral.net/an7.66/en/sujato" target="_blank" rel="noopener noreferrer">Siedem słońc, AN 7.66</a> · Abhidharmakośa III.100–102. Czas i efekty mają charakter poglądowy.',
     'Resize panel; double-click to collapse or expand': 'Zmień wysokość panelu; kliknij dwukrotnie, aby zwinąć lub rozwinąć',
     'Drag to resize · double-click to collapse or expand · arrow keys to resize': 'Przeciągnij, aby zmienić wysokość · kliknij dwukrotnie, aby zwinąć lub rozwinąć · użyj strzałek, aby zmienić wysokość',
   });
@@ -106,10 +121,16 @@
   document.querySelector('.overlay').append(header);
   header.querySelector('.app-brand').addEventListener('click', () => document.dispatchEvent(new CustomEvent('ws-about-open')));
   const controls = document.querySelector('.controls');
+  const safeProbe = document.createElement('div');
+  safeProbe.setAttribute('data-no-localize', '');
+  safeProbe.setAttribute('aria-hidden', 'true');
+  safeProbe.style.cssText = 'position:fixed;visibility:hidden;pointer-events:none;padding:0 env(safe-area-inset-right,0px) 0 env(safe-area-inset-left,0px)';
+  document.body.append(safeProbe);
   const measureHeader = () => {
     const root = document.documentElement;
     // (the notch and corners of a phone on its side take their share of the width)
-    const sides = (() => { const probe = document.createElement('div'); probe.style.cssText = 'position:fixed;visibility:hidden;padding:0 env(safe-area-inset-right,0px) 0 env(safe-area-inset-left,0px)'; document.body.append(probe); const s = getComputedStyle(probe); const px = (parseFloat(s.paddingLeft) || 0) + (parseFloat(s.paddingRight) || 0); probe.remove(); return px; })();
+    const s = getComputedStyle(safeProbe);
+    const sides = (parseFloat(s.paddingLeft) || 0) + (parseFloat(s.paddingRight) || 0);
     // The header and the control strip are two cards of one width, a corner each,
     // with the middle of the screen left to the model. The header gives up its
     // words (Donate, Help) before the pair give up the row: stacked, they were
@@ -165,13 +186,13 @@
   document.querySelector('[data-menu="options"] .menu-body').append(tour);
   const language = header.querySelector('.app-language');
   const syncLanguage = () => {
-    const polish = locale?.language === 'pl';
+    const polish = (window.WorldSystemLocale?.language) === 'pl';
     header.querySelector('[data-language-label]').textContent = polish ? 'PL' : 'EN';
     header.querySelector('[data-language-flag]').textContent = polish ? '🇵🇱' : '🇬🇧';
   };
   header.addEventListener('click', event => {
     const choice = event.target.closest('[data-ui-lang]');
-    if (choice) { locale?.setLanguage(choice.dataset.uiLang); language.open = false; language.querySelector('summary').focus(); syncLanguage(); }
+    if (choice) { window.WorldSystemLocale?.setLanguage(choice.dataset.uiLang); language.open = false; language.querySelector('summary').focus(); syncLanguage(); }
   });
   document.addEventListener('pointerdown', event => { if (!language.contains(event.target)) language.open = false; });
   // One menu open at a time, however it was opened: a pointer outside already
@@ -269,15 +290,31 @@
   help.querySelector('[data-help-tour]').addEventListener('click', startTour);
 
   let ready = Boolean(window.WorldSystemReady), replay = false, dismissTimer;
+  let seenIntro = false;
+  try { seenIntro = localStorage.getItem('ws-intro-seen') === '1'; } catch {}
   const began = performance.now();
-  const dismissIntro = () => { clearTimeout(dismissTimer); intro.close(); };
+  const dismissIntro = () => {
+    clearTimeout(dismissTimer);
+    try { localStorage.setItem('ws-intro-seen', '1'); } catch {}
+    intro.close();
+  };
+  const onRuntimeError = event => {
+    if (ready) return;
+    if (event?.filename && !event.filename.startsWith(location.origin)) return;
+    failure();
+  };
   const finishLoading = () => {
     ready = true; clearTimeout(slowTimer);
+    window.removeEventListener('error', onRuntimeError);
+    window.removeEventListener('unhandledrejection', onRuntimeError);
     intro.querySelectorAll('[disabled]').forEach(el => { el.disabled = false; });
     intro.querySelector('.intro-loading').hidden = true;
     intro.querySelector('[data-intro-reload]').hidden = true;
     intro.querySelector('.intro-status').textContent = 'Choose a mode, or begin in Explorer.';
-    if (!replay) dismissTimer = setTimeout(dismissIntro, Math.max(0, 2200 - (performance.now() - began)));
+    if (!replay) {
+      const wait = seenIntro ? 0 : Math.max(0, 2200 - (performance.now() - began));
+      dismissTimer = setTimeout(dismissIntro, wait);
+    }
   };
   const failure = () => {
     if (ready) return;
@@ -301,7 +338,7 @@
   intro.addEventListener('click', event => {
     const choice = event.target.closest('[data-intro-mode]');
     if (!choice || !ready) return;
-    dismissIntro(); document.querySelector(`[data-mode="${choice.dataset.introMode}"]`).click();
+    dismissIntro(); document.querySelector(`[data-mode="${choice.dataset.introMode}"]`)?.click();
   });
   // Give readers control if they start exploring the introduction themselves.
   intro.addEventListener('pointerdown', () => { replay = true; clearTimeout(dismissTimer); });
@@ -321,9 +358,9 @@
   }, true);
   window.addEventListener('ws-app-ready', finishLoading, {once: true});
   window.addEventListener('ws-app-error', failure, {once: true});
-  window.addEventListener('error', failure);
-  window.addEventListener('unhandledrejection', failure);
-  locale?.apply();
+  window.addEventListener('error', onRuntimeError);
+  window.addEventListener('unhandledrejection', onRuntimeError);
+  window.WorldSystemLocale?.apply();
   intro.showModal();
   if (ready) finishLoading();
 })();

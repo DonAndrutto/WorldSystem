@@ -13,5 +13,5 @@ const SPELLINGS = [
 export function mansionSearchText(m) {
   return searchText([m.sanskrit,m.wylie,m.tibetan,SPELLINGS[m.order-1],
     ...m.aliases.flatMap(a=>[a.wylie,a.tibetan]),
-    'nakshatra naksatra nakṣatra lunar mansion rgyu skar dom księżycowy nakszatra',m.form.en].join(' '));
+    'nakshatra naksatra nakṣatra lunar mansion rgyu skar rezydencja stacja dom księżycowy nakszatra',m.form.en].join(' '));
 }

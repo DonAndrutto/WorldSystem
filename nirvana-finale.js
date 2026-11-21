@@ -306,6 +306,8 @@ export function createNirvanaFinale(THREE, { board, models, SUMMIT, VICTORY, pat
     play({ quiet = false } = {}) {
       built ||= build();
       reduced = quiet;
+      relicStart = null;
+      built.relic.visible = false;
       built.group.visible = true;
       start = performance.now() - (quiet ? FINALE.end * 1000 : 0);
       render(quiet ? FINALE.end : 0, performance.now());
@@ -313,14 +315,20 @@ export function createNirvanaFinale(THREE, { board, models, SUMMIT, VICTORY, pat
     },
     /** The relics placed in the stupa, after the victory. */
     relics({ quiet = false } = {}) {
-      if (!built || quiet) return;
+      if (quiet) return;
+      built ||= build();
+      built.group.visible = true;
+      if (start === null) start = performance.now() - FINALE.end * 1000;
       relicStart = performance.now();
       invalidate(3);
     },
     /** Put it all away, for a new game. */
     reset() {
       start = relicStart = null;
-      if (built) built.group.visible = false;
+      if (built) {
+        built.group.visible = false;
+        built.relic.visible = false;
+      }
       invalidate(2);
     },
     /** Move it on. True while it wants to be drawn again. */

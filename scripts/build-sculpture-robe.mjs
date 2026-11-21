@@ -121,8 +121,28 @@ for(const mudra of ['teach','lap','earth'])for(const detailed of [true,false]){
   }
   indices.length=write;
   if(vertices.length/3>65535)throw Error('Robe exceeds 16-bit index budget');
-  const quantizedNormals=new Int16Array(normals.length);for(let i=0;i<normals.length;i+=3){const length=Math.hypot(normals[i],normals[i+1],normals[i+2])||1;for(let j=0;j<3;j++)quantizedNormals[i+j]=Math.round(normals[i+j]/length*32767);}
-  robes[mudra+(detailed?'':'-game')]={n:Buffer.from(quantizedNormals.buffer).toString('base64'),p:Buffer.from(new Int16Array(vertices).buffer).toString('base64'),i:Buffer.from(new Uint16Array(indices).buffer).toString('base64')};
+  const packNormals = () => {
+    if (detailed) {
+      const q = new Int16Array(normals.length);
+      for (let i = 0; i < normals.length; i += 3) {
+        const l = Math.hypot(normals[i], normals[i + 1], normals[i + 2]) || 1;
+        for (let j = 0; j < 3; j++) q[i + j] = Math.round(normals[i + j] / l * 32767);
+      }
+      return { n: Buffer.from(q.buffer).toString('base64') };
+    }
+    const oct = new Int8Array((normals.length / 3) * 2);
+    for (let i = 0, j = 0; i < normals.length; i += 3, j += 2) {
+      const l = Math.hypot(normals[i], normals[i + 1], normals[i + 2]) || 1;
+      const nx = normals[i] / l, ny = normals[i + 1] / l, nz = normals[i + 2] / l;
+      const s = Math.abs(nx) + Math.abs(ny) + Math.abs(nz) || 1;
+      let ox = nx / s, oy = ny / s;
+      if (nz < 0) { const px = (1 - Math.abs(oy)) * (ox >= 0 ? 1 : -1), py = (1 - Math.abs(ox)) * (oy >= 0 ? 1 : -1); ox = px; oy = py; }
+      oct[j] = Math.max(-127, Math.min(127, Math.round(ox * 127)));
+      oct[j + 1] = Math.max(-127, Math.min(127, Math.round(oy * 127)));
+    }
+    return { n2: Buffer.from(oct.buffer).toString('base64') };
+  };
+  robes[mudra+(detailed?'':'-game')]={...packNormals(),p:Buffer.from(new Int16Array(vertices).buffer).toString('base64'),i:Buffer.from(new Uint16Array(indices).buffer).toString('base64')};
   console.log(mudra,detailed?'study':'game',vertices.length/3,'vertices',indices.length/3,'triangles');
   mc.geometry.dispose();mc.material.dispose();
 }

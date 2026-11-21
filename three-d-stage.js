@@ -154,7 +154,7 @@
       const renderer = new THREE.WebGLRenderer({
         antialias: true,
         alpha: true,
-        preserveDrawingBuffer: true,
+        preserveDrawingBuffer: this.hasAttribute('preserve-buffer') || Boolean(window.__WS_CAPTURE__),
       });
       renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
       renderer.shadowMap.enabled = true;
@@ -180,7 +180,8 @@
       const key = new THREE.DirectionalLight(0xffffff, 2.2);
       key.position.set(4, 7, 5);
       key.castShadow = true;
-      key.shadow.mapSize.set(2048, 2048);
+      const coarse = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
+      key.shadow.mapSize.set(coarse ? 1024 : 2048, coarse ? 1024 : 2048);
       key.shadow.bias = -0.0002;
       this._key = key;
       scene.add(key);

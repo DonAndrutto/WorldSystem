@@ -85,9 +85,9 @@ export function createEndingSound(synth, { random = Math.random } = {}) {
     };
   }
 
-  function release(layer, tail = 1.2) {
+  function release(layer, tail = 1.2, tc = 0.15) {
     const at = synth.now();
-    layer.bus.gain.setTargetAtTime(0, at, 0.15);
+    layer.bus.gain.setTargetAtTime(0, at, tc);
     for (const name of ['low', 'mid', 'high', 'a', 'b']) layer[name].stop(tail);
   }
 
@@ -132,7 +132,7 @@ export function createEndingSound(synth, { random = Math.random } = {}) {
     const now = synth.now();
     if (current && current.kind !== kind) { release(current); current = null; bowlSounded = false; }
     if (!playing || scape.empty) {
-      if (current) current.bus.gain.setTargetAtTime(0, now, playing ? 0.8 : 0.12);
+      if (current) { release(current, playing ? 2.4 : 0.7, playing ? 0.5 : 0.15); current = null; }
       if (playing && scape.empty && !bowlSounded) {
         bowlSounded = true;
         synth.struck(now + 0.2, 196, 6, 0.07, [1, 2.71, 5.15]);

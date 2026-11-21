@@ -3309,10 +3309,14 @@ export function createSquareModels(THREE, ctx) {
     } else if (graceTimer) { clearTimeout(graceTimer); graceTimer = null; }
     return changed;
   }
-  const stopWatching = sculpture.subscribe(({ state }) => {
+  const unsub = sculpture.subscribe(({ state }) => {
     if (!opened || (state !== 'ready' && state !== 'failed')) return;
     if (load()) ctx.onLoad?.();
   });
+  const stopWatching = () => {
+    unsub();
+    if (graceTimer) { clearTimeout(graceTimer); graceTimer = null; }
+  };
 
   function showActive(active) {
     lit.clear();
@@ -3340,12 +3344,12 @@ export function createSquareModels(THREE, ctx) {
     });
   }
 
-  /* `built` is true when every square has its model; `sculpted` when none of
-     them is a stand-in. */
+  /* `built` is true when every square has its model; `sculpted` when every
+     square is built and none is a stand-in. */
   return { attach, load, face, showActive, highlight, models, holders, modelled,
            prefetch: () => sculpture.load().catch(() => {}),   // the state is read through onSculptureStatus
            retry: () => sculpture.retry().catch(() => {}),
            stopWatching,
            built: () => models.size === holders.size && holders.size > 0,
-           sculpted: () => models.size > 0 && ![...models.values()].some((m) => m.userData.standIn) };
+           sculpted: () => models.size === holders.size && holders.size > 0 && ![...models.values()].some((m) => m.userData.standIn) };
 }

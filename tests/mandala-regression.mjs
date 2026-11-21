@@ -112,7 +112,7 @@ Object.assign(window, {createWorldEnding, installPanelLayout: () => {}, createOf
 Object.assign(window,realmAtmospheres,mansionSearch,palaceArchitecture,{
   createSynth: synthModule.createSynth, createUiSound: uiSound.createUiSound, installUiSound: uiSound.installUiSound,
   createEndingSound: endingSound.createEndingSound,
-  createModeSoundtrack: options => modeSoundtrack.createModeSoundtrack({...options,AudioClass:null})
+  createModeSoundtrack: options => modeSoundtrack.createModeSoundtrack({...options,AudioContextClass:null})
 });
 let viewport = {w:1280, h:900}, reduced = false;
 window.matchMedia = query => ({matches:query.includes('reduced-motion') ? reduced
@@ -150,7 +150,7 @@ Object.assign(stage._controls,{target:new THREE.Vector3(), touches:{}, update(){
 }});
 stage._ground = new THREE.Group(); stage._key = new THREE.DirectionalLight(0xffffff,2);
 stage._scene.add(stage._ground,stage._key,new THREE.HemisphereLight());
-stage._renderer = {shadowMap:{}, setPixelRatio(){}, setAnimationLoop(fn){renderLoop=fn;}, render(scene){scene.updateMatrixWorld(true);}};
+stage._renderer = {shadowMap:{}, setPixelRatio(){}, setAnimationLoop(fn){renderLoop=fn||(()=>{});}, render(scene){scene.updateMatrixWorld(true);}};
 stage.setObject = o => stage._scene.add(o); stage.ready = Promise.resolve({THREE});
 Object.defineProperties(stage,{clientWidth:{get:()=>viewport.w},clientHeight:{get:()=>viewport.h}});
 Object.defineProperties(window,{innerWidth:{get:()=>viewport.w},innerHeight:{get:()=>viewport.h}});
